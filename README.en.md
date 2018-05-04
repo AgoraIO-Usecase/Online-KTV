@@ -1,11 +1,14 @@
-# AgoraShareVideo_ijkplayer AgoraShareVideoAudience
+# AgoraShareVideoBroadcasting AgoraShareVideoAudience
 
 *其他语言版本： [简体中文](README.md)*
 
-The client show the method of  how to chorus 
+The client show the method of how to KTV funtion base on Agora SDK. 
+This open source include 2 project folders:
+     Broadcast side AgoraShareVideoBroadcasting: project folder is AgoraShareVideo_ijkplayer
+     Audience side AgoraShareVideoAudience: project folder is AgoraShareVideoAudience
 
 ## Running the App
-First, create a developer account at [Agora.io](https://dashboard.agora.io/signin/), and obtain an App ID. Update "ViewController.m" with your App ID.
+First, create a developer account at [Agora.io](https://dashboard.agora.io/signin/), and obtain an App ID. Update "ViewController.m" with your App ID.  (2 projects need add appid follows the same step as below)
 
 ```
 [AgoraRtcEngineKit sharedEngineWithAppId:@"<#APP_ID#>" delegate:self] 
