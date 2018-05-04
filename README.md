@@ -1,13 +1,16 @@
-# AgoraShareVideo_ijkplayer AgoraShareVideoAudience
+# AgoraShareVideoBroadcasting AgoraShareVideoAudience
 
 
 
 *Read this in other languages: [English](README.en.md)*
 
-这个开源示例项目演示了如何实现一起KTV的功能。
+* 这个开源示例项目演示了如何实现一起KTV的功能。
+* 该开源示例包含两个工程文件目录：
+    主播端 AgoraShareVideoBroadcasting： 对应的目录是AgoraShareVideo_ijkplayer
+    观众端 AgoraShareVideoAudience： 对应的目录是运行AgoraShareVideoAudience
 
 ## 运行示例程序
-首先在 [Agora.io 注册](https://dashboard.agora.io/cn/signup/) 注册账号，并创建自己的测试项目，获取到 AppID。将 AppID 填写进 MainViewController.m
+首先在 [Agora.io 注册](https://dashboard.agora.io/cn/signup/) 注册账号，并创建自己的测试项目，获取到 AppID。将 AppID 填写进 MainViewController.m （两个工程都需要按如下方法添加appid）
 
 
 ```
@@ -15,14 +18,14 @@
 
 ```
 
-然后在 [Agora.io SDK](https://www.agora.io/cn/blog/download/) 下载 **视频通话 + 直播 SDK**，解压后将其中的 **libs/AgoraRtcEngineKit.framework** 分别复制到本项目的 “AgoraShareVideo_ijkplayer/AgoraShareVideo_ijkplayer” 和 “AgoraShareVideoAudience/AgoraShareVideoAudience” 文件夹下。
+然后在 [Agora.io SDK](https://www.agora.io/cn/blog/download/) 下载 **视频通话 + 直播 SDK**，解压后将其中的 **libs/AgoraRtcEngineKit.framework** 分别复制到本项目的 “AgoraShareVideo_ijkplayer/AgoraShareVideo_ijkplayer” 和 “AgoraShareVideoAudience/AgoraShareVideo_ijkplayer” 文件夹下。
 
 最后使用 XCode 打开 AgoraShareVideo_ijkplayer.xcodeproj 和 AgoraShareVideoAudience.xcodeproj 工程 ，连接 iPhone／iPad 测试设备，设置有效的开发者签名后即可运行。
 
 ## 实现KTV的方法
-* 运行AgoraShareVideo_ijkplayer  点击开始播放
-* 运行AgoraShareVideo_ijkplayer AgoraShareVideoAudience 分别连接1个手机 真机运行 加入到同一一个房间中 
-* AgoraShareVideoAudience 加入相同的房间 观看KTV
+* 连接真机，运行AgoraShareVideo_ijkplayer进入房间，点击开始播放
+* 连接真机，运行AgoraShareVideoAudience，进入到相同房间，观看KTV 
+
 
 
 
