@@ -62,7 +62,6 @@ void IPlayer::Close() {
     if(demux)  demux->Close();
     if(videoView) videoView->Close();
 
-
     mux.unlock();
 }
 double IPlayer::PlayPos() {
@@ -195,4 +194,7 @@ void IPlayer::InitView(void *win) {
 }
 void GLVideoView::videoDataCallBack(XData data) {
     IPlayer::Get()->videoCallData(data);
+}
+void IPlayer::ChangeAudio(bool isChangeAudioStream) {
+    demux->ChangeAudioStream(isChangeAudioStream);
 }

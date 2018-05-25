@@ -17,7 +17,7 @@
        </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="300dp"
+        android:layout_height="100dp"
         android:orientation="horizontal"
         >
 
@@ -26,7 +26,6 @@
             android:layout_width="100dp"
             android:layout_height="60dp"
             android:text="点歌" />
-
         <Button
             android:id="@+id/pause"
             android:layout_width="150dp"
@@ -35,8 +34,14 @@
         <EditText
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="请加入房间:hyy"
+            android:text="请加入房间:agora123456"
             />
     </LinearLayout>
+
+    <Button
+        android:id="@+id/ChangeAudio"
+        android:layout_width="wrap_content"
+        android:layout_height="44dp"
+        android:text="原唱/伴奏" />
 
 </LinearLayout>

@@ -24,11 +24,13 @@ public:
     virtual bool IsPause();
     //获取当前的播放进度
     virtual double PlayPos();
+    virtual void ChangeAudio(bool isChangeAudioStream);
 
 public:
     AgoraIPayerProxy(){};
     IPlayer *player = 0;
     std::mutex mux;
+    bool isChangeAudioStream = false;
 };
 
 

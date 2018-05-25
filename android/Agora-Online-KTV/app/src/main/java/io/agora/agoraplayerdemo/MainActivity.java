@@ -28,6 +28,7 @@ import io.agora.rtc.video.AgoraVideoFrame;
 public class MainActivity extends AppCompatActivity {
     Button playBtn;
     Button pauseBtn;
+    Button changeAudioBtn;
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
     private RtcEngine mRtcEngine;
     private final IRtcEngineEventHandler mRtcEventHandler = new IRtcEngineEventHandler() { // Tutorial Step 1
@@ -120,7 +121,7 @@ public class MainActivity extends AppCompatActivity {
     }
     // Tutorial Step 4
     private void joinChannel() {
-        mRtcEngine.joinChannel(null, "hyy", "Extra Optional Data", 0); // if you do not specify the uid, we will generate the uid for you
+        mRtcEngine.joinChannel(null, "agora123456", "Extra Optional Data", 0); // if you do not specify the uid, we will generate the uid for you
     }
 
     // Tutorial Step 5
@@ -160,7 +161,6 @@ public class MainActivity extends AppCompatActivity {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
         //set the jni methods
         setCallBack();
         initAgoraEngineAndJoinChannel();
@@ -180,6 +180,16 @@ public class MainActivity extends AppCompatActivity {
                 PlayOrPause();
             }
         });
+
+        changeAudioBtn = (Button)findViewById(R.id.ChangeAudio);
+        changeAudioBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ChangeAudio();
+            }
+        });
+
+
     }
     //transefer data to SDK
     public static void copyAssets(Context context, String assetsFilename, File file, String mode)
@@ -209,7 +219,6 @@ public class MainActivity extends AppCompatActivity {
     }
      public void renderVideoFrame(final  byte[] data, int width,int height){
 
-
         Log.d(LOG_TAG,"receive data length"+data.length +width+height);
         AgoraVideoFrame f = new AgoraVideoFrame();
         f.format = AgoraVideoFrame.FORMAT_I420;
@@ -225,6 +234,7 @@ public class MainActivity extends AppCompatActivity {
     public native void Open(String url);
     public native void PlayOrPause();
     public native void setCallBack();
+    public native void ChangeAudio();
 
 
 }

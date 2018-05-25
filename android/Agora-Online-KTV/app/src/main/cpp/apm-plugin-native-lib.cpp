@@ -77,13 +77,11 @@ public:
             mRecordingAppBufferBytes -= bytes;
             memcpy(mRecordingAudioAppPool, mRecordingAudioAppPool+bytes, mRecordingAppBufferBytes);
         }
-
         int16 *tmpBuf = (int16 *)malloc((int16)bytes);
         memcpy(tmpBuf, audioFrame.buffer, (int16)bytes);
         for (int i = 0 ; i < (int16)bytes/2; i++) {
-            tmpBuf[i] += (mixedBuffer[i]*0.4);//修改
+            tmpBuf[i] += (mixedBuffer[i] * 0.4);//修改
         }
-
         memcpy(audioFrame.buffer, tmpBuf,(int16)bytes);
         free(mixedBuffer);
         free(tmpBuf);
@@ -170,7 +168,6 @@ Java_io_agora_agoraplayerdemo_MainActivity_Open(JNIEnv *env, jobject instance,
     const char *url = env->GetStringUTFChars(url_, 0);
     AgoraIPayerProxy::Get()->Open(url);
     AgoraIPayerProxy::Get()->Start();
-//    CallBack callBack = AgoraIPayerProxy::Get()->player->audioCallback;
     env->ReleaseStringUTFChars(url_, url);
 }
 
@@ -251,7 +248,7 @@ Java_io_agora_agoraplayerdemo_MainActivity_PlayOrPause(JNIEnv *env,
 }extern "C"
 JNIEXPORT void JNICALL
 Java_io_agora_agoraplayerdemo_MainActivity_setCallBack(JNIEnv *env,
-                                                                       jobject instance) {
+                                                       jobject instance) {
     env->GetJavaVM(&gJVM);
     // TODO
     if (gCallBack == nullptr) {
@@ -259,4 +256,10 @@ Java_io_agora_agoraplayerdemo_MainActivity_setCallBack(JNIEnv *env,
         gCallbackClass = env->FindClass("io/agora/agoraplayerdemo/MainActivity");
         setExternalVideoFrameID = env->GetMethodID(gCallbackClass,"renderVideoFrame","([BII)V");
     }
+}extern "C"
+JNIEXPORT void JNICALL
+Java_io_agora_agoraplayerdemo_MainActivity_ChangeAudio(JNIEnv *env, jobject instance) {
+
+    AgoraIPayerProxy::Get()->ChangeAudio(!AgoraIPayerProxy::Get()->isChangeAudioStream);
+
 }

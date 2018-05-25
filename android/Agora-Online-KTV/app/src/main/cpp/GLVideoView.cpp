@@ -28,6 +28,7 @@ void GLVideoView::Render(XData data) {
         txt->Init(view,(XTextureType)data.format);
     }
     txt->Draw(data.datas,data.width,data.height);
+
     this->videoDataCallBack(data);
 
 

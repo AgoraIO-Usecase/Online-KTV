@@ -120,7 +120,13 @@ XData AgoraFFDecode::RecvFrame() {
     if(codec->codec_type == AVMEDIA_TYPE_VIDEO)
     {
         d.size = (frame->linesize[0] + frame->linesize[1]+frame->linesize[2]*frame->height);
-        d.width = frame->width;
+        XLOGE("%d",frame->linesize[0]);
+        //当解码分辨率 大于显示分辨率时 需要将视频的宽替换成解码分辨率
+        if(frame->linesize[0] > frame->width){
+            d.width = frame->linesize[0];
+        } else{
+            d.width = frame->width ;
+        }
         d.height = frame->height;
     } else{
         //样本字节数 * 单通道样本数 * 通道数

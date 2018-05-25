@@ -115,18 +115,32 @@ AgoraParameter AgoraFFDemux::GetAPara()
         XLOGE("GetVPara failed! ic is NULL！");
         return AgoraParameter();
     }
-    //获取了音频流索引
-    int re = av_find_best_stream(ic, AVMEDIA_TYPE_AUDIO, -1, -1, 0, 0);
-    if (re < 0) {
-        mux.unlock();
-        XLOGE("av_find_best_stream failed!");
-        return AgoraParameter();
+    //获取多音轨视频的音频流索引
+    for (int i = 0; i < ic->nb_streams; ++i) {
+        if(ic->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO)
+        {
+            if (audioStream_1 == 0){
+                audioStream_1 = i;
+                continue;
+            }
+            if(audioStream_1 != 0 && audioStream_2 == 0)
+            {
+                audioStream_2 = i;
+                continue;
+            }
+        }
     }
-    audioStream = re;
+//    int re = av_find_best_stream(ic, AVMEDIA_TYPE_AUDIO, -1, -1, 0, 0);
+//    if (re < 0) {
+//        mux.unlock();
+//        XLOGE("av_find_best_stream failed!");
+//        return AgoraParameter();
+//    }
+//    audioStream = re;
     AgoraParameter para;
-    para.para = ic->streams[re]->codecpar;
-    para.channels = ic->streams[re]->codecpar->channels;
-    para.sample_rate = ic->streams[re]->codecpar->sample_rate;
+    para.para = ic->streams[audioStream]->codecpar;
+    para.channels = ic->streams[audioStream]->codecpar->channels;
+    para.sample_rate = ic->streams[audioStream]->codecpar->sample_rate;
     mux.unlock();
     return para;
 }
@@ -152,8 +166,10 @@ XData AgoraFFDemux::Read()
     //XLOGI("pack size is %d ptss %lld",pkt->size,pkt->pts);
     d.data = (unsigned char*)pkt;
     d.size = pkt->size;
+
     if(pkt->stream_index == audioStream)
     {
+
         d.isAudio = true;
     }
     else if(pkt->stream_index == videoStream)
@@ -194,4 +210,18 @@ AgoraFFDemux::AgoraFFDemux()
         avformat_network_init();
         XLOGI("register ffmpeg!");
     }
+}
+void AgoraFFDemux::ChangeAudioStream(bool isChangeAudioStream) {
+    if (isChangeAudioStream)
+    {
+        if(audioStream_2 == 0)
+            return;
+        audioStream = audioStream_2;
+
+    } else
+    {   if(audioStream_1 == 0)
+            return;
+        audioStream = audioStream_1;
+    }
+
 }

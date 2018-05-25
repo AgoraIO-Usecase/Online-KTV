@@ -24,6 +24,7 @@ public:
     virtual XData Read() = 0;
     //总时长
     int totalMS= 0;
+    virtual void ChangeAudioStream(bool isChangeAudioStream) = 0;
 protected:
     virtual void Main();
 };

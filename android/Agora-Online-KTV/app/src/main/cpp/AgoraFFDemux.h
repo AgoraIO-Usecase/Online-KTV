@@ -8,6 +8,8 @@
 #include "IDemux.h"
 struct AVFormatContext;
 
+#include <List>
+
 class AgoraFFDemux : public IDemux{
 public:
 
@@ -28,12 +30,16 @@ public:
 
     AgoraFFDemux();
 
+    virtual void ChangeAudioStream(bool isChangeAudioStream);
+
 private:
     AVFormatContext *ic = 0;
     std::mutex mux;
     int audioStream = 1;
     int videoStream = 0;
-
+    //保存两个音频流的索引
+    int audioStream_1 = 0;
+    int audioStream_2 = 0;
 
 };
 

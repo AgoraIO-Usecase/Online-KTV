@@ -36,7 +36,7 @@ bool AgoraFFResample::Open(AgoraParameter in, AgoraParameter out) {
     mux.unlock();
     return true;
 }
-static FILE *readPcmPointer ;
+
 XData AgoraFFResample::Resample(XData indata) {
     if(indata.size <= 0 || !indata.data) return XData();
     mux.lock();
@@ -58,6 +58,14 @@ XData AgoraFFResample::Resample(XData indata) {
         out.Drop();
         return XData();
     }
+//    uint8_t *tmpBuf = (uint8_t *)malloc((uint8_t)out.size);
+////    memcpy(tmpBuf,out.data,(uint8_t)out.size);
+////    for (int i = 0; i < out.size; ++i) {
+////        tmpBuf[(uint8_t)2i] =  0;
+////        tmpBuf[(uint8_t)(2i+1)] = 0;
+////    }
+//    memcpy(out.data,tmpBuf,(uint8_t)out.size);
+//    delete(tmpBuf);
     out.pts = indata.pts;
     mux.unlock();
     return out;

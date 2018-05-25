@@ -87,3 +87,11 @@ void AgoraIPayerProxy::InitView(void *win) {
     }
     mux.unlock();
 }
+void AgoraIPayerProxy::ChangeAudio(bool isChangeAudioStream) {
+    mux.lock();
+    this->isChangeAudioStream = isChangeAudioStream;
+    if(player){
+        player->ChangeAudio(isChangeAudioStream);
+    }
+    mux.unlock();
+}
