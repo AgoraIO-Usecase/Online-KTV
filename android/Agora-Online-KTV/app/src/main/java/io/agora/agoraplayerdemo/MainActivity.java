@@ -81,9 +81,8 @@ public class MainActivity extends AppCompatActivity {
     // Tutorial Step 1
     private void initializeAgoraEngine() {
         try {
-            mRtcEngine = RtcEngine.create(getBaseContext(),<#YOUR APP_ID#>,mRtcEventHandler);
             mRtcEngine.setExternalVideoSource(true,false,true);
-            mRtcEngine.setRecordingAudioFrameParameters(44100,2,2,882);
+            mRtcEngine.setRecordingAudioFrameParameters(16000,2,2,640);
             Log.i(LOG_TAG,"yyyyyyyyy test");
             Log.e(stringFromJNI(),LOG_TAG);
 
