@@ -42,7 +42,7 @@
     };
     
     isChangeAudio = false;
-    self.rtcEngine = [AgoraRtcEngineKit sharedEngineWithAppId:@"aab8b8f5a8cd4469a63042fcfafe7063" delegate:self];
+    self.rtcEngine = [AgoraRtcEngineKit sharedEngineWithAppId:@"<#APPID#>" delegate:self];
     [self.rtcEngine enableAudio];
     [self.rtcEngine enableVideo];
     [self.rtcEngine setAudioProfile:AgoraAudioProfileMusicHighQuality scenario:AgoraAudioScenarioGameStreaming];
