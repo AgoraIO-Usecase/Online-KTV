@@ -45,17 +45,65 @@
                                 <color key="textColor" red="0.37697452550056665" green="0.63448611607154004" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ZEQ-5x-1WJ">
+                                <rect key="frame" x="42" y="324" width="66" height="30"/>
+                                <state key="normal" title="原唱/伴奏"/>
+                                <connections>
+                                    <action selector="ChangeAudioStream:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Y8B-1R-1cj"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rC4-nf-DlM">
+                                <rect key="frame" x="52" y="405" width="46" height="30"/>
+                                <state key="normal" title="单主播"/>
+                                <connections>
+                                    <action selector="singleAnchor:" destination="BYZ-38-t0r" eventType="touchUpInside" id="CnH-EZ-97Z"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="f4O-Wx-DAv">
+                                <rect key="frame" x="281" y="405" width="36" height="30"/>
+                                <state key="normal" title="单mv"/>
+                                <connections>
+                                    <action selector="mvMode:" destination="BYZ-38-t0r" eventType="touchUpInside" id="0Kh-b8-Q4V"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="wa2-PM-VOH">
+                                <rect key="frame" x="159.5" y="405" width="56" height="30"/>
+                                <state key="normal" title="主播/mv"/>
+                                <connections>
+                                    <action selector="anchorAndMV:" destination="BYZ-38-t0r" eventType="touchUpInside" id="aiv-cl-srm"/>
+                                </connections>
+                            </button>
+                            <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="0.5" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="VI6-8e-xWA">
+                                <rect key="frame" x="42" y="493" width="291" height="31"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="287" id="TgH-nI-CoK"/>
+                                    <constraint firstAttribute="height" constant="30" id="lpx-9r-i6R"/>
+                                </constraints>
+                                <connections>
+                                    <action selector="volumeChange:" destination="BYZ-38-t0r" eventType="valueChanged" id="VYr-ed-gEj"/>
+                                </connections>
+                            </slider>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
+                            <constraint firstItem="f4O-Wx-DAv" firstAttribute="top" secondItem="Kia-mP-iT0" secondAttribute="bottom" constant="89" id="5Lf-dp-EOm"/>
+                            <constraint firstItem="wa2-PM-VOH" firstAttribute="top" secondItem="LnC-pv-zBV" secondAttribute="bottom" constant="24" id="9zM-p1-LaN"/>
+                            <constraint firstItem="VI6-8e-xWA" firstAttribute="centerX" secondItem="wa2-PM-VOH" secondAttribute="centerX" id="BcK-bA-gSH"/>
                             <constraint firstItem="LnC-pv-zBV" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="EpW-zj-uk9"/>
+                            <constraint firstItem="VI6-8e-xWA" firstAttribute="top" secondItem="rC4-nf-DlM" secondAttribute="bottom" constant="58" id="GR0-z5-ZzV"/>
+                            <constraint firstItem="ZEQ-5x-1WJ" firstAttribute="top" secondItem="3AW-E5-JfK" secondAttribute="bottom" constant="8" id="Ge6-Zq-SWA"/>
                             <constraint firstItem="7iP-Tj-1jU" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="11" id="HIH-Ae-9Gc"/>
+                            <constraint firstItem="ZEQ-5x-1WJ" firstAttribute="centerX" secondItem="3AW-E5-JfK" secondAttribute="centerX" id="HfR-fk-yeB"/>
                             <constraint firstItem="3AW-E5-JfK" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="44.5" id="Min-9R-XQl"/>
+                            <constraint firstItem="rC4-nf-DlM" firstAttribute="centerX" secondItem="ZEQ-5x-1WJ" secondAttribute="centerX" id="Pib-Rx-ty2"/>
                             <constraint firstItem="7iP-Tj-1jU" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" id="SZz-Vl-14Q"/>
+                            <constraint firstItem="wa2-PM-VOH" firstAttribute="centerX" secondItem="LnC-pv-zBV" secondAttribute="centerX" id="Sc3-4Q-602"/>
+                            <constraint firstItem="rC4-nf-DlM" firstAttribute="top" secondItem="ZEQ-5x-1WJ" secondAttribute="bottom" constant="51" id="Tn9-EX-P5z"/>
                             <constraint firstItem="Kia-mP-iT0" firstAttribute="centerY" secondItem="3AW-E5-JfK" secondAttribute="centerY" id="Yly-Tg-8Eo"/>
                             <constraint firstItem="3AW-E5-JfK" firstAttribute="top" secondItem="7iP-Tj-1jU" secondAttribute="bottom" constant="55" id="aOe-Rp-64R"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="Kia-mP-iT0" secondAttribute="trailing" constant="44.5" id="mSJ-5O-0F1"/>
                             <constraint firstItem="LnC-pv-zBV" firstAttribute="top" secondItem="7iP-Tj-1jU" secondAttribute="bottom" constant="129" id="nhK-ah-ORO"/>
+                            <constraint firstItem="f4O-Wx-DAv" firstAttribute="centerX" secondItem="Kia-mP-iT0" secondAttribute="centerX" id="oCm-Qb-PpV"/>
                             <constraint firstItem="7iP-Tj-1jU" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="phH-H9-Uy2"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
