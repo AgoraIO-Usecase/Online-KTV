@@ -312,7 +312,6 @@ public:
     
 };
 static AgoraAudioFrameObserver* s_audioFrameObserver;
-//static AgoraVideoFrameObserver* s_videoFrameObserver;
 @implementation AgoraAudioFrame
 
 + (instancetype)shareInstance{
