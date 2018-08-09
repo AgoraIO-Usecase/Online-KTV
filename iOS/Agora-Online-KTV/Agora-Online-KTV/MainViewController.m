@@ -53,12 +53,13 @@
     //mv的音频采样率和SDK的录制的音频的数据采样率保持一致
     [self.rtcEngine setRecordingAudioFrameParametersWithSampleRate:16000 channel:2 mode:AgoraAudioRawFrameOperationModeReadWrite samplesPerCall:320];
     [self.rtcEngine setPlaybackAudioFrameParametersWithSampleRate:16000 channel:2 mode:AgoraAudioRawFrameOperationModeReadWrite samplesPerCall:320];
-
+    
     //开启耳返
     [self.rtcEngine enableInEarMonitoring:true];
     //加入房间
     [self.rtcEngine setExternalVideoSource:true useTexture:false pushMode:true];
     [self.rtcEngine setParameters:@"{\"che.audio.use.remoteio\":true}"];
+    //注册引擎回调
     [[AgoraAudioFrame shareInstance] registerEngineKit:self.rtcEngine];
     [self.rtcEngine joinChannelByToken:nil channelId:@"hyy" info:nil uid:0 joinSuccess:^(NSString * _Nonnull channel, NSUInteger uid, NSInteger elapsed) {
     }];
@@ -106,25 +107,29 @@
 }
 - (IBAction)ChangeAudioStream:(id)sender {
     isChangeAudio =! isChangeAudio;
-//    [self.player setPlaybackVolume:0];
     [self.player changeAudioStream:isChangeAudio];
 }
+//单主播模式
 - (IBAction)singleAnchor:(id)sender {
     self.mixVideo.isOpenCapture = true;
     self.mixVideo.captureAndMV = false;
 }
+//主播和mv混合模式
 - (IBAction)anchorAndMV:(id)sender {
     self.mixVideo.captureAndMV = true;
     self.mixVideo.isOpenCapture = true;
     
 }
+//单mv模式
 - (IBAction)mvMode:(id)sender {
     self.mixVideo.captureAndMV = true;
     self.mixVideo.isOpenCapture = false;
 }
+//调节播放音量大小
 - (IBAction)volumeChange:(UISlider *)sender {
-    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
     [self.player setPlaybackVolume:sender.value];
+    });
 }
 
 
