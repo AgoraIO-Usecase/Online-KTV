@@ -25,17 +25,8 @@ extern "C" {
 //居上偏移
 #define offset_top 0
 
-static NSObject *threadLockCapture = [[NSObject alloc] init];
-static NSObject *threadLockPlay = [[NSObject alloc] init];
 
 
-@interface MixVideo:NSObject
-@property(atomic,assign) uint8_t * videoCaptureBuf;
-
-@end
-@implementation MixVideo
-
-@end
 @interface AgoraMixVideo()<AgoraVideoCaptureDelegate>
 {
     size_t rotate_strideY;
@@ -98,16 +89,10 @@ static NSObject *threadLockPlay = [[NSObject alloc] init];
         size_t bottom = 0;
         CVPixelBufferGetExtendedPixels(texBuf, &left, &right, &top, &bottom);
         right += yPlaneBytesPerRow - yPlaneWidth;
-        unsigned char *nv12buf = nullptr;
-        if(yPlaneBytesPerRow * yPlaneHeight == (int)(cbuf - ybuf) &&
-           yPlaneBytesPerRow == uvPlaneBytesPerRow) {
-            
-            nv12buf = ybuf;
-        }
+        
         //将nv12的转换成yuv420p格式
         int src_w = yPlaneWidth;
         int src_h = yPlaneHeight;
-        int area = yPlaneBytesPerRow * src_h;
         uint8_t *dstY = (uint8_t *)malloc(src_w * src_h);
         uint8_t *dstUV = (uint8_t *)malloc(src_w * src_h / 2);
         
@@ -187,7 +172,7 @@ static NSObject *threadLockPlay = [[NSObject alloc] init];
     
 }
 -(void)onCaptureCallback:(CMSampleBufferRef)sampleBuf{
-    @synchronized(threadLockCapture) {
+ 
         const int kFlags = 0;
         CVPixelBufferRef videoPiexlBuf = CMSampleBufferGetImageBuffer(sampleBuf);
         
@@ -229,8 +214,9 @@ static NSObject *threadLockPlay = [[NSObject alloc] init];
         
         CVPixelBufferUnlockBaseAddress(videoPiexlBuf, kFlags);
         
-    }
+    
 }
+
 @end
 
 
