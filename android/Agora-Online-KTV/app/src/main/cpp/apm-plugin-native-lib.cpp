@@ -7,7 +7,7 @@
 #include "IAgoraRtcEngine.h"
 #include "VMUtil .h"
 #include "XShader.h"
-
+#include <iostream>
 jobject gCallBack = nullptr;
 jclass gCallbackClass = nullptr;
 jmethodID setExternalVideoFrameID = nullptr;
@@ -28,6 +28,81 @@ jint JNI_OnLoad(JavaVM *vm, void *res) {
 static const int kAudioBufferPoolSize = 163840 * 2 * 2;
 static unsigned char mRecordingAudioAppPool[kAudioBufferPoolSize];
 static int mRecordingAppBufferBytes = 0;
+
+template <typename  Ty>
+#define  STEP_SIZE (8192)
+class AudioPoolBuffer
+{
+public:
+
+    typedef Ty value;
+    typedef Ty *viter;
+public:
+    AudioPoolBuffer(int nLen = 0):m_nLen(nLen),m_data(NULL),finish(0){
+        if(nLen > 0){
+            m_data = (Ty *)malloc(sizeof(Ty)*nLen);
+            star = m_data;
+            dataSize = nLen;
+        }
+    }
+    AudioPoolBuffer(){
+        free(m_data);
+    }
+    void push_back(const value & x){
+        if(dataSize > finish){
+            *(star + finish) = x;
+            ++finish;
+        } else{
+            adjustSize = adjust_size(dataSize + STEP_SIZE);
+            m_data = (Ty *)realloc(m_data,sizeof(Ty)*adjustSize);
+            star = m_data;
+            dataSize = adjustSize;
+            *(star + finish) = x;
+            ++finish;
+        }
+    }
+    void add_elements(const value * x,int size){
+        for (int i = 0; i < size; ++i) {
+            push_back(x[i]);
+        }
+    }
+    inline  value pop_back(){
+        --finish;
+        return *(star + finish);
+    }
+    value operator[](int  n){
+        if(n == finish || n < finish){
+            return *(star+ n);
+        }else{
+            std::cout << "取值越界" << std::endl;
+        }
+    }
+    int adjust_size(int size)
+    {
+        size += (STEP_SIZE - 1);
+        size /= STEP_SIZE;
+        size *= STEP_SIZE;
+        return size;
+    }
+    value * pop_elements(int size){
+        value *arr = (value *)malloc(size);
+        memcpy(arr, star, size);
+        finish -= size;
+        memmove(star, (star + size), finish);
+        return  arr;
+    }
+
+public:
+    int finish;
+protected:
+    viter m_data;
+    int m_nLen;
+    viter star;
+    int dataSize;//
+    int adjustSize;
+};
+static  AudioPoolBuffer<char> audioPool(2048);
+
 
 class AgoraAudioFrameObserver : public agora::media::IAudioFrameObserver {
 
@@ -50,15 +125,10 @@ public:
 //        }
 //        fwrite(data.data, 2, data.size, readPcmPointer);
 
-        int frameSize = data.size ;
-        int remainedSize = kAudioBufferPoolSize - mRecordingAppBufferBytes;
-        if (remainedSize >= frameSize) {
-            memcpy(mRecordingAudioAppPool+mRecordingAppBufferBytes, data.data, frameSize);
-        } else {
-            mRecordingAppBufferBytes = 0;
-            memcpy(mRecordingAudioAppPool+mRecordingAppBufferBytes, data.data, frameSize);
-        }
-        mRecordingAppBufferBytes += frameSize;
+        //采集端的音频
+        char audioBuf[data.size];
+        memcpy(audioBuf, data.data, data.size);
+        audioPool.add_elements(audioBuf, (int)data.size);
         mux.unlock();
 
     }
@@ -67,16 +137,14 @@ public:
         //回调数据
         int16  bytes = audioFrame.samples * audioFrame.channels * audioFrame.bytesPerSample;
 
-        if (mRecordingAppBufferBytes < bytes) {
+        if (audioPool.finish < bytes) {
             mux.unlock();
             return true;
         }
-        int16 *mixedBuffer = (int16  *)malloc((int16)bytes);
-        if (mRecordingAppBufferBytes >= bytes) {
-            memcpy(mixedBuffer, mRecordingAudioAppPool, bytes);
-            mRecordingAppBufferBytes -= bytes;
-            memcpy(mRecordingAudioAppPool, mRecordingAudioAppPool+bytes, mRecordingAppBufferBytes);
-        }
+        int16 *mixedBuffer = (int16 *)malloc(bytes);
+        char *data = audioPool.pop_elements((int)bytes);
+        memcpy(mixedBuffer, data, bytes);
+
         int16 *tmpBuf = (int16 *)malloc((int16)bytes);
         memcpy(tmpBuf, audioFrame.buffer, (int16)bytes);
         for (int i = 0 ; i < (int16)bytes/2; i++) {
@@ -85,6 +153,7 @@ public:
         memcpy(audioFrame.buffer, tmpBuf,(int16)bytes);
         free(mixedBuffer);
         free(tmpBuf);
+        free(data);
         mux.unlock();
         return true;
     }

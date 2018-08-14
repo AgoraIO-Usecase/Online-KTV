@@ -7,15 +7,6 @@
 //
 #import <AgoraRtcEngineKit/AgoraRtcEngineKit.h>
 
-static const int kAudioBufferPoolSize = 163840 * 2 * 2 * 2;
-static  unsigned char mRecordingAudioAppPool[kAudioBufferPoolSize];
-static int mRecordingAppBufferBytes = 0;
-
-static  unsigned char mPlayAudioAppPool[kAudioBufferPoolSize];
-static int mPlayAppBufferBytes = 0;
-
-
-
 @interface AgoraAudioFrame:NSObject
 typedef struct AVideoFrame {
     
