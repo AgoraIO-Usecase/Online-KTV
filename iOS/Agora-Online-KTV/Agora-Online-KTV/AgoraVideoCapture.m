@@ -61,8 +61,8 @@
     if ( bestFormat) {
         if ( [videoDevice lockForConfiguration:NULL] == YES ) {
             videoDevice.activeFormat = bestFormat;
-            videoDevice.activeVideoMinFrameDuration = CMTimeMake(1,60);
-            videoDevice.activeVideoMaxFrameDuration = CMTimeMake(1,60);
+            videoDevice.activeVideoMinFrameDuration = CMTimeMake(1,30);
+            videoDevice.activeVideoMaxFrameDuration = CMTimeMake(1,30);
             [videoDevice unlockForConfiguration];
         }
     }
