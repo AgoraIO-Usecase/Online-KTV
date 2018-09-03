@@ -7,11 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		8B99E40C211155B700A49BA5 /* libyuv.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B99E40B211155B700A49BA5 /* libyuv.a */; };
-		8B99E4262111562100A49BA5 /* libyuv.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B99E40E2111562100A49BA5 /* libyuv.a */; };
-		8B99E4292111566E00A49BA5 /* AgoraVideoCapture.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B99E4282111566E00A49BA5 /* AgoraVideoCapture.m */; };
-		8BA1966C211186C0004896D3 /* AgoraMixVideo.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8BA1966B211186C0004896D3 /* AgoraMixVideo.mm */; };
-		8BA196752111B19D004896D3 /* AgoraVideoBufferConverter.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BA196732111B19D004896D3 /* AgoraVideoBufferConverter.m */; };
+		8B45722C213916AA003E700A /* AudioCircularBuffer.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8B45722A213916A9003E700A /* AudioCircularBuffer.cc */; };
+		8B58E9FA212D46F600EB29ED /* libSuperpoweredAudioIOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B58E9F7212D46F600EB29ED /* libSuperpoweredAudioIOS.a */; };
+		8B64504E213992F6002307A6 /* IJKMediaFramework.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 8BCD42012099D9E100148589 /* IJKMediaFramework.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		8BB1B877213675A4007EB9DF /* AgoraMainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BB1B876213675A4007EB9DF /* AgoraMainViewController.m */; };
+		8BB1B87C2136782E007EB9DF /* VideoSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BB1B8792136782D007EB9DF /* VideoSession.m */; };
+		8BB1B87D2136782E007EB9DF /* VideoViewLayouter.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BB1B87A2136782D007EB9DF /* VideoViewLayouter.m */; };
 		8BCD42022099D9E100148589 /* IJKMediaFramework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BCD42012099D9E100148589 /* IJKMediaFramework.framework */; };
 		8BEB4E6F20B7B89E00D537DA /* 1080.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 8BEB4E6E20B7B7F600D537DA /* 1080.mp4 */; };
 		8BEF560B209074AE001BE9D8 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BEF560A209074AE001BE9D8 /* AppDelegate.m */; };
@@ -19,7 +20,7 @@
 		8BEF5613209074AF001BE9D8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8BEF5612209074AF001BE9D8 /* Assets.xcassets */; };
 		8BEF5616209074AF001BE9D8 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8BEF5614209074AF001BE9D8 /* LaunchScreen.storyboard */; };
 		8BEF5619209074AF001BE9D8 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BEF5618209074AF001BE9D8 /* main.m */; };
-		8BEF5621209074CE001BE9D8 /* MainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BEF5620209074CE001BE9D8 /* MainViewController.m */; };
+		8BEF5621209074CE001BE9D8 /* AgoraVideoViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BEF5620209074CE001BE9D8 /* AgoraVideoViewController.m */; };
 		8BEF5626209075CB001BE9D8 /* libresolv.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BEF5625209075CB001BE9D8 /* libresolv.tbd */; };
 		8BEF5628209075D2001BE9D8 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BEF5627209075D2001BE9D8 /* CoreMotion.framework */; };
 		8BEF562A209075DA001BE9D8 /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BEF5629209075DA001BE9D8 /* CoreTelephony.framework */; };
@@ -49,6 +50,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				8B64504E213992F6002307A6 /* IJKMediaFramework.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -56,35 +58,31 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		8B45722821391613003E700A /* constructor_magic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = constructor_magic.h; sourceTree = "<group>"; };
+		8B45722921391635003E700A /* typedefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = typedefs.h; sourceTree = "<group>"; };
+		8B45722A213916A9003E700A /* AudioCircularBuffer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AudioCircularBuffer.cc; sourceTree = "<group>"; };
+		8B45722B213916A9003E700A /* AudioCircularBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioCircularBuffer.h; sourceTree = "<group>"; };
+		8B45722D21391707003E700A /* scoped_ptr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = scoped_ptr.h; sourceTree = "<group>"; };
+		8B45722E21391842003E700A /* template_util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = template_util.h; sourceTree = "<group>"; };
+		8B58E9CE212D462500EB29ED /* Agora-onlive-ktv.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Agora-onlive-ktv.pch"; sourceTree = "<group>"; };
+		8B58E9F0212D46F400EB29ED /* SuperpoweredFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SuperpoweredFilter.h; sourceTree = "<group>"; };
+		8B58E9F1212D46F400EB29ED /* SuperpoweredReverb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SuperpoweredReverb.h; sourceTree = "<group>"; };
+		8B58E9F2212D46F400EB29ED /* SuperpoweredFFT.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SuperpoweredFFT.h; sourceTree = "<group>"; };
+		8B58E9F3212D46F500EB29ED /* SuperpoweredAdvancedAudioPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SuperpoweredAdvancedAudioPlayer.h; sourceTree = "<group>"; };
+		8B58E9F4212D46F500EB29ED /* Superpowered3BandEQ.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Superpowered3BandEQ.h; sourceTree = "<group>"; };
+		8B58E9F5212D46F500EB29ED /* SuperpoweredFlanger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SuperpoweredFlanger.h; sourceTree = "<group>"; };
+		8B58E9F6212D46F500EB29ED /* SuperpoweredSimple.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SuperpoweredSimple.h; sourceTree = "<group>"; };
+		8B58E9F7212D46F600EB29ED /* libSuperpoweredAudioIOS.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libSuperpoweredAudioIOS.a; sourceTree = "<group>"; };
+		8B58E9F8212D46F600EB29ED /* SuperpoweredEcho.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SuperpoweredEcho.h; sourceTree = "<group>"; };
+		8B58E9F9212D46F600EB29ED /* SuperpoweredRoll.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SuperpoweredRoll.h; sourceTree = "<group>"; };
+		8B58E9FB212D4CDB00EB29ED /* SuperpoweredFX.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SuperpoweredFX.h; sourceTree = "<group>"; };
 		8B99E40B211155B700A49BA5 /* libyuv.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libyuv.a; path = "Agora-Online-KTV/libyuv-iOS/libyuv.a"; sourceTree = "<group>"; };
-		8B99E40E2111562100A49BA5 /* libyuv.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libyuv.a; sourceTree = "<group>"; };
-		8B99E4102111562100A49BA5 /* libyuv.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = libyuv.h; sourceTree = "<group>"; };
-		8B99E4122111562100A49BA5 /* scale_row.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = scale_row.h; sourceTree = "<group>"; };
-		8B99E4132111562100A49BA5 /* scale.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = scale.h; sourceTree = "<group>"; };
-		8B99E4142111562100A49BA5 /* version.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = version.h; sourceTree = "<group>"; };
-		8B99E4152111562100A49BA5 /* cpu_id.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cpu_id.h; sourceTree = "<group>"; };
-		8B99E4162111562100A49BA5 /* video_common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = video_common.h; sourceTree = "<group>"; };
-		8B99E4172111562100A49BA5 /* compare_row.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = compare_row.h; sourceTree = "<group>"; };
-		8B99E4182111562100A49BA5 /* mjpeg_decoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mjpeg_decoder.h; sourceTree = "<group>"; };
-		8B99E4192111562100A49BA5 /* rotate_row.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rotate_row.h; sourceTree = "<group>"; };
-		8B99E41A2111562100A49BA5 /* planar_functions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = planar_functions.h; sourceTree = "<group>"; };
-		8B99E41B2111562100A49BA5 /* scale_argb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = scale_argb.h; sourceTree = "<group>"; };
-		8B99E41C2111562100A49BA5 /* compare.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = compare.h; sourceTree = "<group>"; };
-		8B99E41D2111562100A49BA5 /* convert_argb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = convert_argb.h; sourceTree = "<group>"; };
-		8B99E41E2111562100A49BA5 /* rotate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rotate.h; sourceTree = "<group>"; };
-		8B99E41F2111562100A49BA5 /* convert_from_argb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = convert_from_argb.h; sourceTree = "<group>"; };
-		8B99E4202111562100A49BA5 /* basic_types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = basic_types.h; sourceTree = "<group>"; };
-		8B99E4212111562100A49BA5 /* convert_from.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = convert_from.h; sourceTree = "<group>"; };
-		8B99E4222111562100A49BA5 /* convert.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = convert.h; sourceTree = "<group>"; };
-		8B99E4232111562100A49BA5 /* rotate_argb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rotate_argb.h; sourceTree = "<group>"; };
-		8B99E4242111562100A49BA5 /* macros_msa.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = macros_msa.h; sourceTree = "<group>"; };
-		8B99E4252111562100A49BA5 /* row.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = row.h; sourceTree = "<group>"; };
-		8B99E4272111566E00A49BA5 /* AgoraVideoCapture.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AgoraVideoCapture.h; sourceTree = "<group>"; };
-		8B99E4282111566E00A49BA5 /* AgoraVideoCapture.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AgoraVideoCapture.m; sourceTree = "<group>"; };
-		8BA1966A211186C0004896D3 /* AgoraMixVideo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AgoraMixVideo.h; sourceTree = "<group>"; };
-		8BA1966B211186C0004896D3 /* AgoraMixVideo.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = AgoraMixVideo.mm; sourceTree = "<group>"; };
-		8BA196732111B19D004896D3 /* AgoraVideoBufferConverter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AgoraVideoBufferConverter.m; sourceTree = "<group>"; };
-		8BA196742111B19D004896D3 /* AgoraVideoBufferConverter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AgoraVideoBufferConverter.h; sourceTree = "<group>"; };
+		8BB1B875213675A4007EB9DF /* AgoraMainViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AgoraMainViewController.h; sourceTree = "<group>"; };
+		8BB1B876213675A4007EB9DF /* AgoraMainViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AgoraMainViewController.m; sourceTree = "<group>"; };
+		8BB1B8782136782D007EB9DF /* VideoSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VideoSession.h; sourceTree = "<group>"; };
+		8BB1B8792136782D007EB9DF /* VideoSession.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VideoSession.m; sourceTree = "<group>"; };
+		8BB1B87A2136782D007EB9DF /* VideoViewLayouter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VideoViewLayouter.m; sourceTree = "<group>"; };
+		8BB1B87B2136782E007EB9DF /* VideoViewLayouter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VideoViewLayouter.h; sourceTree = "<group>"; };
 		8BCD42012099D9E100148589 /* IJKMediaFramework.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IJKMediaFramework.framework; path = "Agora-Online-KTV/IJKMediaFramework.framework"; sourceTree = "<group>"; };
 		8BEB4E6E20B7B7F600D537DA /* 1080.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = 1080.mp4; sourceTree = "<group>"; };
 		8BEF5606209074AE001BE9D8 /* Agora-Online-KTV.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Agora-Online-KTV.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -95,8 +93,8 @@
 		8BEF5615209074AF001BE9D8 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		8BEF5617209074AF001BE9D8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8BEF5618209074AF001BE9D8 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		8BEF561F209074CE001BE9D8 /* MainViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MainViewController.h; sourceTree = "<group>"; };
-		8BEF5620209074CE001BE9D8 /* MainViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MainViewController.m; sourceTree = "<group>"; };
+		8BEF561F209074CE001BE9D8 /* AgoraVideoViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AgoraVideoViewController.h; sourceTree = "<group>"; };
+		8BEF5620209074CE001BE9D8 /* AgoraVideoViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AgoraVideoViewController.m; sourceTree = "<group>"; };
 		8BEF5625209075CB001BE9D8 /* libresolv.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libresolv.tbd; path = usr/lib/libresolv.tbd; sourceTree = SDKROOT; };
 		8BEF5627209075D2001BE9D8 /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
 		8BEF5629209075DA001BE9D8 /* CoreTelephony.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreTelephony.framework; path = System/Library/Frameworks/CoreTelephony.framework; sourceTree = SDKROOT; };
@@ -125,7 +123,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8B99E40C211155B700A49BA5 /* libyuv.a in Frameworks */,
 				8BCD42022099D9E100148589 /* IJKMediaFramework.framework in Frameworks */,
 				8BEF565020907FDC001BE9D8 /* AgoraRtcEngineKit.framework in Frameworks */,
 				8BEF564820907656001BE9D8 /* VideoToolbox.framework in Frameworks */,
@@ -133,7 +130,6 @@
 				8BEF564420907649001BE9D8 /* QuartzCore.framework in Frameworks */,
 				8BEF564220907642001BE9D8 /* OpenGLES.framework in Frameworks */,
 				8BEF56402090763A001BE9D8 /* MobileCoreServices.framework in Frameworks */,
-				8B99E4262111562100A49BA5 /* libyuv.a in Frameworks */,
 				8BEF563E20907633001BE9D8 /* MediaPlayer.framework in Frameworks */,
 				8BEF563C2090762B001BE9D8 /* libz.tbd in Frameworks */,
 				8BEF563A20907625001BE9D8 /* libbz2.tbd in Frameworks */,
@@ -144,6 +140,7 @@
 				8BEF5630209075F4001BE9D8 /* AudioToolbox.framework in Frameworks */,
 				8BEF562E209075E9001BE9D8 /* libstdc++.tbd in Frameworks */,
 				8BEF562C209075E1001BE9D8 /* SystemConfiguration.framework in Frameworks */,
+				8B58E9FA212D46F600EB29ED /* libSuperpoweredAudioIOS.a in Frameworks */,
 				8BEF562A209075DA001BE9D8 /* CoreTelephony.framework in Frameworks */,
 				8BEF5628209075D2001BE9D8 /* CoreMotion.framework in Frameworks */,
 				8BEF5626209075CB001BE9D8 /* libresolv.tbd in Frameworks */,
@@ -153,49 +150,22 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		8B99E40D2111562100A49BA5 /* libyuv-iOS */ = {
+		8B58E9EF212D46D300EB29ED /* superpower */ = {
 			isa = PBXGroup;
 			children = (
-				8B99E40E2111562100A49BA5 /* libyuv.a */,
-				8B99E40F2111562100A49BA5 /* include */,
+				8B58E9F7212D46F600EB29ED /* libSuperpoweredAudioIOS.a */,
+				8B58E9FB212D4CDB00EB29ED /* SuperpoweredFX.h */,
+				8B58E9F5212D46F500EB29ED /* SuperpoweredFlanger.h */,
+				8B58E9F8212D46F600EB29ED /* SuperpoweredEcho.h */,
+				8B58E9F1212D46F400EB29ED /* SuperpoweredReverb.h */,
+				8B58E9F0212D46F400EB29ED /* SuperpoweredFilter.h */,
+				8B58E9F3212D46F500EB29ED /* SuperpoweredAdvancedAudioPlayer.h */,
+				8B58E9F9212D46F600EB29ED /* SuperpoweredRoll.h */,
+				8B58E9F4212D46F500EB29ED /* Superpowered3BandEQ.h */,
+				8B58E9F6212D46F500EB29ED /* SuperpoweredSimple.h */,
+				8B58E9F2212D46F400EB29ED /* SuperpoweredFFT.h */,
 			);
-			path = "libyuv-iOS";
-			sourceTree = "<group>";
-		};
-		8B99E40F2111562100A49BA5 /* include */ = {
-			isa = PBXGroup;
-			children = (
-				8B99E4102111562100A49BA5 /* libyuv.h */,
-				8B99E4112111562100A49BA5 /* libyuv */,
-			);
-			path = include;
-			sourceTree = "<group>";
-		};
-		8B99E4112111562100A49BA5 /* libyuv */ = {
-			isa = PBXGroup;
-			children = (
-				8B99E4122111562100A49BA5 /* scale_row.h */,
-				8B99E4132111562100A49BA5 /* scale.h */,
-				8B99E4142111562100A49BA5 /* version.h */,
-				8B99E4152111562100A49BA5 /* cpu_id.h */,
-				8B99E4162111562100A49BA5 /* video_common.h */,
-				8B99E4172111562100A49BA5 /* compare_row.h */,
-				8B99E4182111562100A49BA5 /* mjpeg_decoder.h */,
-				8B99E4192111562100A49BA5 /* rotate_row.h */,
-				8B99E41A2111562100A49BA5 /* planar_functions.h */,
-				8B99E41B2111562100A49BA5 /* scale_argb.h */,
-				8B99E41C2111562100A49BA5 /* compare.h */,
-				8B99E41D2111562100A49BA5 /* convert_argb.h */,
-				8B99E41E2111562100A49BA5 /* rotate.h */,
-				8B99E41F2111562100A49BA5 /* convert_from_argb.h */,
-				8B99E4202111562100A49BA5 /* basic_types.h */,
-				8B99E4212111562100A49BA5 /* convert_from.h */,
-				8B99E4222111562100A49BA5 /* convert.h */,
-				8B99E4232111562100A49BA5 /* rotate_argb.h */,
-				8B99E4242111562100A49BA5 /* macros_msa.h */,
-				8B99E4252111562100A49BA5 /* row.h */,
-			);
-			path = libyuv;
+			path = superpower;
 			sourceTree = "<group>";
 		};
 		8BEF55FD209074AE001BE9D8 = {
@@ -219,25 +189,32 @@
 		8BEF5608209074AE001BE9D8 /* Agora-Online-KTV */ = {
 			isa = PBXGroup;
 			children = (
-				8B99E40D2111562100A49BA5 /* libyuv-iOS */,
+				8B58E9EF212D46D300EB29ED /* superpower */,
 				8BEF5609209074AE001BE9D8 /* AppDelegate.h */,
 				8BEF560A209074AE001BE9D8 /* AppDelegate.m */,
 				8BEB4E6E20B7B7F600D537DA /* 1080.mp4 */,
-				8BEF561F209074CE001BE9D8 /* MainViewController.h */,
-				8BEF5620209074CE001BE9D8 /* MainViewController.m */,
+				8BEF561F209074CE001BE9D8 /* AgoraVideoViewController.h */,
+				8BEF5620209074CE001BE9D8 /* AgoraVideoViewController.m */,
+				8BB1B875213675A4007EB9DF /* AgoraMainViewController.h */,
+				8BB1B876213675A4007EB9DF /* AgoraMainViewController.m */,
 				8BEF56512090803E001BE9D8 /* AgoraAudioFrame.h */,
 				8BEF56522090803E001BE9D8 /* AgoraAudioFrame.mm */,
+				8BB1B8782136782D007EB9DF /* VideoSession.h */,
+				8BB1B8792136782D007EB9DF /* VideoSession.m */,
+				8BB1B87B2136782E007EB9DF /* VideoViewLayouter.h */,
+				8BB1B87A2136782D007EB9DF /* VideoViewLayouter.m */,
 				8BEF560F209074AE001BE9D8 /* Main.storyboard */,
+				8B45722D21391707003E700A /* scoped_ptr.h */,
+				8B45722A213916A9003E700A /* AudioCircularBuffer.cc */,
+				8B45722921391635003E700A /* typedefs.h */,
+				8B45722E21391842003E700A /* template_util.h */,
+				8B45722B213916A9003E700A /* AudioCircularBuffer.h */,
+				8B45722821391613003E700A /* constructor_magic.h */,
 				8BEF5612209074AF001BE9D8 /* Assets.xcassets */,
 				8BEF5614209074AF001BE9D8 /* LaunchScreen.storyboard */,
 				8BEF5617209074AF001BE9D8 /* Info.plist */,
 				8BEF5618209074AF001BE9D8 /* main.m */,
-				8B99E4272111566E00A49BA5 /* AgoraVideoCapture.h */,
-				8B99E4282111566E00A49BA5 /* AgoraVideoCapture.m */,
-				8BA1966A211186C0004896D3 /* AgoraMixVideo.h */,
-				8BA1966B211186C0004896D3 /* AgoraMixVideo.mm */,
-				8BA196742111B19D004896D3 /* AgoraVideoBufferConverter.h */,
-				8BA196732111B19D004896D3 /* AgoraVideoBufferConverter.m */,
+				8B58E9CE212D462500EB29ED /* Agora-onlive-ktv.pch */,
 			);
 			path = "Agora-Online-KTV";
 			sourceTree = "<group>";
@@ -299,11 +276,11 @@
 			attributes = {
 				CLASSPREFIX = Agora;
 				LastUpgradeCheck = 0930;
-				ORGANIZATIONNAME = "湛孝超";
+				ORGANIZATIONNAME = Agora;
 				TargetAttributes = {
 					8BEF5605209074AE001BE9D8 = {
 						CreatedOnToolsVersion = 9.3;
-						ProvisioningStyle = Automatic;
+						ProvisioningStyle = Manual;
 						SystemCapabilities = {
 							com.apple.BackgroundModes = {
 								enabled = 1;
@@ -349,13 +326,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8B99E4292111566E00A49BA5 /* AgoraVideoCapture.m in Sources */,
-				8BA1966C211186C0004896D3 /* AgoraMixVideo.mm in Sources */,
-				8BA196752111B19D004896D3 /* AgoraVideoBufferConverter.m in Sources */,
+				8BB1B87C2136782E007EB9DF /* VideoSession.m in Sources */,
+				8BB1B877213675A4007EB9DF /* AgoraMainViewController.m in Sources */,
 				8BEF5619209074AF001BE9D8 /* main.m in Sources */,
+				8B45722C213916AA003E700A /* AudioCircularBuffer.cc in Sources */,
 				8BEF56532090803E001BE9D8 /* AgoraAudioFrame.mm in Sources */,
+				8BB1B87D2136782E007EB9DF /* VideoViewLayouter.m in Sources */,
 				8BEF560B209074AE001BE9D8 /* AppDelegate.m in Sources */,
-				8BEF5621209074CE001BE9D8 /* MainViewController.m in Sources */,
+				8BEF5621209074CE001BE9D8 /* AgoraVideoViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -496,25 +474,27 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = F2X6A556NK;
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = 48TB6ZZL5S;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Agora-Online-KTV",
 				);
-				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/Agora-Online-KTV/libyuv-iOS/include";
+				GCC_PREFIX_HEADER = "Agora-Online-KTV/Agora-onlive-ktv.pch";
+				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = "Agora-Online-KTV/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/Agora-Online-KTV/libyuv-iOS",
+					"$(PROJECT_DIR)/Agora-Online-KTV/superpower",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.mangoiOS.cn;
+				PRODUCT_BUNDLE_IDENTIFIER = io.agora.openlive;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "";
-				PROVISIONING_PROFILE_SPECIFIER = "";
+				PROVISIONING_PROFILE = "c7df7ddd-b696-462c-9807-3a8b4c7fd9ce";
+				PROVISIONING_PROFILE_SPECIFIER = AgoraIODev2018;
+				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -524,24 +504,26 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = F2X6A556NK;
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Agora-Online-KTV",
 				);
-				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/Agora-Online-KTV/libyuv-iOS/include";
+				GCC_PREFIX_HEADER = "Agora-Online-KTV/Agora-onlive-ktv.pch";
+				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = "Agora-Online-KTV/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/Agora-Online-KTV/libyuv-iOS",
+					"$(PROJECT_DIR)/Agora-Online-KTV/superpower",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.mangoiOS.cn;
+				PRODUCT_BUNDLE_IDENTIFIER = io.agora.openlive;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
