@@ -12,6 +12,7 @@ static SLEngineItf eng = NULL;
 static SLObjectItf mix =NULL;
 static SLObjectItf player = NULL;
 static SLPlayItf iplayer = NULL;
+static SLVolumeItf playVolume  = NULL;
 static SLAndroidSimpleBufferQueueItf pcmQue = NULL;
 
 SLAudioPlay::SLAudioPlay() {
@@ -51,6 +52,7 @@ void SLAudioPlay::PlayCall(void *bufq)
     if(d.size<=0)
     {
         XLOGE("GetData() size is 0");
+
         return;
     }
     if(!buf)
@@ -167,13 +169,13 @@ bool SLAudioPlay::StartPlay(AgoraParameter out)
             SL_SPEAKER_FRONT_LEFT|SL_SPEAKER_FRONT_RIGHT,
             SL_BYTEORDER_LITTLEENDIAN //字节序，小端
     };
+
     SLDataSource ds = {&que,&pcm};
 
-
     //4 创建播放器
-    const SLInterfaceID ids[] = {SL_IID_BUFFERQUEUE};
-    const SLboolean req[] = {SL_BOOLEAN_TRUE};
-    re = (*eng)->CreateAudioPlayer(eng,&player,&ds,&audioSink,sizeof(ids)/sizeof(SLInterfaceID),ids,req);
+    const SLInterfaceID ids[] = {SL_IID_BUFFERQUEUE,SL_IID_VOLUME};
+    const SLboolean req[] = {SL_BOOLEAN_TRUE,SL_BOOLEAN_TRUE};
+    re = (*eng)->CreateAudioPlayer(eng,&player,&ds,&audioSink,2,ids,req);
     if(re !=SL_RESULT_SUCCESS )
     {
         mux.unlock();
@@ -183,6 +185,7 @@ bool SLAudioPlay::StartPlay(AgoraParameter out)
         XLOGI("CreateAudioPlayer success!");
     }
     (*player)->Realize(player,SL_BOOLEAN_FALSE);
+
     //获取player接口
     re = (*player)->GetInterface(player,SL_IID_PLAY,&iplayer);
     if(re !=SL_RESULT_SUCCESS )
@@ -204,6 +207,7 @@ bool SLAudioPlay::StartPlay(AgoraParameter out)
 
     //设置为播放状态
     (*iplayer)->SetPlayState(iplayer,SL_PLAYSTATE_PLAYING);
+    //    //获取声音控制接口
 
     //启动队列回调
     (*pcmQue)->Enqueue(pcmQue,"",1);
@@ -214,5 +218,14 @@ bool SLAudioPlay::StartPlay(AgoraParameter out)
 
     return true;
 }
+void SLAudioPlay::SetPlayVolume(double value){
+    if(!player)
+        return;
+    SLresult  re = (*player)->GetInterface(player, SL_IID_VOLUME, &playVolume);
+    if(re != SL_RESULT_SUCCESS){
+        XLOGE("GetInterface SL_IID_VOLUME failed!");
+    }
+    (*playVolume)->SetVolumeLevel(playVolume,-5000 * value);
 
+}
 

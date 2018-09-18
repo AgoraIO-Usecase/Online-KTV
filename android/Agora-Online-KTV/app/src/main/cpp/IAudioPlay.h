@@ -19,10 +19,12 @@ public:
     virtual bool StartPlay(AgoraParameter out) = 0;
     virtual void Close() = 0;
     virtual void Clear();
+    virtual void SetPlayVolume(double value) = 0;
     //最大缓冲
     int maxFrame = 100;
     int pts = 0;
     void callBackAudioData(XData data);
+    void callBackPts(int pts);
 protected:
     std::list <XData > frames;
     std::mutex framesMutex;

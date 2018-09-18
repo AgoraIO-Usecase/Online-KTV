@@ -5,6 +5,7 @@
 #include "IPlayer.h"
 #include "AgoraLog.h"
 #include "GLVideoView.h"
+#include "AgoraFFDemux.h"
 
 IPlayer *IPlayer::Get(unsigned char index) {
     static IPlayer p[256];
@@ -24,7 +25,6 @@ void IPlayer::Main() {
         //获取音频的pts 告诉视频
         int apts = audioPlay->pts;
         vDecode->synPts = apts;
-
         mux.unlock();
         XSleep(2);
     }
@@ -74,7 +74,6 @@ double IPlayer::PlayPos() {
         if(vDecode){
             pos = vDecode->pts/(double)total;
         }
-
     }
     mux.unlock();
     return pos;
@@ -167,8 +166,9 @@ bool IPlayer::Open(const char *path){
         XLOGE("resample -> open failed! %s ",path);
 
     }
-    mux.unlock();
+    this->totalMs = demux->totalMS;
 
+    mux.unlock();
     return true;
 }
 bool IPlayer::Start() {
@@ -179,6 +179,7 @@ bool IPlayer::Start() {
         XLOGE("demux start failed!");
         return false;
     }
+
     if(aDecode) aDecode->Start();
     if(audioPlay) audioPlay->StartPlay(outPara);
     XThread::Start();
@@ -192,9 +193,22 @@ void IPlayer::InitView(void *win) {
         videoView->SetRender(win);
     }
 }
+void AgoraFFDemux::totalMsCallBack(int time) {
+    IPlayer::Get()->totalMsCallBack(time);
+}
 void GLVideoView::videoDataCallBack(XData data) {
     IPlayer::Get()->videoCallData(data);
 }
 void IPlayer::ChangeAudio(bool isChangeAudioStream) {
-    demux->ChangeAudioStream(isChangeAudioStream);
+    if(demux){
+        demux->ChangeAudioStream(isChangeAudioStream);
+    }
+}
+void IPlayer::SetPlayVolume(double value) {
+    if(audioPlay){
+        audioPlay->SetPlayVolume(value);
+    }
+}
+void IAudioPlay::callBackPts(int pts) {
+   IPlayer::Get()->ptsCallBack(pts);
 }

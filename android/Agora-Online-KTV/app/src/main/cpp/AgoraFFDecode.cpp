@@ -132,6 +132,7 @@ XData AgoraFFDecode::RecvFrame() {
         //样本字节数 * 单通道样本数 * 通道数
         d.size = av_get_bytes_per_sample((AVSampleFormat)frame->format)*frame->nb_samples * 2;
     }
+
     d.format = frame->format;
     memcpy(d.datas,frame->data, sizeof(d.datas));
     d.pts = frame->pts;

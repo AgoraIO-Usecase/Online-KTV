@@ -1,4 +1,14 @@
 <resources>
     <string name="app_name">Agora-Online-KTV</string>
     <string name="title_activity_xplay">XPlay</string>
+
+    <string name="label_settings">Settings</string>
+
+    <string name="msg_choose_role">Would you like to be the broadcaster or an audience?</string>
+
+    <string name="label_audience">Audience</string>
+
+    <string name="label_broadcaster">Broadcaster</string>
+
+    <string name="label_confirm">Confirm</string>
 </resources>
