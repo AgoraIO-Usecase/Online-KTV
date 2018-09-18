@@ -27,6 +27,7 @@ public:
     virtual double PlayPos();
     virtual bool Seek(double pos);
     virtual void SetPause(bool isP);
+    virtual void SetPlayVolume(double value);
     //是否视频硬解码
     bool isHardDecode= false;
     //音频输出参数
@@ -40,6 +41,11 @@ public:
     IAudioPlay *audioPlay = 0;
     void callBackData(XData  data);
     void videoCallData(XData data);
+    void complete();
+    void totalMsCallBack(int time);
+    void ptsCallBack(int pts);
+    int totalMs = 0;
+    double firstTime = 0.000000;
 protected:
     //音视频同步
     void Main();

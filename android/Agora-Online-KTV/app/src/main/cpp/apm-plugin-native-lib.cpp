@@ -7,10 +7,20 @@
 #include "IAgoraRtcEngine.h"
 #include "VMUtil .h"
 #include "XShader.h"
+#include "AudioCircularBuffer.h"
 #include <iostream>
+
+using namespace AgoraRTC;
+static scoped_ptr<AudioCircularBuffer<char>> agoraAudioBuf(new AudioCircularBuffer<char>(2048,true));
+static scoped_ptr<AudioCircularBuffer<short>> earBackBuf(new AudioCircularBuffer<int16_t>(2048,true));
+
+static bool  isComplete  = false;
+static int totalTime= 0;
 jobject gCallBack = nullptr;
 jclass gCallbackClass = nullptr;
 jmethodID setExternalVideoFrameID = nullptr;
+jmethodID videoCompleteID = nullptr;
+jmethodID totalTimeID = nullptr;
 static JavaVM *gJVM = nullptr;
 std::mutex mux;
 extern "C" {
@@ -25,90 +35,13 @@ jint JNI_OnLoad(JavaVM *vm, void *res) {
     return JNI_VERSION_1_4;
 }
 
-static const int kAudioBufferPoolSize = 163840 * 2 * 2;
-static unsigned char mRecordingAudioAppPool[kAudioBufferPoolSize];
-static int mRecordingAppBufferBytes = 0;
-
-template <typename  Ty>
-#define  STEP_SIZE (8192)
-class AudioPoolBuffer
-{
-public:
-
-    typedef Ty value;
-    typedef Ty *viter;
-public:
-    AudioPoolBuffer(int nLen = 0):m_nLen(nLen),m_data(NULL),finish(0){
-        if(nLen > 0){
-            m_data = (Ty *)malloc(sizeof(Ty)*nLen);
-            star = m_data;
-            dataSize = nLen;
-        }
-    }
-    AudioPoolBuffer(){
-        free(m_data);
-    }
-    void push_back(const value & x){
-        if(dataSize > finish){
-            *(star + finish) = x;
-            ++finish;
-        } else{
-            adjustSize = adjust_size(dataSize + STEP_SIZE);
-            m_data = (Ty *)realloc(m_data,sizeof(Ty)*adjustSize);
-            star = m_data;
-            dataSize = adjustSize;
-            *(star + finish) = x;
-            ++finish;
-        }
-    }
-    void add_elements(const value * x,int size){
-        for (int i = 0; i < size; ++i) {
-            push_back(x[i]);
-        }
-    }
-    inline  value pop_back(){
-        --finish;
-        return *(star + finish);
-    }
-    value operator[](int  n){
-        if(n == finish || n < finish){
-            return *(star+ n);
-        }else{
-            std::cout << "取值越界" << std::endl;
-        }
-    }
-    int adjust_size(int size)
-    {
-        size += (STEP_SIZE - 1);
-        size /= STEP_SIZE;
-        size *= STEP_SIZE;
-        return size;
-    }
-    value * pop_elements(int size){
-        value *arr = (value *)malloc(size);
-        memcpy(arr, star, size);
-        finish -= size;
-        memmove(star, (star + size), finish);
-        return  arr;
-    }
-
-public:
-    int finish;
-protected:
-    viter m_data;
-    int m_nLen;
-    viter star;
-    int dataSize;//
-    int adjustSize;
-};
-static  AudioPoolBuffer<char> audioPool(2048);
-
-
 class AgoraAudioFrameObserver : public agora::media::IAudioFrameObserver {
 
 public:
     AgoraAudioFrameObserver() {
         gCallBack = nullptr;
+        audio_sonSum = 1.00f;
+        audio_voiceSum = 1.00f;
     }
 
     ~AgoraAudioFrameObserver() {
@@ -116,7 +49,8 @@ public:
 
 
 public:
-
+    double  audio_sonSum;
+    double  audio_voiceSum;
     void pushAudioData(XData data){
         mux.lock();
 //        if(!readPcmPointer) {
@@ -126,9 +60,11 @@ public:
 //        fwrite(data.data, 2, data.size, readPcmPointer);
 
         //采集端的音频
-        char audioBuf[data.size];
+        char *audioBuf =  (char *)malloc(sizeof(char)* data.size);
         memcpy(audioBuf, data.data, data.size);
-        audioPool.add_elements(audioBuf, (int)data.size);
+//        audioPool.add_elements(audioBuf, (int)data.size);
+        agoraAudioBuf->Push(audioBuf,data.size);
+        delete(audioBuf);
         mux.unlock();
 
     }
@@ -137,23 +73,33 @@ public:
         //回调数据
         int16  bytes = audioFrame.samples * audioFrame.channels * audioFrame.bytesPerSample;
 
-        if (audioPool.finish < bytes) {
+        if (agoraAudioBuf->mAvailSamples < bytes) {
             mux.unlock();
             return true;
         }
-        int16 *mixedBuffer = (int16 *)malloc(bytes);
-        char *data = audioPool.pop_elements((int)bytes);
-        memcpy(mixedBuffer, data, bytes);
-
+        char *data = (char *)malloc(sizeof(char) * bytes);
+        agoraAudioBuf->Pop(data,(int)bytes);
+        int16 *mixedBuffer = (int16 *)data;
         int16 *tmpBuf = (int16 *)malloc((int16)bytes);
         memcpy(tmpBuf, audioFrame.buffer, (int16)bytes);
         for (int i = 0 ; i < (int16)bytes/2; i++) {
-            tmpBuf[i] += (mixedBuffer[i] * 0.4);//修改
+            int tmp = (int)(((double)1.00f * mixedBuffer[i]) * audio_sonSum);
+            tmpBuf[i]  = (int)(((double)1.00f * tmpBuf[i]) * audio_voiceSum);
+            tmp += tmpBuf[i];
+            //防溢出的处理
+            if (tmp > 32767) {
+                tmpBuf[i] = 32767;
+            }
+            else if (tmp < -32768) {
+                tmpBuf[i] = -32768;
+            }
+            else {
+                tmpBuf[i] = tmp;
+            }
         }
         memcpy(audioFrame.buffer, tmpBuf,(int16)bytes);
         free(mixedBuffer);
         free(tmpBuf);
-        free(data);
         mux.unlock();
         return true;
     }
@@ -200,43 +146,17 @@ unloadAgoraRtcEnginePlugin(agora::rtc::IRtcEngine *engine) {
 }
 
 
-
-extern "C"
-JNIEXPORT jstring
-JNICALL
-Java_io_agora_agoraplayerdemo_MainActivity_stringFromJNI(
-        JNIEnv *env,
-        jobject /* this */) {
-
-    std::string hello = "Hello from C++";
-//
-//    XLOGE("FFDemux open success");
-
-
-    agora::util::AutoPtr<agora::media::IMediaEngine> mediaEngine;
-    mediaEngine.queryInterface(rtcEngine, agora::INTERFACE_ID_TYPE::AGORA_IID_MEDIA_ENGINE);
-    if (mediaEngine) {
-
-//        mediaEngine->registerVideoFrameObserver(&s_videoFrameObserver);
-        mediaEngine->registerAudioFrameObserver(&s_audioFrameObserver);
-
-    }
-
-    return env->NewStringUTF(hello.c_str());
-
-}
-typedef int (*Callback) (XData data);
-void AudioCallBackData(XData data){
-
-};
 extern "C"
 JNIEXPORT void JNICALL
-Java_io_agora_agoraplayerdemo_MainActivity_Open(JNIEnv *env, jobject instance,
+Java_io_agora_agoraplayerdemo_ui_LiveRoomActivity_Open(JNIEnv *env, jobject instance,
                                                                 jstring url_) {
 
     const char *url = env->GetStringUTFChars(url_, 0);
+
+
     AgoraIPayerProxy::Get()->Open(url);
     AgoraIPayerProxy::Get()->Start();
+    isComplete = true;
     env->ReleaseStringUTFChars(url_, url);
 }
 
@@ -247,8 +167,6 @@ void IPlayer::callBackData(XData data) {
         s_audioFrameObserver.pushAudioData(data);
     }
 }
-
-
 
 //receive video data
 void IPlayer::videoCallData(XData data) {
@@ -290,6 +208,26 @@ void IPlayer::videoCallData(XData data) {
     }
 
 }
+//播放时长回调
+void IPlayer::totalMsCallBack(int time) {
+
+    AttachThreadScoped ats(gJVM);
+    JNIEnv *jni_env = ats.env();
+    jni_env->CallVoidMethod(gCallBack,totalTimeID,time);
+    totalTime = time;
+
+}
+void IPlayer::ptsCallBack(int pts) {
+    double num = pts/(double)totalTime;
+    if(isComplete && num > 0.8){
+//        XLOGD("当前的进度为%d",pts);
+        AttachThreadScoped ats(gJVM);
+        JNIEnv *jni_env = ats.env();
+        jni_env->CallVoidMethod(gCallBack,videoCompleteID);
+        isComplete = false;
+    }
+
+}
 
 extern "C"
 JNIEXPORT void JNICALL
@@ -308,27 +246,114 @@ Java_io_agora_agoraplayerdemo_XPlay_InitView(JNIEnv *env, jobject instance,
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_io_agora_agoraplayerdemo_MainActivity_PlayOrPause(JNIEnv *env,
+Java_io_agora_agoraplayerdemo_ui_LiveRoomActivity_PlayOrPause(JNIEnv *env,
                                                                       jobject instance) {
 
     // TODO
     AgoraIPayerProxy::Get()->SetPause(!AgoraIPayerProxy::Get()->IsPause());
 
+}
+// extern "C"
+//JNIEXPORT void JNICALL
+//Java_io_agora_agoraplayerdemo_ui_LiveRoomActivity_setCallBack(JNIEnv *env,
+//                                                       jobject instance) {
+//    env->GetJavaVM(&gJVM);
+//    // TODO
+//    if (gCallBack == nullptr) {
+//        gCallBack = env->NewGlobalRef(instance);
+//        gCallbackClass = env->FindClass("io/agora/agoraplayerdemo/ui/LiveRoomActivity");
+//        setExternalVideoFrameID = env->GetMethodID(gCallbackClass,"renderVideoFrame","([BII)V");
+//    }
+//}
+extern "C"
+JNIEXPORT void JNICALL
+Java_io_agora_agoraplayerdemo_ui_LiveRoomActivity_ChangeAudio(JNIEnv *env, jobject instance) {
+
+    AgoraIPayerProxy::Get()->ChangeAudio(!AgoraIPayerProxy::Get()->isChangeAudioStream);
+
 }extern "C"
 JNIEXPORT void JNICALL
-Java_io_agora_agoraplayerdemo_MainActivity_setCallBack(JNIEnv *env,
-                                                       jobject instance) {
+Java_io_agora_agoraplayerdemo_ui_XPlay_InitView(JNIEnv *env, jobject instance, jobject surface) {
+
+    //TODO
+    ANativeWindow *win = ANativeWindow_fromSurface(env, surface);
+
+    AgoraIPayerProxy::Get()->InitView(win);
+
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_io_agora_agoraplayerdemo_ui_LiveRoomActivity_initAgoraObserver(JNIEnv *env, jobject instance) {
+
+    // TODO
+//    XLOGE("FFDemux open success");
+
+
+    agora::util::AutoPtr<agora::media::IMediaEngine> mediaEngine;
+    mediaEngine.queryInterface(rtcEngine, agora::INTERFACE_ID_TYPE::AGORA_IID_MEDIA_ENGINE);
+    if (mediaEngine) {
+
+//        mediaEngine->registerVideoFrameObserver(&s_videoFrameObserver);
+        mediaEngine->registerAudioFrameObserver(&s_audioFrameObserver);
+
+    }
+}extern "C"
+JNIEXPORT void JNICALL
+Java_io_agora_agoraplayerdemo_ui_LiveRoomActivity_setCallBack(JNIEnv *env, jobject instance) {
+
     env->GetJavaVM(&gJVM);
     // TODO
     if (gCallBack == nullptr) {
         gCallBack = env->NewGlobalRef(instance);
-        gCallbackClass = env->FindClass("io/agora/agoraplayerdemo/MainActivity");
+        gCallbackClass = env->FindClass("io/agora/agoraplayerdemo/ui/LiveRoomActivity");
         setExternalVideoFrameID = env->GetMethodID(gCallbackClass,"renderVideoFrame","([BII)V");
+        videoCompleteID = env->GetMethodID(gCallbackClass,"videoComplete","()V");
+        totalTimeID = env->GetMethodID(gCallbackClass,"totalMSCallBack","(I)V");
     }
 }extern "C"
 JNIEXPORT void JNICALL
-Java_io_agora_agoraplayerdemo_MainActivity_ChangeAudio(JNIEnv *env, jobject instance) {
+Java_io_agora_agoraplayerdemo_ui_LiveRoomActivity_voiceSeek(JNIEnv *env, jobject instance,
+                                                            jdouble pos) {
 
-    AgoraIPayerProxy::Get()->ChangeAudio(!AgoraIPayerProxy::Get()->isChangeAudioStream);
+    // TODO
+
+    s_audioFrameObserver.audio_voiceSum = pos;
+
+
+}extern "C"
+JNIEXPORT void JNICALL
+Java_io_agora_agoraplayerdemo_ui_LiveRoomActivity_songSeek(JNIEnv *env, jobject instance,
+                                                           jdouble pos) {
+
+    // TODO
+
+    s_audioFrameObserver.audio_sonSum = pos;
+    AgoraIPayerProxy::Get()->SetPlayVolume(1 - pos);
+
+
+
+}extern "C"
+JNIEXPORT void JNICALL
+Java_io_agora_agoraplayerdemo_ui_LiveRoomActivity_closeSong(JNIEnv *env, jobject instance) {
+
+    // TODO
+    AgoraIPayerProxy::Get()->Stop();
+    AgoraIPayerProxy::Get()->Close();
+
+}extern "C"
+JNIEXPORT void JNICALL
+Java_io_agora_agoraplayerdemo_ui_LiveRoomActivity_destroyAudioBuf(JNIEnv *env, jobject instance) {
+
+    // TODO
+    agoraAudioBuf.release();
+    agoraAudioBuf.reset(new AudioCircularBuffer<char>(2048,true));
+
+}extern "C"
+JNIEXPORT jdouble JNICALL
+Java_io_agora_agoraplayerdemo_ui_LiveRoomActivity_PlayPos(JNIEnv *env, jobject instance) {
+
+    // TODO
+    return AgoraIPayerProxy::Get()->PlayPos();
 
 }

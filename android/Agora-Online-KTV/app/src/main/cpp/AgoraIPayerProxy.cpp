@@ -95,3 +95,10 @@ void AgoraIPayerProxy::ChangeAudio(bool isChangeAudioStream) {
     }
     mux.unlock();
 }
+void AgoraIPayerProxy::SetPlayVolume(double value) {
+    mux.lock();
+    if(player){
+        player->SetPlayVolume(value);
+    }
+    mux.unlock();
+}

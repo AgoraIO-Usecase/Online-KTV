@@ -3,6 +3,7 @@
 //
 
 #include "IDecode.h"
+#include "AgoraLog.h"
 
 
 
@@ -86,7 +87,10 @@ void IDecode::Main()
             {
                 //获取解码数据
                 XData frame = RecvFrame();
-                if(!frame.data) break;
+                if(!frame.data) {
+
+                    break;
+                }
                 //XLOGE("RecvFrame %d",frame.size);
                 pts = frame.pts;
                 //发送数据给观察者
