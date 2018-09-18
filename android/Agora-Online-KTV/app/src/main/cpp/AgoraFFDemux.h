@@ -12,7 +12,7 @@ struct AVFormatContext;
 
 class AgoraFFDemux : public IDemux{
 public:
-
+    int totalSecs;
     //打开文件，或者流媒体 rmtp http rtsp
     virtual bool Open(const char *url);
     //seek 位置 pos 0.0~1.0
@@ -31,6 +31,7 @@ public:
     AgoraFFDemux();
 
     virtual void ChangeAudioStream(bool isChangeAudioStream);
+    void totalMsCallBack(int time);
 
 private:
     AVFormatContext *ic = 0;

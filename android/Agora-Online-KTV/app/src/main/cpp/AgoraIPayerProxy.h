@@ -25,6 +25,7 @@ public:
     //获取当前的播放进度
     virtual double PlayPos();
     virtual void ChangeAudio(bool isChangeAudioStream);
+    virtual void SetPlayVolume(double value);
 
 public:
     AgoraIPayerProxy(){};

@@ -41,6 +41,7 @@ void XThread::ThreadMain() {
 void XThread::Stop() {
     XLOGI("stop 停止线程 begin");
     isExit = true;
+    isPause = false;
     for (int i = 0; i < 200; ++i) {
         if (!isRunning)
         {

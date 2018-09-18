@@ -7,6 +7,7 @@
 
 void IAudioPlay::Clear() {
     framesMutex.lock();
+    pts = 0;
     while (!frames.empty())
     {
         frames.front().Drop();
@@ -30,11 +31,12 @@ XData IAudioPlay::GetData() {
             d = frames.front();
             frames.pop_front();
             framesMutex.unlock();
-
             pts = d.pts;
             this->callBackAudioData(d);
+
             return d;
         }
+        this->callBackPts(pts);
         framesMutex.unlock();
         XSleep(1);
     }

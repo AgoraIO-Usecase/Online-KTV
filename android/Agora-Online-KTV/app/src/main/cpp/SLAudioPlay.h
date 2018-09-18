@@ -12,6 +12,7 @@ class SLAudioPlay : public IAudioPlay{
 public:
     virtual bool StartPlay(AgoraParameter out);
     virtual void Close();
+    virtual void SetPlayVolume(double value);
     void PlayCall(void *bufq);
     SLAudioPlay();
     virtual  ~SLAudioPlay();
