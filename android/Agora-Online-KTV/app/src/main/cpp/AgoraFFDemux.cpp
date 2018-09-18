@@ -80,6 +80,7 @@ bool AgoraFFDemux::Open(const char *url)
     mux.unlock();
     XLOGI("total ms = %d!",totalMS);
 
+    this->totalMsCallBack(totalMS);
     GetVPara();
     GetAPara();
     return true;
@@ -188,6 +189,8 @@ XData AgoraFFDemux::Read()
     pkt->dts = pkt->dts * (1000*r2d(ic->streams[pkt->stream_index]->time_base));
     d.pts = (int)pkt->pts;
     //XLOGE("demux pts %d",d.pts);
+
+
     mux.unlock();
     return d;
 }
