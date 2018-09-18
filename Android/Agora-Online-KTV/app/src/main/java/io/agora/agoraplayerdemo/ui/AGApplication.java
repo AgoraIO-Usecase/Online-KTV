@@ -2,7 +2,7 @@ package io.agora.agoraplayerdemo.ui;
 
 import android.app.Application;
 
-import io.agora.agoraplayerdemo.Model.WorkerThread;
+import io.agora.agoraplayerdemo.model.WorkerThread;
 
 /**
  * Created by zhanxiaochao on 2018/9/5.
