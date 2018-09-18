@@ -19,10 +19,10 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 
-import io.agora.agoraplayerdemo.Model.ConstantApp;
-import io.agora.agoraplayerdemo.Model.EngineConfig;
-import io.agora.agoraplayerdemo.Model.MyEngineEventHandler;
-import io.agora.agoraplayerdemo.Model.WorkerThread;
+import io.agora.agoraplayerdemo.model.ConstantApp;
+import io.agora.agoraplayerdemo.model.EngineConfig;
+import io.agora.agoraplayerdemo.model.MyEngineEventHandler;
+import io.agora.agoraplayerdemo.model.WorkerThread;
 import io.agora.rtc.RtcEngine;
 
 public abstract class BaseActivity extends AppCompatActivity {

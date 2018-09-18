@@ -1,6 +1,4 @@
 package common;
-import io.agora.rtc.RtcEngine;
-
 /**
  * Created by zhanxiaochao on 2018/9/3.
  */

@@ -19,7 +19,7 @@ import android.widget.Button;
 import android.widget.EditText;
 
 
-import io.agora.agoraplayerdemo.Model.ConstantApp;
+import io.agora.agoraplayerdemo.model.ConstantApp;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -38,7 +38,7 @@ public class MainActivity extends BaseActivity {
 //    Button changeAudioBtn;
 //    private static final String LOG_TAG = MainActivity.class.getSimpleName();
 //    private RtcEngine mRtcEngine;
-//    private final IRtcEngineEventHandler mRtcEventHandler = new IRtcEngineEventHandler() { // Tutorial Step 1
+//    private final IKTVKitEventHandler mRtcEventHandler = new IKTVKitEventHandler() { // Tutorial Step 1
 //        @Override
 //        public void onFirstRemoteVideoDecoded(final int uid, int width, int height, int elapsed) { // Tutorial Step 5
 //            runOnUiThread(new Runnable() {
