@@ -14,7 +14,6 @@
 		8BB1B87C2136782E007EB9DF /* VideoSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BB1B8792136782D007EB9DF /* VideoSession.m */; };
 		8BB1B87D2136782E007EB9DF /* VideoViewLayouter.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BB1B87A2136782D007EB9DF /* VideoViewLayouter.m */; };
 		8BCD42022099D9E100148589 /* IJKMediaFramework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BCD42012099D9E100148589 /* IJKMediaFramework.framework */; };
-		8BEB4E6F20B7B89E00D537DA /* 1080.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 8BEB4E6E20B7B7F600D537DA /* 1080.mp4 */; };
 		8BEF560B209074AE001BE9D8 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BEF560A209074AE001BE9D8 /* AppDelegate.m */; };
 		8BEF5611209074AE001BE9D8 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8BEF560F209074AE001BE9D8 /* Main.storyboard */; };
 		8BEF5613209074AF001BE9D8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8BEF5612209074AF001BE9D8 /* Assets.xcassets */; };
@@ -76,7 +75,6 @@
 		8B58E9F8212D46F600EB29ED /* SuperpoweredEcho.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SuperpoweredEcho.h; sourceTree = "<group>"; };
 		8B58E9F9212D46F600EB29ED /* SuperpoweredRoll.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SuperpoweredRoll.h; sourceTree = "<group>"; };
 		8B58E9FB212D4CDB00EB29ED /* SuperpoweredFX.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SuperpoweredFX.h; sourceTree = "<group>"; };
-		8B99E40B211155B700A49BA5 /* libyuv.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libyuv.a; path = "Agora-Online-KTV/libyuv-iOS/libyuv.a"; sourceTree = "<group>"; };
 		8BB1B875213675A4007EB9DF /* AgoraMainViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AgoraMainViewController.h; sourceTree = "<group>"; };
 		8BB1B876213675A4007EB9DF /* AgoraMainViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AgoraMainViewController.m; sourceTree = "<group>"; };
 		8BB1B8782136782D007EB9DF /* VideoSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VideoSession.h; sourceTree = "<group>"; };
@@ -84,7 +82,6 @@
 		8BB1B87A2136782D007EB9DF /* VideoViewLayouter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VideoViewLayouter.m; sourceTree = "<group>"; };
 		8BB1B87B2136782E007EB9DF /* VideoViewLayouter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VideoViewLayouter.h; sourceTree = "<group>"; };
 		8BCD42012099D9E100148589 /* IJKMediaFramework.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IJKMediaFramework.framework; path = "Agora-Online-KTV/IJKMediaFramework.framework"; sourceTree = "<group>"; };
-		8BEB4E6E20B7B7F600D537DA /* 1080.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = 1080.mp4; sourceTree = "<group>"; };
 		8BEF5606209074AE001BE9D8 /* Agora-Online-KTV.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Agora-Online-KTV.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		8BEF5609209074AE001BE9D8 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		8BEF560A209074AE001BE9D8 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -192,7 +189,6 @@
 				8B58E9EF212D46D300EB29ED /* superpower */,
 				8BEF5609209074AE001BE9D8 /* AppDelegate.h */,
 				8BEF560A209074AE001BE9D8 /* AppDelegate.m */,
-				8BEB4E6E20B7B7F600D537DA /* 1080.mp4 */,
 				8BEF561F209074CE001BE9D8 /* AgoraVideoViewController.h */,
 				8BEF5620209074CE001BE9D8 /* AgoraVideoViewController.m */,
 				8BB1B875213675A4007EB9DF /* AgoraMainViewController.h */,
@@ -222,7 +218,6 @@
 		8BEF56222090759A001BE9D8 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				8B99E40B211155B700A49BA5 /* libyuv.a */,
 				8BCD42012099D9E100148589 /* IJKMediaFramework.framework */,
 				8BEF564F20907FDC001BE9D8 /* AgoraRtcEngineKit.framework */,
 				8BEF564720907656001BE9D8 /* VideoToolbox.framework */,
@@ -315,7 +310,6 @@
 				8BEF5616209074AF001BE9D8 /* LaunchScreen.storyboard in Resources */,
 				8BEF5613209074AF001BE9D8 /* Assets.xcassets in Resources */,
 				8BEF5611209074AE001BE9D8 /* Main.storyboard in Resources */,
-				8BEB4E6F20B7B89E00D537DA /* 1080.mp4 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
