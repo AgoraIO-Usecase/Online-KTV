@@ -25,11 +25,11 @@ class AudioCircularBuffer {
     {
         mInt16BufferLength = initSize;
         if (bNewWayProcessing) {
-            pInt16BufferPtr = new value[mInt16BufferLength];
+            pInt16BufferPtr = new value[sizeof(value) * mInt16BufferLength];
         }
         else {
             if (!pInt16Buffer.get()) {
-                pInt16Buffer.reset(new value[mInt16BufferLength]);
+                pInt16Buffer.reset(new value[sizeof(value) * mInt16BufferLength]);
             }
         }
     }
@@ -48,9 +48,10 @@ class AudioCircularBuffer {
             // If the internal buffer is not large enough, first enlarge the buffer
             if (mAvailSamples + length > mInt16BufferLength) {
                 int newLength = std::max(length + mAvailSamples + 960, 2 * mInt16BufferLength);
-                value * tmpBuffer = new value[newLength];
+                value * tmpBuffer = new value[sizeof(value) * newLength];
                 if (mReadPtrPosition + mAvailSamples > mInt16BufferLength) {
                     int firstCopyLength = mInt16BufferLength - mReadPtrPosition;
+                    
                     memcpy(tmpBuffer, pInt16BufferPtr + mReadPtrPosition, sizeof(value) * firstCopyLength);
                     memcpy(tmpBuffer + firstCopyLength, pInt16BufferPtr, sizeof(value) * (mAvailSamples - firstCopyLength));
                 }
@@ -83,11 +84,11 @@ class AudioCircularBuffer {
         else {
             // If the internal buffer is not large enough, first enlarge the buffer
             if (length + mAvailSamples > mInt16BufferLength) {
-                value * tmpBuffer = new value[mAvailSamples];
+                value * tmpBuffer = new value[sizeof(value) * mAvailSamples];
                 memmove(tmpBuffer, &pInt16Buffer[mReadPtrPosition], sizeof(value)*mAvailSamples);
                 
                 mInt16BufferLength = (length + mAvailSamples) * 2;
-                pInt16Buffer.reset(new value[mInt16BufferLength]);
+                pInt16Buffer.reset(new value[sizeof(value) * mInt16BufferLength]);
                 memmove(&pInt16Buffer[0], tmpBuffer, sizeof(value)*mAvailSamples);
                 
                 delete[] tmpBuffer;

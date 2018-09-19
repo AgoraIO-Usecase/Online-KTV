@@ -25,7 +25,8 @@
 #import "AudioCircularBuffer.h"
 using namespace AgoraRTC;
 static scoped_ptr<AudioCircularBuffer<char>> agoraAudioBuf(new AudioCircularBuffer<char>(2048,true));
-static scoped_ptr<AudioCircularBuffer<short>> earBackBuf(new AudioCircularBuffer<int16_t>(2048,true));
+
+static scoped_ptr<AudioCircularBuffer<char>> earBackBuf(new AudioCircularBuffer<char>(2048,true));
 
 static NSObject *lock = [[NSObject alloc] init];
 static NSObject *threadLockCapture = [[NSObject alloc] init];
@@ -62,6 +63,7 @@ public:
             char  *buf = (char *)malloc((int)bytesLength);
             memcpy(buf, data, bytesLength);
             agoraAudioBuf->Push(buf, (int)bytesLength);
+            earBackBuf->Push(buf, (int)bytesLength);
             free(buf);
         }
         
@@ -131,30 +133,31 @@ public:
             int bytes = audioFrame.samples * audioFrame.channels * audioFrame.bytesPerSample;
 //            //判断是否插入了耳机
 //            ;
-//            if (earBackBuf->mAvailSamples > bytes) {
+            if (earBackBuf->mAvailSamples > bytes) {
 //                if ([[AgoraAudioFrame shareInstance] isHeadsetPluggedIn]) {
-//                    int16_t *tmpBuf = (int16_t *)malloc(sizeof(int16_t) * bytes);
-//                    memcpy(tmpBuf, audioFrame.buffer, bytes);
-//                    int16_t *earbuf = (int16_t *)malloc(sizeof(int16_t) * bytes);
-//                    earBackBuf->Pop(earbuf,bytes);
-//                    //做个判断
-//                    for (int i = 0 ; i < bytes; i++) {
-//
-//                       int tmp  =   tmpBuf[i] + earbuf[i];
-//                        if (tmp > 32767) {
-//                            tmpBuf[i] = 32767;
-//                        }else if(tmp < -32768){
-//                            tmpBuf[i] = -32768;
-//                        }else{
-//                            tmpBuf[i] = tmp;
-//                        }
-//                    }
-//                    memcpy(audioFrame.buffer, tmpBuf,sizeof(int16_t) * bytes);
-//                    free(tmpBuf);
-//                    free(earbuf);
+                    int16_t *tmpBuf = (int16_t *)malloc(sizeof(int16_t) * bytes);
+                    memcpy(tmpBuf, audioFrame.buffer, bytes);
+                    char *earbuf = (char *)malloc(sizeof(int16_t) * bytes);
+                    earBackBuf->Pop(earbuf,bytes);
+                    //做个判断
+                    int16_t* p16 = (int16_t*) earbuf;
+                    for (int i = 0 ; i < bytes/2; i++) {
+                        p16[i] = p16[i] * audio_sonSum;
+                       int tmp  =   tmpBuf[i] + p16[i];
+                        if (tmp > 32767) {
+                            tmpBuf[i] = 32767;
+                        }else if(tmp < -32768){
+                            tmpBuf[i] = -32768;
+                        }else{
+                            tmpBuf[i] = tmp;
+                        }
+                    }
+                    memcpy(audioFrame.buffer, tmpBuf,sizeof(int16_t) * bytes);
+                    free(tmpBuf);
+                    free(p16);
 //                }
 //
-//            }
+            }
             //            if ([AgoraAudioFrame shareInstance].isAudience) {
             //                int16_t audioBuf[bytes];
             //                memcpy(audioBuf, audioFrame.buffer, bytes);
@@ -268,13 +271,15 @@ static AgoraAudioFrameObserver* s_audioFrameObserver;
 -(void)setIsAudience:(BOOL)isAudience
 {
     _isAudience = isAudience;
+    
+    
 }
 -(void)destroyAudioBuf{
     
         agoraAudioBuf.release();
         earBackBuf.release();
         agoraAudioBuf.reset(new AudioCircularBuffer<char>(2048,true));
-        earBackBuf.reset(new AudioCircularBuffer<int16_t>(2048,true));
+        earBackBuf.reset(new AudioCircularBuffer<char>(2048,true));
 }
 -(void)setSongNum:(float)songNum
 {
