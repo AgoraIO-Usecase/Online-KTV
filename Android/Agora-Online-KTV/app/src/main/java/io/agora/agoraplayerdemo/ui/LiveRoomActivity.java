@@ -16,36 +16,47 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Locale;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import io.agora.agoraplayerdemo.R;
 import io.agora.agoraplayerdemo.model.AGEventHandler;
 import io.agora.agoraplayerdemo.model.ConstantApp;
+
 import io.agora.ktvkit.IKTVKitEventHandler;
 import io.agora.ktvkit.KTVKit;
-import io.agora.ktvkit.XPlay;
+import io.agora.ktvkit.VideoPlayerView;
+
 import io.agora.rtc.Constants;
 import io.agora.rtc.RtcEngine;
 import io.agora.rtc.video.VideoCanvas;
-
 
 public class LiveRoomActivity extends BaseActivity implements AGEventHandler, SeekBar.OnSeekBarChangeListener {
     private final static Logger log = LoggerFactory.getLogger(LiveRoomActivity.class);
 
     Button playBtn;
     Button pauseBtn;
-    Button changeAudioBtn;
+    Button changeAudioTrackBtn;
     Button clientRoleButtion;
-    Button switchAudioButton;
+    Button switchMediaButton;
     Button closeButton;
-    TextView voiceView;
-    TextView songView;
-    SeekBar voiceBar;
-    SeekBar songBar;
-    XPlay xplayView;
+    TextView voiceVolumeView;
+    TextView songVolumeView;
+    SeekBar voiceVolumeBar;
+    SeekBar accompanyVolumeBar;
+    VideoPlayerView xPlayerView;
     FrameLayout containerLayout;
     boolean isBroadcast = false;
 
+    TextView mMediaMetaArea;
+
     private KTVKit mKTVKit = null;
+
+    private final ScheduledExecutorService mScheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+
+    private Future<?> mScheduledFuture;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +64,18 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler, Se
 
         try {
             mKTVKit = KTVKit.create(worker().getRtcEngine(), getApplicationContext(), new IKTVKitEventHandler() {
+                @Override
+                public void onPlayerStopped() {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+
+                            int duration = (mKTVKit.getDuration() / 1000);
+
+                            mMediaMetaArea.setText("Done, " + (int) Math.floor(mKTVKit.getCurrentPosition() * duration) + " " + duration);
+                        }
+                    });
+                }
             });
         } catch (Exception e) {
             e.printStackTrace();
@@ -62,17 +85,20 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler, Se
         // 相关控件的初始化
         playBtn = (Button) findViewById(R.id.play01);
         pauseBtn = (Button) findViewById(R.id.pause);
-        clientRoleButtion = (Button) findViewById(R.id.clientRole);
-        changeAudioBtn = (Button) findViewById(R.id.ChangeAudio);
-        voiceView = (TextView) findViewById(R.id.voiceTextView);
-        songView = (TextView) findViewById(R.id.songTextView);
-        voiceBar = (SeekBar) findViewById(R.id.voiceSeekBar);
-        voiceBar.setOnSeekBarChangeListener(this);
-        switchAudioButton = (Button) findViewById(R.id.switchAudio);
-        songBar = (SeekBar) findViewById(R.id.songSeekBar);
-        songBar.setOnSeekBarChangeListener(this);
+        clientRoleButtion = (Button) findViewById(R.id.change_client_role);
+        changeAudioTrackBtn = (Button) findViewById(R.id.change_audio_track);
+        voiceVolumeView = (TextView) findViewById(R.id.voiceTextView);
+        songVolumeView = (TextView) findViewById(R.id.songTextView);
+        voiceVolumeBar = (SeekBar) findViewById(R.id.voiceSeekBar);
+        voiceVolumeBar.setOnSeekBarChangeListener(this);
+        switchMediaButton = (Button) findViewById(R.id.switch_media_file);
+        accompanyVolumeBar = (SeekBar) findViewById(R.id.songSeekBar);
+        accompanyVolumeBar.setOnSeekBarChangeListener(this);
         containerLayout = (FrameLayout) findViewById(R.id.xplay_view_container);
-        closeButton = (Button) findViewById(R.id.room_close);
+        closeButton = (Button) findViewById(R.id.close_ktv_room);
+
+        mMediaMetaArea = (TextView) findViewById(R.id.media_meta);
+
         playBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -90,7 +116,7 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler, Se
         });
 
         // 音轨切换
-        changeAudioBtn.setOnClickListener(new View.OnClickListener() {
+        changeAudioTrackBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mKTVKit.switchAudioTrack();
@@ -107,7 +133,7 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler, Se
         });
 
         // 切歌执行的方法
-        switchAudioButton.setOnClickListener(new View.OnClickListener() {
+        switchMediaButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mKTVKit.stopPlayVideoFile();
@@ -119,11 +145,34 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler, Se
         closeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                worker().getRtcEngine().leaveChannel();
                 mKTVKit.stopPlayVideoFile();
+                worker().getRtcEngine().leaveChannel();
                 finish();
             }
         });
+
+        mScheduledFuture = mScheduledExecutorService.scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        double currentPosition = mKTVKit.getCurrentPosition();
+
+                        if (currentPosition > 0.99d && currentPosition < 1.01d) {
+                            return;
+                        }
+
+                        mMediaMetaArea.setText((int) currentPosition + " " + mKTVKit.getDuration());
+
+                        int duration = (mKTVKit.getDuration() / 1000);
+
+                        mMediaMetaArea.setText((int) Math.floor(currentPosition * duration) + " " + duration);
+                    }
+                });
+            }
+        }, 0, 1, TimeUnit.SECONDS);
     }
 
     // 观众角色切换
@@ -154,7 +203,9 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler, Se
             throw new RuntimeException("Should not reach here");
         }
         String roomName = i.getStringExtra(ConstantApp.ACTION_KEY_ROOM_NAME);
+
         doConfigEngine(cRole);
+
         if (isBroadcaster(cRole)) {
             addXplayView();
             isBroadcast = false;
@@ -163,15 +214,16 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler, Se
             isBroadcast = true;
             doShowButtons(true);
             clientRoleButtion.setText("上麦");
-
         }
+
         worker().getRtcEngine().setParameters(String.format(Locale.US, "{\"che.audio.profile\":{\"scenario\":%d}}", 1));
         worker().getRtcEngine().setParameters(String.format(Locale.US, "{\"che.audio.headset.monitoring,true\"}"));
         worker().getRtcEngine().setParameters(String.format(Locale.US, "{\"che.audio.enable.androidlowlatencymode,true\"}"));
         worker().getRtcEngine().enableInEarMonitoring(true);
         worker().joinChannel(roomName, config().mUid);
-        TextView textRoomName = (TextView) findViewById(R.id.room_name);
-        textRoomName.setText(roomName);
+
+        TextView textKtvRoomName = (TextView) findViewById(R.id.ktv_room_name);
+        textKtvRoomName.setText(roomName);
     }
 
     private boolean isBroadcaster() {
@@ -200,16 +252,15 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler, Se
     // 控制按钮隐藏 显示
     void doShowButtons(boolean hide) {
 
-        playBtn.setVisibility(hide ? playBtn.INVISIBLE : playBtn.VISIBLE);
-        pauseBtn.setVisibility(hide ? pauseBtn.INVISIBLE : pauseBtn.VISIBLE);
-        changeAudioBtn.setVisibility(hide ? changeAudioBtn.INVISIBLE : changeAudioBtn.VISIBLE);
-        voiceView.setVisibility(hide ? voiceView.INVISIBLE : voiceView.VISIBLE);
-        songView.setVisibility(hide ? songView.INVISIBLE : songView.VISIBLE);
-        voiceBar.setVisibility(hide ? voiceBar.INVISIBLE : voiceBar.VISIBLE);
-        songBar.setVisibility(hide ? songBar.INVISIBLE : songBar.VISIBLE);
-        switchAudioButton.setVisibility(hide ? switchAudioButton.INVISIBLE : switchAudioButton.VISIBLE);
+        playBtn.setVisibility(hide ? View.INVISIBLE : View.VISIBLE);
+        pauseBtn.setVisibility(hide ? View.INVISIBLE : View.VISIBLE);
+        changeAudioTrackBtn.setVisibility(hide ? View.INVISIBLE : View.VISIBLE);
+        voiceVolumeView.setVisibility(hide ? View.INVISIBLE : View.VISIBLE);
+        songVolumeView.setVisibility(hide ? View.INVISIBLE : View.VISIBLE);
+        voiceVolumeBar.setVisibility(hide ? View.INVISIBLE : View.VISIBLE);
+        accompanyVolumeBar.setVisibility(hide ? View.INVISIBLE : View.VISIBLE);
+        switchMediaButton.setVisibility(hide ? View.INVISIBLE : View.VISIBLE);
     }
-
 
     @Override
     public void onFirstRemoteVideoDecoded(int uid, int width, int height, int elapsed) {
@@ -233,23 +284,21 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler, Se
         });
     }
 
-    //添加显示view
+    // 添加显示 view
     private void addXplayView() {
-        xplayView = new XPlay(this);
-        xplayView.setZOrderOnTop(true);
-        xplayView.setZOrderMediaOverlay(true);
-        containerLayout.addView(xplayView);
-
+        xPlayerView = new VideoPlayerView(this, mKTVKit);
+        xPlayerView.setZOrderOnTop(true);
+        xPlayerView.setZOrderMediaOverlay(true);
+        containerLayout.addView(xPlayerView);
     }
 
-    //移除创建的view
+    // 移除创建的 view
     private void removeViews() {
-
         int index = -1;
         int count = containerLayout.getChildCount();
         for (int i = 0; i < count; i++) {
             View v = containerLayout.getChildAt(i);
-            if ((v instanceof XPlay)) {
+            if ((v instanceof VideoPlayerView)) {
                 index = i;
                 break;
             }
@@ -270,7 +319,7 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler, Se
         int count = containerLayout.getChildCount();
         for (int i = 0; i < count; i++) {
             View v = containerLayout.getChildAt(i);
-            if (!(v instanceof XPlay)) {
+            if (!(v instanceof VideoPlayerView)) {
                 index = i;
                 break;
             }
@@ -282,10 +331,7 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler, Se
 
     @Override
     public void onUserJoined(int uid, int elapsed) {
-
-
         Log.d("heheda", "heelo");
-
     }
 
     @Override
@@ -298,14 +344,14 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler, Se
 
     }
 
-    @Override
     // 监听滑动条滚动
+    @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
-        if (seekBar != null && seekBar.equals(voiceBar)) {
+        if (seekBar != null && seekBar.equals(voiceVolumeBar)) {
             mKTVKit.adjustVoiceVolume((double) seekBar.getProgress() / (double
                     ) seekBar.getMax());
             android.util.Log.v("zxc", "1111" + (double) seekBar.getProgress() / (double) seekBar.getMax());
-        } else if (seekBar != null && seekBar.equals(songBar)) {
+        } else if (seekBar != null && seekBar.equals(accompanyVolumeBar)) {
             mKTVKit.adjustAccompanyVolume((double) seekBar.getProgress() / (double) seekBar.getMax());
             android.util.Log.v("zxc", "2222" + (double) seekBar.getProgress() / (double) seekBar.getMax());
         }
@@ -314,6 +360,14 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler, Se
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
+        if (mScheduledFuture != null) {
+            mScheduledFuture.cancel(true);
+        }
+
+        mKTVKit.stopPlayVideoFile();
+
+        worker().getRtcEngine().leaveChannel();
 
         KTVKit.destroy();
     }

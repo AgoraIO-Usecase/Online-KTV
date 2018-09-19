@@ -9,20 +9,34 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="300dp"
+        android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/room_name"
-            android:layout_width="wrap_content"
+        <RelativeLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/app_name" />
+            android:paddingEnd="8dp"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:paddingStart="8dp">
+
+            <TextView
+                android:id="@+id/ktv_room_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/media_meta"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true" />
+        </RelativeLayout>
 
         <FrameLayout
             android:id="@+id/xplay_view_container"
             android:layout_width="match_parent"
             android:layout_height="300dp" />
-
     </LinearLayout>
 
     <RelativeLayout
@@ -30,21 +44,21 @@
         android:layout_height="wrap_content">
 
         <Button
-            android:id="@+id/clientRole"
+            android:id="@+id/change_client_role"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:text="下麦" />
 
         <Button
-            android:id="@+id/ChangeAudio"
+            android:id="@+id/change_audio_track"
             android:layout_width="wrap_content"
             android:layout_height="44dp"
-            android:layout_toRightOf="@id/clientRole"
+            android:layout_toRightOf="@id/change_client_role"
             android:text="原唱/伴奏" />
 
         <Button
-            android:id="@+id/room_close"
+            android:id="@+id/close_ktv_room"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
@@ -67,7 +81,7 @@
             android:text="点歌" />
 
         <Button
-            android:id="@+id/switchAudio"
+            android:id="@+id/switch_media_file"
             android:layout_width="100dp"
             android:layout_height="60dp"
             android:text="切歌" />
@@ -83,9 +97,9 @@
         android:id="@+id/voiceTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="调节人声音量"
-
-        />
+        android:paddingLeft="8dp"
+        android:paddingStart="8dp"
+        android:text="调节人声音量" />
 
     <SeekBar
         android:id="@+id/voiceSeekBar"
@@ -98,6 +112,8 @@
         android:id="@+id/songTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:paddingLeft="8dp"
+        android:paddingStart="8dp"
         android:text="调节伴奏音量" />
 
     <SeekBar

@@ -229,7 +229,7 @@ void IPlayer::ptsCallBack(int pts) {
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_io_agora_ktvkit_XPlay_InitView(JNIEnv *env, jobject instance,
+Java_io_agora_ktvkit_KTVKit_InitView(JNIEnv *env, jobject instance,
                                                              jobject surface) {
 
     ANativeWindow *win = ANativeWindow_fromSurface(env, surface);
@@ -300,8 +300,8 @@ Java_io_agora_ktvkit_KTVKit_setCallBack(JNIEnv *env, jobject instance) {
         gCallBack = env->NewGlobalRef(instance);
         gCallbackClass = env->FindClass("io/agora/ktvkit/KTVKit");
         setExternalVideoFrameID = env->GetMethodID(gCallbackClass,"doSendVideoFrameToCloud","([BII)V");
-        videoCompleteID = env->GetMethodID(gCallbackClass,"videoComplete","()V");
-        totalTimeID = env->GetMethodID(gCallbackClass,"totalMSCallBack","(I)V");
+        videoCompleteID = env->GetMethodID(gCallbackClass,"onVideoPlayCompleted","()V");
+        totalTimeID = env->GetMethodID(gCallbackClass,"onTotalMediaDurationInMs","(I)V");
     }
 }
 
