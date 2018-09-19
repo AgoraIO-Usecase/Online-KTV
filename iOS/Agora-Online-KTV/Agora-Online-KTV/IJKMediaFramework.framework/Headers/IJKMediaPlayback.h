@@ -1,6 +1,7 @@
 /*
  * IJKMediaPlayback.h
  *
+ * Copyright (c) 2013 Bilibili
  * Copyright (c) 2013 Zhang Rui <bbcallen@gmail.com>
  *
  * This file is part of ijkPlayer.
@@ -149,10 +150,17 @@ IJK_EXTERN NSString* const IJKMPMovieNaturalSizeAvailableNotification;
 IJK_EXTERN NSString *const IJKMPMoviePlayerVideoDecoderOpenNotification;
 IJK_EXTERN NSString *const IJKMPMoviePlayerFirstVideoFrameRenderedNotification;
 IJK_EXTERN NSString *const IJKMPMoviePlayerFirstAudioFrameRenderedNotification;
+IJK_EXTERN NSString *const IJKMPMoviePlayerFirstAudioFrameDecodedNotification;
+IJK_EXTERN NSString *const IJKMPMoviePlayerFirstVideoFrameDecodedNotification;
+IJK_EXTERN NSString *const IJKMPMoviePlayerOpenInputNotification;
+IJK_EXTERN NSString *const IJKMPMoviePlayerFindStreamInfoNotification;
+IJK_EXTERN NSString *const IJKMPMoviePlayerComponentOpenNotification;
 
 IJK_EXTERN NSString *const IJKMPMoviePlayerDidSeekCompleteNotification;
 IJK_EXTERN NSString *const IJKMPMoviePlayerDidSeekCompleteTargetKey;
 IJK_EXTERN NSString *const IJKMPMoviePlayerDidSeekCompleteErrorKey;
+IJK_EXTERN NSString *const IJKMPMoviePlayerDidAccurateSeekCompleteCurPos;
+IJK_EXTERN NSString *const IJKMPMoviePlayerAccurateSeekCompleteNotification;
 
 @end
 
@@ -172,6 +180,7 @@ typedef NS_ENUM(NSInteger, IJKMediaEvent) {
     IJKMediaCtrl_WillHttpOpen          = 0x20003, // IJKMediaUrlOpenData: url, segmentIndex, retryCounter
     IJKMediaCtrl_WillLiveOpen          = 0x20005, // IJKMediaUrlOpenData: url, retryCounter
     IJKMediaCtrl_WillConcatSegmentOpen = 0x20007, // IJKMediaUrlOpenData: url, segmentIndex, retryCounter
+    
 };
 
 #define IJKMediaEventAttrKey_url            @"url"

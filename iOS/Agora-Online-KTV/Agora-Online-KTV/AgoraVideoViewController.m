@@ -15,6 +15,7 @@
 @interface AgoraVideoViewController ()<AgoraRtcEngineDelegate>
 {
     BOOL isChangeAudio;
+    NSInteger uid;
 }
 @property (weak, nonatomic) IBOutlet UIView *videoContainerView;
 @property(nonatomic, strong) id<IJKMediaPlayback> player;
@@ -59,37 +60,52 @@
 }
 - (void)viewDidLoad {
     [super viewDidLoad];
+    //设置
     [AgoraAudioFrame shareInstance].sampleRate = 48000;
     self.videoSessions = [[NSMutableArray alloc] init];
     //判断是否是主播
     if (self.isBroadcaster) {
-        [self initIjkPlayer:@"http://compress.mv.letusmix.com/914184d11605138c7de8c28f2905c63a.mp4"];
+        [self initIjkPlayer:@"http://crk.momocdn.com/mv/92/BE/92BEB71A-0BFF-4A9B-A7E0-755BEAC16E6A20180422_h264.mp4"];
     }else{
         [AgoraAudioFrame shareInstance].isAudience = 1;
     }
     [self hiddenButtons:!self.isBroadcaster];
-    isChangeAudio = true;
-    
+    isChangeAudio = false;
+    NSLog(@"SDKVersion -- %@",AgoraRtcEngineKit.getSdkVersion);
     self.rtcEngine = [AgoraRtcEngineKit sharedEngineWithAppId:@"<#APP_ID#>" delegate:self];
     [self.rtcEngine enableAudio];
     [self.rtcEngine enableVideo];
-    [self.rtcEngine enableDualStreamMode:true];
+    [self.rtcEngine enableDualStreamMode:false];
     [self.rtcEngine setAudioProfile:AgoraAudioProfileMusicHighQuality scenario:AgoraAudioScenarioGameStreaming];
     [self.rtcEngine setChannelProfile:AgoraChannelProfileLiveBroadcasting];
     [self.rtcEngine setClientRole:self.clientRole];
-    //开启耳返
+    [self.rtcEngine setParameters:@"{\"che.video.keep_prerotation\":false}"];
+    [self.rtcEngine setParameters:@"{\"che.video.local.camera_index\":1025}"];
+    //初始化之后加入频道之前开启耳返
     [self.rtcEngine enableInEarMonitoring:true];
     //    [self.rtcEngine setParameters:@"{\"che.audio.keep.audiosession\":true}"];
     //设置推送的视频分辨率 帧率 和 码率
-    [self.rtcEngine setVideoResolution:CGSizeMake(640, 360) andFrameRate:30 bitrate:1300];
+    [self.rtcEngine setVideoProfile:AgoraVideoProfileLandscape360P swapWidthAndHeight:false];
+    [self.rtcEngine setVideoResolution:CGSizeMake(640, 360) andFrameRate:15 bitrate:619];
     //mv的音频采样率和SDK的录制的音频的数据采样率保持一致
+    
     [self.rtcEngine setRecordingAudioFrameParametersWithSampleRate:48000 channel:2 mode:AgoraAudioRawFrameOperationModeReadWrite samplesPerCall:960];
     [self.rtcEngine setPlaybackAudioFrameParametersWithSampleRate:48000 channel:2 mode:AgoraAudioRawFrameOperationModeReadWrite samplesPerCall:960];
-    
+    //开启说话人检测功能
+    [self.rtcEngine enableAudioVolumeIndication:200 smooth:3];
     //加入房间
     [self.rtcEngine setExternalVideoSource:true useTexture:false pushMode:true];
     [self.rtcEngine setParameters:@"{\"che.audio.use.remoteio\":true}"];
     [self.rtcEngine setParameters:@"{\"che.audio.keep.audiosession\":true}"];
+//    [self.rtcEngine setLocalVoiceReverbOfType:AgoraAudioReverbDryLevel withValue:0];
+//    
+//    [self.rtcEngine setLocalVoiceReverbOfType:AgoraAudioReverbWetLevel withValue:4];
+//    
+//    [self.rtcEngine setLocalVoiceReverbOfType:AgoraAudioReverbRoomSize withValue:60];
+//    
+//    [self.rtcEngine setLocalVoiceReverbOfType:AgoraAudioReverbWetDelay withValue:18];
+//    
+//    [self.rtcEngine setLocalVoiceReverbOfType:AgoraAudioReverbStrength withValue:80];
     //注册引擎回调
     [[AgoraAudioFrame shareInstance] registerEngineKit:self.rtcEngine];
     [self.rtcEngine joinChannelByToken:nil channelId:self.roomName info:nil uid:0 joinSuccess:nil];
@@ -115,7 +131,6 @@
 //得到音频数据的处理
 -(void)ijk_Audio_CallBack:(NSNotification *)notification
 {
-    
     NSData *data = notification.object;
     char * p = (char *)[data bytes];
     [[AgoraAudioFrame shareInstance] pushAudioSource:p byteLength:data.length];
@@ -161,6 +176,7 @@
     IJKFFOptions *options = [IJKFFOptions optionsByDefault];
     //开启硬件解码器
     [options setOptionIntValue:1 forKey:@"videotoolbox" ofCategory:kIJKFFOptionCategoryPlayer];
+    [options setPlayerOptionIntValue:10 forKey:@"min-frames"];   // 最大缓存大小是3秒，可以依据自己的需求修改
     //获取视频的地址
     //    self.player = [[IJKFFMoviePlayerController alloc] initWithContentURL:[NSURL URLWithString:@"http://compress.mv.letusmix.com/914184d11605138c7de8c28f2905c63a.mp4"] withOptions:options];
     self.player = [[IJKFFMoviePlayerController alloc] initWithContentURL:[NSURL URLWithString:url] withOptions:options];
@@ -190,16 +206,20 @@
 - (IBAction)ChangeAudioStream:(id)sender {
     isChangeAudio =! isChangeAudio;
     [self.player changeAudioStream:isChangeAudio];
+   
+    
 }
 
 //调节播放/伴奏音量大小
 - (IBAction)volumeChange:(UISlider *)sender {
+    //改变伴奏大小的属性
     [AgoraAudioFrame shareInstance].songNum = sender.value;
-    [self.player setPlaybackVolume:sender.value];
+    NSString *params =  [NSString  stringWithFormat:@"{\"che.audio.playout.uid.volume\":{\"uid\":12345678,\"volume\":%f}}",sender.value * 100];
+    [self.rtcEngine setParameters:params];
     
 }
 - (IBAction)voiceNumChange:(UISlider *)sender {
-    
+    //改成人声大小的属性
     [AgoraAudioFrame shareInstance].voiceNum = sender.value;
     
 }
@@ -304,7 +324,11 @@
 }
 - (void)rtcEngine:(AgoraRtcEngineKit *)engine didJoinedOfUid:(NSUInteger)uid elapsed:(NSInteger)elapsed
 {
-    NSLog(@"%lu",(unsigned long)uid);
+    NSLog(@"uid === %lu",(unsigned long)uid);
+    
+//    [self.rtcEngine setParameters(@"{\"che.audio.playout.uid.volume\":{\"uid\":hostUid,\"volume\":30}}")];
+    
+    
 }
 -(void)rtcEngine:(AgoraRtcEngineKit *)engine firstRemoteVideoDecodedOfUid:(NSUInteger)uid size:(CGSize)size elapsed:(NSInteger)elapsed
 {
@@ -353,6 +377,12 @@
     [AgoraRtcEngineKit destroy];
     [self.navigationController  popViewControllerAnimated:true];
     
+}
+-(void)rtcEngine:(AgoraRtcEngineKit *)engine reportAudioVolumeIndicationOfSpeakers:(NSArray<AgoraRtcAudioVolumeInfo *> *)speakers totalVolume:(NSInteger)totalVolume
+{
+    for (AgoraRtcAudioVolumeInfo *info in speakers) {
+        NSLog(@"%lu   ----------  %lu" ,(unsigned long)info.uid,(unsigned long)info.volume);
+    }
 }
 
 @end
