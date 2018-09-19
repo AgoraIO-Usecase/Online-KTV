@@ -1,7 +1,7 @@
 package io.agora.ktvkit;
 
 import android.content.Context;
-import android.view.SurfaceHolder;
+import android.view.Surface;
 
 import io.agora.rtc.RtcEngine;
 import io.agora.rtc.video.AgoraVideoFrame;
@@ -48,6 +48,8 @@ public class KTVKit {
     private KTVKit() {
     }
 
+    private volatile boolean mOutsideRTCInstance;
+
     public static KTVKit create(RtcEngine rtcEngine, Context context, IKTVKitEventHandler handler) throws Exception {
         if (rtcEngine == null) {
             throw new RuntimeException("Must have a valid rtc engine");
@@ -55,6 +57,10 @@ public class KTVKit {
 
         if (handler == null) {
             throw new RuntimeException("Must have a valid KTV event handler");
+        }
+
+        if (mRtcEngine != null) {
+            throw new RuntimeException("Could't not create KTVKit more than once");
         }
 
         loadLibrariesOnce(sLocalLibLoader);
@@ -71,12 +77,18 @@ public class KTVKit {
         mKTVKit.setCallBack();
         mKTVKit.initAgoraObserver();
 
+        mKTVKit.mOutsideRTCInstance = true;
+
         return mKTVKit;
     }
 
     public static KTVKit create(Context context, String appId, IKTVKitEventHandler handler) throws Exception {
         if (handler == null) {
             throw new RuntimeException("Must have a valid KTV event handler");
+        }
+
+        if (mRtcEngine != null) {
+            throw new RuntimeException("Could't not create KTVKit more than once");
         }
 
         loadLibrariesOnce(sLocalLibLoader);
@@ -126,6 +138,7 @@ public class KTVKit {
     }
 
     public void stopPlayVideoFile() {
+        resetAudioBuffer();
         closeSong();
     }
 
@@ -137,16 +150,18 @@ public class KTVKit {
         destroyAudioBuf();
     }
 
-    public void setupDisplay(SurfaceHolder hd) {
-
+    public void setupDisplay(Surface surface) {
+        InitView(surface);
     }
 
-    public int getCurrentPosition() {
-        return 0;
+    public double getCurrentPosition() {
+        return PlayPos();
     }
+
+    private int mMediaDuration;
 
     public int getDuration() {
-        return 0;
+        return mMediaDuration;
     }
 
     public void seekTo(int seekToMs) {
@@ -207,28 +222,28 @@ public class KTVKit {
     // 获取视频进度
     private native double PlayPos();
 
-    // 播放完成之后的回调
-    void videoComplete() {
-//        log.debug("视频播放完成");
+    private native void InitView(Object surface);
+
+    @SuppressWarnings("Unused")
+    void onVideoPlayCompleted() {
         if (mKTVHandler != null) {
             mKTVHandler.onPlayerStopped();
         }
     }
 
-    // 视频时长回调
-    void totalMSCallBack(int time) {
-//        log.debug("视频播放时长 %d",time);
-        if (mKTVHandler != null) {
-            mKTVHandler.onCurrentPosition(time);
-        }
+    @SuppressWarnings("Unused")
+    void onTotalMediaDurationInMs(int time) {
+        mMediaDuration = time;
     }
 
     public RtcEngine getRtcEngine() {
-        return null;
+        return mRtcEngine;
     }
 
     public static synchronized void destroy() {
-        RtcEngine.destroy();
+        if (!mKTVKit.mOutsideRTCInstance) {
+            RtcEngine.destroy();
+        }
 
         if (mRtcEngine != null) {
             mRtcEngine = null;

@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">Agora-Online-KTV</string>
-    <string name="title_activity_xplay">XPlay</string>
 
     <string name="label_settings">Settings</string>
 
