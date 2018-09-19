@@ -1,6 +1,6 @@
 # AgoraShareVideoBroadcasting AgoraShareVideoAudience
 
-*其他语言版本： [简体中文](README.md)*
+*其他语言版本： [简体中文](README.zh.md)*
 
 The client show the method of how to KTV funtion base on Agora SDK. 
 This open source include 2 project folders:
