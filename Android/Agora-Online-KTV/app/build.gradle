@@ -4,7 +4,8 @@ android {
     compileSdkVersion 26
 
     defaultConfig {
-        applicationId "io.agora.agoraplayerdemo"
+        applicationId "io.agora.ard.ktv"
+
         minSdkVersion 16
         targetSdkVersion 26
         versionCode 1
@@ -30,7 +31,7 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    implementation project(':agora-ktv-kit')
+    implementation project(':agora-ktv-kit-release')
 
     implementation 'com.android.support:appcompat-v7:26.1.0'
     implementation 'com.android.support.constraint:constraint-layout:1.1.3'
