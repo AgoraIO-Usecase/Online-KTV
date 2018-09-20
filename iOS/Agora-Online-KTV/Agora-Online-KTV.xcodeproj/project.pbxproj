@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8B43661E2153A15C007FA50A /* KTVKit.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B43661D2153A15C007FA50A /* KTVKit.m */; };
 		8B45722C213916AA003E700A /* AudioCircularBuffer.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8B45722A213916A9003E700A /* AudioCircularBuffer.cc */; };
 		8B58E9FA212D46F600EB29ED /* libSuperpoweredAudioIOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B58E9F7212D46F600EB29ED /* libSuperpoweredAudioIOS.a */; };
 		8B64504E213992F6002307A6 /* IJKMediaFramework.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 8BCD42012099D9E100148589 /* IJKMediaFramework.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -57,6 +58,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		8B43661C2153A15C007FA50A /* KTVKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KTVKit.h; sourceTree = "<group>"; };
+		8B43661D2153A15C007FA50A /* KTVKit.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KTVKit.m; sourceTree = "<group>"; };
 		8B45722821391613003E700A /* constructor_magic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = constructor_magic.h; sourceTree = "<group>"; };
 		8B45722921391635003E700A /* typedefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = typedefs.h; sourceTree = "<group>"; };
 		8B45722A213916A9003E700A /* AudioCircularBuffer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AudioCircularBuffer.cc; sourceTree = "<group>"; };
@@ -147,6 +150,58 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		8B43661721539EE7007FA50A /* AgoraKtvKit */ = {
+			isa = PBXGroup;
+			children = (
+				8B45722A213916A9003E700A /* AudioCircularBuffer.cc */,
+				8B45722D21391707003E700A /* scoped_ptr.h */,
+				8B45722921391635003E700A /* typedefs.h */,
+				8B45722E21391842003E700A /* template_util.h */,
+				8B45722B213916A9003E700A /* AudioCircularBuffer.h */,
+				8B45722821391613003E700A /* constructor_magic.h */,
+				8BEF56512090803E001BE9D8 /* AgoraAudioFrame.h */,
+				8BEF56522090803E001BE9D8 /* AgoraAudioFrame.mm */,
+				8B43661C2153A15C007FA50A /* KTVKit.h */,
+				8B43661D2153A15C007FA50A /* KTVKit.m */,
+			);
+			path = AgoraKtvKit;
+			sourceTree = "<group>";
+		};
+		8B43661921539F25007FA50A /* views */ = {
+			isa = PBXGroup;
+			children = (
+				8BEF560F209074AE001BE9D8 /* Main.storyboard */,
+				8BEF5614209074AF001BE9D8 /* LaunchScreen.storyboard */,
+				8BB1B8782136782D007EB9DF /* VideoSession.h */,
+				8BB1B8792136782D007EB9DF /* VideoSession.m */,
+				8BB1B87B2136782E007EB9DF /* VideoViewLayouter.h */,
+				8BB1B87A2136782D007EB9DF /* VideoViewLayouter.m */,
+			);
+			path = views;
+			sourceTree = "<group>";
+		};
+		8B43661A21539F5C007FA50A /* Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				8BEF561F209074CE001BE9D8 /* AgoraVideoViewController.h */,
+				8BEF5620209074CE001BE9D8 /* AgoraVideoViewController.m */,
+				8BB1B875213675A4007EB9DF /* AgoraMainViewController.h */,
+				8BB1B876213675A4007EB9DF /* AgoraMainViewController.m */,
+			);
+			path = Controllers;
+			sourceTree = "<group>";
+		};
+		8B43661B21539F78007FA50A /* others */ = {
+			isa = PBXGroup;
+			children = (
+				8BEF5609209074AE001BE9D8 /* AppDelegate.h */,
+				8BEF560A209074AE001BE9D8 /* AppDelegate.m */,
+				8BEF5612209074AF001BE9D8 /* Assets.xcassets */,
+				8BEF5618209074AF001BE9D8 /* main.m */,
+			);
+			path = others;
+			sourceTree = "<group>";
+		};
 		8B58E9EF212D46D300EB29ED /* superpower */ = {
 			isa = PBXGroup;
 			children = (
@@ -186,31 +241,13 @@
 		8BEF5608209074AE001BE9D8 /* Agora-Online-KTV */ = {
 			isa = PBXGroup;
 			children = (
-				8B58E9EF212D46D300EB29ED /* superpower */,
-				8BEF5609209074AE001BE9D8 /* AppDelegate.h */,
-				8BEF560A209074AE001BE9D8 /* AppDelegate.m */,
-				8BEF561F209074CE001BE9D8 /* AgoraVideoViewController.h */,
-				8BEF5620209074CE001BE9D8 /* AgoraVideoViewController.m */,
-				8BB1B875213675A4007EB9DF /* AgoraMainViewController.h */,
-				8BB1B876213675A4007EB9DF /* AgoraMainViewController.m */,
-				8BEF56512090803E001BE9D8 /* AgoraAudioFrame.h */,
-				8BEF56522090803E001BE9D8 /* AgoraAudioFrame.mm */,
-				8BB1B8782136782D007EB9DF /* VideoSession.h */,
-				8BB1B8792136782D007EB9DF /* VideoSession.m */,
-				8BB1B87B2136782E007EB9DF /* VideoViewLayouter.h */,
-				8BB1B87A2136782D007EB9DF /* VideoViewLayouter.m */,
-				8BEF560F209074AE001BE9D8 /* Main.storyboard */,
-				8B45722D21391707003E700A /* scoped_ptr.h */,
-				8B45722A213916A9003E700A /* AudioCircularBuffer.cc */,
-				8B45722921391635003E700A /* typedefs.h */,
-				8B45722E21391842003E700A /* template_util.h */,
-				8B45722B213916A9003E700A /* AudioCircularBuffer.h */,
-				8B45722821391613003E700A /* constructor_magic.h */,
-				8BEF5612209074AF001BE9D8 /* Assets.xcassets */,
-				8BEF5614209074AF001BE9D8 /* LaunchScreen.storyboard */,
 				8BEF5617209074AF001BE9D8 /* Info.plist */,
-				8BEF5618209074AF001BE9D8 /* main.m */,
 				8B58E9CE212D462500EB29ED /* Agora-onlive-ktv.pch */,
+				8B43661B21539F78007FA50A /* others */,
+				8B43661A21539F5C007FA50A /* Controllers */,
+				8B43661921539F25007FA50A /* views */,
+				8B43661721539EE7007FA50A /* AgoraKtvKit */,
+				8B58E9EF212D46D300EB29ED /* superpower */,
 			);
 			path = "Agora-Online-KTV";
 			sourceTree = "<group>";
@@ -323,6 +360,7 @@
 				8BB1B87C2136782E007EB9DF /* VideoSession.m in Sources */,
 				8BB1B877213675A4007EB9DF /* AgoraMainViewController.m in Sources */,
 				8BEF5619209074AF001BE9D8 /* main.m in Sources */,
+				8B43661E2153A15C007FA50A /* KTVKit.m in Sources */,
 				8B45722C213916AA003E700A /* AudioCircularBuffer.cc in Sources */,
 				8BEF56532090803E001BE9D8 /* AgoraAudioFrame.mm in Sources */,
 				8BB1B87D2136782E007EB9DF /* VideoViewLayouter.m in Sources */,
