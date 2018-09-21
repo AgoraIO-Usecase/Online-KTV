@@ -61,7 +61,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     //默认播放音轨为2的伴奏  如果遇到伴奏音轨在1的情况 设置这个值为false
-    isChangeAudio = true;
+    isChangeAudio = false;
     //设置
     self.videoSessions = [[NSMutableArray alloc] init];
     [self hiddenButtons:!self.isBroadcaster];
@@ -74,11 +74,13 @@
     [self.rtcEngine setChannelProfile:AgoraChannelProfileLiveBroadcasting];
     [self.rtcEngine setVideoProfile:AgoraVideoProfilePortrait360P swapWidthAndHeight:false];
     [self.rtcEngine setClientRole:self.clientRole];
-    //判断是否是主播
-    if (self.isBroadcaster) {
-        //KTVKit 模块的初始化 设置视频地址 设置需要绑定的渲染的View 绑定RTCEngine 设置MV的音频采样率
-        [[KTVKit shareInstance] createKTVKit:@"http://ktv.guagua.cn/group1/M01/02/AF/wKgD8lt2_MiAAGCyAbmQIzhyaUk855.mp4" withView:self.videoContainerView rtcEngine:self.rtcEngine withsampleRate:48000];
-        [KTVKit shareInstance].delegate = self;
+    //KTVKit 模块的初始化 设置视频地址 设置需要绑定的渲染的View 绑定RTCEngine 设置MV的音频采样率
+    [[KTVKit shareInstance] createKTVKitWithView:self.videoContainerView rtcEngine:self.rtcEngine withsampleRate:48000];
+    [KTVKit shareInstance].delegate = self;
+    //判断是否是主播 主播预加载好MV
+    if ([self isBroadcaster]) {
+        [[KTVKit shareInstance] loadMV:@"http://ktv.guagua.cn/group1/M01/02/AF/wKgD8lt2_MiAAGCyAbmQIzhyaUk855.mp4"];
+        
     }
     [self.rtcEngine joinChannelByToken:nil channelId:self.roomName info:nil uid:0 joinSuccess:nil];
     
@@ -140,7 +142,9 @@
         
         self.clientRole = AgoraClientRoleBroadcaster;
         //上麦时KTV模块加载歌曲
-        [[KTVKit shareInstance] switchMV:@"http://compress.mv.letusmix.com/914184d11605138c7de8c28f2905c63a.mp4"];
+        //默认播放音轨为2的伴奏  如果遇到伴奏音轨在1的情况 设置这个值为false
+        isChangeAudio = false;
+        [[KTVKit shareInstance] loadMV:@"http://compress.mv.letusmix.com/914184d11605138c7de8c28f2905c63a.mp4"];
     }
     [self.rtcEngine setClientRole:self.clientRole];
     [self hiddenButtons:!self.isBroadcaster];
@@ -254,8 +258,10 @@
 }
 //切歌
 - (IBAction)changeMV:(id)sender {
+    //默认播放音轨为2的伴奏  如果遇到伴奏音轨在1的情况 设置这个值为false
+    isChangeAudio = false;
     //切歌执行的操作
-    [[KTVKit shareInstance] switchMV:@"http://compress.mv.letusmix.com/914184d11605138c7de8c28f2905c63a.mp4"];
+    [[KTVKit shareInstance] loadMV:@"http://compress.mv.letusmix.com/914184d11605138c7de8c28f2905c63a.mp4"];
 }
 //离开房间执行
 - (IBAction)leaveChannel:(id)sender {
