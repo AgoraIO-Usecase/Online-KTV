@@ -164,11 +164,9 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler, Se
                             return;
                         }
 
-                        mMediaMetaArea.setText((int) currentPosition + " " + mKTVKit.getDuration());
+                        int duration = mKTVKit.getDuration();
 
-                        int duration = (mKTVKit.getDuration() / 1000);
-
-                        mMediaMetaArea.setText((int) Math.floor(currentPosition * duration) + " " + duration);
+                        ((TextView) findViewById(R.id.media_meta)).setText((int) Math.floor((currentPosition * duration) / 1000) + " " + duration / 1000);
                     }
                 });
             }
@@ -247,11 +245,11 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler, Se
 
     @Override
     protected void deInitUIandEvent() {
+        event().removeEventHandler(this);
     }
 
     // 控制按钮隐藏 显示
     void doShowButtons(boolean hide) {
-
         playBtn.setVisibility(hide ? View.INVISIBLE : View.VISIBLE);
         pauseBtn.setVisibility(hide ? View.INVISIBLE : View.VISIBLE);
         changeAudioTrackBtn.setVisibility(hide ? View.INVISIBLE : View.VISIBLE);
@@ -364,6 +362,7 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler, Se
         if (mScheduledFuture != null) {
             mScheduledFuture.cancel(true);
         }
+        mScheduledExecutorService.shutdownNow();
 
         mKTVKit.stopPlayVideoFile();
 
