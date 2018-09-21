@@ -16,6 +16,7 @@
     BOOL isChangeAudio;
     AgoraRtcEngineKit *_rtcEngine;
     BOOL isLoadSuccess;
+    float tmp;
 }
 @property(nonatomic, strong) id<IJKMediaPlayback> player;
 
@@ -34,9 +35,10 @@
     return sharedInstance;
     
 }
--(void)createKTVKit:(NSString *)videoPath withView:(UIView *)view rtcEngine:(nonnull AgoraRtcEngineKit *)rtcEngine withsampleRate:(int)sampleRate
+-(void)createKTVKitWithView:(UIView *)view rtcEngine:(nonnull AgoraRtcEngineKit *)rtcEngine withsampleRate:(int)sampleRate
 {
     _rtcEngine = rtcEngine;
+    _containerView = view;
     [[AgoraAudioFrame shareInstance] registerEngineKit:_rtcEngine];
     
     [_rtcEngine setParameters:@"{\"che.video.keep_prerotation\":false}"];
@@ -65,11 +67,12 @@
     [_rtcEngine setLocalVoiceReverbOfType:AgoraAudioReverbStrength withValue:80];
     [AgoraAudioFrame shareInstance].sampleRate = sampleRate;
     [self registerNotifications];
-    [self initIjkPlayer:videoPath view:view];
+    
 }
 //切歌
--(void)switchMV:(NSString *)videoPath{
-    
+-(void)loadMV:(NSString *)videoPath;
+{
+    [[AgoraAudioFrame shareInstance] destroyAudioBuf];
     [self initIjkPlayer:videoPath view:_containerView];
 }
 //获取视频时长
@@ -110,6 +113,7 @@
         [self.player.view removeFromSuperview];
         self.player = NULL;
     }
+    [[AgoraAudioFrame shareInstance] destroyAudioBuf];
 }
 //初始化ijk
 -(void)initIjkPlayer:(NSString *)url view:(UIView *)view{
@@ -142,9 +146,12 @@
     self.player.view.frame = view.bounds;
     self.player.scalingMode = IJKMPMovieScalingModeFill;
     self.player.shouldAutoplay = false;
+    [self.player setPauseInBackground:true];
     view.autoresizesSubviews = YES;
     [view addSubview:self.player.view];
+    [self refreshMediaControl];
     [self.player prepareToPlay];
+    tmp = 0.000000f;
 }
 -(void)registerRTCEngine:(AgoraRtcEngineKit *)rtcEngine{
     _rtcEngine = rtcEngine;
@@ -183,7 +190,7 @@
 //播放完成回调
 -(void)PlaybackDidFinish:(NSNotification *)not{
     NSLog(@"%@",not.userInfo);
-    if (self.delegate && [self.delegate respondsToSelector:@selector(loadMVSuccess)]) {
+    if (self.delegate && [self.delegate respondsToSelector:@selector(ktvStatusCallBack:)]) {
         [self.delegate ktvStatusCallBack:KTVStatusTypeCompleted];
     }
     
@@ -192,6 +199,7 @@
     [[NSNotificationCenter defaultCenter] removeObserver:self name:@"ijk_Audio_CallBack" object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:@"ijk_video_CallBack" object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:IJKMPMoviePlayerPlaybackDidFinishNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:IJKMPMediaPlaybackIsPreparedToPlayDidChangeNotification object:nil];
 }
 -(void)destroyKTVKit
 {
@@ -203,6 +211,29 @@
     if (self.delegate && [self.delegate respondsToSelector:@selector(ktvStatusCallBack:)]) {
         [self.delegate ktvStatusCallBack:KTVStatusTypePrepared];
     }
+}
+-(void)refreshMediaControl{
+    float postion = 0.000000f;
+     postion = [self getCurrentPosition];
+    float duation = 0.f;
+    int limitduation = 960;
+    if (isLoadSuccess) {
+       duation = [self getDuation];
+        if ((int)duation > 120) {
+            limitduation = 990;
+        }
+    }
+    if (isLoadSuccess && postion != 0.00000f && (int)(postion * 100) - (int)(tmp* 100) == 0 && (int)(postion * 1000) > limitduation ) {
+        isLoadSuccess = false;
+        if (self.delegate && [self.delegate respondsToSelector:@selector(ktvStatusCallBack:)]) {
+            [self.delegate ktvStatusCallBack:KTVStatusTypeCompleted];
+        }
+    }
+    NSLog(@"positon  --> %f",postion);
+    if (self.player) {
+        [self performSelector:@selector(refreshMediaControl) withObject:nil afterDelay:1];
+    }
+    tmp = postion;
 }
 
 @end
