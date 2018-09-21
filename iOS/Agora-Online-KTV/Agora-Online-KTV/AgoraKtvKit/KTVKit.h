@@ -27,9 +27,9 @@ typedef NS_ENUM(NSInteger, KTVStatusType)
 + (instancetype)shareInstance;
 @property (nonatomic, assign) id<KTVKitDelegate>delegate;
 //创建KTVKit
--(void)createKTVKit:(NSString *)videoPath withView:(UIView *)view rtcEngine:(AgoraRtcEngineKit *)rtcEngine withsampleRate:(int)sampleRate ;
+-(void)createKTVKitWithView:(UIView *)view rtcEngine:(nonnull AgoraRtcEngineKit *)rtcEngine withsampleRate:(int)sampleRate;
 //切歌
--(void)switchMV:(NSString *)videoPath;
+-(void)loadMV:(NSString *)videoPath;
 //获取视频时长
 -(double)getDuation;
 //获取当前的视频位置
