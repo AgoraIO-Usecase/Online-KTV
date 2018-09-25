@@ -186,11 +186,10 @@ public class WorkerThread extends Thread {
         mEngineConfig.mClientRole = cRole;
         mEngineConfig.mVideoProfile = vProfile;
         mRtcEngine.setVideoProfile(mEngineConfig.mVideoProfile, false);
-        mRtcEngine.setRecordingAudioFrameParameters(48000, 2, 2, 960);
+        mRtcEngine.setRecordingAudioFrameParameters(48000, 2, Constants.RAW_AUDIO_FRAME_OP_MODE_READ_WRITE, 960);
         mRtcEngine.setExternalVideoSource(true, false, true);
         mRtcEngine.setClientRole(cRole);
         log.debug("configEngine " + cRole + " " + mEngineConfig.mVideoProfile);
-
     }
 
     public MyEngineEventHandler eventHandler() {
