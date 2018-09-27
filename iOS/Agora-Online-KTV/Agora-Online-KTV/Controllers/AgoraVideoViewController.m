@@ -66,7 +66,7 @@
     self.videoSessions = [[NSMutableArray alloc] init];
     [self hiddenButtons:!self.isBroadcaster];
     NSLog(@"SDKVersion -- %@",AgoraRtcEngineKit.getSdkVersion);
-    self.rtcEngine = [AgoraRtcEngineKit sharedEngineWithAppId:@"5317542f78234c1182c5bee47f297694" delegate:self];
+    self.rtcEngine = [AgoraRtcEngineKit sharedEngineWithAppId:@"<#APP_ID#>" delegate:self];
     [self.rtcEngine enableAudio];
     [self.rtcEngine enableVideo];
     [self.rtcEngine enableDualStreamMode:false];
