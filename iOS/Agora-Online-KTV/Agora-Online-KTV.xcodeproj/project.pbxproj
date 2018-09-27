@@ -15,6 +15,20 @@
 		8BB1B87C2136782E007EB9DF /* VideoSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BB1B8792136782D007EB9DF /* VideoSession.m */; };
 		8BB1B87D2136782E007EB9DF /* VideoViewLayouter.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BB1B87A2136782D007EB9DF /* VideoViewLayouter.m */; };
 		8BCD42022099D9E100148589 /* IJKMediaFramework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BCD42012099D9E100148589 /* IJKMediaFramework.framework */; };
+		8BD8BE61215A6EFC006CEF31 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BD8BE60215A6EFC006CEF31 /* Foundation.framework */; };
+		8BD8BE91215A7101006CEF31 /* external_resampler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8BD8BE68215A7100006CEF31 /* external_resampler.cpp */; };
+		8BD8BE92215A7101006CEF31 /* aligned_malloc.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8BD8BE77215A7100006CEF31 /* aligned_malloc.cc */; };
+		8BD8BE93215A7101006CEF31 /* audio_util.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8BD8BE79215A7101006CEF31 /* audio_util.cc */; };
+		8BD8BE94215A7101006CEF31 /* push_sinc_resampler.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8BD8BE7B215A7101006CEF31 /* push_sinc_resampler.cc */; };
+		8BD8BE95215A7101006CEF31 /* resampler.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8BD8BE7D215A7101006CEF31 /* resampler.cc */; };
+		8BD8BE96215A7101006CEF31 /* simple_resampler.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8BD8BE7E215A7101006CEF31 /* simple_resampler.cc */; };
+		8BD8BE97215A7101006CEF31 /* push_resampler.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8BD8BE84215A7101006CEF31 /* push_resampler.cc */; };
+		8BD8BE98215A7101006CEF31 /* sinc_resampler.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8BD8BE85215A7101006CEF31 /* sinc_resampler.cc */; };
+		8BD8BE99215A7101006CEF31 /* resample_by_2_internal.c in Sources */ = {isa = PBXBuildFile; fileRef = 8BD8BE88215A7101006CEF31 /* resample_by_2_internal.c */; };
+		8BD8BE9A215A7101006CEF31 /* resample.c in Sources */ = {isa = PBXBuildFile; fileRef = 8BD8BE8D215A7101006CEF31 /* resample.c */; };
+		8BD8BE9B215A7101006CEF31 /* resample_fractional.c in Sources */ = {isa = PBXBuildFile; fileRef = 8BD8BE8E215A7101006CEF31 /* resample_fractional.c */; };
+		8BD8BE9C215A7101006CEF31 /* resample_by_2.c in Sources */ = {isa = PBXBuildFile; fileRef = 8BD8BE8F215A7101006CEF31 /* resample_by_2.c */; };
+		8BD8BE9D215A7101006CEF31 /* resample_48khz.c in Sources */ = {isa = PBXBuildFile; fileRef = 8BD8BE90215A7101006CEF31 /* resample_48khz.c */; };
 		8BEF560B209074AE001BE9D8 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BEF560A209074AE001BE9D8 /* AppDelegate.m */; };
 		8BEF5611209074AE001BE9D8 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8BEF560F209074AE001BE9D8 /* Main.storyboard */; };
 		8BEF5613209074AF001BE9D8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8BEF5612209074AF001BE9D8 /* Assets.xcassets */; };
@@ -85,6 +99,40 @@
 		8BB1B87A2136782D007EB9DF /* VideoViewLayouter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VideoViewLayouter.m; sourceTree = "<group>"; };
 		8BB1B87B2136782E007EB9DF /* VideoViewLayouter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VideoViewLayouter.h; sourceTree = "<group>"; };
 		8BCD42012099D9E100148589 /* IJKMediaFramework.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IJKMediaFramework.framework; path = "Agora-Online-KTV/IJKMediaFramework.framework"; sourceTree = "<group>"; };
+		8BD8BE60215A6EFC006CEF31 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		8BD8BE67215A70FF006CEF31 /* external_resampler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = external_resampler.h; sourceTree = "<group>"; };
+		8BD8BE68215A7100006CEF31 /* external_resampler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = external_resampler.cpp; sourceTree = "<group>"; };
+		8BD8BE6A215A7100006CEF31 /* common_types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = common_types.h; sourceTree = "<group>"; };
+		8BD8BE6B215A7100006CEF31 /* typedefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = typedefs.h; sourceTree = "<group>"; };
+		8BD8BE6C215A7100006CEF31 /* module_common_types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = module_common_types.h; sourceTree = "<group>"; };
+		8BD8BE6F215A7100006CEF31 /* scoped_ptr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = scoped_ptr.h; sourceTree = "<group>"; };
+		8BD8BE70215A7100006CEF31 /* template_util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = template_util.h; sourceTree = "<group>"; };
+		8BD8BE71215A7100006CEF31 /* aligned_malloc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = aligned_malloc.h; sourceTree = "<group>"; };
+		8BD8BE72215A7100006CEF31 /* compile_assert.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = compile_assert.h; sourceTree = "<group>"; };
+		8BD8BE73215A7100006CEF31 /* constructor_magic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = constructor_magic.h; sourceTree = "<group>"; };
+		8BD8BE74215A7100006CEF31 /* trace.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = trace.h; sourceTree = "<group>"; };
+		8BD8BE75215A7100006CEF31 /* cpu_features_wrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cpu_features_wrapper.h; sourceTree = "<group>"; };
+		8BD8BE77215A7100006CEF31 /* aligned_malloc.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = aligned_malloc.cc; sourceTree = "<group>"; };
+		8BD8BE79215A7101006CEF31 /* audio_util.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = audio_util.cc; sourceTree = "<group>"; };
+		8BD8BE7B215A7101006CEF31 /* push_sinc_resampler.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = push_sinc_resampler.cc; sourceTree = "<group>"; };
+		8BD8BE7C215A7101006CEF31 /* sinc_resampler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sinc_resampler.h; sourceTree = "<group>"; };
+		8BD8BE7D215A7101006CEF31 /* resampler.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = resampler.cc; sourceTree = "<group>"; };
+		8BD8BE7E215A7101006CEF31 /* simple_resampler.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = simple_resampler.cc; sourceTree = "<group>"; };
+		8BD8BE80215A7101006CEF31 /* push_resampler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = push_resampler.h; sourceTree = "<group>"; };
+		8BD8BE81215A7101006CEF31 /* simple_resampler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = simple_resampler.h; sourceTree = "<group>"; };
+		8BD8BE82215A7101006CEF31 /* resampler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = resampler.h; sourceTree = "<group>"; };
+		8BD8BE83215A7101006CEF31 /* push_sinc_resampler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = push_sinc_resampler.h; sourceTree = "<group>"; };
+		8BD8BE84215A7101006CEF31 /* push_resampler.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = push_resampler.cc; sourceTree = "<group>"; };
+		8BD8BE85215A7101006CEF31 /* sinc_resampler.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sinc_resampler.cc; sourceTree = "<group>"; };
+		8BD8BE86215A7101006CEF31 /* audio_util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = audio_util.h; sourceTree = "<group>"; };
+		8BD8BE88215A7101006CEF31 /* resample_by_2_internal.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = resample_by_2_internal.c; sourceTree = "<group>"; };
+		8BD8BE8A215A7101006CEF31 /* signal_processing_library.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = signal_processing_library.h; sourceTree = "<group>"; };
+		8BD8BE8B215A7101006CEF31 /* spl_inl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spl_inl.h; sourceTree = "<group>"; };
+		8BD8BE8C215A7101006CEF31 /* resample_by_2_internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = resample_by_2_internal.h; sourceTree = "<group>"; };
+		8BD8BE8D215A7101006CEF31 /* resample.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = resample.c; sourceTree = "<group>"; };
+		8BD8BE8E215A7101006CEF31 /* resample_fractional.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = resample_fractional.c; sourceTree = "<group>"; };
+		8BD8BE8F215A7101006CEF31 /* resample_by_2.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = resample_by_2.c; sourceTree = "<group>"; };
+		8BD8BE90215A7101006CEF31 /* resample_48khz.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = resample_48khz.c; sourceTree = "<group>"; };
 		8BEF5606209074AE001BE9D8 /* Agora-Online-KTV.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Agora-Online-KTV.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		8BEF5609209074AE001BE9D8 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		8BEF560A209074AE001BE9D8 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -123,6 +171,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8BD8BE61215A6EFC006CEF31 /* Foundation.framework in Frameworks */,
 				8BCD42022099D9E100148589 /* IJKMediaFramework.framework in Frameworks */,
 				8BEF565020907FDC001BE9D8 /* AgoraRtcEngineKit.framework in Frameworks */,
 				8BEF564820907656001BE9D8 /* VideoToolbox.framework in Frameworks */,
@@ -194,6 +243,11 @@
 		8B43661B21539F78007FA50A /* others */ = {
 			isa = PBXGroup;
 			children = (
+				8BD8BE78215A7101006CEF31 /* common_audio */,
+				8BD8BE68215A7100006CEF31 /* external_resampler.cpp */,
+				8BD8BE67215A70FF006CEF31 /* external_resampler.h */,
+				8BD8BE69215A7100006CEF31 /* include */,
+				8BD8BE6D215A7100006CEF31 /* system_wrappers */,
 				8BEF5609209074AE001BE9D8 /* AppDelegate.h */,
 				8BEF560A209074AE001BE9D8 /* AppDelegate.m */,
 				8BEF5612209074AF001BE9D8 /* Assets.xcassets */,
@@ -218,6 +272,106 @@
 				8B58E9F2212D46F400EB29ED /* SuperpoweredFFT.h */,
 			);
 			path = superpower;
+			sourceTree = "<group>";
+		};
+		8BD8BE69215A7100006CEF31 /* include */ = {
+			isa = PBXGroup;
+			children = (
+				8BD8BE6A215A7100006CEF31 /* common_types.h */,
+				8BD8BE6B215A7100006CEF31 /* typedefs.h */,
+				8BD8BE6C215A7100006CEF31 /* module_common_types.h */,
+			);
+			path = include;
+			sourceTree = "<group>";
+		};
+		8BD8BE6D215A7100006CEF31 /* system_wrappers */ = {
+			isa = PBXGroup;
+			children = (
+				8BD8BE6E215A7100006CEF31 /* interface */,
+				8BD8BE76215A7100006CEF31 /* source */,
+			);
+			path = system_wrappers;
+			sourceTree = "<group>";
+		};
+		8BD8BE6E215A7100006CEF31 /* interface */ = {
+			isa = PBXGroup;
+			children = (
+				8BD8BE6F215A7100006CEF31 /* scoped_ptr.h */,
+				8BD8BE70215A7100006CEF31 /* template_util.h */,
+				8BD8BE71215A7100006CEF31 /* aligned_malloc.h */,
+				8BD8BE72215A7100006CEF31 /* compile_assert.h */,
+				8BD8BE73215A7100006CEF31 /* constructor_magic.h */,
+				8BD8BE74215A7100006CEF31 /* trace.h */,
+				8BD8BE75215A7100006CEF31 /* cpu_features_wrapper.h */,
+			);
+			path = interface;
+			sourceTree = "<group>";
+		};
+		8BD8BE76215A7100006CEF31 /* source */ = {
+			isa = PBXGroup;
+			children = (
+				8BD8BE77215A7100006CEF31 /* aligned_malloc.cc */,
+			);
+			path = source;
+			sourceTree = "<group>";
+		};
+		8BD8BE78215A7101006CEF31 /* common_audio */ = {
+			isa = PBXGroup;
+			children = (
+				8BD8BE79215A7101006CEF31 /* audio_util.cc */,
+				8BD8BE7A215A7101006CEF31 /* resampler */,
+				8BD8BE86215A7101006CEF31 /* audio_util.h */,
+				8BD8BE87215A7101006CEF31 /* signal_processing */,
+			);
+			path = common_audio;
+			sourceTree = "<group>";
+		};
+		8BD8BE7A215A7101006CEF31 /* resampler */ = {
+			isa = PBXGroup;
+			children = (
+				8BD8BE7B215A7101006CEF31 /* push_sinc_resampler.cc */,
+				8BD8BE7C215A7101006CEF31 /* sinc_resampler.h */,
+				8BD8BE7D215A7101006CEF31 /* resampler.cc */,
+				8BD8BE7E215A7101006CEF31 /* simple_resampler.cc */,
+				8BD8BE7F215A7101006CEF31 /* include */,
+				8BD8BE83215A7101006CEF31 /* push_sinc_resampler.h */,
+				8BD8BE84215A7101006CEF31 /* push_resampler.cc */,
+				8BD8BE85215A7101006CEF31 /* sinc_resampler.cc */,
+			);
+			path = resampler;
+			sourceTree = "<group>";
+		};
+		8BD8BE7F215A7101006CEF31 /* include */ = {
+			isa = PBXGroup;
+			children = (
+				8BD8BE80215A7101006CEF31 /* push_resampler.h */,
+				8BD8BE81215A7101006CEF31 /* simple_resampler.h */,
+				8BD8BE82215A7101006CEF31 /* resampler.h */,
+			);
+			path = include;
+			sourceTree = "<group>";
+		};
+		8BD8BE87215A7101006CEF31 /* signal_processing */ = {
+			isa = PBXGroup;
+			children = (
+				8BD8BE88215A7101006CEF31 /* resample_by_2_internal.c */,
+				8BD8BE89215A7101006CEF31 /* include */,
+				8BD8BE8C215A7101006CEF31 /* resample_by_2_internal.h */,
+				8BD8BE8D215A7101006CEF31 /* resample.c */,
+				8BD8BE8E215A7101006CEF31 /* resample_fractional.c */,
+				8BD8BE8F215A7101006CEF31 /* resample_by_2.c */,
+				8BD8BE90215A7101006CEF31 /* resample_48khz.c */,
+			);
+			path = signal_processing;
+			sourceTree = "<group>";
+		};
+		8BD8BE89215A7101006CEF31 /* include */ = {
+			isa = PBXGroup;
+			children = (
+				8BD8BE8A215A7101006CEF31 /* signal_processing_library.h */,
+				8BD8BE8B215A7101006CEF31 /* spl_inl.h */,
+			);
+			path = include;
 			sourceTree = "<group>";
 		};
 		8BEF55FD209074AE001BE9D8 = {
@@ -255,6 +409,7 @@
 		8BEF56222090759A001BE9D8 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				8BD8BE60215A6EFC006CEF31 /* Foundation.framework */,
 				8BCD42012099D9E100148589 /* IJKMediaFramework.framework */,
 				8BEF564F20907FDC001BE9D8 /* AgoraRtcEngineKit.framework */,
 				8BEF564720907656001BE9D8 /* VideoToolbox.framework */,
@@ -357,15 +512,28 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8BD8BE9D215A7101006CEF31 /* resample_48khz.c in Sources */,
+				8BD8BE93215A7101006CEF31 /* audio_util.cc in Sources */,
 				8BB1B87C2136782E007EB9DF /* VideoSession.m in Sources */,
 				8BB1B877213675A4007EB9DF /* AgoraMainViewController.m in Sources */,
+				8BD8BE92215A7101006CEF31 /* aligned_malloc.cc in Sources */,
+				8BD8BE91215A7101006CEF31 /* external_resampler.cpp in Sources */,
 				8BEF5619209074AF001BE9D8 /* main.m in Sources */,
 				8B43661E2153A15C007FA50A /* KTVKit.m in Sources */,
+				8BD8BE9A215A7101006CEF31 /* resample.c in Sources */,
+				8BD8BE98215A7101006CEF31 /* sinc_resampler.cc in Sources */,
+				8BD8BE95215A7101006CEF31 /* resampler.cc in Sources */,
+				8BD8BE96215A7101006CEF31 /* simple_resampler.cc in Sources */,
 				8B45722C213916AA003E700A /* AudioCircularBuffer.cc in Sources */,
+				8BD8BE9C215A7101006CEF31 /* resample_by_2.c in Sources */,
 				8BEF56532090803E001BE9D8 /* AgoraAudioFrame.mm in Sources */,
+				8BD8BE9B215A7101006CEF31 /* resample_fractional.c in Sources */,
 				8BB1B87D2136782E007EB9DF /* VideoViewLayouter.m in Sources */,
+				8BD8BE99215A7101006CEF31 /* resample_by_2_internal.c in Sources */,
 				8BEF560B209074AE001BE9D8 /* AppDelegate.m in Sources */,
 				8BEF5621209074CE001BE9D8 /* AgoraVideoViewController.m in Sources */,
+				8BD8BE94215A7101006CEF31 /* push_sinc_resampler.cc in Sources */,
+				8BD8BE97215A7101006CEF31 /* push_resampler.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
