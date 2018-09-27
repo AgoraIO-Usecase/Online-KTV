@@ -117,7 +117,7 @@ static double SincScaleFactor(double io_ratio) {
 // iOS lies about its architecture, so we also need to exclude it here.
 #if defined(WEBRTC_ARCH_X86_FAMILY) && !defined(WEBRTC_IOS)
 #if defined(__SSE__)
-#define CONVOLVE_FUNC Convolve_SSE
+#define CONVOLVE_FUNC Convolve_C
 void SincResampler::InitializeCPUSpecificFeatures() {}
 #else
 // X86 CPU detection required.  Function will be set by
