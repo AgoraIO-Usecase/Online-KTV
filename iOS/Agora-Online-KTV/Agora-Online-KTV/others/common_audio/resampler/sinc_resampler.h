@@ -111,11 +111,7 @@ class SincResampler {
   // ARM, NEON support is chosen at compile time based on compilation flags.
   static float Convolve_C(const float* input_ptr, const float* k1,
                           const float* k2, double kernel_interpolation_factor);
-#if defined(WEBRTC_ARCH_X86_FAMILY)
-  static float Convolve_SSE(const float* input_ptr, const float* k1,
-                            const float* k2,
-                            double kernel_interpolation_factor);
-#elif defined(WEBRTC_ARCH_ARM_NEON)
+#if defined(WEBRTC_ARCH_ARM_NEON)
   static float Convolve_NEON(const float* input_ptr, const float* k1,
                              const float* k2,
                              double kernel_interpolation_factor);

@@ -230,7 +230,7 @@
         }
         return;
     }
-    NSLog(@"positon  --> %f",postion);
+//    NSLog(@"positon  --> %f",postion);
     if (self.player) {
         [self performSelector:@selector(refreshMediaControl) withObject:nil afterDelay:1];
     }
