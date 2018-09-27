@@ -56,6 +56,7 @@
     [_rtcEngine setVideoResolution:CGSizeMake(640, 360) andFrameRate:15 bitrate:620];
     [_rtcEngine setParameters:@"{\"che.audio.use.remoteio\":true}"];
     [_rtcEngine setParameters:@"{\"che.audio.keep.audiosession\":true}"];
+    
     [_rtcEngine setLocalVoiceReverbOfType:AgoraAudioReverbDryLevel withValue:0];
     
     [_rtcEngine setLocalVoiceReverbOfType:AgoraAudioReverbWetLevel withValue:4];
@@ -65,6 +66,8 @@
     [_rtcEngine setLocalVoiceReverbOfType:AgoraAudioReverbWetDelay withValue:18];
     
     [_rtcEngine setLocalVoiceReverbOfType:AgoraAudioReverbStrength withValue:80];
+    
+    
     [AgoraAudioFrame shareInstance].sampleRate = sampleRate;
     [self registerNotifications];
     
@@ -163,8 +166,6 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(ijk_Audio_CallBack:) name:@"ijk_Audio_CallBack" object:nil];
     //注册视频回调通知
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(ijk_video_CallBack:) name:@"ijk_video_CallBack" object:nil];
-    //注册音频回调通知
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(PlaybackDidFinish:) name:IJKMPMoviePlayerPlaybackDidFinishNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(loadMVSuccess) name:IJKMPMediaPlaybackIsPreparedToPlayDidChangeNotification object:nil];
     
 }
@@ -198,7 +199,6 @@
 -(void)removeNotifications{
     [[NSNotificationCenter defaultCenter] removeObserver:self name:@"ijk_Audio_CallBack" object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:@"ijk_video_CallBack" object:nil];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:IJKMPMoviePlayerPlaybackDidFinishNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:IJKMPMediaPlaybackIsPreparedToPlayDidChangeNotification object:nil];
 }
 -(void)destroyKTVKit
@@ -228,6 +228,7 @@
         if (self.delegate && [self.delegate respondsToSelector:@selector(ktvStatusCallBack:)]) {
             [self.delegate ktvStatusCallBack:KTVStatusTypeCompleted];
         }
+        return;
     }
     NSLog(@"positon  --> %f",postion);
     if (self.player) {

@@ -23,11 +23,13 @@
 #import "SuperpoweredSimple.h"
 #import <mach/mach_time.h>
 #import "AudioCircularBuffer.h"
+#import "external_resampler.h"
 using namespace AgoraRTC;
 static scoped_ptr<AudioCircularBuffer<char>> agoraAudioBuf(new AudioCircularBuffer<char>(2048,true));
 
 static scoped_ptr<AudioCircularBuffer<char>> earBackBuf(new AudioCircularBuffer<char>(2048,true));
-
+static external_resampler *resample = new external_resampler();
+static external_resampler *capture_resample =  new external_resampler();
 static NSObject *lock = [[NSObject alloc] init];
 static NSObject *threadLockCapture = [[NSObject alloc] init];
 static NSObject *threadLockPlay = [[NSObject alloc] init];
@@ -51,7 +53,7 @@ public:
     int isOpenAudioEffect;
     float voiceSum;
     float songSum;
-    
+    std::mutex mtx;
 public:
 #pragma mark- <C++ Capture>
     // push audio data to special buffer(Array byteBuffer)
@@ -59,12 +61,12 @@ public:
     void pushExternalData(void* data, long bytesLength)
     {
         @synchronized(threadLockPush) {
-//            //采集端的音频
-            char  *buf = (char *)malloc((int)bytesLength);
-            memcpy(buf, data, bytesLength);
+            //            //采集端的音频
+            mtx.lock();
+            char *buf = (char *)data;
             agoraAudioBuf->Push(buf, (int)bytesLength);
             earBackBuf->Push(buf, (int)bytesLength);
-            free(buf);
+            mtx.unlock();
         }
         
         
@@ -76,35 +78,27 @@ public:
             int bytes = audioFrame.samples * audioFrame.channels * audioFrame.bytesPerSample;
             int16_t *tmpBuf = (int16_t *)malloc(sizeof(int16_t)*bytes);
             memcpy(tmpBuf, audioFrame.buffer, bytes);
-//            for (int i = 0 ; i < bytes ; i++) {
-//                stereoBuffer[i] = tmpBuf[i]/32767.0f;
-//            }
-////            effects[REVERBINDEX]->process(stereoBuffer,stereoBuffer,audioFrame.samples);
-//
-//            for (int i = 0; i < bytes ; i ++) {
-//                int tmp = stereoBuffer[i] * 32767;
-//                tmpBuf[i] = tmp ?  32767: tmp;
-//                tmpBuf[i] = tmp < -32768 ? -32768: tmp;
-//
-//            }
-
-//            if ([[AgoraAudioFrame shareInstance] isHeadsetPluggedIn]) {
-//
-//
-//                earBackBuf->Push(tmpBuf, bytes);
-//
-//            }
+            
             if (agoraAudioBuf->mAvailSamples < bytes) {
                 memcpy(audioFrame.buffer, tmpBuf, sizeof(int16_t)*bytes);
                 free(tmpBuf);
                 return true;
             }
-            char *data = (char *)malloc(sizeof(char)*bytes);
-            agoraAudioBuf->Pop(data, bytes);
+            
+            mtx.lock();
+            NSDictionary *dic = [[NSUserDefaults standardUserDefaults] valueForKey:@"audioInfo"];
+            int mv_samplerate = [dic[@"sampleRate"] intValue];
+            int mv_channels = [dic[@"channels"]  intValue];
+            
+            //计算重采样钱的数据大小 重采样的采样率 * SDK回调时间 * 声道数 * 字节数
+            int mv_size = mv_samplerate * 0.01 * 2 * mv_channels;
+            char *data = (char *)malloc(sizeof(char)*mv_size);
+            agoraAudioBuf->Pop(data, mv_size);
+            int16_t *buf = (int16_t *)malloc(bytes);
+            resample->do_resample((int16_t *)data, mv_samplerate * 0.01 , mv_channels,mv_samplerate, buf, audioFrame.samples, mv_channels, (int)[AgoraAudioFrame shareInstance].sampleRate);
+            int16_t* p16 = (int16_t*) buf;
             int16_t *audioBuf = (int16_t *)malloc(sizeof(int16_t)*bytes);
             memcpy(audioBuf, tmpBuf, bytes);
-            int16_t* p16 = (int16_t*) data;
-
             for (int i = 0; i < bytes / 2; ++i) {
                 int tmp = p16[i] * audio_sonSum;
                 audioBuf[i] = audioBuf[i] * audio_voiceSum;
@@ -123,7 +117,10 @@ public:
             memcpy(audioFrame.buffer, audioBuf,sizeof(int16_t) * bytes);
             free(audioBuf);
             free(tmpBuf);
+            free(data);
             free(p16);
+            mtx.unlock();
+            
         }
         return true;
         
@@ -131,55 +128,43 @@ public:
     virtual bool onPlaybackAudioFrame(AudioFrame& audioFrame) override{
         @synchronized(threadLockPlay){
             int bytes = audioFrame.samples * audioFrame.channels * audioFrame.bytesPerSample;
-//            //判断是否插入了耳机
-//            ;
+            
             if (earBackBuf->mAvailSamples > bytes) {
-//                if ([[AgoraAudioFrame shareInstance] isHeadsetPluggedIn]) {
-                    int16_t *tmpBuf = (int16_t *)malloc(sizeof(int16_t) * bytes);
-                    memcpy(tmpBuf, audioFrame.buffer, bytes);
-                    char *earbuf = (char *)malloc(sizeof(int16_t) * bytes);
-                    earBackBuf->Pop(earbuf,bytes);
-                    //做个判断
-                    int16_t* p16 = (int16_t*) earbuf;
-                    for (int i = 0 ; i < bytes/2; i++) {
-                        p16[i] = p16[i] * audio_sonSum;
-                       int tmp  =   tmpBuf[i] + p16[i];
-                        if (tmp > 32767) {
-                            tmpBuf[i] = 32767;
-                        }else if(tmp < -32768){
-                            tmpBuf[i] = -32768;
-                        }else{
-                            tmpBuf[i] = tmp;
-                        }
+                NSDictionary *dic = [[NSUserDefaults standardUserDefaults] valueForKey:@"audioInfo"];
+                int mv_samplerate = [dic[@"sampleRate"] intValue];
+                int mv_channels = [dic[@"channels"]  intValue];
+
+                //计算重采样钱的数据大小 重采样的采样率 * SDK回调时间 * 声道数 * 字节数
+                
+                int mv_size = mv_samplerate * 0.01 * 2 * 2;
+                mtx.lock();
+                //                if ([[AgoraAudioFrame shareInstance] isHeadsetPluggedIn]) {
+                int16_t *tmpBuf = (int16_t *)malloc(sizeof(int16_t) * bytes);
+                memcpy(tmpBuf, audioFrame.buffer, bytes);
+                
+                char *earbuf = (char *)malloc(sizeof(char) * mv_size);
+                earBackBuf->Pop(earbuf,mv_size);
+                int16_t *buf = (int16_t *)malloc(bytes);
+                capture_resample->do_resample((int16_t *)earbuf, mv_samplerate * 0.01 , mv_channels,mv_samplerate, buf, audioFrame.samples, mv_channels, (int)[AgoraAudioFrame shareInstance].sampleRate);
+                
+                for (int i = 0 ; i < bytes/2; i++) {
+                    buf[i] = buf[i] * audio_sonSum;
+                    int tmp  =   tmpBuf[i] + buf[i];
+                    if (tmp > 32767) {
+                        tmpBuf[i] = 32767;
+                    }else if(tmp < -32768){
+                        tmpBuf[i] = -32768;
+                    }else{
+                        tmpBuf[i] = tmp;
                     }
-                    memcpy(audioFrame.buffer, tmpBuf,sizeof(int16_t) * bytes);
-                    free(tmpBuf);
-                    free(p16);
-//                }
-//
+                }
+                memcpy(audioFrame.buffer, tmpBuf,sizeof(int16_t) * bytes);
+                free(tmpBuf);
+                free(buf);
+                free(earbuf);
+                mtx.unlock();
             }
-            //            if ([AgoraAudioFrame shareInstance].isAudience) {
-            //                int16_t audioBuf[bytes];
-            //                memcpy(audioBuf, audioFrame.buffer, bytes);
-            //                for (int i = 0 ; i < bytes ; i++) {
-            //                    effectBuffer[i] = audioBuf[i]/32767.0f;
-            //                }
-            //                effects[EQINDEX]->process(effectBuffer,effectBuffer,audioFrame.samples);
-            ////                effects[REVERBINDEX]->process(effectBuffer,effectBuffer,audioFrame.samples);
-            //
-            //                for (int i = 0; i < bytes ; i ++) {
-            //                    int16_t tmp = effectBuffer[i] * 32767;
-            //                    if (tmp > 32767) {
-            //                        NSLog(@"32767");
-            //                    }
-            //                    if (tmp < -32768) {
-            //                        NSLog(@"-32768");
-            //                    }
-            //                    audioBuf[i] = effectBuffer[i] > 32767 ?  32767: tmp;
-            //                    audioBuf[i] = effectBuffer[i] < -32768 ? -32768: tmp;
-            //                }
-            //                memcpy(audioFrame.buffer, audioBuf, bytes);
-            //            }
+            
         }
         
         return true;
@@ -209,7 +194,7 @@ static AgoraAudioFrameObserver* s_audioFrameObserver;
     static AgoraAudioFrame *sharedInstance;
     dispatch_once(&once, ^{
         if (sharedInstance == NULL) {
-        
+            
             sharedInstance = [[self alloc] init];
         }
     });
@@ -231,29 +216,6 @@ static AgoraAudioFrameObserver* s_audioFrameObserver;
         
     }
     
-    SuperpoweredEcho *delay = new SuperpoweredEcho((int)self.sampleRate);
-    delay->setMix(0.5f);
-    effects[DELAYINDEX] = delay;
-    effects[DELAYINDEX]->enable(0);
-    
-    SuperpoweredReverb *reverb = new SuperpoweredReverb((int)self.sampleRate);
-    reverb->setRoomSize(0.8f);
-    reverb->setMix(0.3f);
-    reverb->setPredelay(30);
-    reverb->setDamp(0.5);
-    reverb->setWidth(1.0f);
-    effects[REVERBINDEX] = reverb;
-    effects[REVERBINDEX]->enable(0);
-    
-    
-    Superpowered3BandEQ *eq = new Superpowered3BandEQ((int)self.sampleRate);
-    eq->bands[0] = 1.0f;
-    eq->bands[1] = 0.5f;
-    eq->bands[2] = 6.0f;
-    effects[EQINDEX] = eq;
-    effects[EQINDEX]->enable(1);
-    
-    if(posix_memalign((void **)&stereoBuffer, 16, 4096 + 128) != 0) abort(); // Allocating memory, aligned to 16.
 }
 -(void)pushAudioSource:(void *)data byteLength:(long)bytesLength{
     s_audioFrameObserver->pushExternalData(data, bytesLength);
@@ -265,7 +227,7 @@ static AgoraAudioFrameObserver* s_audioFrameObserver;
             if ([[desc portType] isEqualToString:AVAudioSessionPortHeadphones])
                 return YES;
         }
-    return false;
+        return false;
     }
 }
 -(void)setIsAudience:(BOOL)isAudience
@@ -276,10 +238,10 @@ static AgoraAudioFrameObserver* s_audioFrameObserver;
 }
 -(void)destroyAudioBuf{
     
-        agoraAudioBuf.release();
-        earBackBuf.release();
-        agoraAudioBuf.reset(new AudioCircularBuffer<char>(2048,true));
-        earBackBuf.reset(new AudioCircularBuffer<char>(2048,true));
+    agoraAudioBuf.release();
+    earBackBuf.release();
+    agoraAudioBuf.reset(new AudioCircularBuffer<char>(2048,true));
+    earBackBuf.reset(new AudioCircularBuffer<char>(2048,true));
 }
 -(void)setSongNum:(float)songNum
 {
@@ -301,7 +263,13 @@ static AgoraAudioFrameObserver* s_audioFrameObserver;
     agoraAudioBuf.release();
     earBackBuf.release();
 }
+- (void)dealloc
+{
+    delete resample;
+    delete capture_resample;
+}
 @end
+
 
 
 
