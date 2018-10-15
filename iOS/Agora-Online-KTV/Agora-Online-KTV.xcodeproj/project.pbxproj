@@ -9,11 +9,13 @@
 /* Begin PBXBuildFile section */
 		8B43661E2153A15C007FA50A /* KTVKit.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B43661D2153A15C007FA50A /* KTVKit.m */; };
 		8B45722C213916AA003E700A /* AudioCircularBuffer.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8B45722A213916A9003E700A /* AudioCircularBuffer.cc */; };
+		8B4EBE14215DFADD0042E0FF /* 1080.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 8B4EBE13215DFADD0042E0FF /* 1080.mp4 */; };
 		8B58E9FA212D46F600EB29ED /* libSuperpoweredAudioIOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B58E9F7212D46F600EB29ED /* libSuperpoweredAudioIOS.a */; };
 		8B64504E213992F6002307A6 /* IJKMediaFramework.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 8BCD42012099D9E100148589 /* IJKMediaFramework.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		8BB1B877213675A4007EB9DF /* AgoraMainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BB1B876213675A4007EB9DF /* AgoraMainViewController.m */; };
 		8BB1B87C2136782E007EB9DF /* VideoSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BB1B8792136782D007EB9DF /* VideoSession.m */; };
 		8BB1B87D2136782E007EB9DF /* VideoViewLayouter.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BB1B87A2136782D007EB9DF /* VideoViewLayouter.m */; };
+		8BBF6E062174715400C5577B /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BBF6E052174715400C5577B /* Accelerate.framework */; };
 		8BCD42022099D9E100148589 /* IJKMediaFramework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BCD42012099D9E100148589 /* IJKMediaFramework.framework */; };
 		8BD8BE61215A6EFC006CEF31 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BD8BE60215A6EFC006CEF31 /* Foundation.framework */; };
 		8BD8BE91215A7101006CEF31 /* external_resampler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8BD8BE68215A7100006CEF31 /* external_resampler.cpp */; };
@@ -80,6 +82,7 @@
 		8B45722B213916A9003E700A /* AudioCircularBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioCircularBuffer.h; sourceTree = "<group>"; };
 		8B45722D21391707003E700A /* scoped_ptr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = scoped_ptr.h; sourceTree = "<group>"; };
 		8B45722E21391842003E700A /* template_util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = template_util.h; sourceTree = "<group>"; };
+		8B4EBE13215DFADD0042E0FF /* 1080.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = 1080.mp4; sourceTree = "<group>"; };
 		8B58E9CE212D462500EB29ED /* Agora-onlive-ktv.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Agora-onlive-ktv.pch"; sourceTree = "<group>"; };
 		8B58E9F0212D46F400EB29ED /* SuperpoweredFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SuperpoweredFilter.h; sourceTree = "<group>"; };
 		8B58E9F1212D46F400EB29ED /* SuperpoweredReverb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SuperpoweredReverb.h; sourceTree = "<group>"; };
@@ -98,6 +101,7 @@
 		8BB1B8792136782D007EB9DF /* VideoSession.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VideoSession.m; sourceTree = "<group>"; };
 		8BB1B87A2136782D007EB9DF /* VideoViewLayouter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VideoViewLayouter.m; sourceTree = "<group>"; };
 		8BB1B87B2136782E007EB9DF /* VideoViewLayouter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VideoViewLayouter.h; sourceTree = "<group>"; };
+		8BBF6E052174715400C5577B /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		8BCD42012099D9E100148589 /* IJKMediaFramework.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IJKMediaFramework.framework; path = "Agora-Online-KTV/IJKMediaFramework.framework"; sourceTree = "<group>"; };
 		8BD8BE60215A6EFC006CEF31 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		8BD8BE67215A70FF006CEF31 /* external_resampler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = external_resampler.h; sourceTree = "<group>"; };
@@ -171,6 +175,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8BBF6E062174715400C5577B /* Accelerate.framework in Frameworks */,
 				8BD8BE61215A6EFC006CEF31 /* Foundation.framework in Frameworks */,
 				8BCD42022099D9E100148589 /* IJKMediaFramework.framework in Frameworks */,
 				8BEF565020907FDC001BE9D8 /* AgoraRtcEngineKit.framework in Frameworks */,
@@ -222,6 +227,7 @@
 				8BEF560F209074AE001BE9D8 /* Main.storyboard */,
 				8BEF5614209074AF001BE9D8 /* LaunchScreen.storyboard */,
 				8BB1B8782136782D007EB9DF /* VideoSession.h */,
+				8B4EBE13215DFADD0042E0FF /* 1080.mp4 */,
 				8BB1B8792136782D007EB9DF /* VideoSession.m */,
 				8BB1B87B2136782E007EB9DF /* VideoViewLayouter.h */,
 				8BB1B87A2136782D007EB9DF /* VideoViewLayouter.m */,
@@ -409,6 +415,7 @@
 		8BEF56222090759A001BE9D8 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				8BBF6E052174715400C5577B /* Accelerate.framework */,
 				8BD8BE60215A6EFC006CEF31 /* Foundation.framework */,
 				8BCD42012099D9E100148589 /* IJKMediaFramework.framework */,
 				8BEF564F20907FDC001BE9D8 /* AgoraRtcEngineKit.framework */,
@@ -500,6 +507,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8BEF5616209074AF001BE9D8 /* LaunchScreen.storyboard in Resources */,
+				8B4EBE14215DFADD0042E0FF /* 1080.mp4 in Resources */,
 				8BEF5613209074AF001BE9D8 /* Assets.xcassets in Resources */,
 				8BEF5611209074AE001BE9D8 /* Main.storyboard in Resources */,
 			);
