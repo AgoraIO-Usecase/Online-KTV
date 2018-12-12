@@ -155,7 +155,133 @@ KTVKit 提供的基础功能需要包括：
 设置耳返音量，相见 设置耳返音量 (setInEarMonitoringVolume) 。
 
 
-#### iOS(TODO)
+### 集成方法
+#### iOS
+##### [iOS 示例代码](iOS/Agora-Online-KTV)
+##### 集成 SDK
+##### 步骤 1：准备环境
+下载 iOS 平台 视频通话／视频直播 SDK 。
+请确保满足以下开发环境要求:
+
+iOS SDK 官网最新SDK
+xcode 8.0  以上
+iOS 系统 8.0及以上
+支持语音和视频功能的真机
+请确保在使用 Agora 相关功能及服务前，已打开特定端口，详见 [防火墙说明](https://docs.agora.io/cn/2.3.1/product/Interactive%20Broadcast/Agora%20Platform/firewall)。
+##### 步骤 2: 添加 SDK 添加ijkframework
+```
+如果当前项目中已经以其他方式集成了 Agora Video SDK，请先找工作人员是否需要替换当前已有的版本
+```
+将ijkMediaFramework.framework放在Agora-Oline-KTV 的文件夹下
+
+在工程添加link到对应的ijkMediaFramework SDK库 添加相应的的依赖库文件
+
+完成之后的项目结构如下
+
+完成以后如下：
+![项目结构图](Image/sample-hierachy-iOS.png)
+
+##### 步骤 3: 在info.plist文件中添加相应的权限
+```
+Privacy - Camera Usage Description
+Privacy - Microphone Usage Description
+```
+##### 关键代码导读，一起 KTV 实际上由两大部分功能组成
+##### 加入声网频道实现音视频通话(歌声被远端观众听到)
+
+申请 App ID，详见 获取 App ID。
+
+创建 RtcEngine 对象，并填入 App ID，详见 创建 RtcEngine 对象 (create)
+
+设置频道为直播模式，详见 设置频道属性 (setChannelProfile)
+
+启用视频模式，详见 打开视频模式 (enableVideo)
+
+设置本地视频视图，详见 设置本地视频显示属性 (setupLocalVideo)
+
+设置远端视频视图，详见 设置远端视频显示属性 (setupRemoteVideo)
+
+设置视频分辨率, 详见 设置视频属性 (setVideoProfile)
+
+设置用户角色，详见 设置用户角色 (setClientRole)
+
+拿麦者：BROADCASTER
+
+观众：AUDIENCE
+
+创建并加入频道, 详见 加入频道 (joinChannel)
+
+离开频道 (leaveChannel)，详见 离开频道 (leaveChannel)
+
+开始视频预览 (startPreview)，详见 开始视频预览 (startPreview)
+
+停止视频预览 (stopPreview)，详见 停止视频预览 (stopPreview)
+
+##### MV 文件播放控制(完成 KTV 相关动作，比如切歌，原音/伴奏切换)
+创建 KTVKit 对象，详见 创建 KTVKit 对象 (createKTVKitWithView)。
+
+KTVKit 提供的基础功能需要包括：
+
+打开并播放文件 (loadMV)
+
+暂停/播放 (play/pause)
+
+停止 (destroyKTVKit)
+
+切音轨/切伴奏以及原音 (switchAudioTrack)
+
+重置音频缓冲区，切换拿麦者/观众时候调用 resume;
+
+调整人声大小，百分比参数 (adjustVoiceVolume)
+
+调整伴奏大小，百分比参数 (adjustAccompanyVolume)
+
+获取当前 MTV 播放位置，以百分比返回 (getCurrentPosition)
+
+获取 MTV 总长度，以毫秒为单位返回 (getDuration)
+
+##### 进阶
+耳返接口:
+
+启用耳返功能，详见 启用耳返监听 (enableInEarMonitoring) 。
+
+设置耳返音量，相见 设置耳返音量 (setInEarMonitoringVolume) 。
+
+##### 常见问题
+1、我想问下KTV模式对mp4的文件大小有没有要求？有没有说文件大的话，费用变高的说法？
+
+2、为集成ktv功能，从语音sdk改为视频通话 sdk 语音那边调用的sdk兼容吗
+
+3、我们自己的视频文件播放的时候，接收方的音频完全对不上
+
+答：视频中音频采样率的问题 检查一下和样例视频保持一直。最好你们呢服务器，能统一成一种采样率
+
+4、请问mkv支不支持播放
+
+答：我集成ijk暂不支持 没有加入mkv的扩展 考虑到mv都是mp4格式双音轨 也没加入支持
+
+5、服务器怎么统一采样率？不是直接把文件存到服务器里面吗？
+
+答：存入之前 调用用ffmpeg转换一下 eg. ffmpeg -i /Users/zhanxiaochao/Library/Containers/com.tencent.xinWeChat/Data/Library/Application\ Support/com.tencent.xinWeChat/2.0b4.0.9/71c8a9bf23d1fcd73090b377d5a864c1/Message/MessageTemp/324489e994ce90012659e9e41d050839/File/test12.mkv   -map 0:v -vcodec mpeg4  -map 0:a -acodec copy  -strict -2 out.mp4
+转换双音轨视频mkv格式转化为mp4格式
+
+6、·视频有声音没显示是什么问题
+
+答：看看视频帧有没有推过去，ffmpeg的转换参数 可以研究一下
+
+7、那现在的音频采样率具体要求是多少？我怎么知道你们那个样例视频的音频采样率是多少
+
+答：指定 onRecordAudioFrame 中返回数据的采样率，可设置为 8000，16000，32000，44100或48000。
+
+8、采样点数，采样率都要匹配才行吧
+
+答：计算公式 采样率 * 声道数 * sdk音频回调间隔 = buf 大小 44100 * 0.01 * 2 = 882
+
+14、·那些c++的代码是全都要搬过去吗？
+
+答：你们有自研的播放器 不需要搬 按照同样的逻辑去获取音视频数据就行了
+
+
 
 
 
