@@ -8,7 +8,6 @@
 - 用户可以随着 MV 拿麦唱歌；
 - 拿麦者可在演唱时自行调节 MV 伴奏与人声音量；
 
-
 ## 实现方案
 下图为一起 KTV 场景的声网实现架构图：
 
@@ -16,11 +15,9 @@
 
 在这个实现架构图中：
 
-- 拿麦者播放本地或者在线 MV 歌曲；
-- 拿麦者的歌声与 MV 伴奏通过 Agora Video SDK 在本地经过混音、编码，基于私有 UDP 协议传输至 Agora SD-RTN；
-- MV 视频内容通过 Agora Video SDK 传输至 Agora SD-RTN；
-- Agora SD-RTN 通过私有 UDP 协议将拿麦者的歌声与 MV 画面传输给其他用户；
-
+- 演唱者(拿麦者)播放本地或者在线的 MV 文件；
+- 演唱者的歌声与 MV 的音频伴奏通过 Agora Video SDK 在本地进行混音，并和 MV 的视频一起，传输至 Agora SD-RTN 传输网络；
+- 听众通过 Agora SD-RTN 网络获取到演唱者歌声和 MV 伴奏的音频混音以及 MV 的视频画面。
 
 ## 运行示例程序
 在 [Agora.io 用户注册页](https://dashboard.agora.io/cn/signup/) 注册账号，并创建自己的项目获取到 AppID。
@@ -34,7 +31,7 @@
 	<string name="agora_app_id"><#YOUR APP ID#></string>
 	```
 
-2. 解压 SDK 压缩包，将其中的 `libs` 文件夹下的 `*.jar` 复制到本项目的 `Android/Agora-Online-KTV/app/libs` 下，其中的 `libs` 文件夹下的 `arm64-v8a/x86/armeabi-v7a` 复制到本项目的 `Android/Agora-Online-KTV/app/src/main/jniLibs` 下。
+2. 解压下载到的 SDK 包，将其中的 `libs` 文件夹下的 `*.jar` 复制到本项目的 `Android/Agora-Online-KTV/app/libs` 下，其中的 `libs` 文件夹下的 `arm64-v8a/x86/armeabi-v7a` 复制到本项目的 `Android/Agora-Online-KTV/app/src/main/jniLibs` 下。
 
 3. 使用 Android Studio 打开该项目，连接 Android 测试设备，编译并运行。
 
@@ -54,9 +51,9 @@
 
 3. 使用 Xcode 打开 `iOS/Agora-Online-KTV/Agora-Online-KTV.xcodeproj`，连接 iOS 测试设备，设置有效的开发者签名后即可运行。
 
-	运行环境：
-	* Xcode 10.0 +
-	* iOS 8.0 +
+		运行环境：
+		* Xcode 10.0 +
+		* iOS 8.0 +
 
 ## 功能列表
 一起 KTV 主要由两大部分功能组成。
@@ -74,9 +71,9 @@
 10. 停止视频预览 [stopPreview](https://docs.agora.io/cn/Interactive%20Broadcast/API%20Reference/oc/Classes/AgoraRtcEngineKit.html#//api/name/stopPreview)
 
 #### 二、MV 文件播放和控制
-本示例代码中抽象了一个 KTVKit 类，专门负责这部分功能。
+本示例代码中抽象了一个 KTVKit 类，专门负责对MV的控制，以及将视频帧推送给 Agora SDK。
 
-1. 创建 KTVKit 对象 `create`。
+1. 创建 KTVKit，并传入 Agora SDK `create`。
 2. 打开并播放文件 `openAndPlayVideoFile`
 3. 暂停播放/继续播放 `pause`/`resume`
 4. 停止 `stopPlayVideoFile`
@@ -113,7 +110,7 @@
 
 6. 支持哪些采样率？
 
-		答：常见的可 8000、36000、44100、48000 都支持。 
+		答：常见的 8000、36000、44100、48000 采样率都能支持。 
 
 7. 怎么修改视频文件的采样率？
 
@@ -130,7 +127,7 @@
 
 10. 观众端只有声音没有视频是什么问题？
 
-		答：检查下发送端有没有正确推送推视频帧。
+		答：检查下发送端有没有正确地将视频帧推送给 Agora SDK。
 
 ## 联系我们
 
