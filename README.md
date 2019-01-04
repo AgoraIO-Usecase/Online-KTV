@@ -55,7 +55,7 @@ Development environment:
 Development environment:
 
 - Xcode 10.0+.
--  iOS 8.0+.
+- iOS 8.0+.
 
 1. Add the App ID in the `AgoraVideoViewController.m` file.
 
@@ -137,7 +137,7 @@ The following sample code abstracts a KTVKit class that controls the MV and push
 
 8. Q: What affects the number of samples?
 
-   A: The parameters passed in the `setRecordingAudioFrameParameters` method affect the number of samples. The number of samples = sampleRate x sampleInterval x number of audio channels.
+   A: The parameter `samplesPerCall` passed in the `setRecordingAudioFrameParameters` method affect the number of samples.
 
 9. Q: Can I use other players besides ijkplayer?
 

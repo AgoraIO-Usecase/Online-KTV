@@ -117,9 +117,9 @@
    答：可以使用 FFmpeg 的相关命令，比如把双音轨视频 MKV 格式转化为 44100 Hz 音频采样率的 MP4 格式：
    ​	ffmpeg -i ~/video.mkv -map 0:v -vcodec mpeg4 -map 0:a -acodec copy -ar 44100 -strict -2 output.mp4
 
-8. 怎么控制采样点数？
+8. 怎么设置采样点数？
 
-   答：`setRecordingAudioFrameParameters` 接口传入的参数会影响最终采样的点数。采样点数 = 采样率 x 采样回调触发间隔时间 x 声道数。
+   答：通过 `setRecordingAudioFrameParameters` 接口的 `samplesPerCall` 参数设置采样的点数。
 
 9. 可以使用非 ijkplayer 的其他播放器吗？
 
