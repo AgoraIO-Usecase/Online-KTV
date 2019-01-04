@@ -119,19 +119,19 @@ The following sample code abstracts a KTVKit class that controls the MV and push
 
 4. Q: When a host plays an MV, why are the audio and video out of sync at the audience?
 
-   A: This may be because the actual audio sampling rate of the video file is inconsistent with the audio sampling rate set in the API method.
+   A: This may be because the actual audio sample rate of the video file is inconsistent with the audio sample rate set in the API method.
 
-5. How can I check the audio sampling rate of a video file?
+5. How can I check the audio sample rate of a video file?
 
    A: You can use the VLC tool or FFmpeg commands. The audio sample rate of the video file used in the sample app is 48000 Hz.
 
 6. What audio sample rates are supported?
 
-   A: 8000, 36000, 44100, and 48000 Hz are supported.
+   A: 8000, 16000, 32000, 44100, and 48000 Hz are supported.
 
 7. Q: How can I change the audio sample rate of a video file?
 
-   A: You can use FFmpeg commands, such as converting a dual-track MKV video file to an MP4 file with an audio sampling rate of 44100 Hz: 
+   A: You can use FFmpeg commands, such as converting a dual-track MKV video file to an MP4 file with an audio sample rate of 44100 Hz: 
 
    ​	ffmpeg -i ~/video.mkv -map 0:v -vcodec mpeg4 -map 0:a -acodec copy -ar 44100 -strict -2 output.mp4
 
@@ -150,7 +150,7 @@ The following sample code abstracts a KTVKit class that controls the MV and push
 ## Contact Us
 
 - API documentation is available at the [Document Center](https://docs.agora.io/en/).
-- For any problem with integration, connect with global developers in the [Developer Community](https://dev.agora.io/en/).
+- For any issue with integration, connect with global developers in the [Developer Community](https://dev.agora.io/en/).
 - For any question about purchasing our service, contact [sales-us@agora.io](mailto:sales-us@agora.io).
 - For technical support, submit a ticket at [Dashboard](https://dashboard.agora.io).
 - For any bug in our sample code, submit an issue at [GitHub](https://github.com/AgoraIO/Agora-Online-KTV/issues).
