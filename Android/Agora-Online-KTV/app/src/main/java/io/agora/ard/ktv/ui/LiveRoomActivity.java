@@ -41,6 +41,7 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler, Se
     Button changeAudioTrackBtn;
     Button clientRoleButtion;
     Button switchMediaButton;
+    Button switchMuteButton;
     Button closeButton;
     TextView voiceVolumeView;
     TextView songVolumeView;
@@ -92,6 +93,7 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler, Se
         voiceVolumeBar = (SeekBar) findViewById(R.id.voiceSeekBar);
         voiceVolumeBar.setOnSeekBarChangeListener(this);
         switchMediaButton = (Button) findViewById(R.id.switch_media_file);
+        switchMuteButton = (Button) findViewById(R.id.switch_mute_status);
         accompanyVolumeBar = (SeekBar) findViewById(R.id.songSeekBar);
         accompanyVolumeBar.setOnSeekBarChangeListener(this);
         containerLayout = (FrameLayout) findViewById(R.id.xplay_view_container);
@@ -148,6 +150,20 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler, Se
                 mKTVKit.stopPlayVideoFile();
                 worker().getRtcEngine().leaveChannel();
                 finish();
+            }
+        });
+        switchMuteButton.setTag(true);
+        switchMuteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Object tag = switchMuteButton.getTag();
+                if (tag != null && (boolean) tag) {
+                    mKTVKit.muteLocalKtvVolume();
+                    switchMuteButton.setTag(false);
+                } else {
+                    mKTVKit.unMuteLocalKtvVolume();
+                    switchMuteButton.setTag(true);
+                }
             }
         });
 
@@ -258,6 +274,7 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler, Se
         voiceVolumeBar.setVisibility(hide ? View.INVISIBLE : View.VISIBLE);
         accompanyVolumeBar.setVisibility(hide ? View.INVISIBLE : View.VISIBLE);
         switchMediaButton.setVisibility(hide ? View.INVISIBLE : View.VISIBLE);
+        switchMuteButton.setVisibility(hide ? View.INVISIBLE : View.VISIBLE);
     }
 
     @Override
