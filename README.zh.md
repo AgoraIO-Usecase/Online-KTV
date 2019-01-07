@@ -31,14 +31,14 @@
 	<string name="agora_app_id"><#YOUR APP ID#></string>
 	```
 
-2. 解压下载到的 SDK 包，将其中的 `libs` 文件夹下的 `*.jar` 复制到本项目的 `Android/Agora-Online-KTV/app/libs` 下，其中的 `libs` 文件夹下的 `arm64-v8a/x86/armeabi-v7a` 复制到本项目的 `Android/Agora-Online-KTV/app/src/main/jniLibs` 下。
+2. 解压下载到的 SDK 包，将其中的 `libs` 文件夹下的 `*.jar` 复制到本项目的 `Android/Agora-Online-KTV/app/libs` 下，其中的 `libs` 文件夹下的 `arm64-v8a/x86/armeabi-v7a` 复制到本项目的 `Android/Agora-Online-KTV/app/src/main/jniLibs` 下
 
 3. 使用 Android Studio 打开该项目，连接 Android 测试设备，编译并运行。
 
 		运行环境:
 	​	* Android SDK API Level >= 16
 	​	* Android Studio 3.1 +
-	​	* 支持语音和视频功能的真机
+	​	* 支持语音和视频功能的真机或者模拟器
 	​	* App 要求 Android 4.1 或以上设备
 
 #### iOS
