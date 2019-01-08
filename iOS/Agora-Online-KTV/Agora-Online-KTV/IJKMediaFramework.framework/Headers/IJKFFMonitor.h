@@ -1,5 +1,4 @@
 /*
- * Copyright (c) 2016 Bilibili
  * Copyright (c) 2016 Zhang Rui <bbcallen@gmail.com>
  *
  * This file is part of ijkPlayer.
@@ -38,8 +37,6 @@
 @property(nonatomic, readonly) NSString *acodec;     // audio codec
 @property(nonatomic, readonly) int       sampleRate;
 @property(nonatomic, readonly) int64_t   channelLayout;
-
-@property(nonatomic) NSString *vdecoder;
 
 @property(nonatomic) int       tcpError;
 @property(nonatomic) NSString *remoteIp;

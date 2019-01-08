@@ -1,7 +1,6 @@
 /*
  * IJKMediaFramework.h
  *
- * Copyright (c) 2013 Bilibili
  * Copyright (c) 2013 Zhang Rui <bbcallen@gmail.com>
  *
  * This file is part of ijkPlayer.
@@ -29,7 +28,7 @@ FOUNDATION_EXPORT double IJKMediaFrameworkVersionNumber;
 //! Project version string for IJKMediaFramework.
 FOUNDATION_EXPORT const unsigned char IJKMediaFrameworkVersionString[];
 
-// In this header, you should import all the public headers of your framework using statements like #import <IJKMediaFrameworkWithSSL/PublicHeader.h>
+// In this header, you should import all the public headers of your framework using statements like #import <IJKMediaFramework/PublicHeader.h>
 #import <IJKMediaFramework/IJKMediaPlayback.h>
 #import <IJKMediaFramework/IJKMPMoviePlayerController.h>
 #import <IJKMediaFramework/IJKFFOptions.h>
@@ -50,11 +49,4 @@ FOUNDATION_EXPORT const unsigned char IJKMediaFrameworkVersionString[];
 #define IJKMoviePlayerVideoDecoderOpenNotification IJKMPMoviePlayerVideoDecoderOpenNotification
 #define IJKMoviePlayerFirstVideoFrameRenderedNotification IJKMPMoviePlayerFirstVideoFrameRenderedNotification
 #define IJKMoviePlayerFirstAudioFrameRenderedNotification IJKMPMoviePlayerFirstAudioFrameRenderedNotification
-#define IJKMoviePlayerFirstAudioFrameDecodedNotification IJKMPMoviePlayerFirstAudioFrameDecodedNotification
-#define IJKMoviePlayerFirstVideoFrameDecodedNotification IJKMPMoviePlayerFirstVideoFrameDecodedNotification
-#define IJKMoviePlayerOpenInputNotification IJKMPMoviePlayerOpenInputNotification
-#define IJKMoviePlayerFindStreamInfoNotification IJKMPMoviePlayerFindStreamInfoNotification
-#define IJKMoviePlayerComponentOpenNotification IJKMPMoviePlayerComponentOpenNotification
-
-#define IJKMPMoviePlayerAccurateSeekCompleteNotification IJKMPMoviePlayerAccurateSeekCompleteNotification
 
