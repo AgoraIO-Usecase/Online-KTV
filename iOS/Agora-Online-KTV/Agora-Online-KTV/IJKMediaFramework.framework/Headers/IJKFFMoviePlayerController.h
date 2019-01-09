@@ -1,7 +1,6 @@
 /*
  * IJKFFMoviePlayerController.h
  *
- * Copyright (c) 2013 Bilibili
  * Copyright (c) 2013 Zhang Rui <bbcallen@gmail.com>
  *
  * This file is part of ijkPlayer.
@@ -81,11 +80,9 @@ typedef enum IJKLogLevel {
 - (void)play;
 - (void)pause;
 - (void)stop;
+- (BOOL)isPlaying;
 //转换音轨的方法
 - (void)changeAudioStream:(BOOL)isChange;
-- (BOOL)isPlaying;
-- (int64_t)trafficStatistic;
-- (float)dropFrameRate;
 
 - (void)setPauseInBackground:(BOOL)pause;
 - (BOOL)isVideoToolboxOpen;
@@ -94,7 +91,9 @@ typedef enum IJKLogLevel {
 + (void)setLogLevel:(IJKLogLevel)logLevel;
 + (BOOL)checkIfFFmpegVersionMatch:(BOOL)showAlert;
 + (BOOL)checkIfPlayerVersionMatch:(BOOL)showAlert
-                            version:(NSString *)version;
+                            major:(unsigned int)major
+                            minor:(unsigned int)minor
+                            micro:(unsigned int)micro;
 
 @property(nonatomic, readonly) CGFloat fpsInMeta;
 @property(nonatomic, readonly) CGFloat fpsAtOutput;
