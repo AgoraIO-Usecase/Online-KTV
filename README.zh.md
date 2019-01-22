@@ -1,133 +1,159 @@
-# Agora Online KTV（一起 KTV）
-
-*其他语言：[English](README.md)*
+# Online KTV（一起 KTV）
 
 ## 场景描述
-- 创建 KTV 房间，用户可以互相音视频沟通；
-- 用户可以在 KTV 房间播放 MV 文件；
-- 用户可以随着 MV 拿麦唱歌；
-- 拿麦者可在演唱时自行调节 MV 伴奏与人声音量；
 
-## 实现方案
-下图为一起 KTV 场景的声网实现架构图：
+“一起KTV” 是一个依附于直播聊天室的娱乐场景。在这个场景中，一个KTV房间里的演唱者给其他人播放 MV 视频，并跟随 MV 唱歌给所有人听。其中：
 
-![KTV 架构图](Image/ktv_together.png)
+1. 观众可以上麦，随时与房主进行实时音视频互动；
+2. 演唱者随着 MV 唱歌时，可以控制歌曲的切换和暂停；
+3. 演唱者也可以单独只播放 MV 文件；
+4. 演唱者可以自己调节 MV 伴奏和人声的音量；
+5. 观众可以排麦，当前演唱者结束后由下一位排麦中的人成为演唱者；
 
-在这个实现架构图中：
+其中需要的功能有：
 
-- 演唱者（拿麦者）播放本地或者在线的 MV 文件；
-- 演唱者的歌声与 MV 的音频伴奏通过 Agora Video SDK 在本地进行混音，并和 MV 的视频一起，传输至 Agora SD-RTN 传输网络；
-- 听众通过 Agora SD-RTN 网络获取到演唱者歌声和 MV 伴奏的音频混音以及 MV 的视频画面。
+1. 基础的音视频互动直播，包括主播、互动连麦；
+2. 本地/在线 MV 文件读取；
+3. 将 MV 伴奏和视频发送给其他人；
+4. 演唱者人声和 MV 伴奏音乐的混合；
 
-## 运行示例程序
+## 架构设计
+
+声网的“一起KTV”场景方案，提供了这个场景中实时音视频互动直播、MV 文件读取、人声和 MV 伴奏同步、音量控制、播放控制、发送 MV 伴奏和视频数据 等相关功能的解决方案。
+
+整体架构如下图所示：
+
+1. 演唱者和其他用户一起加入声网频道，实现实时音视频通话，其中当前演唱者和连麦者为主播模式，听众为观众模式；
+2. 演唱者播放本地或者在线的 MV 文件；
+3. MV 文件解码出来的视频帧数据通过声网 SDK 发送到频道中；
+4. MV 文件解码出来的音频帧数据，混音进声网 SDK 采集到的演唱者歌声，并通过声网 SDK 发送到频道中；
+5. 房间内的其他用户通过声网 SDK 接收演唱者的歌声和 MV 数据。
+
+![](Image/ktv_together.png)
+
+## 体验 Demo
+
 在 [Agora.io 用户注册页](https://dashboard.agora.io/cn/signup/) 注册账号，并创建自己的项目获取到 App ID。
 
 下载 Agora [视频通话／视频直播 SDK](https://docs.agora.io/cn/Interactive%20Broadcast/downloads)。
 
 #### Android
-1. 将有效的 App ID 填写进本项目的 `Android/Agora-Online-KTV/app/src/main/res/values/strings_config.xml` 中。
+1. 将有效的 App ID 填写进本项目的 `Agora-Online-KTV/app/src/main/res/values/strings_config.xml` 中。
 
-	```
-	<string name="agora_app_id"><#YOUR APP ID#></string>
-	```
+    ```
+    <string name="agora_app_id"><#YOUR APP ID#></string>
+    ```
 
 2. 解压下载到的 SDK 包，将其中的 `libs` 文件夹下的 `*.jar` 复制到本项目的 `Android/Agora-Online-KTV/app/libs` 下，其中的 `libs` 文件夹下的 `arm64-v8a/x86/armeabi-v7a` 复制到本项目的 `Android/Agora-Online-KTV/app/src/main/jniLibs` 下
 
 3. 使用 Android Studio 打开该项目，连接 Android 测试设备，编译并运行。
 
-		运行环境:
-	​	* Android SDK API Level >= 16
-	​	* Android Studio 3.1 +
-	​	* 支持语音和视频功能的真机或者模拟器
-	​	* App 要求 Android 4.1 或以上设备
+    ```
+   运行环境:
+   * Android SDK API Level >= 16
+   * Android Studio 3.1 +
+   * 支持语音和视频功能的真机或者模拟器
+   * App 要求 Android 4.1 或以上设备
+   ```
 
 #### iOS
 1. 将有效的 App ID 填写进 AgoraVideoViewController.m 中。
 
-	```
-	self.rtcEngine = [AgoraRtcEngineKit sharedEngineWithAppId:<#APP_ID#> delegate:self];
-	```
-2. 解压下载到的 SDK 包，将其中的 `AgoraRtcEngineKit.framework` 复制到本项目的 `iOS/Agora-Online-KTV/Agora-Online-KTV` 目录下。
+    ```
+    self.rtcEngine = [AgoraRtcEngineKit sharedEngineWithAppId:<#APP_ID#> delegate:self];
+    ```
+2. 解压下载到的 SDK 包，将其中的 `AgoraRtcEngineKit.framework` 复制到本项目的 `Agora-Online-KTV/Agora-Online-KTV` 目录下。
 
-3. 使用 Xcode 打开 `iOS/Agora-Online-KTV/Agora-Online-KTV.xcodeproj`，连接 iOS 测试设备，设置有效的开发者签名后即可运行。
+3. 使用 Xcode 打开 `Agora-Online-KTV/Agora-Online-KTV.xcodeproj`，连接 iOS 测试设备，设置有效的开发者签名后即可运行。
 
-		运行环境：
-	​	* Xcode 10.0 +
-	​	* iOS 8.0 +
+    ```
+    运行环境:
+    ​* Xcode 10.0 +
+    ​* iOS 8.0 +
+    ```
 
-## 功能列表
-一起 KTV 主要由两大部分功能组成。
-#### 一、加入声网频道实现音视频通话
+成功运行 Demo 后，在界面上输入频道名称并选择 Broadcaster，等提示 KTV 加载成功后点击“开始播放”即开始 KTV 演唱。
 
-1. 创建 Agora 视频引擎对象
-2. 启用视频模式 [enableVideo](https://docs.agora.io/cn/Interactive%20Broadcast/API%20Reference/oc/Classes/AgoraRtcEngineKit.html#//api/name/enableVideo)
-3. 设置视频分辨率 [setVideoProfile](https://docs.agora.io/cn/Interactive%20Broadcast/API%20Reference/oc/Classes/AgoraRtcEngineKit.html#//api/name/setVideoProfile:swapWidthAndHeight:)
-4. 设置频道为直播模式 [setChannelProfile](https://docs.agora.io/cn/Interactive%20Broadcast/API%20Reference/oc/Classes/AgoraRtcEngineKit.html#//api/name/setChannelProfile:)
-5. 设置用户角色 [setClientRole](https://docs.agora.io/cn/Interactive%20Broadcast/API%20Reference/oc/Classes/AgoraRtcEngineKit.html#//api/name/setClientRole:)，拿麦者：BROADCASTER，观众：AUDIENCE
-6. 设置本地视频视图 [setupLocalVideo](https://docs.agora.io/cn/Interactive%20Broadcast/API%20Reference/oc/Classes/AgoraRtcEngineKit.html#//api/name/setupLocalVideo:)
-7. 设置远端视频视图 [setupRemoteVideo](https://docs.agora.io/cn/Interactive%20Broadcast/API%20Reference/oc/Classes/AgoraRtcEngineKit.html#//api/name/setupRemoteVideo:)
-8. 加入频道 [joinChannel](https://docs.agora.io/cn/Interactive%20Broadcast/API%20Reference/oc/Classes/AgoraRtcEngineKit.html#//api/name/joinChannelByToken:channelId:info:uid:joinSuccess:)
-9. 离开频道 [leaveChannel](https://docs.agora.io/cn/Interactive%20Broadcast/API%20Reference/oc/Classes/AgoraRtcEngineKit.html#//api/name/leaveChannel:)
-10. 停止视频预览 [stopPreview](https://docs.agora.io/cn/Interactive%20Broadcast/API%20Reference/oc/Classes/AgoraRtcEngineKit.html#//api/name/stopPreview)
+使用另一台设备输入相同的频道名并选择 Audience，即为观众观看。
 
-#### 二、MV 文件播放和控制
-本示例代码中抽象了一个 KTVKit 类，专门负责对 MV 的控制，以及将视频帧推送给 Agora SDK。
+## 集成方法
 
-1. 创建 KTVKit，并传入 Agora SDK `create`。
-2. 打开并播放文件 `openAndPlayVideoFile`
-3. 暂停播放/继续播放 `pause`/`resume`
-4. 停止 `stopPlayVideoFile`
-5. 切音轨/切伴奏以及原音 `switchAudioTrack`
-6. 重置音频缓冲区，切换拿麦者/观众时候调用 `resetAudioBuffer`
-7. 调整人声大小，百分比参数 `adjustVoiceVolume`
-8. 调整伴奏大小，百分比参数 `adjustAccompanyVolume`
-9. 获取当前 MV 播放位置，以百分比返回 `getCurrentPosition`
-10. 获取 MV 总长度，以毫秒为单位返回 `getDuration`
+### 1. 集成声网 SDK 并实现互动直播功能
 
-#### 进阶
-1. 启用耳返功能，详见[耳返](https://docs.agora.io/cn/Interactive%20Broadcast/in-ear_android?platform=Android) 。
+具体方法见 [声网 SDK 快速开始](https://docs.agora.io/cn/Interactive%20Broadcast/android_video?platform=Android)
 
-## 常见问题
+### 2. 实现 MV 文件音视频帧读取
+
+使用 ijkplayer 等已经实现了完善的在线/本地 MV 文件读取和控制功能的第三方控件获取到 MV 的音视频帧。
+
+使用声网 SDK 的 [pushExternalVideoFrame](https://docs.agora.io/cn/Interactive%20Broadcast/API%20Reference/java/classio_1_1agora_1_1rtc_1_1_rtc_engine.html#a6e7327f4449800a2c2ddc200eb2c0386) 接口，将视频帧数据传入声网 SDK。
+
+在 声网 SDK 的 [onRecordAudioFrame](https://docs.agora.io/cn/Interactive%20Broadcast/API%20Reference/cpp/classagora_1_1media_1_1_i_audio_frame_observer.html#ac6ab0c792420daf929fed78f9d39f728) C++ 回调中，将 MV 的音频帧数据和 声网 SDK 采集到的歌唱者音频帧数据混合起来，实现人声和伴奏的混音。具体可参看 Demo 中 KTVKit 内部的实现。
+
+你也可以直接使用 Demo 中的 `KTVKit` 类，该类已经将 MV 文件读取、控制和传输都封装成简单的接口，方便调用。
+
+### 3. 进阶功能
+
+1. 启用耳返功能，详见[耳返](https://docs.agora.io/cn/Interactive%20Broadcast/in-ear_android?platform=Android)。
+
+## 注意事项
+
+1. 开发者可以选择使用 demo 中封装好的 `KTVKit` 类以简化 MV 文件的读取和播放；
+2. 为了能将读取到的音视频帧数据回调出来输入给声网 SDK，Demo 中集成的 `ijkplayer` 经过了必要的改造，不能替换成其他版本的 ijkplayer 库；
+3. iOS Demo 中的 `ijkplayer` 为动态库，其中包含了模拟器架构。在正式上传 Appstore 审核前需要手动将其中的模拟器架构去掉，避免影响审核；
+3. `KTVKit` 类支持有一个或者两个音轨的 MV 文件，不支持第三根或者更多的音轨；
+4. 如果 MV 文件有大于一根音轨，`KTVKit` 初始默认读取第二根音轨；
+
+## 常见问题调查
+
 1. 对 MP4 的文件大小有没有要求？文件大小对费用有没有影响？
 
-   答：费用根据所用时长和发送分辨率等计算，跟文件大小无关，具体可以咨询商务。
+    答：费用根据所用时长和发送分辨率等计算，跟文件大小无关，具体可以咨询商务。
 
 2. 为集成 KTV 功能，从语音 SDK 改为视频通话 SDK，原来语音的接口兼容吗？
 
-   答：是的，视频通话 SDK 完全兼容语音 SDK 的接口。
+    答：是的，视频通话 SDK 完全兼容语音 SDK 的接口。
 
 3. 是否支持 MKV 格式的文件？
 
-   答：本示例程序中暂不支持，可以自行添加 ijkplayer 的 MKV 的扩展。
+    答：本示例程序中暂不支持，可以自行添加 ijkplayer 的 MKV 的扩展。
 
 4. 使用自己的视频文件播放的时候，有时出现接收方的音频对不上。
 
-   答：可能是因为视频文件实际音频采样率和接口中设置的采样率不一致导致的。
+    答：可能是因为视频文件实际音频采样率和接口中设置的采样率不一致导致的。
 
 5. 怎么查看一个视频文件的采样率？
 
-   答：可以通过 VLC 工具，或者 FFmpeg 相关命令。本样例视频的采样率是 48000 Hz。
+    答：可以通过 VLC 工具，或者 FFmpeg 相关命令。本样例视频的采样率是 48000 Hz。
 
 6. 支持哪些采样率？
 
-   答：常见的 8000、16000、32000、44100、48000 Hz 采样率都能支持。 
+    答：常见的 8000、16000、32000、44100、48000 Hz 采样率都能支持。
 
 7. 怎么修改视频文件的采样率？
 
-   答：可以使用 FFmpeg 的相关命令，比如把双音轨视频 MKV 格式转化为 44100 Hz 音频采样率的 MP4 格式：
-   ​	ffmpeg -i ~/video.mkv -map 0:v -vcodec mpeg4 -map 0:a -acodec copy -ar 44100 -strict -2 output.mp4
+    答：可以使用 FFmpeg 的相关命令，比如把双音轨视频 MKV 格式转化为 44100 Hz 音频采样率的 MP4 格式： ​
+    `ffmpeg -i ~/video.mkv -map 0:v -vcodec mpeg4 -map 0:a -acodec copy -ar 44100 -strict -2 output.mp4`
 
 8. 怎么设置采样点数？
 
-   答：通过 `setRecordingAudioFrameParameters` 接口的 `samplesPerCall` 参数设置采样的点数。
+    答：通过 setRecordingAudioFrameParameters 接口的 samplesPerCall 参数设置采样的点数。
 
 9. 可以使用非 ijkplayer 的其他播放器吗？
 
-   答：可以，只要按照同样的逻辑去获取音视频文件中的数据推给 Agora SDK 就行了。
+    答：可以，只要按照同样的逻辑去获取音视频文件中的数据推给 Agora SDK 就行了。
 
 10. 观众端只有声音没有视频是什么问题？
 
-  答：检查下发送端有没有正确地将视频帧推送给 Agora SDK。
+    答：确认主播观众都调用了 `enableVideo` 接口，并检查发送端是否正确地将视频帧推送给 Agora SDK。
+
+11. 纯语音的场景是否适用？
+
+    答：纯语音场景下可以直接使用 SDK 的 audiomixing 相关接口实现音频文件和语音的混音。
+    
+12. 是否支持多人同时合唱？
+
+    答：这个方案只保证同时只有一位演唱者时的体验效果，如需多人合唱，请使用声网的低延时在线合唱方案。
 
 ## 联系我们
 
