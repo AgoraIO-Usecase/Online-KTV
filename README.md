@@ -24,8 +24,10 @@ Here is the architecture of the Agora Online KTV:
 ## Run the Sample App
 
 1. Create a developer account at [agora.io](https://sso.agora.io/en/signup) and create a project in Dashboard to get the App ID.
+![](Image/appid.en.jpg)
 
 2. Download the [Agora Native SDK for Voice/Video](https://docs.agora.io/en/Interactive%20Broadcast/downloads).
+![](Image/sdk.en.png)
 
 #### Android
 

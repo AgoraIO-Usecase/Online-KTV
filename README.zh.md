@@ -34,8 +34,10 @@
 ## 体验 Demo
 
 在 [Agora.io 用户注册页](https://dashboard.agora.io/cn/signup/) 注册账号，并创建自己的项目获取到 App ID。
+![](Image/appid.jpg)
 
 下载 Agora [视频通话／视频直播 SDK](https://docs.agora.io/cn/Interactive%20Broadcast/downloads)。
+![](Image/sdk.png)
 
 #### Android
 1. 将有效的 App ID 填写进本项目的 `Agora-Online-KTV/app/src/main/res/values/strings_config.xml` 中。
@@ -52,7 +54,7 @@
    运行环境:
    * Android SDK API Level >= 16
    * Android Studio 3.1 +
-   * 支持语音和视频功能的真机或者模拟器
+   * 支持语音和视频功能的真机
    * App 要求 Android 4.1 或以上设备
    ```
 
