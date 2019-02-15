@@ -23,6 +23,8 @@ Here is the architecture of the Agora Online KTV:
 
 ## Run the Sample App
 
+[Android apk](https://github.com/AgoraIO-Usecase/Online-KTV/releases/download/1.0/app-debug.apk)
+
 1. Create a developer account at [agora.io](https://sso.agora.io/en/signup) and create a project in Dashboard to get the App ID.
 ![](Image/appid.en.jpg)
 

@@ -32,6 +32,7 @@
 ![](Image/ktv_together.png)
 
 ## 体验 Demo
+[Android 体验 apk 下载](https://github.com/AgoraIO-Usecase/Online-KTV/releases/download/1.0/app-debug.apk)
 
 在 [Agora.io 用户注册页](https://dashboard.agora.io/cn/signup/) 注册账号，并创建自己的项目获取到 App ID。
 ![](Image/appid.jpg)
