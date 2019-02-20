@@ -1,5 +1,7 @@
 # Online KTV（一起 KTV）
 
+*Other language: [English](README.md)*
+
 ## 场景描述
 
 “一起KTV” 是一个依附于直播聊天室的娱乐场景。在这个场景中，一个KTV房间里的演唱者给其他人播放 MV 视频，并跟随 MV 唱歌给所有人听。其中：
@@ -23,24 +25,32 @@
 
 整体架构如下图所示：
 
+![](Image/ktv_together.jpg)
+
 1. 演唱者和其他用户一起加入声网频道，实现实时音视频通话，其中当前演唱者和连麦者为主播模式，听众为观众模式；
 2. 演唱者播放本地或者在线的 MV 文件；
-3. MV 文件解码出来的视频帧数据通过声网 SDK 发送到频道中；
-4. MV 文件解码出来的音频帧数据，混音进声网 SDK 采集到的演唱者歌声，并通过声网 SDK 发送到频道中；
+3. MV 文件解码出来的音频帧数据，混音进声网 SDK 采集到的演唱者歌声，并通过声网 SDK 发送到频道中；
+4. MV 文件解码出来的视频帧数据通过声网 SDK 发送到频道中；
 5. 房间内的其他用户通过声网 SDK 接收演唱者的歌声和 MV 数据。
 
-![](Image/ktv_together.png)
-
 ## 体验 Demo
-[Android 体验 apk 下载](https://github.com/AgoraIO-Usecase/Online-KTV/releases/download/1.0/app-debug.apk)
 
-在 [Agora.io 用户注册页](https://dashboard.agora.io/cn/signup/) 注册账号，并创建自己的项目获取到 App ID。
+你可直接下载安装 [Android apk 安装包](https://github.com/AgoraIO-Usecase/Online-KTV/releases/download/1.0/app-debug.apk) 进行体验。
+
+成功运行 Demo 后，在界面上输入频道名称并选择 Broadcaster，等提示 KTV 加载成功后点击“开始播放”即开始 KTV 演唱。
+
+使用另一台设备输入相同的频道名并选择 Audience，即为观众观看。
+
+## 运行示例 Demo
+
+1. 在 [Agora.io 用户注册页](https://dashboard.agora.io/cn/signup/) 注册账号，并创建自己的项目获取到 App ID。
 ![](Image/appid.jpg)
 
-下载 Agora [视频通话／视频直播 SDK](https://docs.agora.io/cn/Interactive%20Broadcast/downloads)。
-![](Image/sdk.png)
+2. 下载 Agora [视频通话／视频直播 SDK](https://docs.agora.io/cn/Interactive%20Broadcast/downloads)。
+![](Image/sdk.jpg)
 
 #### Android
+
 1. 将有效的 App ID 填写进本项目的 `Agora-Online-KTV/app/src/main/res/values/strings_config.xml` 中。
 
     ```
@@ -51,13 +61,12 @@
 
 3. 使用 Android Studio 打开该项目，连接 Android 测试设备，编译并运行。
 
-    ```
-   运行环境:
-   * Android SDK API Level >= 16
-   * Android Studio 3.1 +
-   * 支持语音和视频功能的真机
-   * App 要求 Android 4.1 或以上设备
-   ```
+```
+运行环境:
+* Android SDK API Level >= 16
+* Android Studio 3.1 +
+* Android 4.1 或以上支持语音和视频功能的真机设备
+```
 
 #### iOS
 1. 将有效的 App ID 填写进 AgoraVideoViewController.m 中。
@@ -69,17 +78,17 @@
 
 3. 使用 Xcode 打开 `Agora-Online-KTV/Agora-Online-KTV.xcodeproj`，连接 iOS 测试设备，设置有效的开发者签名后即可运行。
 
-    ```
-    运行环境:
-    ​* Xcode 10.0 +
-    ​* iOS 8.0 +
-    ```
-
-成功运行 Demo 后，在界面上输入频道名称并选择 Broadcaster，等提示 KTV 加载成功后点击“开始播放”即开始 KTV 演唱。
-
-使用另一台设备输入相同的频道名并选择 Audience，即为观众观看。
+```
+运行环境:
+​* Xcode 10.0 +
+​* iOS 8.0 +
+```
 
 ## 集成方法
+
+示例 App 的逻辑流程如下图所示。其中 `KTVKit` 模块已经封装了在 KTV 场景下的声网引擎和 IJKPlayer 相关功能，可以直接使用。也可以参考 `KTVKit` 的代码，自己实现相关功能。
+
+![](Image/ktv_api.jpg)
 
 ### 1. 集成声网 SDK 并实现互动直播功能
 
@@ -109,7 +118,7 @@
 
 ## 常见问题调查
 
-[一起 KTV FAQ](https://confluence.agora.io/pages/viewpage.action?pageId=629008768)
+常见问题整理：[一起 KTV FAQ](https://confluence.agora.io/pages/viewpage.action?pageId=629008768)
 
 ## 联系我们
 

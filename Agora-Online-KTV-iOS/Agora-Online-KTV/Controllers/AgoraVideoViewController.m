@@ -12,17 +12,13 @@
 #import "VideoSession.h"
 #import "VideoViewLayouter.h"
 #import "KTVKit.h"
+
 @interface AgoraVideoViewController ()<AgoraRtcEngineDelegate,KTVKitDelegate> {
     BOOL isChangeAudio;
     NSInteger uid;
 }
+
 @property (weak, nonatomic) IBOutlet UIView *videoContainerView;
-@property(nonatomic,strong) AgoraRtcEngineKit *rtcEngine;
-@property (assign, nonatomic) BOOL isBroadcaster;
-@property (assign, nonatomic) BOOL isMuted;
-@property (strong, nonatomic) NSMutableArray<VideoSession *> *videoSessions;
-@property (strong, nonatomic) VideoSession *fullSession;
-@property (strong, nonatomic) VideoViewLayouter *viewLayouter;
 @property (weak, nonatomic) IBOutlet UIButton *changeMVButton;
 @property (weak, nonatomic) IBOutlet UIButton *startButton;
 @property (weak, nonatomic) IBOutlet UIButton *stopButton;
@@ -34,6 +30,13 @@
 @property (weak, nonatomic) IBOutlet UISlider *voiceSlider;
 @property (weak, nonatomic) IBOutlet UILabel *voiceLabel;
 @property (weak, nonatomic) IBOutlet UILabel *sonLabel;
+
+@property(nonatomic,strong) AgoraRtcEngineKit *rtcEngine;
+@property (assign, nonatomic) BOOL isBroadcaster;
+@property (assign, nonatomic) BOOL isMuted;
+@property (strong, nonatomic) NSMutableArray<VideoSession *> *videoSessions;
+@property (strong, nonatomic) VideoSession *fullSession;
+@property (strong, nonatomic) VideoViewLayouter *viewLayouter;
 @end
 
 @implementation AgoraVideoViewController
@@ -41,7 +44,7 @@
     return self.clientRole == AgoraClientRoleBroadcaster;
 }
 
--(void)hiddenButtons:(BOOL)isHidden{
+- (void)hiddenButtons:(BOOL)isHidden{
     self.startButton.hidden = isHidden;
     self.stopButton.hidden = isHidden;
     self.ChangeAudioButton.hidden = isHidden;
@@ -62,33 +65,42 @@
     //设置
     self.videoSessions = [[NSMutableArray alloc] init];
     [self hiddenButtons:!self.isBroadcaster];
+    
     NSLog(@"SDKVersion -- %@",AgoraRtcEngineKit.getSdkVersion);
     self.rtcEngine = [AgoraRtcEngineKit sharedEngineWithAppId:<#APP_ID#> delegate:self];
-    [self.rtcEngine enableAudio];
+    
     [self.rtcEngine enableVideo];
+    [_rtcEngine setVideoEncoderConfiguration:
+     [[AgoraVideoEncoderConfiguration alloc] initWithSize:CGSizeMake(640, 360)
+                                                frameRate:AgoraVideoFrameRateFps15
+                                                  bitrate:AgoraVideoBitrateStandard orientationMode:AgoraVideoOutputOrientationModeFixedLandscape
+      ]
+    ];
+    
+    [self.rtcEngine setAudioProfile:AgoraAudioProfileMusicHighQuality
+                           scenario:AgoraAudioScenarioGameStreaming];
+    
     [self.rtcEngine enableDualStreamMode:false];
-    [self.rtcEngine setAudioProfile:AgoraAudioProfileMusicHighQuality scenario:AgoraAudioScenarioGameStreaming];
     [self.rtcEngine setChannelProfile:AgoraChannelProfileLiveBroadcasting];
-    [self.rtcEngine setVideoProfile:AgoraVideoProfilePortrait360P swapWidthAndHeight:false];
     [self.rtcEngine setClientRole:self.clientRole];
+    
     //KTVKit 模块的初始化 设置视频地址 设置需要绑定的渲染的View 绑定RTCEngine 设置MV的音频采样率
     [[KTVKit shareInstance] createKTVKitWithView:self.videoContainerView rtcEngine:self.rtcEngine sampleRate:44100];
     [KTVKit shareInstance].delegate = self;
     //判断是否是主播 主播预加载好MV
     if ([self isBroadcaster]) {
         //加载视频地址
-        [[KTVKit shareInstance] loadMV:@"http://compress.mv.letusmix.com/1c4dbe546537a9459d7b2c208d513303.mp4"];
+        [[KTVKit shareInstance] loadMV:@"http://download.agora.io/usecase/ktv01.mp4"];
     }
     [self.rtcEngine joinChannelByToken:nil channelId:self.roomName info:nil uid:0 joinSuccess:nil];
-    
 }
 
--(void)viewDidAppear:(BOOL)animated
+- (void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
-    
 }
--(void)setIsMuted:(BOOL)isMuted{
+
+- (void)setIsMuted:(BOOL)isMuted{
     _isMuted = isMuted;
     [self.rtcEngine muteLocalAudioStream:isMuted];
     [self.MuteAudioButton setImage:[UIImage imageNamed:(isMuted ? @"btn_mute_cancel" : @"btn_mute")] forState:UIControlStateNormal];
@@ -98,13 +110,10 @@
     [[KTVKit shareInstance] play];
 }
 
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
-}
 - (IBAction)video_stop:(id)sender {
     [[KTVKit shareInstance] pause];
 }
+
 - (IBAction)ChangeAudioStream:(id)sender {
     isChangeAudio =! isChangeAudio;
     [[KTVKit shareInstance] setAudioTrack:isChangeAudio ? 1 : 2];
@@ -115,16 +124,18 @@
     //改变伴奏大小的属性
     [[KTVKit shareInstance] adjustAccompanyVolume:sender.value];
 }
+
 - (IBAction)voiceNumChange:(UISlider *)sender {
     //改成人声大小的属性
     [[KTVKit shareInstance] adjustVoiceVolume:sender.value];
 }
+
 - (IBAction)doMutePressed:(id)sender {
     self.isMuted = !self.isMuted;
 }
+
 //上下麦切换
 - (IBAction)doBroadcasterPressed:(id)sender {
-    
     if (self.isBroadcaster) {
         self.clientRole = AgoraClientRoleAudience;
         //下麦KTV模块释放
@@ -134,19 +145,15 @@
             self.fullSession = nil;
         }
     } else {
-        
         self.clientRole = AgoraClientRoleBroadcaster;
         //上麦时KTV模块加载歌曲
         //默认播放音轨为2的伴奏  如果遇到伴奏音轨在1的情况 设置这个值为false
         isChangeAudio = true;
-        [[KTVKit shareInstance] loadMV:@"http://compress.mv.letusmix.com/1c4dbe546537a9459d7b2c208d513303.mp4"];
+        [[KTVKit shareInstance] loadMV:@"http://download.agora.io/usecase/ktv01.mp4"];
     }
     [self.rtcEngine setClientRole:self.clientRole];
     [self hiddenButtons:!self.isBroadcaster];
 }
-
-
-
 
 - (VideoViewLayouter *)viewLayouter {
     if (!_viewLayouter) {
@@ -168,6 +175,7 @@
         [self updateInterfaceWithAnimation:YES];
     }
 }
+
 - (VideoSession *)fetchSessionOfUid:(NSUInteger)uid {
     for (VideoSession *session in self.videoSessions) {
         if (session.uid == uid) {
@@ -176,7 +184,6 @@
     }
     return nil;
 }
-
 
 - (VideoSession *)videoSessionOfUid:(NSUInteger)uid {
     VideoSession *fetchedSession = [self fetchSessionOfUid:uid];
@@ -218,22 +225,20 @@
         }
     }
 }
+
 - (void)rtcEngine:(AgoraRtcEngineKit *)engine didJoinedOfUid:(NSUInteger)uid elapsed:(NSInteger)elapsed
 {
     NSLog(@"uid === %lu",(unsigned long)uid);
     
 //    [self.rtcEngine setParameters(@"{\"che.audio.playout.uid.volume\":{\"uid\":hostUid,\"volume\":30}}")];
-    
-    
 }
--(void)rtcEngine:(AgoraRtcEngineKit *)engine firstRemoteVideoDecodedOfUid:(NSUInteger)uid size:(CGSize)size elapsed:(NSInteger)elapsed
+
+- (void)rtcEngine:(AgoraRtcEngineKit *)engine firstRemoteVideoDecodedOfUid:(NSUInteger)uid size:(CGSize)size elapsed:(NSInteger)elapsed
 {
-    
     VideoSession *userSession = [self videoSessionOfUid:uid];
     [self.rtcEngine setupRemoteVideo:userSession.canvas];
-    
-    
 }
+
 - (void)rtcEngine:(AgoraRtcEngineKit *)engine didOfflineOfUid:(NSUInteger)uid reason:(AgoraUserOfflineReason)reason {
     VideoSession *deleteSession;
     for (VideoSession *session in self.videoSessions) {
@@ -251,13 +256,15 @@
         }
     }
 }
+
 //切歌
 - (IBAction)changeMV:(id)sender {
     //默认播放音轨为2的伴奏  如果遇到伴奏音轨在1的情况 设置这个值为false
     isChangeAudio = true;
     //切歌执行的操作
-    [[KTVKit shareInstance] loadMV:@"http://compress.mv.letusmix.com/914184d11605138c7de8c28f2905c63a.mp4"];
+    [[KTVKit shareInstance] loadMV:@"http://download.agora.io/usecase/ktv02.mp4"];
 }
+
 //离开房间执行
 - (IBAction)leaveChannel:(id)sender {
     
@@ -269,27 +276,26 @@
     [self.navigationController  popViewControllerAnimated:true];
     
 }
--(void)ktvStatusCallBack:(KTVStatusType)ktvStatusType
-{
+
+- (void)ktvStatusCallBack:(KTVStatusType)ktvStatusType {
     switch (ktvStatusType) {
-        case KTVStatusTypePrepared:
-        {
-            UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"KTVStatus" message:@"加载完成" delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil];
-            [alertView show];
+        case KTVStatusTypePrepared: {
+            UIAlertController *alertView = [UIAlertController alertControllerWithTitle:@"KTVStatus" message:@"加载完成" preferredStyle:UIAlertControllerStyleAlert];
+            UIAlertAction *OK = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:nil];
+            [alertView addAction:OK];
+            [self presentViewController:alertView animated:YES completion:nil];
             break;
         }
-        case KTVStatusTypeCompleted:{
-            UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"KTVStatus" message:@"播放完成" delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil];
-            [alertView show];
+        case KTVStatusTypeCompleted: {
+            UIAlertController *alertView = [UIAlertController alertControllerWithTitle:@"KTVStatus" message:@"播放完成" preferredStyle:UIAlertControllerStyleAlert];
+            UIAlertAction *OK = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:nil];
+            [alertView addAction:OK];
+            [self presentViewController:alertView animated:YES completion:nil];
             break;
         }
-            
-        default:{
+        default: {
             break;
         }
     }
 }
-
-
 @end
-

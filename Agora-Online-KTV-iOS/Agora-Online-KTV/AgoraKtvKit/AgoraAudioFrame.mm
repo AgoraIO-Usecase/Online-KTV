@@ -16,9 +16,10 @@
 #import <mach/mach_time.h>
 #import "AudioCircularBuffer.h"
 #import "external_resampler.h"
-using namespace AgoraRTC;
-static scoped_ptr<AudioCircularBuffer<char>> agoraAudioBuf(new AudioCircularBuffer<char>(2048,true));
 
+using namespace AgoraRTC;
+
+static scoped_ptr<AudioCircularBuffer<char>> agoraAudioBuf(new AudioCircularBuffer<char>(2048,true));
 static scoped_ptr<AudioCircularBuffer<char>> earBackBuf(new AudioCircularBuffer<char>(2048,true));
 static external_resampler *resample = new external_resampler();
 static external_resampler *capture_resample =  new external_resampler();
@@ -28,8 +29,6 @@ static NSObject *threadLockPlay = [[NSObject alloc] init];
 static NSObject *threadLockPush = [[NSObject alloc] init];
 
 using namespace std;
-static float *stereoBuffer;
-//static float *effectBuffer;
 
 static float audio_sonSum = 1;
 static float audio_voiceSum = 1;
@@ -59,8 +58,6 @@ public:
             earBackBuf->Push(buf, (int)bytesLength);
             mtx.unlock();
         }
-        
-        
     }
     virtual bool onRecordAudioFrame(AudioFrame& audioFrame) override
     {
@@ -114,7 +111,6 @@ public:
             
         }
         return true;
-        
     }
     virtual bool onPlaybackAudioFrame(AudioFrame& audioFrame) override{
         @synchronized(threadLockPlay){
@@ -155,32 +151,28 @@ public:
                 free(earbuf);
                 mtx.unlock();
             }
-            
         }
-        
         return true;
     }
     virtual  bool onPlaybackAudioFrameBeforeMixing(unsigned int uid, AudioFrame& audioFrame) override {
-        
         return true;
     }
     virtual bool onMixedAudioFrame(AudioFrame& audioFrame) override {
-        
-        
-        return true; }
-    
+        return true;
+    }
 };
+
 @interface AgoraAudioFrame()
 {
     AgoraRtcEngineKit *_rtcEngine;
 }
 @end
+
 static AgoraAudioFrameObserver* s_audioFrameObserver;
 
 @implementation AgoraAudioFrame
 
-+ (instancetype)shareInstance{
-    
++ (instancetype)shareInstance {
     static dispatch_once_t once;
     static AgoraAudioFrame *sharedInstance;
     dispatch_once(&once, ^{
@@ -190,11 +182,9 @@ static AgoraAudioFrameObserver* s_audioFrameObserver;
         }
     });
     return sharedInstance;
-    
 }
 
--(void)registerEngineKit:(AgoraRtcEngineKit *)rtcEngine
-{
+- (void)registerEngineKit:(AgoraRtcEngineKit *)rtcEngine {
     _rtcEngine = rtcEngine;
     agora::rtc::IRtcEngine* rtc_engine = (agora::rtc::IRtcEngine*)rtcEngine.getNativeHandle;
     agora::util::AutoPtr<agora::media::IMediaEngine> mediaEngine;
@@ -206,11 +196,12 @@ static AgoraAudioFrameObserver* s_audioFrameObserver;
         mediaEngine->registerAudioFrameObserver(s_audioFrameObserver);
         
     }
-    
 }
--(void)pushAudioSource:(void *)data byteLength:(long)bytesLength{
+
+- (void)pushAudioSource:(void *)data byteLength:(long)bytesLength {
     s_audioFrameObserver->pushExternalData(data, bytesLength);
 }
+
 - (BOOL)isHeadsetPluggedIn {
     @synchronized(self){
         AVAudioSessionRouteDescription* route = [[AVAudioSession sharedInstance] currentRoute];
@@ -221,30 +212,29 @@ static AgoraAudioFrameObserver* s_audioFrameObserver;
         return false;
     }
 }
--(void)setIsAudience:(BOOL)isAudience
-{
+
+- (void)setIsAudience:(BOOL)isAudience {
     _isAudience = isAudience;
-    
-    
 }
--(void)destroyAudioBuf{
-    
+
+- (void)destroyAudioBuf {
     agoraAudioBuf.release();
     earBackBuf.release();
     agoraAudioBuf.reset(new AudioCircularBuffer<char>(2048,true));
     earBackBuf.reset(new AudioCircularBuffer<char>(2048,true));
 }
--(void)setSongNum:(float)songNum
-{
+
+- (void)setSongNum:(float)songNum {
     _songNum = songNum;
     audio_sonSum = songNum;
 }
--(void)setVoiceNum:(float)voiceNum
-{
+
+- (void)setVoiceNum:(float)voiceNum {
     _voiceNum = voiceNum;
     audio_voiceSum = voiceNum;
 }
--(void)destroy{
+
+- (void)destroy {
     agora::rtc::IRtcEngine* rtc_engine = (agora::rtc::IRtcEngine*)_rtcEngine.getNativeHandle;
     agora::util::AutoPtr<agora::media::IMediaEngine> mediaEngine;
     mediaEngine.queryInterface(rtc_engine, agora::AGORA_IID_MEDIA_ENGINE);
@@ -254,15 +244,9 @@ static AgoraAudioFrameObserver* s_audioFrameObserver;
     agoraAudioBuf.release();
     earBackBuf.release();
 }
-- (void)dealloc
-{
+
+- (void)dealloc {
     delete resample;
     delete capture_resample;
 }
 @end
-
-
-
-
-
-

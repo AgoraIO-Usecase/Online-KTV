@@ -15,7 +15,7 @@ Users can create karaoke television (KTV) rooms to perform the following:
 
 Here is the architecture of the Agora Online KTV:
 
-![KTV 架构图](Image/ktv_together.en.png)
+![KTV 架构图](Image/ktv_together.en.jpg)
 
 - The host (singer) plays local or online MV files.
 - The voice of the host and the music of the MV are locally mixed by the Agora Native SDK for Video and transmitted to the Agora SD-RTN along with the MV video.
@@ -23,22 +23,13 @@ Here is the architecture of the Agora Online KTV:
 
 ## Run the Sample App
 
-[Android apk](https://github.com/AgoraIO-Usecase/Online-KTV/releases/download/1.0/app-debug.apk)
-
 1. Create a developer account at [agora.io](https://sso.agora.io/en/signup) and create a project in Dashboard to get the App ID.
 ![](Image/appid.en.jpg)
 
 2. Download the [Agora Native SDK for Voice/Video](https://docs.agora.io/en/Interactive%20Broadcast/downloads).
-![](Image/sdk.en.png)
+![](Image/sdk.en.jpg)
 
 #### Android
-
-Development environment:
-
-- Android SDK API Level 16+.
-- Android Studio 3.1+.
-- Devices with audio and video support.
-- Android 4.1+.
 
 1. Add the App ID in the `Android/Agora-Online-KTV/app/src/main/res/values/strings_config.xml` file of your project.
 
@@ -53,13 +44,15 @@ Development environment:
 
 3. Open your project in Android Studio and connect to an Android test device. Compile and run the sample app. 
 
+```
+Development environment:
+- Android SDK API Level 16+.
+- Android Studio 3.1+.
+- Devices with audio and video support.
+- Android 4.1+.
+```
 
 #### iOS
-
-Development environment:
-
-- Xcode 10.0+.
-- iOS 8.0+.
 
 1. Add the App ID in the `AgoraVideoViewController.m` file.
 
@@ -71,7 +64,15 @@ Development environment:
 
 3. Open `iOS/Agora-Online-KTV/Agora-Online-KTV.xcodeproj` in Xcode. Connect to an iOS test device, fill in a valid developer signature and run the sample app.
 
+```
+Development environment:
+- Xcode 10.0+.
+- iOS 8.0+.
+```
+
 ## API methods
+
+![](Image/ktv_api.en.jpg)
 
 The API methods related to the Agora Online KTV feature can be divided into two categories.
 
