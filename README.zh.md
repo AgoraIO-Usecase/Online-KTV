@@ -84,25 +84,44 @@
 ​* iOS 8.0 +
 ```
 
-## 集成方法
+## API 列表
 
-示例 App 的逻辑流程如下图所示。其中 `KTVKit` 模块已经封装了在 KTV 场景下的声网引擎和 IJKPlayer 相关功能，可以直接使用。也可以参考 `KTVKit` 的代码，自己实现相关功能。
+示例 App 的 API 流程如下图所示。其中 `KTVKit` 模块已经封装了在 KTV 场景下的声网引擎和 IJKPlayer 相关功能。
 
 ![](Image/ktv_api.jpg)
 
+Agora SDK 关键 API 列表：
+
+iOS|Android
+---|---
+[sharedEngineWithAppId:delegate:](https://docs.agora.io/cn/Interactive%20Broadcast/API%20Reference/oc/Classes/AgoraRtcEngineKit.html#//api/name/sharedEngineWithAppId:delegate:)|[create](https://docs.agora.io/cn/Interactive%20Broadcast/API%20Reference/java/classio_1_1agora_1_1rtc_1_1_rtc_engine.html#a35466f690d0a9332f24ea8280021d5ed)
+[setChannelProfile](https://docs.agora.io/cn/Interactive%20Broadcast/API%20Reference/oc/Classes/AgoraRtcEngineKit.html#//api/name/setChannelProfile:)|[setChannelProfile](https://docs.agora.io/cn/Interactive%20Broadcast/API%20Reference/java/classio_1_1agora_1_1rtc_1_1_rtc_engine.html#a1bfb76eb4365b8b97648c3d1b69f2bd6)
+[setClientRole](https://docs.agora.io/cn/Interactive%20Broadcast/API%20Reference/oc/Classes/AgoraRtcEngineKit.html#//api/name/setClientRole:)|[setClientRole](https://docs.agora.io/cn/Interactive%20Broadcast/API%20Reference/java/classio_1_1agora_1_1rtc_1_1_rtc_engine.html#aa2affa28a23d44d18b6889fba03f47ec)
+[enableVideo](https://docs.agora.io/cn/Interactive%20Broadcast/API%20Reference/oc/Classes/AgoraRtcEngineKit.html#//api/name/enableVideo)|[enableVideo](https://docs.agora.io/cn/Interactive%20Broadcast/API%20Reference/java/classio_1_1agora_1_1rtc_1_1_rtc_engine.html#a99ae52334d3fa255dfcb384b78b91c52)
+[setAudioProfile](https://docs.agora.io/cn/Interactive%20Broadcast/API%20Reference/oc/Classes/AgoraRtcEngineKit.html#//api/name/setAudioProfile:scenario:)|[setAudioProfile](https://docs.agora.io/cn/Interactive%20Broadcast/API%20Reference/java/classio_1_1agora_1_1rtc_1_1_rtc_engine.html#a34175b5e04c88d9dc6608b1f38c0275d)
+[joinChannel](https://docs.agora.io/cn/Interactive%20Broadcast/API%20Reference/oc/Classes/AgoraRtcEngineKit.html#//api/name/joinChannelByToken:channelId:info:uid:joinSuccess:)|[joinChannel](https://docs.agora.io/cn/Interactive%20Broadcast/API%20Reference/java/classio_1_1agora_1_1rtc_1_1_rtc_engine.html#a8b308c9102c08cb8dafb4672af1a3b4c)
+[onRecordAudioFrame](https://docs.agora.io/cn/Interactive%20Broadcast/API%20Reference/cpp/classagora_1_1media_1_1_i_audio_frame_observer.html#ac6ab0c792420daf929fed78f9d39f728)|[onRecordAudioFrame](https://docs.agora.io/cn/Interactive%20Broadcast/API%20Reference/cpp/classagora_1_1media_1_1_i_audio_frame_observer.html#ac6ab0c792420daf929fed78f9d39f728)
+[onPlaybackAudioFrame](https://docs.agora.io/cn/Interactive%20Broadcast/API%20Reference/cpp/classagora_1_1media_1_1_i_audio_frame_observer.html#aefc7f9cb0d1fcbc787775588bc849bac)|[onPlaybackAudioFrame](https://docs.agora.io/cn/Interactive%20Broadcast/API%20Reference/cpp/classagora_1_1media_1_1_i_audio_frame_observer.html#aefc7f9cb0d1fcbc787775588bc849bac)
+[pushExternalVideoFrame](https://docs.agora.io/cn/Interactive%20Broadcast/API%20Reference/oc/Classes/AgoraRtcEngineKit.html#//api/name/pushExternalVideoFrame:)|[pushExternalVideoFrame](https://docs.agora.io/cn/Interactive%20Broadcast/API%20Reference/java/classio_1_1agora_1_1rtc_1_1_rtc_engine.html#a6e7327f4449800a2c2ddc200eb2c0386)
+
+## 集成方法
+
 ### 1. 集成声网 SDK 并实现互动直播功能
 
-具体方法见 [声网 SDK 快速开始](https://docs.agora.io/cn/Interactive%20Broadcast/android_video?platform=Android)
+具体流程见声网 SDK 快速开始文档：
+
+- [声网 SDK 快速开始 - iOS](https://docs.agora.io/cn/Interactive%20Broadcast/ios_video?platform=iOS) 
+- [声网 SDK 快速开始 - Android](https://docs.agora.io/cn/Interactive%20Broadcast/android_video?platform=Android)
 
 ### 2. 实现 MV 文件音视频帧读取
 
-使用 ijkplayer 等已经实现了完善的在线/本地 MV 文件读取和控制功能的第三方控件获取到 MV 的音视频帧。
+使用 ijkplayer 等已经实现了完善的在线/本地 MV 文件读取和控制功能的第三方控件，获取到 MV 的音视频帧。
 
 使用声网 SDK 的 [pushExternalVideoFrame](https://docs.agora.io/cn/Interactive%20Broadcast/API%20Reference/java/classio_1_1agora_1_1rtc_1_1_rtc_engine.html#a6e7327f4449800a2c2ddc200eb2c0386) 接口，将视频帧数据传入声网 SDK。
 
 在 声网 SDK 的 [onRecordAudioFrame](https://docs.agora.io/cn/Interactive%20Broadcast/API%20Reference/cpp/classagora_1_1media_1_1_i_audio_frame_observer.html#ac6ab0c792420daf929fed78f9d39f728) C++ 回调中，将 MV 的音频帧数据和 声网 SDK 采集到的歌唱者音频帧数据混合起来，实现人声和伴奏的混音。具体可参看 Demo 中 KTVKit 内部的实现。
 
-你也可以直接使用 Demo 中的 `KTVKit` 类，该类已经将 MV 文件读取、控制和传输都封装成简单的接口，方便调用。
+**你也可以直接使用 Demo 中的 `KTVKit` 类，该类已经将 MV 文件读取、混音、控制和传输都封装成简单的接口，方便调用。**
 
 ### 3. 进阶功能
 
@@ -112,9 +131,10 @@
 
 1. 开发者可以选择使用 demo 中封装好的 `KTVKit` 类以简化 MV 文件的读取和播放；
 2. 为了能将读取到的音视频帧数据回调出来输入给声网 SDK，Demo 中集成的 `ijkplayer` 经过了必要的改造，不能替换成其他版本的 ijkplayer 库；
-3. iOS Demo 中的 `ijkplayer` 为动态库，其中包含了模拟器架构。在正式上传 Appstore 审核前需要手动将其中的模拟器架构去掉，避免影响审核；
-3. `KTVKit` 类支持有一个或者两个音轨的 MV 文件，不支持第三根或者更多的音轨；
-4. 如果 MV 文件有大于一根音轨，`KTVKit` 初始默认读取第二根音轨；
+3. iOS Demo 中的 `ijkplayer` 为动态库，并包含了模拟器架构。在正式上传 Appstore 审核前需要手动将其中的模拟器架构去掉，避免影响审核；
+4. `KTVKit` 必须在加入频道前进行初始化。如果需要在频道中启用 KTVKit，需要先离开当前频道；
+5. `KTVKit` 类支持有一个或者两个音轨的 MV 文件，不支持第三根或者更多的音轨。如果 MV 文件有大于一根音轨，`KTVKit` 初始默认读取第二根音轨；
+6. `KTVKit` 类目前只支持 `mp4` 格式的 MV 文件。
 
 ## 常见问题调查
 
