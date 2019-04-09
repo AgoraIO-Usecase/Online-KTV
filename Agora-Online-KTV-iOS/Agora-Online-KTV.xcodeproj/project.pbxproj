@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3802EF3D225CCAFB0065A2E1 /* CoreML.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3802EF3C225CCAFA0065A2E1 /* CoreML.framework */; };
 		38F2240021F72A7200F4D2E3 /* aligned_malloc.cc in Sources */ = {isa = PBXBuildFile; fileRef = 38F223E021F72A7100F4D2E3 /* aligned_malloc.cc */; };
 		38F2240121F72A7200F4D2E3 /* external_resampler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 38F223E121F72A7100F4D2E3 /* external_resampler.cpp */; };
 		38F2240221F72A7200F4D2E3 /* audio_util.cc in Sources */ = {isa = PBXBuildFile; fileRef = 38F223E821F72A7100F4D2E3 /* audio_util.cc */; };
@@ -20,7 +21,6 @@
 		38F2240A21F72A7200F4D2E3 /* resample_fractional.c in Sources */ = {isa = PBXBuildFile; fileRef = 38F223FD21F72A7100F4D2E3 /* resample_fractional.c */; };
 		38F2240B21F72A7200F4D2E3 /* resample_by_2.c in Sources */ = {isa = PBXBuildFile; fileRef = 38F223FE21F72A7100F4D2E3 /* resample_by_2.c */; };
 		38F2240C21F72A7200F4D2E3 /* resample_48khz.c in Sources */ = {isa = PBXBuildFile; fileRef = 38F223FF21F72A7100F4D2E3 /* resample_48khz.c */; };
-		38F2240E21F72DB500F4D2E3 /* IJKMediaFramework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 38F2240D21F72DB500F4D2E3 /* IJKMediaFramework.framework */; };
 		38F2240F21F73C7A00F4D2E3 /* IJKMediaFramework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 38F2240D21F72DB500F4D2E3 /* IJKMediaFramework.framework */; };
 		38F2241021F73C7A00F4D2E3 /* IJKMediaFramework.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 38F2240D21F72DB500F4D2E3 /* IJKMediaFramework.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		8B43661E2153A15C007FA50A /* KTVKit.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B43661D2153A15C007FA50A /* KTVKit.m */; };
@@ -74,6 +74,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		3802EF3C225CCAFA0065A2E1 /* CoreML.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreML.framework; path = System/Library/Frameworks/CoreML.framework; sourceTree = SDKROOT; };
 		38F223D821F72A7100F4D2E3 /* scoped_ptr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = scoped_ptr.h; sourceTree = "<group>"; };
 		38F223D921F72A7100F4D2E3 /* template_util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = template_util.h; sourceTree = "<group>"; };
 		38F223DA21F72A7100F4D2E3 /* aligned_malloc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = aligned_malloc.h; sourceTree = "<group>"; };
@@ -163,13 +164,13 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3802EF3D225CCAFB0065A2E1 /* CoreML.framework in Frameworks */,
 				8BBF6E062174715400C5577B /* Accelerate.framework in Frameworks */,
 				8BD8BE61215A6EFC006CEF31 /* Foundation.framework in Frameworks */,
 				38F2240F21F73C7A00F4D2E3 /* IJKMediaFramework.framework in Frameworks */,
 				8BEF565020907FDC001BE9D8 /* AgoraRtcEngineKit.framework in Frameworks */,
 				8BEF564820907656001BE9D8 /* VideoToolbox.framework in Frameworks */,
 				8BEF56462090764F001BE9D8 /* UIKit.framework in Frameworks */,
-				38F2240E21F72DB500F4D2E3 /* IJKMediaFramework.framework in Frameworks */,
 				8BEF564420907649001BE9D8 /* QuartzCore.framework in Frameworks */,
 				8BEF564220907642001BE9D8 /* OpenGLES.framework in Frameworks */,
 				8BEF56402090763A001BE9D8 /* MobileCoreServices.framework in Frameworks */,
@@ -392,6 +393,7 @@
 		8BEF56222090759A001BE9D8 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				3802EF3C225CCAFA0065A2E1 /* CoreML.framework */,
 				8BBF6E052174715400C5577B /* Accelerate.framework */,
 				8BD8BE60215A6EFC006CEF31 /* Foundation.framework */,
 				8BEF564F20907FDC001BE9D8 /* AgoraRtcEngineKit.framework */,
@@ -445,7 +447,7 @@
 			isa = PBXProject;
 			attributes = {
 				CLASSPREFIX = Agora;
-				LastUpgradeCheck = 0930;
+				LastUpgradeCheck = 1020;
 				ORGANIZATIONNAME = Agora;
 				TargetAttributes = {
 					8BEF5605209074AE001BE9D8 = {
