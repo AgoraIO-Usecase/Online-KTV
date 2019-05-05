@@ -40,19 +40,27 @@
     _containerView = view;
     [[AgoraAudioFrame shareInstance] registerEngineKit:_rtcEngine];
     
-    [_rtcEngine setParameters:@"{\"che.video.keep_prerotation\":false}"];
-    [_rtcEngine setParameters:@"{\"che.video.local.camera_index\":1025}"];
-    
+    [_rtcEngine setRecordingAudioFrameParametersWithSampleRate:sampleRate
+                                                       channel:2
+                                                          mode:AgoraAudioRawFrameOperationModeReadWrite
+                                                samplesPerCall:sampleRate * 0.01 * 2];
+    [_rtcEngine setPlaybackAudioFrameParametersWithSampleRate:sampleRate
+                                                      channel:2
+                                                         mode:AgoraAudioRawFrameOperationModeReadWrite
+                                               samplesPerCall:sampleRate * 0.01 * 2];
     //初始化之后加入频道之前开启耳返
     [_rtcEngine enableInEarMonitoring:true];
     
-    [_rtcEngine setRecordingAudioFrameParametersWithSampleRate:sampleRate channel:2 mode:AgoraAudioRawFrameOperationModeReadWrite samplesPerCall:sampleRate * 0.01 * 2];
-    [_rtcEngine setPlaybackAudioFrameParametersWithSampleRate:sampleRate channel:2 mode:AgoraAudioRawFrameOperationModeReadWrite samplesPerCall:sampleRate * 0.01 * 2];
     //开启说话人检测功能
     [_rtcEngine enableAudioVolumeIndication:200 smooth:3];
     //加入房间
     [_rtcEngine setExternalVideoSource:true useTexture:false pushMode:true];
-    [_rtcEngine setVideoResolution:CGSizeMake(640, 360) andFrameRate:15 bitrate:620];
+    [_rtcEngine setVideoEncoderConfiguration:
+      [[AgoraVideoEncoderConfiguration alloc] initWithSize:CGSizeMake(640, 360)
+                                                 frameRate:AgoraVideoFrameRateFps15
+                                                   bitrate:AgoraVideoBitrateStandard orientationMode:AgoraVideoOutputOrientationModeFixedLandscape
+       ]
+    ];
     [_rtcEngine setParameters:@"{\"che.audio.use.remoteio\":true}"];
     [_rtcEngine setParameters:@"{\"che.audio.keep.audiosession\":true}"];
     

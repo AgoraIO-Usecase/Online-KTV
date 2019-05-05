@@ -24,15 +24,12 @@ typedef struct AVideoFrame {
 //调节人声大小
 @property (nonatomic, assign) float voiceNum;
 
-
-
-+(instancetype)shareInstance;
--(void)registerEngineKit:(AgoraRtcEngineKit *)rtcEngine;
--(void)pushAudioSource:(void *)data byteLength:(long)bytesLength;
--(void)pushVideoSource:(void *)yuv width:(int)width height:(int)height;
++ (instancetype)shareInstance;
+- (void)registerEngineKit:(AgoraRtcEngineKit *)rtcEngine;
+- (void)pushAudioSource:(void *)data byteLength:(long)bytesLength;
+- (void)pushVideoSource:(void *)yuv width:(int)width height:(int)height;
 - (BOOL)isHeadsetPluggedIn;
--(void)destroyAudioBuf;
--(void)isOpenAudioEffect;
--(void)destroy;
+- (void)destroyAudioBuf;
+- (void)isOpenAudioEffect;
+- (void)destroy;
 @end
-

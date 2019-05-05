@@ -105,7 +105,7 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler, Se
             @Override
             public void onClick(View v) {
                 // please input url which u need to open
-                mKTVKit.openAndPlayVideoFile("http://compress.mv.letusmix.com/33cfa59c570ff341c8df68dc2ecbb640.mp4");
+                mKTVKit.openAndPlayVideoFile("http://download.agora.io/usecase/ktv01.mp4");
             }
         });
 
@@ -139,7 +139,7 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler, Se
             @Override
             public void onClick(View v) {
                 mKTVKit.stopPlayVideoFile();
-                mKTVKit.openAndPlayVideoFile("http://compress.mv.letusmix.com/914184d11605138c7de8c28f2905c63a.mp4");
+                mKTVKit.openAndPlayVideoFile("http://download.agora.io/usecase/ktv02.mp4");
             }
         });
 
