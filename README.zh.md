@@ -33,14 +33,6 @@
 4. MV 文件解码出来的视频帧数据通过声网 SDK 发送到频道中；
 5. 房间内的其他用户通过声网 SDK 接收演唱者的歌声和 MV 数据。
 
-## 体验 Demo
-
-你可直接下载安装 [Android apk 安装包](https://github.com/AgoraIO-Usecase/Online-KTV/releases/download/1.0/app-debug.apk) 进行体验。
-
-成功运行 Demo 后，在界面上输入频道名称并选择 Broadcaster，等提示 KTV 加载成功后点击“开始播放”即开始 KTV 演唱。
-
-使用另一台设备输入相同的频道名并选择 Audience，即为观众观看。
-
 ## 运行示例 Demo
 
 1. 在 [Agora.io 用户注册页](https://dashboard.agora.io/cn/signup/) 注册账号，并创建自己的项目获取到 App ID。
