@@ -1,0 +1,63 @@
+plugins {
+    id 'com.android.library'
+}
+
+android {
+    compileSdkVersion COMPILESDKVERSION
+    buildToolsVersion BUILDTOOLSVERSION
+
+    defaultConfig {
+        minSdkVersion MINSDKVERSION
+        targetSdkVersion TARGETSDKVERSION
+        versionCode 1
+        versionName "1.0.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    flavorDimensions "test"
+    productFlavors {
+        leancloud {
+            buildConfigField "String", "DATA_PROVIDER", '"LeanCloud"'
+        }
+
+        firebase {
+            buildConfigField "String", "DATA_PROVIDER", '"FireBase"'
+        }
+    }
+}
+
+dependencies {
+    testImplementation 'junit:junit:4.+'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+
+    //Arogra SDK
+    api 'io.agora.rtc:full-sdk:3.3.0'
+
+    //leancloud
+    leancloudImplementation 'cn.leancloud:storage-android:7.2.2'
+    leancloudImplementation 'cn.leancloud:realtime-android:7.2.2'
+
+    //firebase
+    firebaseImplementation platform('com.google.firebase:firebase-bom:26.7.0')
+    firebaseImplementation 'com.google.firebase:firebase-firestore'
+
+    //RTM
+    implementation 'com.github.agorabuilder:rtm-sdk:1.4.4'
+
+    api project(':baselibrary')
+}

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/ktv_colorPrimaryDark"
+        android:fitsSystemWindows="true"
+        android:keepScreenOn="true">
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/g1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_begin="20dp" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/g2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_end="20dp" />
+
+        <ImageView
+            android:id="@+id/ivLeave"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:src="@mipmap/ktv_room_close"
+            app:layout_constraintStart_toStartOf="@+id/g1"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/ktv_title_size"
+            app:layout_constraintStart_toEndOf="@+id/ivLeave"
+            app:layout_constraintTop_toTopOf="@+id/ivLeave" />
+
+        <View
+            android:id="@+id/ivSongControl"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toTopOf="@+id/rvSpeakers"
+            app:layout_constraintEnd_toEndOf="@+id/g2"
+            app:layout_constraintStart_toStartOf="@+id/g1"
+            app:layout_constraintTop_toBottomOf="@+id/tvName" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvSpeakers"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+            app:layout_constraintBottom_toTopOf="@+id/ivMic"
+            app:layout_constraintEnd_toEndOf="@+id/g2"
+            app:layout_constraintStart_toStartOf="@+id/g1"
+            app:layout_constraintTop_toBottomOf="@+id/ivSongControl"
+            tools:listitem="@layout/ktv_item_room_speaker" />
+
+        <ImageView
+            android:id="@+id/ivMic"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:src="@mipmap/ktv_room_mic"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/g1" />
+
+        <ImageView
+            android:id="@+id/ivBackgroundPicture"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:src="@mipmap/ktv_room_mv"
+            app:layout_constraintBottom_toBottomOf="@+id/ivMic"
+            app:layout_constraintStart_toEndOf="@+id/ivMic" />
+
+        <LinearLayout
+            android:id="@+id/llChooseSong"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@mipmap/ktv_room_choose_song"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="@+id/ivMic"
+            app:layout_constraintEnd_toEndOf="@+id/g2">
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvNoOnSeat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            android:text="@string/ktv_room_before_speaker"
+            android:textColor="@android:color/white"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

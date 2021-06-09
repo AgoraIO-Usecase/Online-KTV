@@ -1,21 +1,19 @@
-apply plugin: 'com.android.application'
+plugins {
+    id 'com.android.application'
+}
 
 android {
-    compileSdkVersion 26
+    compileSdkVersion COMPILESDKVERSION
+    buildToolsVersion BUILDTOOLSVERSION
 
     defaultConfig {
-        applicationId "io.agora.ard.ktv"
-
-        minSdkVersion 19
-        targetSdkVersion 22
+        applicationId "io.agora.scene"
+        minSdkVersion MINSDKVERSION
+        targetSdkVersion TARGETSDKVERSION
         versionCode 1
-        versionName "1.0"
-
+        versionName "1.0.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-
-        ndk {
-            abiFilters "armeabi-v7a","x86","arm64-v8a" // DO NOT MODIFY THIS LINE, IT'S UPDATED BY BUILD MACHINE AUTOMATICALLY.
-        }
+        multiDexEnabled true
     }
 
     buildTypes {
@@ -25,25 +23,37 @@ android {
         }
     }
 
-    sourceSets { main { assets.srcDirs = ['src/main/assets', 'src/main/assets/'] } }
-}
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 
-configurations.all {
-    resolutionStrategy.force 'com.android.support:support-annotations:26.1.0'
+    buildFeatures {
+        dataBinding = true
+    }
+
+    flavorDimensions "test"
+    productFlavors {
+        leancloud {
+        }
+
+        firebase {
+        }
+    }
+
+    applicationVariants.all { variant ->
+        variant.outputs.all {
+            outputFileName = "Demo-${versionName}-${variant.buildType.name}.apk"
+        }
+    }
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    testImplementation 'junit:junit:4.+'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
-    implementation project(':agora-ktv-kit-release')
-    //implementation project(':agora-ktv-kit')
-    implementation 'com.android.support:appcompat-v7:26.1.0'
-    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
-    implementation 'com.android.support:design:26.1.0'
-    implementation 'org.slf4j:slf4j-api:1.7.25'
-
-    testImplementation 'junit:junit:4.12'
-
-    androidTestImplementation 'com.android.support.test:runner:1.0.2'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    implementation project(':InteractivePodcast')
+    implementation project(':MarriageInterview')
 }

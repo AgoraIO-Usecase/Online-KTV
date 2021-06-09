@@ -1,0 +1,73 @@
+if (isModule.toBoolean()) {
+    apply plugin: 'com.android.application'
+} else {
+    apply plugin: 'com.android.library'
+}
+
+if (getGradle().getStartParameter().getTaskRequests()
+        .toString().contains("firebase")) {
+    apply plugin: 'com.google.gms.google-services'
+}
+
+android {
+    compileSdkVersion COMPILESDKVERSION
+    buildToolsVersion BUILDTOOLSVERSION
+
+    defaultConfig {
+        if (isModule.toBoolean()) {
+            applicationId "io.agora.ktv"
+        }
+        minSdkVersion MINSDKVERSION
+        targetSdkVersion TARGETSDKVERSION
+        versionCode 1
+        versionName "1.0.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+        multiDexEnabled true
+    }
+
+    resourcePrefix "ktv_"
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    buildFeatures {
+        dataBinding = true
+    }
+
+    flavorDimensions "test"
+    productFlavors {
+        leancloud {
+        }
+
+        firebase {
+        }
+    }
+
+    if (isModule.toBoolean()) {
+        applicationVariants.all { variant ->
+            variant.outputs.all {
+                outputFileName = "Marry-${versionName}-${variant.buildType.name}.apk"
+            }
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    testImplementation 'junit:junit:4.+'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+
+    api project(':data')
+}

@@ -1,4 +1,3 @@
-include ':app'
-include 'agora-ktv-kit-release'
-//include ':agora-ktv-kit'
-//project(':agora-ktv-kit').projectDir = new File(settingsDir, '../../Samples-Special-Scenarios/KTV/Android/agora-ktv-kit')
+include ':data'
+include ':baselibrary'
+include ':KTV'
