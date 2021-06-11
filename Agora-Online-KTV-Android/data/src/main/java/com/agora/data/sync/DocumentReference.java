@@ -2,7 +2,7 @@ package com.agora.data.sync;
 
 import androidx.annotation.NonNull;
 
-import java.util.Map;
+import java.util.HashMap;
 
 /**
  * @author chenhengfei(Aslanchen)
@@ -40,8 +40,8 @@ public class DocumentReference {
         SyncManager.Instance().get(this, callback);
     }
 
-    public void update(@NonNull Map<String, Object> data, SyncManager.DataItemCallback callback) {
-
+    public void update(@NonNull HashMap<String, Object> data, SyncManager.DataItemCallback callback) {
+        SyncManager.Instance().update(this, data, callback);
     }
 
     public void update(String key, Object data, SyncManager.DataItemCallback callback) {

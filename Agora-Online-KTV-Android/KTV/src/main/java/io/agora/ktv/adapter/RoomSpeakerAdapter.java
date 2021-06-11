@@ -1,5 +1,6 @@
 package io.agora.ktv.adapter;
 
+import android.content.Context;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -49,7 +50,12 @@ public class RoomSpeakerAdapter extends BaseRecyclerViewAdapter<AgoraMember, Roo
             return;
         }
 
-//        holder.mDataBinding.tvName.setText(item.getName());
+        Context mContext = holder.itemView.getContext();
+        if (item.getRole() == AgoraMember.Role.Owner) {
+            holder.mDataBinding.tvName.setText(mContext.getString(R.string.ktv_room_owner));
+        } else {
+//            holder.mDataBinding.tvName.setText(mContext.getString(R.string.ktv_room_owner));
+        }
     }
 
     class ViewHolder extends BaseRecyclerViewAdapter.BaseViewHolder<KtvItemRoomSpeakerBinding> {

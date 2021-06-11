@@ -55,9 +55,12 @@ public abstract class BaseRecyclerViewAdapter<T, VH extends BaseRecyclerViewAdap
             public void onItemClick(View view, int position, long id) {
                 if (BaseRecyclerViewAdapter.this.mOnItemClickListener != null) {
                     T data = getItemData(position);
-                    if (data != null) {
+                    if (data == null) {
+                        BaseRecyclerViewAdapter.this.mOnItemClickListener.onItemClick(view, position, id);
+                    } else {
                         BaseRecyclerViewAdapter.this.mOnItemClickListener.onItemClick(data, view, position, id);
                     }
+
                 }
             }
         };

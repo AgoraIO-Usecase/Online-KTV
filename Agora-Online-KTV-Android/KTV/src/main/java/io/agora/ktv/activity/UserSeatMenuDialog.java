@@ -12,18 +12,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentManager;
 
-import com.agora.data.BaseError;
-import com.agora.data.manager.RoomManager;
-import com.agora.data.model.Member;
-import com.agora.data.model.User;
-import com.agora.data.observer.DataCompletableObserver;
-import com.bumptech.glide.Glide;
+import com.agora.data.model.AgoraMember;
 
 import io.agora.baselibrary.base.DataBindBaseDialog;
-import io.agora.baselibrary.util.ToastUtile;
 import io.agora.ktv.R;
 import io.agora.ktv.databinding.KtvDialogUserSeatMenuBinding;
-import io.reactivex.android.schedulers.AndroidSchedulers;
 
 /**
  * 房间用户菜单
@@ -35,7 +28,7 @@ public class UserSeatMenuDialog extends DataBindBaseDialog<KtvDialogUserSeatMenu
 
     private static final String TAG_USER = "user";
 
-    private Member mMember;
+    private AgoraMember mMember;
 
     @Nullable
     @Override
@@ -58,7 +51,7 @@ public class UserSeatMenuDialog extends DataBindBaseDialog<KtvDialogUserSeatMenu
 
     @Override
     public void iniBundle(@NonNull Bundle bundle) {
-        mMember = (Member) bundle.getSerializable(TAG_USER);
+        mMember = (AgoraMember) bundle.getSerializable(TAG_USER);
     }
 
     @Override
@@ -78,19 +71,19 @@ public class UserSeatMenuDialog extends DataBindBaseDialog<KtvDialogUserSeatMenu
 
     @Override
     public void iniData() {
-        User mUser = mMember.getUserId();
-        mDataBinding.tvName.setText(mUser.getName());
-        Glide.with(this)
-                .load(mUser.getAvatarRes())
-                .placeholder(R.mipmap.default_head)
-                .error(R.mipmap.default_head)
-                .circleCrop()
-                .into(mDataBinding.ivUser);
+//        User mUser = mMember.getUserId();
+//        mDataBinding.tvName.setText(mUser.getName());
+//        Glide.with(this)
+//                .load(mUser.getAvatarRes())
+//                .placeholder(R.mipmap.default_head)
+//                .error(R.mipmap.default_head)
+//                .circleCrop()
+//                .into(mDataBinding.ivUser);
     }
 
-    public void show(@NonNull FragmentManager manager, Member data) {
+    public void show(@NonNull FragmentManager manager, AgoraMember data) {
         Bundle intent = new Bundle();
-        intent.putSerializable(TAG_USER, data);
+        intent.putParcelable(TAG_USER, data);
         setArguments(intent);
         super.show(manager, TAG);
     }
@@ -103,23 +96,23 @@ public class UserSeatMenuDialog extends DataBindBaseDialog<KtvDialogUserSeatMenu
     }
 
     private void seatOff() {
-        mDataBinding.btSeatoff.setEnabled(false);
-        RoomManager.Instance(requireContext())
-                .seatOff(mMember, Member.Role.Listener)
-                .observeOn(AndroidSchedulers.mainThread())
-                .compose(mLifecycleProvider.bindToLifecycle())
-                .subscribe(new DataCompletableObserver(requireContext()) {
-                    @Override
-                    public void handleError(@NonNull BaseError e) {
-                        mDataBinding.btSeatoff.setEnabled(true);
-                        ToastUtile.toastShort(requireContext(), e.getMessage());
-                    }
-
-                    @Override
-                    public void handleSuccess() {
-                        mDataBinding.btSeatoff.setEnabled(true);
-                        dismiss();
-                    }
-                });
+//        mDataBinding.btSeatoff.setEnabled(false);
+//        RoomManager.Instance(requireContext())
+//                .seatOff(mMember, Member.Role.Listener)
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .compose(mLifecycleProvider.bindToLifecycle())
+//                .subscribe(new DataCompletableObserver(requireContext()) {
+//                    @Override
+//                    public void handleError(@NonNull BaseError e) {
+//                        mDataBinding.btSeatoff.setEnabled(true);
+//                        ToastUtile.toastShort(requireContext(), e.getMessage());
+//                    }
+//
+//                    @Override
+//                    public void handleSuccess() {
+//                        mDataBinding.btSeatoff.setEnabled(true);
+//                        dismiss();
+//                    }
+//                });
     }
 }

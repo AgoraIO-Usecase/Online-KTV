@@ -1,6 +1,7 @@
 <resources>
     <dimen name="ktv_title_size">20sp</dimen>
     <dimen name="ktv_list_empty_size">16sp</dimen>
+    <dimen name="ktv_room_text">18sp</dimen>
 
     <dimen name="ktv_item_channel_spacing">4dp</dimen>
 </resources>

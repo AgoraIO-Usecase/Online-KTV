@@ -21,4 +21,6 @@
     <string name="ktv_room_choose_song">点歌</string>
     <string name="ktv_room_choosed_song">已点</string>
     <string name="ktv_room_sing2">正在演唱</string>
+    <string name="ktv_room_no_sing_1">当前无人演唱</string>
+    <string name="ktv_room_no_sing_2">点击\"点歌\"一展歌喉</string>
 </resources>

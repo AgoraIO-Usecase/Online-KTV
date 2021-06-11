@@ -64,8 +64,8 @@ def createTable():
     # AgoraRoom
     AgoraRoom = leancloud.Object.extend('AgoraRoom')
     mAgoraRoom = AgoraRoom()
-    mAgoraRoom.set('id', 'TestId')
-    mAgoraRoom.set('streamId', '1')
+    mAgoraRoom.set('name', 'TestId')
+    mAgoraRoom.set('ownerId', '123456')
     mAgoraRoom.save()
 
     user.destroy()
@@ -73,7 +73,7 @@ def createTable():
     member.destroy()
     action.destroy()
     mAgoraRoom.destroy()
-    print("数据库创建成功。")
+    print("Done!!")
 
 
 init()

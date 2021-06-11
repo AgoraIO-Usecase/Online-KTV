@@ -1,8 +1,14 @@
 package com.agora.data.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import com.agora.data.sync.DocumentReference;
+import com.agora.data.sync.SyncManager;
+
 import java.util.HashMap;
 
-public class AgoraMember {
+public class AgoraMember implements Parcelable {
     public static final String TABLE_NAME = "AgoraMember";
 
     public static final String COLUMN_ROOMID = "roomId";
@@ -12,23 +18,109 @@ public class AgoraMember {
     public static final String COLUMN_ISAUDIOMUTED = "isAudioMuted";
     public static final String COLUMN_ISSELFAUDIOMUTED = "isSelfAudioMuted";
 
+    public enum Role {
+        Listener(0), Owner(1), Speaker(2);
+        private int value;
+
+        Role(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
+
+        public static AgoraMember.Role parse(int value) {
+            if (value == 0) {
+                return AgoraMember.Role.Listener;
+            } else if (value == 1) {
+                return AgoraMember.Role.Owner;
+            } else if (value == 2) {
+                return AgoraMember.Role.Speaker;
+            }
+            return AgoraMember.Role.Listener;
+        }
+
+    }
+
     private String id;
-    private String roomId;
+    private AgoraRoom room;
     private String userId;
     private Long streamId;
-    private int role = 0;
+    private Role role = Role.Listener;
     private int isAudioMuted = 0;
     private int isSelfAudioMuted = 0;
 
+    public AgoraMember() {
+
+    }
+
+    protected AgoraMember(Parcel in) {
+        id = in.readString();
+        room = in.readParcelable(AgoraRoom.class.getClassLoader());
+        userId = in.readString();
+        if (in.readByte() == 0) {
+            streamId = null;
+        } else {
+            streamId = in.readLong();
+        }
+        isAudioMuted = in.readInt();
+        isSelfAudioMuted = in.readInt();
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id);
+        dest.writeParcelable(room, flags);
+        dest.writeString(userId);
+        if (streamId == null) {
+            dest.writeByte((byte) 0);
+        } else {
+            dest.writeByte((byte) 1);
+            dest.writeLong(streamId);
+        }
+        dest.writeInt(isAudioMuted);
+        dest.writeInt(isSelfAudioMuted);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public static final Creator<AgoraMember> CREATOR = new Creator<AgoraMember>() {
+        @Override
+        public AgoraMember createFromParcel(Parcel in) {
+            return new AgoraMember(in);
+        }
+
+        @Override
+        public AgoraMember[] newArray(int size) {
+            return new AgoraMember[size];
+        }
+    };
+
     public HashMap<String, Object> toHashMap() {
+        DocumentReference drRoom = SyncManager.Instance()
+                .collection(AgoraRoom.TABLE_NAME)
+                .document(room.getId());
+
         HashMap<String, Object> datas = new HashMap<>();
-        datas.put(COLUMN_ROOMID, roomId);
+        datas.put(COLUMN_ROOMID, drRoom);
         datas.put(COLUMN_STREAMID, streamId);
         datas.put(COLUMN_USERID, userId);
-        datas.put(COLUMN_ROLE, role);
+        datas.put(COLUMN_ROLE, role.value);
         datas.put(COLUMN_ISAUDIOMUTED, isAudioMuted);
         datas.put(COLUMN_ISSELFAUDIOMUTED, isSelfAudioMuted);
         return datas;
+    }
+
+    public AgoraRoom getRoom() {
+        return room;
+    }
+
+    public void setRoom(AgoraRoom room) {
+        this.room = room;
     }
 
     public String getId() {
@@ -39,14 +131,6 @@ public class AgoraMember {
         this.id = id;
     }
 
-    public String getRoomId() {
-        return roomId;
-    }
-
-    public void setRoomId(String roomId) {
-        this.roomId = roomId;
-    }
-
     public Long getStreamId() {
         return streamId;
     }
@@ -55,11 +139,11 @@ public class AgoraMember {
         this.streamId = streamId;
     }
 
-    public int getRole() {
+    public Role getRole() {
         return role;
     }
 
-    public void setRole(int role) {
+    public void setRole(Role role) {
         this.role = role;
     }
 
@@ -85,5 +169,18 @@ public class AgoraMember {
 
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    @Override
+    public String toString() {
+        return "AgoraMember{" +
+                "id='" + id + '\'' +
+                ", room=" + room +
+                ", userId='" + userId + '\'' +
+                ", streamId=" + streamId +
+                ", role=" + role +
+                ", isAudioMuted=" + isAudioMuted +
+                ", isSelfAudioMuted=" + isSelfAudioMuted +
+                '}';
     }
 }

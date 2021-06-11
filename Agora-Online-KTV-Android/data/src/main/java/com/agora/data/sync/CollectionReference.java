@@ -11,7 +11,6 @@ import java.util.HashMap;
 public class CollectionReference {
 
     private String key;
-
     private RoomReference parent;
     private DocumentReference mDocumentReference;
     private Query mQuery;
@@ -60,5 +59,9 @@ public class CollectionReference {
 
     public void delete(SyncManager.Callback callback) {
         SyncManager.Instance().delete(this, callback);
+    }
+
+    public void subcribe(SyncManager.EventListener listener) {
+        SyncManager.Instance().subcribe(this, listener);
     }
 }

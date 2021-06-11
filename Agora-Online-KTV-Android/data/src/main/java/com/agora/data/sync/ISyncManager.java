@@ -28,5 +28,9 @@ public interface ISyncManager {
 
     void subcribe(DocumentReference reference, SyncManager.EventListener listener);
 
+    void subcribe(CollectionReference reference, SyncManager.EventListener listener);
+
     void unsubcribe(DocumentReference reference, SyncManager.EventListener listener);
+
+    void unsubcribe(CollectionReference reference, SyncManager.EventListener listener);
 }

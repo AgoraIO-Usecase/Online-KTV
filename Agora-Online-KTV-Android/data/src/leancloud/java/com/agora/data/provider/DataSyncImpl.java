@@ -206,7 +206,15 @@ public class DataSyncImpl implements ISyncManager {
         String collectionKey = reference.getKey();
         AVObject avObject = new AVObject(collectionKey);
         for (Map.Entry<String, Object> entry : datas.entrySet()) {
-            avObject.put(entry.getKey(), entry.getValue());
+            String key = entry.getKey();
+            Object value = entry.getValue();
+            if (value instanceof DocumentReference) {
+                CollectionReference referenceParent = ((DocumentReference) value).getParent();
+                AVObject avObjectItem = AVObject.createWithoutData(referenceParent.getKey(), ((DocumentReference) value).getId());
+                avObject.put(key, avObjectItem);
+            } else {
+                avObject.put(key, value);
+            }
         }
         avObject.saveInBackground()
                 .subscribe(new Observer<AVObject>() {
@@ -236,10 +244,7 @@ public class DataSyncImpl implements ISyncManager {
     public void delete(DocumentReference reference, SyncManager.Callback callback) {
         if (reference instanceof RoomReference) {
             AVObject avObjectRoom = AVObject.createWithoutData(AgoraRoom.TABLE_NAME, reference.getId());
-            AVQuery<AVObject> avQueryMember = AVQuery.getQuery(AgoraMember.TABLE_NAME)
-                    .whereEqualTo(AgoraMember.COLUMN_ROOMID, reference.getId());
-
-            Observable.concat(avQueryMember.deleteAllInBackground(), avObjectRoom.deleteInBackground())
+            avObjectRoom.deleteInBackground()
                     .subscribe(new Observer<AVNull>() {
                         @Override
                         public void onSubscribe(@NonNull Disposable d) {
@@ -296,7 +301,15 @@ public class DataSyncImpl implements ISyncManager {
             List<FieldFilter> list = mQuery.getFilters();
             for (FieldFilter filter : list) {
                 if (filter.getOperator() == FieldFilter.Operator.EQUAL) {
-                    mAVQuery.whereEqualTo(filter.getField(), filter.getValue());
+                    String field = filter.getField();
+                    Object value = filter.getValue();
+                    if (value instanceof DocumentReference) {
+                        CollectionReference referenceParent = ((DocumentReference) value).getParent();
+                        AVObject avObjectItem = AVObject.createWithoutData(referenceParent.getKey(), ((DocumentReference) value).getId());
+                        mAVQuery.whereEqualTo(field, avObjectItem);
+                    } else {
+                        mAVQuery.whereEqualTo(field, value);
+                    }
                 }
             }
         }
@@ -394,7 +407,15 @@ public class DataSyncImpl implements ISyncManager {
         if (reference instanceof RoomReference) {
             AVObject avObject = AVObject.createWithoutData(AgoraRoom.TABLE_NAME, reference.getId());
             for (Map.Entry<String, Object> entry : datas.entrySet()) {
-                avObject.put(entry.getKey(), entry.getValue());
+                String key = entry.getKey();
+                Object value = entry.getValue();
+                if (value instanceof DocumentReference) {
+                    CollectionReference referenceParent = ((DocumentReference) value).getParent();
+                    AVObject avObjectItem = AVObject.createWithoutData(referenceParent.getKey(), ((DocumentReference) value).getId());
+                    avObject.put(key, avObjectItem);
+                } else {
+                    avObject.put(key, value);
+                }
             }
             avObject.saveInBackground()
                     .subscribe(new Observer<AVObject>() {
@@ -422,7 +443,15 @@ public class DataSyncImpl implements ISyncManager {
             String collectionKey = reference.getParent().getKey();
             AVObject avObjectCollection = AVObject.createWithoutData(collectionKey, reference.getId());
             for (Map.Entry<String, Object> entry : datas.entrySet()) {
-                avObjectCollection.put(entry.getKey(), entry.getValue());
+                String key = entry.getKey();
+                Object value = entry.getValue();
+                if (value instanceof DocumentReference) {
+                    CollectionReference referenceParent = ((DocumentReference) value).getParent();
+                    AVObject avObjectItem = AVObject.createWithoutData(referenceParent.getKey(), ((DocumentReference) value).getId());
+                    avObjectCollection.put(key, avObjectItem);
+                } else {
+                    avObjectCollection.put(key, value);
+                }
             }
             avObjectCollection.saveInBackground()
                     .subscribe(new Observer<AVObject>() {
@@ -487,11 +516,97 @@ public class DataSyncImpl implements ISyncManager {
                     }
                 }
             });
+        } else {
+            String collectionKey = reference.getParent().getKey();
+            AVQuery<AVObject> query = createAVQuery(collectionKey, reference.getQuery());
+            AVLiveQuery avLiveQuery = AVLiveQuery.initWithQuery(query);
+            avLiveQuery.setEventHandler(new AVLiveQueryEventHandler() {
+
+                @Override
+                public void onObjectCreated(AVObject avObject) {
+                    super.onObjectCreated(avObject);
+                    listener.onCreated(new AgoraObject(avObject));
+                }
+
+                @Override
+                public void onObjectUpdated(AVObject avObject, List<String> updatedKeys) {
+                    super.onObjectUpdated(avObject, updatedKeys);
+                    listener.onUpdated(new AgoraObject(avObject));
+                }
+
+                @Override
+                public void onObjectDeleted(String objectId) {
+                    super.onObjectDeleted(objectId);
+                    listener.onDeleted(objectId);
+                }
+            });
+
+            events.put(listener, avLiveQuery);
+            avLiveQuery.subscribeInBackground(new AVLiveQuerySubscribeCallback() {
+                @Override
+                public void done(AVException e) {
+                    if (null != e) {
+                        listener.onSubscribeError(1);
+                    } else {
+                    }
+                }
+            });
         }
     }
 
     @Override
+    public void subcribe(CollectionReference reference, SyncManager.EventListener listener) {
+        String collectionKey = reference.getKey();
+        AVQuery<AVObject> query = createAVQuery(collectionKey, reference.getQuery());
+        AVLiveQuery avLiveQuery = AVLiveQuery.initWithQuery(query);
+        avLiveQuery.setEventHandler(new AVLiveQueryEventHandler() {
+
+            @Override
+            public void onObjectCreated(AVObject avObject) {
+                super.onObjectCreated(avObject);
+                listener.onCreated(new AgoraObject(avObject));
+            }
+
+            @Override
+            public void onObjectUpdated(AVObject avObject, List<String> updatedKeys) {
+                super.onObjectUpdated(avObject, updatedKeys);
+                listener.onUpdated(new AgoraObject(avObject));
+            }
+
+            @Override
+            public void onObjectDeleted(String objectId) {
+                super.onObjectDeleted(objectId);
+                listener.onDeleted(objectId);
+            }
+        });
+
+        events.put(listener, avLiveQuery);
+        avLiveQuery.subscribeInBackground(new AVLiveQuerySubscribeCallback() {
+            @Override
+            public void done(AVException e) {
+                if (null != e) {
+                    listener.onSubscribeError(1);
+                } else {
+
+                }
+            }
+        });
+    }
+
+    @Override
     public void unsubcribe(DocumentReference reference, SyncManager.EventListener listener) {
+        if (events.get(listener) != null) {
+            events.get(listener).unsubscribeInBackground(new AVLiveQuerySubscribeCallback() {
+                @Override
+                public void done(AVException e) {
+
+                }
+            });
+        }
+    }
+
+    @Override
+    public void unsubcribe(CollectionReference reference, SyncManager.EventListener listener) {
         if (events.get(listener) != null) {
             events.get(listener).unsubscribeInBackground(new AVLiveQuerySubscribeCallback() {
                 @Override

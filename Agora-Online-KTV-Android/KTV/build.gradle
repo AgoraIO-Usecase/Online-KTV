@@ -70,4 +70,5 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
     api project(':data')
+    api project(':lrcview')
 }
