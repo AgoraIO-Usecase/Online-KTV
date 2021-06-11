@@ -47,7 +47,16 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
     private AgoraRoom.MusicStatus mMusicStatus = AgoraRoom.MusicStatus.IDLE;
 
     private SimpleRoomEventCallback2 mRoomEventCallback = new SimpleRoomEventCallback2() {
+        @Override
+        public void onRoleChanged(boolean isMine, @NonNull AgoraMember member) {
+            super.onRoleChanged(isMine, member);
 
+            if (member.getRole() == AgoraMember.Role.Speaker) {
+                mRoomSpeakerAdapter.addItem(member);
+            } else {
+                mRoomSpeakerAdapter.deleteItem(member);
+            }
+        }
     };
 
     @Override
@@ -174,9 +183,8 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
 
         mDataBinding.ivMic.setEnabled(false);
         boolean newValue = mMine.getIsSelfAudioMuted() == 0;
-        AgoraRoom mRoom = (AgoraRoom) getIntent().getExtras().getSerializable(TAG_ROOM);
         RoomManager.Instance(this)
-                .toggleSelfAudio(mRoom, mMine, newValue)
+                .toggleSelfAudio(newValue)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new CompletableObserver() {
                     @Override
@@ -243,6 +251,19 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
 
     @Override
     public void onItemClick(@NonNull AgoraMember data, View view, int position, long id) {
+        AgoraMember mMine = RoomManager.Instance(this).getMine();
+        if (mMine == null) {
+            return;
+        }
+
+        if (mMine.getRole() != AgoraMember.Role.Owner) {
+            return;
+        }
+
+        if (data.getRole() == AgoraMember.Role.Owner) {
+            return;
+        }
+
         new UserSeatMenuDialog().show(getSupportFragmentManager(), data);
     }
 
@@ -252,7 +273,30 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
     }
 
     private void requestSeatOn() {
+        AgoraMember mMine = RoomManager.Instance(this).getMine();
+        if (mMine == null) {
+            return;
+        }
 
+        RoomManager.Instance(this)
+                .changeRole(mMine, AgoraMember.Role.Speaker.getValue())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new CompletableObserver() {
+                    @Override
+                    public void onSubscribe(@NonNull Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        mDataBinding.ivMic.setEnabled(true);
+                    }
+
+                    @Override
+                    public void onError(@NonNull Throwable e) {
+
+                    }
+                });
     }
 
     @Override

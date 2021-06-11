@@ -13,10 +13,14 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentManager;
 
 import com.agora.data.model.AgoraMember;
+import com.agora.data.sync.RoomManager;
 
 import io.agora.baselibrary.base.DataBindBaseDialog;
 import io.agora.ktv.R;
 import io.agora.ktv.databinding.KtvDialogUserSeatMenuBinding;
+import io.reactivex.CompletableObserver;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 
 /**
  * 房间用户菜单
@@ -51,7 +55,7 @@ public class UserSeatMenuDialog extends DataBindBaseDialog<KtvDialogUserSeatMenu
 
     @Override
     public void iniBundle(@NonNull Bundle bundle) {
-        mMember = (AgoraMember) bundle.getSerializable(TAG_USER);
+        mMember = bundle.getParcelable(TAG_USER);
     }
 
     @Override
@@ -96,23 +100,26 @@ public class UserSeatMenuDialog extends DataBindBaseDialog<KtvDialogUserSeatMenu
     }
 
     private void seatOff() {
-//        mDataBinding.btSeatoff.setEnabled(false);
-//        RoomManager.Instance(requireContext())
-//                .seatOff(mMember, Member.Role.Listener)
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .compose(mLifecycleProvider.bindToLifecycle())
-//                .subscribe(new DataCompletableObserver(requireContext()) {
-//                    @Override
-//                    public void handleError(@NonNull BaseError e) {
-//                        mDataBinding.btSeatoff.setEnabled(true);
-//                        ToastUtile.toastShort(requireContext(), e.getMessage());
-//                    }
-//
-//                    @Override
-//                    public void handleSuccess() {
-//                        mDataBinding.btSeatoff.setEnabled(true);
-//                        dismiss();
-//                    }
-//                });
+        mDataBinding.btSeatoff.setEnabled(false);
+        RoomManager.Instance(requireContext())
+                .changeRole(mMember, AgoraMember.Role.Listener.getValue())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new CompletableObserver() {
+                    @Override
+                    public void onSubscribe(@NonNull Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        mDataBinding.btSeatoff.setEnabled(true);
+                        dismiss();
+                    }
+
+                    @Override
+                    public void onError(@NonNull Throwable e) {
+
+                    }
+                });
     }
 }

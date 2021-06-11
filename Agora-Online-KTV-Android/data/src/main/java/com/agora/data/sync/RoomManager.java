@@ -81,6 +81,11 @@ public final class RoomManager {
         memberHashMap.remove(member.getId());
     }
 
+    private void onMemberRoleChanged(@NonNull AgoraMember member) {
+        mLogger.d("onMemberRoleChanged() called with: member = [%s]", member);
+        mMainThreadDispatch.onRoleChanged(false, member);
+    }
+
     public void subcribeMemberEvent() {
         DocumentReference dcRoom = SyncManager.Instance()
                 .collection(AgoraRoom.TABLE_NAME)
@@ -95,13 +100,21 @@ public final class RoomManager {
                     public void onCreated(AgoraObject item) {
                         AgoraMember member = item.toObject(AgoraMember.class);
                         member.setId(item.getId());
+                        member.setRoom(mRoom);
+
                         onMemberJoin(member);
                     }
 
                     @Override
                     public void onUpdated(AgoraObject item) {
-//                        AgoraMember member =memberHashMap.get(i)
-//                        onMemberLeave(member);
+                        AgoraMember memberRemote = item.toObject(AgoraMember.class);
+                        memberRemote.setId(item.getId());
+                        memberRemote.setRoom(mRoom);
+
+                        AgoraMember memberLocal = memberHashMap.get(memberRemote.getId());
+                        if (memberLocal != null && memberLocal.getRole() != memberRemote.getRole()) {
+                            onMemberRoleChanged(memberRemote);
+                        }
                     }
 
                     @Override
@@ -179,10 +192,12 @@ public final class RoomManager {
 
                                                     if (ObjectsCompat.equals(mUser.getObjectId(), mRoom.getOwnerId())) {
                                                         owner = mMine;
-                                                        subcribeMemberEvent();
+
                                                     } else {
                                                         owner = null;
                                                     }
+
+                                                    subcribeMemberEvent();
                                                     emitter.onSuccess(mMine);
                                                 }
 
@@ -286,12 +301,21 @@ public final class RoomManager {
         }
     }
 
-    public Completable toggleSelfAudio(AgoraRoom room, AgoraMember member, boolean isMute) {
+    public Completable toggleSelfAudio(boolean isMute) {
+        if (mRoom == null) {
+            return Completable.complete();
+        }
+
+        AgoraMember mMine = getMine();
+        if (mMine == null) {
+            return Completable.complete();
+        }
+
         return Completable.create(emitter ->
                 SyncManager.Instance()
-                        .getRoom(room.getId())
+                        .getRoom(mRoom.getId())
                         .collection(AgoraMember.TABLE_NAME)
-                        .document(member.getId())
+                        .document(mMine.getId())
                         .update(AgoraMember.COLUMN_ISSELFAUDIOMUTED, isMute ? 1 : 0, new SyncManager.DataItemCallback() {
                             @Override
                             public void onSuccess(AgoraObject result) {
@@ -305,10 +329,14 @@ public final class RoomManager {
                         }));
     }
 
-    public Completable toggleAudio(AgoraRoom room, AgoraMember member, boolean isMute) {
+    public Completable toggleAudio(AgoraMember member, boolean isMute) {
+        if (mRoom == null) {
+            return Completable.complete();
+        }
+
         return Completable.create(emitter ->
                 SyncManager.Instance()
-                        .getRoom(room.getId())
+                        .getRoom(mRoom.getId())
                         .collection(AgoraMember.TABLE_NAME)
                         .document(member.getId())
                         .update(AgoraMember.COLUMN_ISAUDIOMUTED, isMute ? 1 : 0, new SyncManager.DataItemCallback() {
@@ -324,10 +352,14 @@ public final class RoomManager {
                         }));
     }
 
-    public Completable changeRole(AgoraRoom room, AgoraMember member, int role) {
+    public Completable changeRole(AgoraMember member, int role) {
+        if (mRoom == null) {
+            return Completable.complete();
+        }
+
         return Completable.create(emitter ->
                 SyncManager.Instance()
-                        .getRoom(room.getId())
+                        .getRoom(mRoom.getId())
                         .collection(AgoraMember.TABLE_NAME)
                         .document(member.getId())
                         .update(AgoraMember.COLUMN_ROLE, role, new SyncManager.DataItemCallback() {
