@@ -8,6 +8,7 @@ import androidx.annotation.Nullable;
 
 import com.agora.data.model.AgoraMember;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import io.agora.baselibrary.base.BaseRecyclerViewAdapter;
@@ -23,6 +24,35 @@ public class RoomSpeakerAdapter extends BaseRecyclerViewAdapter<AgoraMember, Roo
 
     public RoomSpeakerAdapter(@Nullable List<AgoraMember> datas, @Nullable Object listener) {
         super(datas, listener);
+    }
+
+    @Override
+    public void addItem(@NonNull AgoraMember data) {
+        if (datas == null) {
+            datas = new ArrayList<>();
+        }
+
+        int index = datas.indexOf(data);
+        if (index < 0) {
+            datas.add(data);
+            notifyItemChanged(datas.size() - 1);
+        } else {
+            datas.set(index, data);
+            notifyItemChanged(index);
+        }
+    }
+
+    @Override
+    public void deleteItem(@NonNull AgoraMember data) {
+        if (datas == null || datas.isEmpty()) {
+            return;
+        }
+
+        int index = datas.indexOf(data);
+        if (0 <= index && index < datas.size()) {
+            datas.remove(data);
+            notifyItemChanged(index);
+        }
     }
 
     @Override
@@ -54,7 +84,7 @@ public class RoomSpeakerAdapter extends BaseRecyclerViewAdapter<AgoraMember, Roo
         if (item.getRole() == AgoraMember.Role.Owner) {
             holder.mDataBinding.tvName.setText(mContext.getString(R.string.ktv_room_owner));
         } else {
-//            holder.mDataBinding.tvName.setText(mContext.getString(R.string.ktv_room_owner));
+            holder.mDataBinding.tvName.setText(item.getUserId());
         }
     }
 

@@ -27,7 +27,7 @@
             android:value="2.4" />
 
         <activity
-            android:name=".activity.SplashActivity"
+            android:name=".view.SplashActivity"
             android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -35,8 +35,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activity.CreateRoomActivity" />
-        <activity android:name=".activity.RoomListActivity" />
-        <activity android:name=".activity.RoomActivity" />
+        <activity android:name=".view.CreateRoomActivity" />
+        <activity android:name=".view.RoomListActivity" />
+        <activity android:name=".view.RoomActivity" />
     </application>
 </manifest>

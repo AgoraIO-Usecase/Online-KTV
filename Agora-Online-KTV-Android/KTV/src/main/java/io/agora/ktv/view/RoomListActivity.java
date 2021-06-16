@@ -1,4 +1,4 @@
-package io.agora.ktv.activity;
+package io.agora.ktv.view;
 
 import android.Manifest;
 import android.content.Intent;
@@ -188,8 +188,10 @@ public class RoomListActivity extends DataBindBaseActivity<KtvActivityRoomListBi
             return;
         }
 
+        mDataBinding.list.setEnabled(false);
         Intent intent = RoomActivity.newIntent(this, data);
         startActivity(intent);
+        mDataBinding.list.setEnabled(true);
     }
 
     @Override

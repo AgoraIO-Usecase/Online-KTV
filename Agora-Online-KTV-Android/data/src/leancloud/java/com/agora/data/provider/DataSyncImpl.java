@@ -171,8 +171,9 @@ public class DataSyncImpl implements ISyncManager {
     @Override
     public void get(CollectionReference reference, SyncManager.DataListCallback callback) {
         String roomId = reference.getParent().getId();
+        AVObject avObjectRoom = AVObject.createWithoutData(AgoraRoom.TABLE_NAME, roomId);
         AVQuery<AVObject> avQuery = AVQuery.getQuery(reference.getKey());
-        avQuery.whereEqualTo(AgoraMember.COLUMN_ROOMID, roomId);
+        avQuery.whereEqualTo(AgoraMember.COLUMN_ROOMID, avObjectRoom);
         avQuery.findInBackground()
                 .subscribe(new Observer<List<AVObject>>() {
                     @Override

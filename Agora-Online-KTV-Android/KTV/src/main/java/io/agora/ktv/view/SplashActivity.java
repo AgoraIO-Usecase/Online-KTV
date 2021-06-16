@@ -1,4 +1,4 @@
-package io.agora.ktv.activity;
+package io.agora.ktv.view;
 
 import android.content.Intent;
 import android.os.Bundle;

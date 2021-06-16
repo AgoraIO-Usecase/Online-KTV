@@ -1,4 +1,4 @@
-package io.agora.ktv.activity;
+package io.agora.ktv.view.dialog;
 
 import android.os.Bundle;
 import android.view.Gravity;
@@ -10,19 +10,22 @@ import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentStatePagerAdapter;
 
 import io.agora.baselibrary.base.DataBindBaseDialog;
 import io.agora.ktv.R;
 import io.agora.ktv.databinding.KtvDialogChooseSongBinding;
+import io.agora.ktv.view.SongOrdersFragment;
+import io.agora.ktv.view.SongsFragment;
 
 /**
  * 点歌菜单
  *
  * @author chenhengfei@agora.io
  */
-public class RoomChooseSongDialog extends DataBindBaseDialog<KtvDialogChooseSongBinding> implements
-        View.OnClickListener {
+public class RoomChooseSongDialog extends DataBindBaseDialog<KtvDialogChooseSongBinding> {
 
     private static final String TAG = RoomChooseSongDialog.class.getSimpleName();
 
@@ -63,19 +66,43 @@ public class RoomChooseSongDialog extends DataBindBaseDialog<KtvDialogChooseSong
     public void iniListener() {
     }
 
+    private SongsFragment mSongsFragment = new SongsFragment();
+    private SongOrdersFragment mSongOrdersFragment = new SongOrdersFragment();
+
     @Override
     public void iniData() {
+        mDataBinding.pager.setAdapter(new FragmentStatePagerAdapter(getChildFragmentManager()) {
 
+            @Override
+            public int getCount() {
+                return 2;
+            }
+
+            @NonNull
+            @Override
+            public Fragment getItem(int position) {
+                if (position == 0) {
+                    return mSongsFragment;
+                } else {
+                    return mSongOrdersFragment;
+                }
+            }
+
+            @Nullable
+            @Override
+            public CharSequence getPageTitle(int position) {
+                if (position == 0) {
+                    return getString(R.string.ktv_room_choose_song);
+                } else {
+                    return getString(R.string.ktv_room_choosed_song);
+                }
+            }
+        });
+
+        mDataBinding.tabLayout.setupWithViewPager(mDataBinding.pager);
     }
 
     public void show(@NonNull FragmentManager manager) {
         super.show(manager, TAG);
-    }
-
-    @Override
-    public void onClick(View v) {
-//        if (v.getId() == R.id.btSeatoff) {
-//            seatOff();
-//        }
     }
 }

@@ -6,7 +6,6 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.Lifecycle;
@@ -41,12 +40,6 @@ public abstract class BaseActivity extends AppCompatActivity {
 
         titleBar = findViewById(R.id.titleBar);
         if (titleBar != null) {
-//            setSupportActionBar(titleBar);
-//            ActionBar actionBar = getSupportActionBar();
-//            if (actionBar != null) {
-//                actionBar.setDisplayHomeAsUpEnabled(true);
-//                actionBar.setDisplayShowTitleEnabled(false);
-//            }
             titleBar.setNavigationOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

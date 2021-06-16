@@ -21,7 +21,7 @@ import java.util.List;
  */
 public abstract class BaseRecyclerViewAdapter<T, VH extends BaseRecyclerViewAdapter.BaseViewHolder> extends RecyclerView.Adapter<VH> {
 
-    private List<T> datas;
+    protected List<T> datas;
 
     private OnItemClickListener<T> mOnItemClickListener;
 

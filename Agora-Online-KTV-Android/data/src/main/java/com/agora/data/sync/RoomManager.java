@@ -11,16 +11,23 @@ import com.agora.data.manager.MainThreadDispatch2;
 import com.agora.data.manager.UserManager;
 import com.agora.data.model.AgoraMember;
 import com.agora.data.model.AgoraRoom;
+import com.agora.data.model.MusicModel;
 import com.agora.data.model.User;
 import com.agora.data.provider.AgoraObject;
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import io.reactivex.Completable;
 import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
+import io.reactivex.SingleOnSubscribe;
+import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
 
 /**
  * 房间控制
@@ -56,6 +63,24 @@ public final class RoomManager {
         return instance;
     }
 
+    public void loadMemberStatus() {
+        for (AgoraMember value : memberHashMap.values()) {
+            if (value.getRole() == AgoraMember.Role.Speaker) {
+                onMemberRoleChanged(value);
+            }
+        }
+    }
+
+    @Nullable
+    public AgoraRoom getRoom() {
+        return mRoom;
+    }
+
+    @Nullable
+    public AgoraMember getOwner() {
+        return owner;
+    }
+
     @Nullable
     public AgoraMember getMine() {
         return mMine;
@@ -86,6 +111,19 @@ public final class RoomManager {
         mMainThreadDispatch.onRoleChanged(false, member);
     }
 
+    private void onAudioStatusChanged(boolean isMine, @NonNull AgoraMember member) {
+        mLogger.d("onAudioStatusChanged() called with: isMine = [%s], member = [%s]", isMine, member);
+        mMainThreadDispatch.onAudioStatusChanged(isMine, member);
+    }
+
+    private void onMusicAdd(MusicModel model) {
+//        mMainThreadDispatch.onAudioStatusChanged(isMine, member);
+    }
+
+    private void onMusicDelete(MusicModel model) {
+//        mMainThreadDispatch.onAudioStatusChanged(isMine, member);
+    }
+
     public void subcribeMemberEvent() {
         DocumentReference dcRoom = SyncManager.Instance()
                 .collection(AgoraRoom.TABLE_NAME)
@@ -113,7 +151,13 @@ public final class RoomManager {
 
                         AgoraMember memberLocal = memberHashMap.get(memberRemote.getId());
                         if (memberLocal != null && memberLocal.getRole() != memberRemote.getRole()) {
-                            onMemberRoleChanged(memberRemote);
+                            memberLocal.setRole(memberRemote.getRole());
+                            onMemberRoleChanged(memberLocal);
+                        }
+
+                        if (memberLocal != null && memberLocal.getIsSelfAudioMuted() != memberRemote.getIsSelfAudioMuted()) {
+                            memberLocal.setIsSelfAudioMuted(memberRemote.getIsSelfAudioMuted());
+                            onAudioStatusChanged(true, memberLocal);
                         }
                     }
 
@@ -133,8 +177,154 @@ public final class RoomManager {
                 });
     }
 
-    public Single<AgoraMember> joinRoom(AgoraRoom room) {
-        return Single.create(emitter ->
+    public void subcribeMusicEvent() {
+        DocumentReference dcRoom = SyncManager.Instance()
+                .collection(AgoraRoom.TABLE_NAME)
+                .document(mRoom.getId());
+
+        SyncManager.Instance()
+                .getRoom(mRoom.getId())
+                .collection(MusicModel.TABLE_NAME)
+                .query(new Query().whereEqualTo(AgoraMember.COLUMN_ROOMID, dcRoom))
+                .subcribe(new SyncManager.EventListener() {
+                    @Override
+                    public void onCreated(AgoraObject item) {
+                        MusicModel data = item.toObject(MusicModel.class);
+                        data.setId(item.getId());
+                    }
+
+                    @Override
+                    public void onUpdated(AgoraObject item) {
+
+                    }
+
+                    @Override
+                    public void onDeleted(String objectId) {
+                        AgoraMember member = memberHashMap.get(objectId);
+                        if (member == null) {
+                            return;
+                        }
+                        onMemberLeave(member);
+                    }
+
+                    @Override
+                    public void onSubscribeError(int error) {
+
+                    }
+                });
+    }
+
+    private List<MusicModel> musics = new ArrayList<>();
+
+    private Single<List<MusicModel>> getMusicsFromRemote() {
+        return Single.create(new SingleOnSubscribe<List<MusicModel>>() {
+            @Override
+            public void subscribe(@NonNull SingleEmitter<List<MusicModel>> emitter) throws Exception {
+                SyncManager.Instance()
+                        .getRoom(mRoom.getId())
+                        .collection(MusicModel.TABLE_NAME)
+                        .get(new SyncManager.DataListCallback() {
+                            @Override
+                            public void onSuccess(List<AgoraObject> results) {
+                                List<MusicModel> items = new ArrayList<>();
+                                for (AgoraObject result : results) {
+                                    MusicModel item = result.toObject(MusicModel.class);
+                                    item.setId(result.getId());
+                                    items.add(item);
+                                }
+                                emitter.onSuccess(items);
+                            }
+
+                            @Override
+                            public void onFail(AgoraException exception) {
+                                emitter.onError(exception);
+                            }
+                        });
+            }
+        }).doOnSuccess(new Consumer<List<MusicModel>>() {
+            @Override
+            public void accept(List<MusicModel> musicModels) throws Exception {
+                musics = musicModels;
+            }
+        });
+    }
+
+    public List<MusicModel> getMusics() {
+        return musics;
+    }
+
+    public boolean isInMusicOrderList(MusicModel item) {
+        return musics.contains(item);
+    }
+
+    private Single<AgoraRoom> getRoom(String id) {
+        return Single.create(new SingleOnSubscribe<AgoraRoom>() {
+            @Override
+            public void subscribe(@NonNull SingleEmitter<AgoraRoom> emitter) throws Exception {
+                SyncManager.Instance()
+                        .getRoom(id)
+                        .get(new SyncManager.DataItemCallback() {
+                            @Override
+                            public void onSuccess(AgoraObject result) {
+                                AgoraRoom mRoom = result.toObject(AgoraRoom.class);
+                                mRoom.setId(result.getId());
+                                emitter.onSuccess(mRoom);
+                            }
+
+                            @Override
+                            public void onFail(AgoraException exception) {
+                                emitter.onError(exception);
+                            }
+                        });
+            }
+        });
+    }
+
+    private Single<AgoraMember> addMember(AgoraRoom room, AgoraMember member) {
+        return Single.create(emitter -> {
+            SyncManager.Instance()
+                    .getRoom(room.getId())
+                    .collection(AgoraMember.TABLE_NAME)
+                    .add(member.toHashMap(), new SyncManager.DataItemCallback() {
+                        @Override
+                        public void onSuccess(AgoraObject result) {
+                            AgoraMember member = result.toObject(AgoraMember.class);
+                            member.setId(result.getId());
+                            member.setRoom(room);
+                            emitter.onSuccess(member);
+                        }
+
+                        @Override
+                        public void onFail(AgoraException exception) {
+                            emitter.onError(exception);
+                        }
+                    });
+        });
+    }
+
+    private Completable deleteMember(String roomId, String userId) {
+        return Completable.create(emitter -> {
+            SyncManager.Instance()
+                    .getRoom(roomId)
+                    .collection(AgoraMember.TABLE_NAME)
+                    .query(new Query()
+                            .whereEqualTo(AgoraMember.COLUMN_USERID, userId))
+                    .delete(new SyncManager.Callback() {
+                        @Override
+                        public void onSuccess() {
+                            emitter.onComplete();
+                        }
+
+                        @Override
+                        public void onFail(AgoraException exception) {
+                            emitter.onError(exception);
+                        }
+                    });
+        });
+    }
+
+    public Completable joinRoom(AgoraRoom room) {
+        return Completable.create(emitter ->
                 {
                     mLogger.d("joinRoom() called with: room = [%s]", room);
                     User mUser = UserManager.Instance(mContext).getUserLiveData().getValue();
@@ -190,15 +380,39 @@ public final class RoomManager {
                                                     mMine.setId(result.getId());
                                                     mMine.setRoom(mRoom);
 
-                                                    if (ObjectsCompat.equals(mUser.getObjectId(), mRoom.getOwnerId())) {
-                                                        owner = mMine;
+                                                    //4. 获取当前成员列表
+                                                    SyncManager.Instance()
+                                                            .getRoom(mRoom.getId())
+                                                            .collection(AgoraMember.TABLE_NAME)
+                                                            .get(new SyncManager.DataListCallback() {
+                                                                @Override
+                                                                public void onSuccess(List<AgoraObject> results) {
+                                                                    List<AgoraMember> members = new ArrayList<>();
+                                                                    for (AgoraObject result : results) {
+                                                                        AgoraMember member = result.toObject(AgoraMember.class);
+                                                                        member.setId(result.getId());
+                                                                        members.add(member);
 
-                                                    } else {
-                                                        owner = null;
-                                                    }
+                                                                        memberHashMap.put(member.getId(), member);
 
-                                                    subcribeMemberEvent();
-                                                    emitter.onSuccess(mMine);
+                                                                        if (ObjectsCompat.equals(member, mMine)) {
+                                                                            mMine = member;
+                                                                        }
+
+                                                                        if (ObjectsCompat.equals(member.getUserId(), mRoom.getOwnerId())) {
+                                                                            owner = member;
+                                                                        }
+                                                                    }
+
+                                                                    emitter.onComplete();
+                                                                }
+
+                                                                @Override
+                                                                public void onFail(AgoraException exception) {
+                                                                    mLogger.e("getMembers() onFail() called with: exception = [%s]", exception.toString());
+                                                                    emitter.onError(exception);
+                                                                }
+                                                            });
                                                 }
 
                                                 @Override
@@ -216,7 +430,43 @@ public final class RoomManager {
                                 }
                             });
                 }
-        );
+        ).doOnComplete(new Action() {
+            @Override
+            public void run() throws Exception {
+                subcribeMemberEvent();
+            }
+        });
+    }
+
+    private Single<List<AgoraMember>> getMembers() {
+        return Single.create(new SingleOnSubscribe<List<AgoraMember>>() {
+            @Override
+            public void subscribe(@NonNull SingleEmitter<List<AgoraMember>> emitter) throws Exception {
+                SyncManager.Instance()
+                        .getRoom(mRoom.getId())
+                        .collection(AgoraMember.TABLE_NAME)
+                        .get(new SyncManager.DataListCallback() {
+                            @Override
+                            public void onSuccess(List<AgoraObject> results) {
+                                List<AgoraMember> members = new ArrayList<>();
+                                for (AgoraObject result : results) {
+                                    AgoraMember member = result.toObject(AgoraMember.class);
+                                    member.setId(result.getId());
+                                    members.add(member);
+
+                                    memberHashMap.put(member.getId(), member);
+                                }
+
+                                emitter.onSuccess(members);
+                            }
+
+                            @Override
+                            public void onFail(AgoraException exception) {
+                                emitter.onError(exception);
+                            }
+                        });
+            }
+        });
     }
 
     public Completable updateMineStreamId(AgoraRoom room, AgoraMember member) {

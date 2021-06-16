@@ -1,4 +1,4 @@
-package io.agora.ktv.activity;
+package io.agora.ktv.view;
 
 import android.content.Context;
 import android.content.Intent;
@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 
 import androidx.annotation.NonNull;
+import androidx.core.util.ObjectsCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 
 import com.agora.data.SimpleRoomEventCallback2;
@@ -23,8 +24,11 @@ import io.agora.baselibrary.util.ToastUtile;
 import io.agora.ktv.R;
 import io.agora.ktv.adapter.RoomSpeakerAdapter;
 import io.agora.ktv.databinding.KtvActivityRoomBinding;
+import io.agora.ktv.view.dialog.MusicSettingDialog;
+import io.agora.ktv.view.dialog.RoomChooseSongDialog;
+import io.agora.ktv.view.dialog.RoomMVDialog;
+import io.agora.ktv.view.dialog.UserSeatMenuDialog;
 import io.reactivex.CompletableObserver;
-import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 
@@ -47,6 +51,18 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
     private AgoraRoom.MusicStatus mMusicStatus = AgoraRoom.MusicStatus.IDLE;
 
     private SimpleRoomEventCallback2 mRoomEventCallback = new SimpleRoomEventCallback2() {
+
+        @Override
+        public void onMemberLeave(@NonNull AgoraMember member) {
+            super.onMemberLeave(member);
+            if (ObjectsCompat.equals(member, RoomManager.Instance(RoomActivity.this).getOwner())) {
+                RoomActivity.this.doLeave();
+                return;
+            }
+
+            mRoomSpeakerAdapter.deleteItem(member);
+        }
+
         @Override
         public void onRoleChanged(boolean isMine, @NonNull AgoraMember member) {
             super.onRoleChanged(isMine, member);
@@ -56,6 +72,11 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
             } else {
                 mRoomSpeakerAdapter.deleteItem(member);
             }
+        }
+
+        @Override
+        public void onAudioStatusChanged(boolean isMine, @NonNull AgoraMember member) {
+            super.onAudioStatusChanged(isMine, member);
         }
     };
 
@@ -100,31 +121,35 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
         showMusicIDLEStatus();
 
         AgoraRoom mRoom = getIntent().getExtras().getParcelable(TAG_ROOM);
-
         mDataBinding.tvName.setText(mRoom.getName());
-
-        AgoraMember owner = new AgoraMember();
-        owner.setRole(AgoraMember.Role.Owner);
-        mRoomSpeakerAdapter.addItem(owner);
 
         RoomManager.Instance(this)
                 .joinRoom(mRoom)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new SingleObserver<AgoraMember>() {
+                .subscribe(new CompletableObserver() {
                     @Override
                     public void onSubscribe(@NonNull Disposable d) {
 
                     }
 
                     @Override
-                    public void onSuccess(@NonNull AgoraMember agoraMember) {
+                    public void onComplete() {
+                        onJoinRoom();
                     }
 
                     @Override
                     public void onError(@NonNull Throwable e) {
-
+                        doLeave();
                     }
                 });
+    }
+
+    private void onJoinRoom() {
+        AgoraMember owner = RoomManager.Instance(this).getOwner();
+        assert owner != null;
+        mRoomSpeakerAdapter.addItem(owner);
+
+        RoomManager.Instance(this).loadMemberStatus();
     }
 
     @Override
@@ -278,6 +303,11 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
             return;
         }
 
+        if (mMine.getRole() != AgoraMember.Role.Listener) {
+            return;
+        }
+
+        mDataBinding.rvSpeakers.setEnabled(false);
         RoomManager.Instance(this)
                 .changeRole(mMine, AgoraMember.Role.Speaker.getValue())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -289,12 +319,13 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
 
                     @Override
                     public void onComplete() {
-                        mDataBinding.ivMic.setEnabled(true);
+                        mDataBinding.rvSpeakers.setEnabled(true);
                     }
 
                     @Override
                     public void onError(@NonNull Throwable e) {
-
+                        mDataBinding.rvSpeakers.setEnabled(true);
+                        ToastUtile.toastShort(RoomActivity.this, e.getMessage());
                     }
                 });
     }

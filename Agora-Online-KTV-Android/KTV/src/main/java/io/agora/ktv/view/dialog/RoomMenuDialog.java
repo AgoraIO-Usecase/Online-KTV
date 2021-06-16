@@ -1,4 +1,4 @@
-package io.agora.ktv.activity;
+package io.agora.ktv.view.dialog;
 
 import android.os.Bundle;
 import android.view.Gravity;
