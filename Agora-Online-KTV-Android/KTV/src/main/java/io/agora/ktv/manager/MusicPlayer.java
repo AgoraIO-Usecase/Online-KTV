@@ -1,4 +1,4 @@
-package io.agora.ktv;
+package io.agora.ktv.manager;
 
 import android.content.Context;
 import android.util.Log;

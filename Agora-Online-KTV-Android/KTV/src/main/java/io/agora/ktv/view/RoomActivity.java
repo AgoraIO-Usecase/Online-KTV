@@ -27,7 +27,7 @@ import java.util.List;
 import io.agora.baselibrary.base.DataBindBaseActivity;
 import io.agora.baselibrary.base.OnItemClickListener;
 import io.agora.baselibrary.util.ToastUtile;
-import io.agora.ktv.MusicPlayer;
+import io.agora.ktv.manager.MusicPlayer;
 import io.agora.ktv.R;
 import io.agora.ktv.adapter.RoomSpeakerAdapter;
 import io.agora.ktv.databinding.KtvActivityRoomBinding;
