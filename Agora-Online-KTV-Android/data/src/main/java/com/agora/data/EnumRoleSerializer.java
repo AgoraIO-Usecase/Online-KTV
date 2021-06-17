@@ -1,6 +1,6 @@
 package com.agora.data;
 
-import com.agora.data.model.Member;
+import com.agora.data.model.AgoraMember;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
@@ -16,14 +16,14 @@ import java.lang.reflect.Type;
  *
  * @author chenhengfei(Aslanchen)
  */
-public class EnumRoleSerializer implements JsonSerializer<Member.Role>, JsonDeserializer<Member.Role> {
+public class EnumRoleSerializer implements JsonSerializer<AgoraMember.Role>, JsonDeserializer<AgoraMember.Role> {
     @Override
-    public Member.Role deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-        return Member.Role.parse(json.getAsInt());
+    public AgoraMember.Role deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+        return AgoraMember.Role.parse(json.getAsInt());
     }
 
     @Override
-    public JsonElement serialize(Member.Role src, Type typeOfSrc, JsonSerializationContext context) {
+    public JsonElement serialize(AgoraMember.Role src, Type typeOfSrc, JsonSerializationContext context) {
         return new JsonPrimitive(src.getValue());
     }
 }

@@ -13,7 +13,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentManager;
 
 import com.agora.data.model.AgoraMember;
-import com.agora.data.sync.RoomManager;
+import io.agora.ktv.manager.RoomManager;
 
 import io.agora.baselibrary.base.DataBindBaseDialog;
 import io.agora.ktv.R;

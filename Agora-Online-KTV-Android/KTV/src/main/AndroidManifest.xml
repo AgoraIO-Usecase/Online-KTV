@@ -35,8 +35,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".view.CreateRoomActivity" />
-        <activity android:name=".view.RoomListActivity" />
-        <activity android:name=".view.RoomActivity" />
+        <activity
+            android:name=".view.CreateRoomActivity"
+            android:launchMode="singleTask" />
+        <activity
+            android:name=".view.RoomListActivity"
+            android:launchMode="singleTask" />
+        <activity
+            android:name=".view.RoomActivity"
+            android:launchMode="singleTask" />
     </application>
 </manifest>

@@ -6,17 +6,20 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.agora.data.manager.UserManager;
 import com.agora.data.model.AgoraRoom;
 import com.agora.data.model.MusicModel;
+import com.agora.data.model.User;
 import com.agora.data.provider.AgoraObject;
 import com.agora.data.sync.AgoraException;
-import com.agora.data.sync.RoomManager;
+import io.agora.ktv.manager.RoomManager;
 import com.agora.data.sync.SyncManager;
 
 import java.util.ArrayList;
 
 import io.agora.baselibrary.base.DataBindBaseFragment;
 import io.agora.baselibrary.base.OnItemClickListener;
+import io.agora.baselibrary.util.ToastUtile;
 import io.agora.ktv.R;
 import io.agora.ktv.adapter.SongsAdapter;
 import io.agora.ktv.databinding.KtvFragmentSongListBinding;
@@ -62,6 +65,10 @@ public class SongsFragment extends DataBindBaseFragment<KtvFragmentSongListBindi
         mDataBinding.list.setLayoutManager(new LinearLayoutManager(requireContext()));
         mDataBinding.list.setAdapter(mAdapter);
 
+        mDataBinding.swipeRefreshLayout.setEnabled(false);
+
+        mDataBinding.llEmpty.setVisibility(View.GONE);
+
         loadMusics();
     }
 
@@ -70,8 +77,8 @@ public class SongsFragment extends DataBindBaseFragment<KtvFragmentSongListBindi
     }
 
     private void onLoadMusics() {
-        mAdapter.addItem(new MusicModel("Music 1"));
-        mAdapter.addItem(new MusicModel("Music 2"));
+        mAdapter.addItem(new MusicModel("qinghuaci", "qinghuaci"));
+        mAdapter.addItem(new MusicModel("send_it", "send_it"));
     }
 
     @Override
@@ -81,18 +88,32 @@ public class SongsFragment extends DataBindBaseFragment<KtvFragmentSongListBindi
             return;
         }
 
+        User mUser = UserManager.Instance(requireContext()).getUserLiveData().getValue();
+        if (mUser == null) {
+            return;
+        }
+
+//        if (RoomManager.Instance(requireContext()).isInMusicOrderList(data)) {
+//            mAdapter.notifyItemChanged(position);
+//            return;
+//        }
+
+        data.setRoomId(mRoom.getId());
+        data.setUserId(mUser.getObjectId());
         SyncManager.Instance()
                 .getRoom(mRoom.getId())
                 .collection(MusicModel.TABLE_NAME)
                 .add(data.toHashMap(), new SyncManager.DataItemCallback() {
                     @Override
                     public void onSuccess(AgoraObject result) {
-
+                        MusicModel musicModel = result.toObject(MusicModel.class);
+                        musicModel.setId(result.getId());
+                        mAdapter.notifyItemChanged(position);
                     }
 
                     @Override
                     public void onFail(AgoraException exception) {
-
+                        ToastUtile.toastShort(requireContext(), exception.getMessage());
                     }
                 });
     }

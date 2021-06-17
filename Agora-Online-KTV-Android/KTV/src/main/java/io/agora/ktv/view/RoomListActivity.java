@@ -14,6 +14,7 @@ import com.agora.data.manager.UserManager;
 import com.agora.data.model.AgoraRoom;
 import com.agora.data.model.User;
 import com.agora.data.observer.DataObserver;
+import com.agora.data.provider.DataRepositroy;
 import com.agora.data.sync.SyncManager;
 
 import java.util.List;
@@ -73,7 +74,7 @@ public class RoomListActivity extends DataBindBaseActivity<KtvActivityRoomListBi
 
     @Override
     protected void iniData() {
-        UserManager.Instance(this).setupDataRepositroy(io.agora.ktv.data.DataRepositroy.Instance(this));
+        UserManager.Instance(this).setupDataRepositroy(DataRepositroy.Instance(this));
 
         showEmptyStatus();
         login();

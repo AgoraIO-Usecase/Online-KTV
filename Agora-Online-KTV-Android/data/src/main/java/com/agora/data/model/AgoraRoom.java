@@ -9,6 +9,7 @@ public class AgoraRoom implements Parcelable {
     public static final String COLUMN_ID = "id";
     public static final String COLUMN_OWNERID = "ownerId";
     public static final String COLUMN_NAME = "name";
+    public static final String COLUMN_CREATEDAT = "createdAt";
 
     private String id;
     private String name;

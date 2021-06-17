@@ -1,6 +1,5 @@
 package com.agora.data.provider.model;
 
-import com.agora.data.model.Member;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 

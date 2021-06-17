@@ -7,10 +7,6 @@ import androidx.annotation.Nullable;
 import androidx.core.util.ObjectsCompat;
 
 import com.agora.data.BaseError;
-import com.agora.data.model.Action;
-import com.agora.data.model.Member;
-import com.agora.data.model.RequestMember;
-import com.agora.data.model.Room;
 import com.agora.data.model.User;
 import com.agora.data.observer.DataMaybeObserver;
 import com.agora.data.provider.model.ActionTemp;

@@ -6,8 +6,8 @@ import android.text.TextUtils;
 import androidx.lifecycle.MutableLiveData;
 import androidx.preference.PreferenceManager;
 
-import com.agora.data.IDataRepositroy;
 import com.agora.data.model.User;
+import com.agora.data.provider.IDataRepositroy;
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
 import com.google.gson.Gson;

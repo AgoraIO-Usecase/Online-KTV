@@ -7,7 +7,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.agora.data.model.MusicModel;
-import com.agora.data.sync.RoomManager;
 
 import java.util.List;
 
@@ -46,11 +45,11 @@ public class SongsAdapter extends BaseRecyclerViewAdapter<MusicModel, SongsAdapt
         Context context = holder.itemView.getContext();
         holder.mDataBinding.tvName.setText(item.getName());
 
-        if (RoomManager.Instance(context).isInMusicOrderList(item)) {
-            holder.mDataBinding.btChooseSong.setEnabled(false);
-        } else {
-            holder.mDataBinding.btChooseSong.setEnabled(true);
-        }
+//        if (RoomManager.Instance(context).isInMusicOrderList(item)) {
+//            holder.mDataBinding.btChooseSong.setEnabled(false);
+//        } else {
+        holder.mDataBinding.btChooseSong.setEnabled(true);
+//        }
     }
 
     class ViewHolder extends BaseRecyclerViewAdapter.BaseViewHolder<KtvItemChooseSongListBinding> {

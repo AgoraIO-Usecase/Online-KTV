@@ -6,7 +6,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.agora.data.model.AgoraRoom;
-import com.agora.data.model.Room;
 
 import java.util.List;
 

@@ -5,12 +5,7 @@ import android.text.TextUtils;
 import androidx.annotation.NonNull;
 
 import com.agora.data.Config;
-import com.agora.data.EnumActionSerializer;
-import com.agora.data.EnumRoleSerializer;
-import com.agora.data.model.Action;
-import com.agora.data.model.Member;
 import com.agora.data.model.User;
-import com.agora.data.provider2.IDataRepositroy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -25,8 +20,6 @@ import io.reactivex.schedulers.Schedulers;
 public class DataRepositroyImpl implements IDataRepositroy {
 
     private Gson mGson = new GsonBuilder()
-            .registerTypeAdapter(Member.Role.class, new EnumRoleSerializer())
-            .registerTypeAdapter(Action.ACTION.class, new EnumActionSerializer())
             .create();
 
     @Override

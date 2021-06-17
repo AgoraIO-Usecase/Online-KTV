@@ -4,8 +4,6 @@ import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 
-import com.agora.data.model.Member;
-import com.agora.data.model.Room;
 import com.agora.data.model.User;
 import com.agora.data.provider.model.MemberTemp;
 import com.agora.data.provider.model.RoomTemp;

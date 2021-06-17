@@ -5,15 +5,14 @@ import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 
-import com.agora.data.Config;
 import com.agora.data.R;
-import com.agora.data.model.AgoraMember;
 import com.agora.data.model.AgoraRoom;
 import com.agora.data.sync.AgoraException;
 import com.agora.data.sync.CollectionReference;
 import com.agora.data.sync.DocumentReference;
 import com.agora.data.sync.FieldFilter;
 import com.agora.data.sync.ISyncManager;
+import com.agora.data.sync.OrderBy;
 import com.agora.data.sync.Query;
 import com.agora.data.sync.RoomReference;
 import com.agora.data.sync.SyncManager;
@@ -91,7 +90,7 @@ public class DataSyncImpl implements ISyncManager {
     public Observable<List<AgoraRoom>> getRooms() {
         AVQuery<AVObject> query = AVQuery.getQuery(AgoraRoom.TABLE_NAME);
         query.limit(30);
-        query.orderByDescending(Config.ROOM_CREATEDAT);
+        query.orderByDescending(AgoraRoom.COLUMN_CREATEDAT);
         return query.findInBackground()
                 .subscribeOn(Schedulers.io())
                 .map(new Function<List<AVObject>, List<AgoraRoom>>() {
@@ -170,10 +169,7 @@ public class DataSyncImpl implements ISyncManager {
 
     @Override
     public void get(CollectionReference reference, SyncManager.DataListCallback callback) {
-        String roomId = reference.getParent().getId();
-        AVObject avObjectRoom = AVObject.createWithoutData(AgoraRoom.TABLE_NAME, roomId);
-        AVQuery<AVObject> avQuery = AVQuery.getQuery(reference.getKey());
-        avQuery.whereEqualTo(AgoraMember.COLUMN_ROOMID, avObjectRoom);
+        AVQuery<AVObject> avQuery = createAVQuery(reference.getKey(), reference.getQuery());
         avQuery.findInBackground()
                 .subscribe(new Observer<List<AVObject>>() {
                     @Override
@@ -311,6 +307,15 @@ public class DataSyncImpl implements ISyncManager {
                     } else {
                         mAVQuery.whereEqualTo(field, value);
                     }
+                }
+            }
+
+            List<OrderBy> orderByList = mQuery.getOrderByList();
+            for (OrderBy item : orderByList) {
+                if (item.getDirection() == OrderBy.Direction.ASCENDING) {
+                    mAVQuery.addAscendingOrder(item.getField());
+                } else if (item.getDirection() == OrderBy.Direction.DESCENDING) {
+                    mAVQuery.addDescendingOrder(item.getField());
                 }
             }
         }

@@ -43,4 +43,8 @@ public class Query {
     public List<FieldFilter> getFilters() {
         return filters;
     }
+
+    public List<OrderBy> getOrderByList() {
+        return orderByList;
+    }
 }

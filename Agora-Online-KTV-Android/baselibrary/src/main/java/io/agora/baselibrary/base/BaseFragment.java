@@ -27,7 +27,7 @@ import pub.devrel.easypermissions.EasyPermissions.PermissionCallbacks;
  */
 public abstract class BaseFragment extends Fragment {
 
-    protected final LifecycleProvider<Lifecycle.Event> provider =
+    protected final LifecycleProvider<Lifecycle.Event> mLifecycleProvider =
             AndroidLifecycle.createLifecycleProvider(this);
 
     protected CustomToolbar titleBar;
