@@ -1,4 +1,4 @@
-package com.agora.data.provider;
+package com.agora.data.sync;
 
 import androidx.annotation.NonNull;
 

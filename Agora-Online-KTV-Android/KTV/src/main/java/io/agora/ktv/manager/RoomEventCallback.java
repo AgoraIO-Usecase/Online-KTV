@@ -1,11 +1,12 @@
-package com.agora.data;
+package io.agora.ktv.manager;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 
 import com.agora.data.model.AgoraMember;
 import com.agora.data.model.AgoraRoom;
-import com.agora.data.model.MusicModel;
+
+import io.agora.ktv.bean.MusicModel;
 
 @MainThread
 public interface RoomEventCallback {

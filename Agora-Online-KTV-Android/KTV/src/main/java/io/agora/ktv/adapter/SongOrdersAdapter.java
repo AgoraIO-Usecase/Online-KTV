@@ -9,7 +9,7 @@ import java.util.List;
 
 import io.agora.baselibrary.base.BaseRecyclerViewAdapter;
 import io.agora.ktv.R;
-import com.agora.data.model.MusicModel;
+import io.agora.ktv.bean.MusicModel;
 import io.agora.ktv.databinding.KtvItemChoosedSongListBinding;
 
 /**

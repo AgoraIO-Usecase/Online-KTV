@@ -1,4 +1,4 @@
-package com.agora.data.manager;
+package io.agora.ktv.manager;
 
 import android.os.Bundle;
 import android.os.Handler;
@@ -7,10 +7,9 @@ import android.os.Message;
 
 import androidx.annotation.NonNull;
 
-import com.agora.data.RoomEventCallback;
 import com.agora.data.model.AgoraMember;
 import com.agora.data.model.AgoraRoom;
-import com.agora.data.model.MusicModel;
+import io.agora.ktv.bean.MusicModel;
 
 import java.util.ArrayList;
 import java.util.List;

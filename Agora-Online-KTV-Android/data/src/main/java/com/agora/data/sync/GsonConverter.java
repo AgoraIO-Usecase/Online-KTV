@@ -2,7 +2,6 @@ package com.agora.data.sync;
 
 import androidx.annotation.NonNull;
 
-import com.agora.data.EnumRoleSerializer;
 import com.agora.data.model.AgoraMember;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

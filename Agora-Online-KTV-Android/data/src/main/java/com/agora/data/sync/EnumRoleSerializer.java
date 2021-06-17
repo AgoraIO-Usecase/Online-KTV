@@ -1,4 +1,4 @@
-package com.agora.data;
+package com.agora.data.sync;
 
 import com.agora.data.model.AgoraMember;
 import com.google.gson.JsonDeserializationContext;

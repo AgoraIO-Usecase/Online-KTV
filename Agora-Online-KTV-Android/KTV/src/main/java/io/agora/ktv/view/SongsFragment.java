@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.agora.data.manager.UserManager;
 import com.agora.data.model.AgoraRoom;
-import com.agora.data.model.MusicModel;
+import io.agora.ktv.bean.MusicModel;
 import com.agora.data.model.User;
 import com.agora.data.provider.AgoraObject;
 import com.agora.data.sync.AgoraException;

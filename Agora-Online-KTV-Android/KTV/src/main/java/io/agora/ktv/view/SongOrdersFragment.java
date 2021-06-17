@@ -6,7 +6,7 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import com.agora.data.model.MusicModel;
+import io.agora.ktv.bean.MusicModel;
 import io.agora.ktv.manager.RoomManager;
 
 import java.util.ArrayList;

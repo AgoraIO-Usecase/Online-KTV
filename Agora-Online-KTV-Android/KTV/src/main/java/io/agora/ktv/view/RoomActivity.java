@@ -9,11 +9,11 @@ import androidx.annotation.NonNull;
 import androidx.core.util.ObjectsCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 
-import com.agora.data.SimpleRoomEventCallback;
+import io.agora.ktv.manager.SimpleRoomEventCallback;
 import com.agora.data.manager.UserManager;
 import com.agora.data.model.AgoraMember;
 import com.agora.data.model.AgoraRoom;
-import com.agora.data.model.MusicModel;
+import io.agora.ktv.bean.MusicModel;
 import com.agora.data.model.User;
 import io.agora.ktv.manager.RoomManager;
 

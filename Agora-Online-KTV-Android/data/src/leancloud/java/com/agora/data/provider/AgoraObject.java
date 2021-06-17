@@ -2,6 +2,7 @@ package com.agora.data.provider;
 
 import androidx.annotation.NonNull;
 
+import com.agora.data.sync.IAgoraObject;
 import com.agora.data.sync.SyncManager;
 
 import cn.leancloud.AVObject;

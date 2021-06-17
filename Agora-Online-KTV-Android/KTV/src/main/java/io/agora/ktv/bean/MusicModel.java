@@ -1,4 +1,4 @@
-package com.agora.data.model;
+package io.agora.ktv.bean;
 
 import android.os.Parcel;
 import android.os.Parcelable;
