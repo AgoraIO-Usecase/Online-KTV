@@ -57,7 +57,7 @@ android {
     if (isModule.toBoolean()) {
         applicationVariants.all { variant ->
             variant.outputs.all {
-                outputFileName = "Marry-${versionName}-${variant.buildType.name}.apk"
+                outputFileName = "KTV-${versionName}-${variant.buildType.name}.apk"
             }
         }
     }
@@ -68,6 +68,9 @@ dependencies {
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+
+    //Arogra SDK
+//    implementation 'io.agora.rtc:full-sdk:3.3.0'
 
     api project(':data')
     api project(':lrcview')

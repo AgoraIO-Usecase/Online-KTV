@@ -9,10 +9,11 @@ import androidx.annotation.NonNull;
 
 import com.agora.data.model.AgoraMember;
 import com.agora.data.model.AgoraRoom;
-import io.agora.ktv.bean.MusicModel;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import io.agora.ktv.bean.MusicModel;
 
 /**
  * 主要将房间内事件切换到主线程，然后丢给界面。
@@ -53,12 +54,8 @@ public class MainThreadDispatch implements RoomEventCallback {
                     callback.onMemberLeave((AgoraMember) msg.obj);
                 }
             } else if (msg.what == ON_ROLE_CHANGED) {
-                Bundle bundle = msg.getData();
-                boolean isMine = bundle.getBoolean("isMine");
-                AgoraMember member = bundle.getParcelable("member");
-
                 for (RoomEventCallback callback : enevtCallbacks) {
-                    callback.onRoleChanged(isMine, member);
+                    callback.onRoleChanged((AgoraMember) msg.obj);
                 }
             } else if (msg.what == ON_AUDIO_CHANGED) {
                 Bundle bundle = msg.getData();
@@ -128,14 +125,8 @@ public class MainThreadDispatch implements RoomEventCallback {
     }
 
     @Override
-    public void onRoleChanged(boolean isMine, @NonNull AgoraMember member) {
-        Bundle bundle = new Bundle();
-        bundle.putBoolean("isMine", isMine);
-        bundle.putParcelable("member", member);
-
-        Message message = mHandler.obtainMessage(ON_ROLE_CHANGED);
-        message.setData(bundle);
-        message.sendToTarget();
+    public void onRoleChanged(@NonNull AgoraMember member) {
+        mHandler.obtainMessage(ON_ROLE_CHANGED, member).sendToTarget();
     }
 
     @Override

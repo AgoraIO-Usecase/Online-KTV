@@ -3,6 +3,9 @@ package io.agora.ktv.manager;
 import android.content.Context;
 import android.util.Log;
 
+import com.elvishew.xlog.Logger;
+import com.elvishew.xlog.XLog;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -22,6 +25,8 @@ import io.agora.rtc2.RtcEngine;
 
 public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerObserver {
     private static final String TAG = MusicPlayer.class.getSimpleName();
+
+    private Logger.Builder mLogger = XLog.tag("MusicPlayer");
 
     private Context mContext;
     private RtcEngine mRtcEngine;

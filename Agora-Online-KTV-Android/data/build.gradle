@@ -45,10 +45,6 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
-    //Arogra SDK
-//    api 'io.agora.rtc:full-sdk:3.3.0'
-    api fileTree(dir: 'libs', include: ['*.jar'])
-
     //leancloud
     leancloudImplementation 'cn.leancloud:storage-android:7.2.2'
     leancloudImplementation 'cn.leancloud:realtime-android:7.2.2'

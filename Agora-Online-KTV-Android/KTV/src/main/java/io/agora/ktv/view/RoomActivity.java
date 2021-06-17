@@ -9,13 +9,12 @@ import androidx.annotation.NonNull;
 import androidx.core.util.ObjectsCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 
-import io.agora.ktv.manager.SimpleRoomEventCallback;
 import com.agora.data.manager.UserManager;
 import com.agora.data.model.AgoraMember;
 import com.agora.data.model.AgoraRoom;
-import io.agora.ktv.bean.MusicModel;
 import com.agora.data.model.User;
-import io.agora.ktv.manager.RoomManager;
+import com.agora.data.sync.AgoraException;
+import com.agora.data.sync.SyncManager;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -27,14 +26,18 @@ import java.util.List;
 import io.agora.baselibrary.base.DataBindBaseActivity;
 import io.agora.baselibrary.base.OnItemClickListener;
 import io.agora.baselibrary.util.ToastUtile;
-import io.agora.ktv.manager.MusicPlayer;
 import io.agora.ktv.R;
 import io.agora.ktv.adapter.RoomSpeakerAdapter;
+import io.agora.ktv.bean.MusicModel;
 import io.agora.ktv.databinding.KtvActivityRoomBinding;
+import io.agora.ktv.manager.MusicPlayer;
+import io.agora.ktv.manager.RoomManager;
+import io.agora.ktv.manager.SimpleRoomEventCallback;
 import io.agora.ktv.view.dialog.MusicSettingDialog;
 import io.agora.ktv.view.dialog.RoomChooseSongDialog;
 import io.agora.ktv.view.dialog.RoomMVDialog;
 import io.agora.ktv.view.dialog.UserSeatMenuDialog;
+import io.agora.rtc2.IRtcEngineEventHandler;
 import io.reactivex.CompletableObserver;
 import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -68,16 +71,33 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
             }
 
             mRoomSpeakerAdapter.deleteItem(member);
+
+            if (RoomManager.Instance(RoomActivity.this).isOwner()) {
+                MusicModel musicModel = RoomManager.Instance(RoomActivity.this).getMusicModel();
+                if (musicModel != null && ObjectsCompat.equals(member.getUserId(), musicModel.getUserId())) {
+                    changeMusic();
+                }
+            }
         }
 
         @Override
-        public void onRoleChanged(boolean isMine, @NonNull AgoraMember member) {
-            super.onRoleChanged(isMine, member);
+        public void onRoleChanged(@NonNull AgoraMember member) {
+            super.onRoleChanged(member);
 
             if (member.getRole() == AgoraMember.Role.Speaker) {
                 mRoomSpeakerAdapter.addItem(member);
-            } else {
+
+                AgoraMember mMine = RoomManager.Instance(RoomActivity.this).getMine();
+                if (ObjectsCompat.equals(member, mMine)) {
+                    showOnSeatStatus();
+                    mMusicPlayer.switchRole(IRtcEngineEventHandler.ClientRole.CLIENT_ROLE_BROADCASTER);
+                }
+            } else if (member.getRole() == AgoraMember.Role.Listener) {
                 mRoomSpeakerAdapter.deleteItem(member);
+                AgoraMember mMine = RoomManager.Instance(RoomActivity.this).getMine();
+                if (ObjectsCompat.equals(member, mMine)) {
+                    showNotOnSeatStatus();
+                }
             }
         }
 
@@ -139,8 +159,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
         extractAsset("qinghuaci.m4a");
         extractAsset("send_it.m4a");
 
-        showOnSeatStatus();
-        showMusicIDLEStatus();
+        showNotOnSeatStatus();
 
         AgoraRoom mRoom = getIntent().getExtras().getParcelable(TAG_ROOM);
         mDataBinding.tvName.setText(mRoom.getName());
@@ -196,6 +215,12 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
         AgoraMember owner = RoomManager.Instance(this).getOwner();
         assert owner != null;
         mRoomSpeakerAdapter.addItem(owner);
+
+        if (RoomManager.Instance(this).isOwner()) {
+            showOnSeatStatus();
+        } else {
+            showNotOnSeatStatus();
+        }
 
         RoomManager.Instance(this).loadMemberStatus();
         RoomManager.Instance(this)
@@ -318,7 +343,37 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
     }
 
     private void changeMusic() {
+        AgoraRoom mRoom = RoomManager.Instance(this).getRoom();
+        if (mRoom == null) {
+            return;
+        }
 
+        User mUser = UserManager.Instance(this).getUserLiveData().getValue();
+        if (mUser == null) {
+            return;
+        }
+
+        MusicModel musicModel = RoomManager.Instance(this).getMusicModel();
+        if (musicModel == null) {
+            return;
+        }
+
+        SyncManager.Instance()
+                .getRoom(mRoom.getId())
+                .collection(MusicModel.TABLE_NAME)
+                .document(musicModel.getId())
+                .delete(new SyncManager.Callback() {
+                    @Override
+                    public void onSuccess() {
+
+                    }
+
+                    @Override
+                    public void onFail(AgoraException exception) {
+                        ToastUtile.toastShort(RoomActivity.this, exception.getMessage());
+                        finish();
+                    }
+                });
     }
 
     private void toggleStart() {
@@ -327,21 +382,6 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
         } else {
             mMusicPlayer.resume();
         }
-    }
-
-    private void showMusicIDLEStatus() {
-        mDataBinding.llNoSing.setVisibility(View.VISIBLE);
-        mDataBinding.rlSing.setVisibility(View.GONE);
-    }
-
-    private void showMusicStartStatus() {
-        mDataBinding.llNoSing.setVisibility(View.GONE);
-        mDataBinding.rlSing.setVisibility(View.VISIBLE);
-    }
-
-    private void showMusicPauseStatus() {
-        mDataBinding.llNoSing.setVisibility(View.VISIBLE);
-        mDataBinding.rlSing.setVisibility(View.VISIBLE);
     }
 
     private void showOnSeatStatus() {
@@ -442,8 +482,11 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
             return;
         }
 
-        if (ObjectsCompat.equals(music.getMusicId(), mUser.getObjectId())) {
+        if (ObjectsCompat.equals(music.getUserId(), mUser.getObjectId())) {
+            mDataBinding.rlMusicMenu.setVisibility(View.VISIBLE);
             mMusicPlayer.play(mCacheDir + "/" + music.getMusicFile());
+        } else {
+            mDataBinding.rlMusicMenu.setVisibility(View.GONE);
         }
     }
 

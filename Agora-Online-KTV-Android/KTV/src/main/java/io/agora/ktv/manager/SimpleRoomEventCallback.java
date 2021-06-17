@@ -27,7 +27,7 @@ public class SimpleRoomEventCallback implements RoomEventCallback {
     }
 
     @Override
-    public void onRoleChanged(boolean isMine, @NonNull AgoraMember member) {
+    public void onRoleChanged(@NonNull AgoraMember member) {
 
     }
 

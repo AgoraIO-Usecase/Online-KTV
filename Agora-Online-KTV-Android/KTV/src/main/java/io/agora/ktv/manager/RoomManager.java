@@ -11,7 +11,6 @@ import com.agora.data.R;
 import com.agora.data.manager.UserManager;
 import com.agora.data.model.AgoraMember;
 import com.agora.data.model.AgoraRoom;
-import io.agora.ktv.bean.MusicModel;
 import com.agora.data.model.User;
 import com.agora.data.provider.AgoraObject;
 import com.agora.data.sync.AgoraException;
@@ -30,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import io.agora.ktv.bean.MusicModel;
 import io.agora.mediaplayer.IMediaPlayer;
 import io.agora.rtc2.IRtcEngineEventHandler;
 import io.agora.rtc2.RtcEngine;
@@ -151,6 +151,10 @@ public final class RoomManager {
         }
     }
 
+    public boolean isOwner() {
+        return ObjectsCompat.equals(getOwner(), getMine());
+    }
+
     @Nullable
     public AgoraRoom getRoom() {
         return mRoom;
@@ -188,7 +192,7 @@ public final class RoomManager {
 
     private void onMemberRoleChanged(@NonNull AgoraMember member) {
         mLogger.d("onMemberRoleChanged() called with: member = [%s]", member);
-        mMainThreadDispatch.onRoleChanged(false, member);
+        mMainThreadDispatch.onRoleChanged(member);
     }
 
     private void onAudioStatusChanged(boolean isMine, @NonNull AgoraMember member) {
@@ -359,9 +363,15 @@ public final class RoomManager {
             public void accept(List<MusicModel> musicModels) throws Exception {
                 synchronized (musicObject) {
                     musics = musicModels;
+                    mMusicModel = musics.get(0);
                 }
             }
         });
+    }
+
+    @Nullable
+    public MusicModel getMusicModel() {
+        return mMusicModel;
     }
 
     public List<MusicModel> getMusics() {
@@ -496,9 +506,11 @@ public final class RoomManager {
                                                     mMine.setRoom(mRoom);
 
                                                     //4. 获取当前成员列表
+                                                    DocumentReference mRoomRef = SyncManager.Instance().getRoom(mRoom.getId());
                                                     SyncManager.Instance()
                                                             .getRoom(mRoom.getId())
                                                             .collection(AgoraMember.TABLE_NAME)
+                                                            .query(new Query().whereEqualTo(AgoraMember.COLUMN_ROOMID, mRoomRef))
                                                             .get(new SyncManager.DataListCallback() {
                                                                 @Override
                                                                 public void onSuccess(List<AgoraObject> results) {
@@ -518,6 +530,14 @@ public final class RoomManager {
                                                                             owner = member;
                                                                         }
                                                                     }
+
+                                                                    getRtcEngine().enableAudio();
+                                                                    if (ObjectsCompat.equals(mMine, owner)) {
+                                                                        getRtcEngine().setClientRole(IRtcEngineEventHandler.ClientRole.CLIENT_ROLE_BROADCASTER);
+                                                                    } else {
+                                                                        getRtcEngine().setClientRole(IRtcEngineEventHandler.ClientRole.CLIENT_ROLE_AUDIENCE);
+                                                                    }
+                                                                    getRtcEngine().joinChannel("", mRoom.getId(), null, 0);
 
                                                                     emitter.onComplete();
                                                                 }

@@ -33,10 +33,8 @@ public interface RoomEventCallback {
 
     /**
      * 房间角色变化回调，角色变化指：观众和说话人变化
-     *
-     * @param isMine 是否是我主动触发的回调，true-我主动触发，false-不是我触发，被动触发。
      */
-    void onRoleChanged(boolean isMine, @NonNull AgoraMember member);
+    void onRoleChanged(@NonNull AgoraMember member);
 
     /**
      * Audio变化回调，这里变化是指：开麦和禁麦

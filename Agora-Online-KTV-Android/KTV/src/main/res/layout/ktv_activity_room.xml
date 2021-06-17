@@ -108,9 +108,11 @@
                     android:layout_marginTop="20dp"
                     android:drawableStart="@mipmap/ktv_room_music_name"
                     android:drawablePadding="4dp"
-                    android:gravity="center" />
+                    android:gravity="center"
+                    android:textColor="@android:color/white" />
 
                 <RelativeLayout
+                    android:id="@+id/rlMusicMenu"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_alignParentBottom="true"
