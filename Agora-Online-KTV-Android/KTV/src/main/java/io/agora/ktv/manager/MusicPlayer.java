@@ -442,6 +442,11 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
     }
 
     @Override
+    public void onPlayBufferUpdated(long l) {
+
+    }
+
+    @Override
     public void onCompleted() {
 
     }

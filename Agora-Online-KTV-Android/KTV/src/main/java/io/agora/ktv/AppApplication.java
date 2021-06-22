@@ -11,6 +11,6 @@ public class AppApplication extends AgoraApplication {
     public void onCreate() {
         super.onCreate();
 
-        Log.d("APP", "SDK Vserion: " + RtcEngine.getSdkVersion());
+        Log.d("APP", "SDK Version: " + RtcEngine.getSdkVersion());
     }
 }

@@ -31,6 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import io.agora.ktv.bean.MusicModel;
 import io.agora.mediaplayer.IMediaPlayer;
+import io.agora.rtc2.Constants;
 import io.agora.rtc2.IRtcEngineEventHandler;
 import io.agora.rtc2.RtcEngine;
 import io.agora.rtc2.RtcEngineConfig;
@@ -49,6 +50,7 @@ import io.reactivex.functions.Consumer;
  */
 public final class RoomManager {
     private Logger.Builder mLogger = XLog.tag("RoomManager");
+    private Logger.Builder mLoggerRTC = XLog.tag("RTC");
 
     private volatile static RoomManager instance;
 
@@ -67,6 +69,31 @@ public final class RoomManager {
     private RtcEngine mRtcEngine;
 
     private IRtcEngineEventHandler mIRtcEngineEventHandler = new IRtcEngineEventHandler() {
+        @Override
+        public void onJoinChannelSuccess(String channel, int uid, int elapsed) {
+            super.onJoinChannelSuccess(channel, uid, elapsed);
+            mLoggerRTC.d("onJoinChannelSuccess() called with: channel = [%s], uid = [%s], elapsed = [%s]", channel, uid, elapsed);
+            mMainThreadDispatch.onRTCJoinRoom();
+        }
+
+        @Override
+        public void onLeaveChannel(RtcStats stats) {
+            super.onLeaveChannel(stats);
+            mLoggerRTC.d("onLeaveChannel() called with: stats = [%s]", stats);
+        }
+
+        @Override
+        public void onRemoteAudioStateChanged(int uid, REMOTE_AUDIO_STATE state, REMOTE_AUDIO_STATE_REASON reason, int elapsed) {
+            super.onRemoteAudioStateChanged(uid, state, reason, elapsed);
+            mLoggerRTC.d("onRemoteAudioStateChanged() called with: uid = [%s], state = [%s], reason = [%s], elapsed = [%s]", uid, state, reason, elapsed);
+        }
+
+        @Override
+        public void onLocalAudioStateChanged(LOCAL_AUDIO_STREAM_STATE state, LOCAL_AUDIO_STREAM_ERROR error) {
+            super.onLocalAudioStateChanged(state, error);
+            mLoggerRTC.d("onLocalAudioStateChanged() called with: state = [%s], error = [%s]", state, error);
+        }
+
         @Override
         public void onStreamMessage(int uid, int streamId, byte[] data) {
             JSONObject jsonMsg;
@@ -108,6 +135,7 @@ public final class RoomManager {
         config.mContext = mContext;
         config.mAppId = appid;
         config.mEventHandler = mIRtcEngineEventHandler;
+        config.mChannelProfile = Constants.CHANNEL_PROFILE_LIVE_BROADCASTING;
 //        if (Config.isLeanCloud()) {
 //            config.mAreaCode = RtcEngineConfig.AreaCode.AREA_CODE_CN;
 //        } else {
@@ -201,6 +229,7 @@ public final class RoomManager {
     }
 
     private void onMusicAdd(MusicModel model) {
+        mLogger.d("onMusicAdd() called with: model = [%s]", model);
         synchronized (musicObject) {
             if (musics.contains(model)) {
                 return;
@@ -211,23 +240,33 @@ public final class RoomManager {
             mMainThreadDispatch.onMusicAdd(model);
 
             if (mMusicModel == null) {
-                mMusicModel = musics.get(0);
-                mMainThreadDispatch.onMusicChanged(mMusicModel);
+                onMusicChanged(musics.get(0));
             }
         }
     }
 
     private void onMusicDelete(MusicModel model) {
+        mLogger.d("onMusicDelete() called with: model = [%s]", model);
         musics.remove(model);
         mMainThreadDispatch.onMusicDelete(model);
 
         if (musics.size() > 0) {
-            mMusicModel = musics.get(0);
-            mMainThreadDispatch.onMusicChanged(mMusicModel);
+            onMusicChanged(musics.get(0));
         } else {
-            mMusicModel = null;
-            mMainThreadDispatch.onMusicEmpty();
+            onMusicEmpty();
         }
+    }
+
+    public void onMusicEmpty() {
+        mLogger.d("onMusicEmpty() called");
+        mMusicModel = null;
+        mMainThreadDispatch.onMusicEmpty();
+    }
+
+    public void onMusicChanged(MusicModel model) {
+        mLogger.d("onMusicChanged() called with: model = [%s]", model);
+        mMusicModel = model;
+        mMainThreadDispatch.onMusicChanged(model);
     }
 
     public void subcribeMemberEvent() {
@@ -531,6 +570,7 @@ public final class RoomManager {
                                                                         }
                                                                     }
 
+                                                                    getRtcEngine().setChannelProfile(Constants.CHANNEL_PROFILE_LIVE_BROADCASTING);
                                                                     getRtcEngine().enableAudio();
                                                                     if (ObjectsCompat.equals(mMine, owner)) {
                                                                         getRtcEngine().setClientRole(IRtcEngineEventHandler.ClientRole.CLIENT_ROLE_BROADCASTER);

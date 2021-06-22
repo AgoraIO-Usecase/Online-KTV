@@ -63,6 +63,12 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
     private SimpleRoomEventCallback mRoomEventCallback = new SimpleRoomEventCallback() {
 
         @Override
+        public void onRTCJoinRoom() {
+            super.onRTCJoinRoom();
+            syncMusics();
+        }
+
+        @Override
         public void onMemberLeave(@NonNull AgoraMember member) {
             super.onMemberLeave(member);
             if (ObjectsCompat.equals(member, RoomManager.Instance(RoomActivity.this).getOwner())) {
@@ -195,6 +201,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
         if (tmpf.exists()) {
             return;
         }
+
         try {
             InputStream is = getAssets().open(f);
             FileOutputStream fileOutputStream = new FileOutputStream(filePath);
@@ -223,6 +230,9 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
         }
 
         RoomManager.Instance(this).loadMemberStatus();
+    }
+
+    private void syncMusics() {
         RoomManager.Instance(this)
                 .getMusicsFromRemote()
                 .observeOn(AndroidSchedulers.mainThread())
@@ -236,15 +246,16 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
                     @Override
                     public void onSuccess(@NonNull List<MusicModel> musicModels) {
                         if (musicModels.isEmpty()) {
-                            onMusicEmpty();
+                            RoomManager.Instance(RoomActivity.this).onMusicEmpty();
                         } else {
-                            onMusicChanged(musicModels.get(0));
+                            RoomManager.Instance(RoomActivity.this).onMusicChanged(musicModels.get(0));
                         }
                     }
 
                     @Override
                     public void onError(@NonNull Throwable e) {
-
+                        ToastUtile.toastShort(RoomActivity.this, "同步歌曲失败");
+                        e.printStackTrace();
                     }
                 });
     }
@@ -484,7 +495,13 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
 
         if (ObjectsCompat.equals(music.getUserId(), mUser.getObjectId())) {
             mDataBinding.rlMusicMenu.setVisibility(View.VISIBLE);
-            mMusicPlayer.play(mCacheDir + "/" + music.getMusicFile());
+            File file = new File(mCacheDir + "/" + music.getMusicFile());
+            if (!file.exists()) {
+                ToastUtile.toastShort(RoomActivity.this, "文件不存在");
+                return;
+            }
+
+//            mMusicPlayer.play(file.getAbsolutePath());
         } else {
             mDataBinding.rlMusicMenu.setVisibility(View.GONE);
         }

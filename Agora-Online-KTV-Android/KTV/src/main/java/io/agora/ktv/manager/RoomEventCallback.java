@@ -54,4 +54,6 @@ public interface RoomEventCallback {
     void onMusicEmpty();
 
     void onMusicProgress(long total, long cur);
+
+    void onRTCJoinRoom();
 }

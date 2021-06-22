@@ -65,4 +65,9 @@ public class SimpleRoomEventCallback implements RoomEventCallback {
     public void onMusicProgress(long total, long cur) {
 
     }
+
+    @Override
+    public void onRTCJoinRoom() {
+
+    }
 }

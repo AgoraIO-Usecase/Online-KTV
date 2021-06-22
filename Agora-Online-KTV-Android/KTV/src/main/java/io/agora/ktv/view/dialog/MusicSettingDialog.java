@@ -7,6 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.CompoundButton;
+import android.widget.SeekBar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -21,7 +23,7 @@ import io.agora.ktv.databinding.KtvDialogMusicSettingBinding;
  *
  * @author chenhengfei@agora.io
  */
-public class MusicSettingDialog extends DataBindBaseDialog<KtvDialogMusicSettingBinding> implements View.OnClickListener {
+public class MusicSettingDialog extends DataBindBaseDialog<KtvDialogMusicSettingBinding> implements View.OnClickListener, CompoundButton.OnCheckedChangeListener, SeekBar.OnSeekBarChangeListener {
     private static final String TAG = MusicSettingDialog.class.getSimpleName();
 
     @Nullable
@@ -59,7 +61,9 @@ public class MusicSettingDialog extends DataBindBaseDialog<KtvDialogMusicSetting
 
     @Override
     public void iniListener() {
-        mDataBinding.btSeatoff.setOnClickListener(this);
+        mDataBinding.switchEar.setOnCheckedChangeListener(this);
+        mDataBinding.sbVol1.setOnSeekBarChangeListener(this);
+        mDataBinding.sbVol2.setOnSeekBarChangeListener(this);
     }
 
     @Override
@@ -76,5 +80,25 @@ public class MusicSettingDialog extends DataBindBaseDialog<KtvDialogMusicSetting
 //        if (v.getId() == R.id.btSeatoff) {
 //            seatOff();
 //        }
+    }
+
+    @Override
+    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+
+    }
+
+    @Override
+    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+
+    }
+
+    @Override
+    public void onStartTrackingTouch(SeekBar seekBar) {
+
+    }
+
+    @Override
+    public void onStopTrackingTouch(SeekBar seekBar) {
+
     }
 }

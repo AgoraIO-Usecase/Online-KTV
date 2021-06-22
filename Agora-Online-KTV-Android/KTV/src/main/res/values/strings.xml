@@ -23,4 +23,9 @@
     <string name="ktv_room_sing2">正在演唱</string>
     <string name="ktv_room_no_sing_1">当前无人演唱</string>
     <string name="ktv_room_no_sing_2">点击\"点歌\"一展歌喉</string>
+
+    <string name="ktv_music_menu_dialog_title">参数设置</string>
+    <string name="ktv_music_menu_dialog_ear">耳返</string>
+    <string name="ktv_music_menu_dialog_vol1">人声音量</string>
+    <string name="ktv_music_menu_dialog_vol2">伴奏音量</string>
 </resources>
