@@ -31,7 +31,7 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
     private Context mContext;
     private RtcEngine mRtcEngine;
     private LrcView mLrcView;
-    private int mRole;
+    private int mRole = Constants.CLIENT_ROLE_BROADCASTER;
 
     private boolean mStopSyncLrc = true;
     private Thread mSyncLrcThread;

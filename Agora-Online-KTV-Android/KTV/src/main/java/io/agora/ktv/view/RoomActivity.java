@@ -37,7 +37,7 @@ import io.agora.ktv.view.dialog.MusicSettingDialog;
 import io.agora.ktv.view.dialog.RoomChooseSongDialog;
 import io.agora.ktv.view.dialog.RoomMVDialog;
 import io.agora.ktv.view.dialog.UserSeatMenuDialog;
-import io.agora.rtc2.IRtcEngineEventHandler;
+import io.agora.rtc2.Constants;
 import io.reactivex.CompletableObserver;
 import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -96,13 +96,15 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
                 AgoraMember mMine = RoomManager.Instance(RoomActivity.this).getMine();
                 if (ObjectsCompat.equals(member, mMine)) {
                     showOnSeatStatus();
-                    mMusicPlayer.switchRole(IRtcEngineEventHandler.ClientRole.CLIENT_ROLE_BROADCASTER);
+                    mMusicPlayer.switchRole(Constants.CLIENT_ROLE_BROADCASTER);
                 }
             } else if (member.getRole() == AgoraMember.Role.Listener) {
                 mRoomSpeakerAdapter.deleteItem(member);
+
                 AgoraMember mMine = RoomManager.Instance(RoomActivity.this).getMine();
                 if (ObjectsCompat.equals(member, mMine)) {
                     showNotOnSeatStatus();
+                    mMusicPlayer.switchRole(Constants.CLIENT_ROLE_AUDIENCE);
                 }
             }
         }
@@ -501,7 +503,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
                 return;
             }
 
-//            mMusicPlayer.play(file.getAbsolutePath());
+            mMusicPlayer.play(file.getAbsolutePath());
         } else {
             mDataBinding.rlMusicMenu.setVisibility(View.GONE);
         }
