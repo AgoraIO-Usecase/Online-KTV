@@ -252,6 +252,10 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
 
     public Completable stop() {
         mLogger.i("stop() called");
+        if (isPlaying() == false) {
+            return Completable.complete();
+        }
+
         return Completable.create(emitter -> {
             this.emitterStop = emitter;
 

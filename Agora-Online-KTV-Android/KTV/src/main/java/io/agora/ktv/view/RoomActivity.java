@@ -402,11 +402,6 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
             return;
         }
 
-        User mUser = UserManager.Instance(this).getUserLiveData().getValue();
-        if (mUser == null) {
-            return;
-        }
-
         MusicModel musicModel = RoomManager.Instance(this).getMusicModel();
         if (musicModel == null) {
             return;
