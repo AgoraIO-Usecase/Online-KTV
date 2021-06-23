@@ -133,7 +133,8 @@
                         android:layout_height="wrap_content"
                         android:layout_centerVertical="true"
                         android:layout_marginStart="10dp"
-                        android:layout_toRightOf="@+id/tvOriginalLabel" />
+                        android:layout_toRightOf="@+id/tvOriginalLabel"
+                        android:checked="true" />
 
                     <ImageView
                         android:id="@+id/ivMusicMenu"

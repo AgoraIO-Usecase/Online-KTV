@@ -16,8 +16,6 @@ import com.agora.data.model.User;
 import com.agora.data.sync.AgoraException;
 import com.agora.data.sync.SyncManager;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -360,8 +358,32 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
         }
     }
 
+    private boolean isEar = false;
+    private int volMic = 100;
+    private int volMusic = 100;
+
     private void showMusicMenuDialog() {
-        new MusicSettingDialog().show(getSupportFragmentManager());
+        mDataBinding.ivMusicMenu.setEnabled(false);
+        new MusicSettingDialog().show(getSupportFragmentManager(), isEar, volMic, volMusic, new MusicSettingDialog.Callback() {
+            @Override
+            public void onEarChanged(boolean isEar) {
+                RoomActivity.this.isEar = isEar;
+                RoomManager.Instance(RoomActivity.this).getRtcEngine().enableInEarMonitoring(isEar);
+            }
+
+            @Override
+            public void onMicVolChanged(int vol) {
+                RoomActivity.this.volMic = vol;
+                mMusicPlayer.setMicVolume(vol);
+            }
+
+            @Override
+            public void onMusicVolChanged(int vol) {
+                RoomActivity.this.volMusic = vol;
+                mMusicPlayer.setMusicVolume(vol);
+            }
+        });
+        mDataBinding.ivMusicMenu.setEnabled(true);
     }
 
     private void changeMusic() {
@@ -499,21 +521,6 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
                 });
     }
 
-    private String getLrcText(String fileName) {
-        String lrcText = null;
-        try {
-            InputStream is = getAssets().open(fileName);
-            int size = is.available();
-            byte[] buffer = new byte[size];
-            is.read(buffer);
-            is.close();
-            lrcText = new String(buffer);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return lrcText;
-    }
-
     private void onMusicChanged(@NonNull MusicModel music) {
         mDataBinding.llNoSing.setVisibility(View.GONE);
         mDataBinding.rlSing.setVisibility(View.VISIBLE);
@@ -527,6 +534,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
 
         if (ObjectsCompat.equals(music.getUserId(), mUser.getObjectId())) {
             mDataBinding.rlMusicMenu.setVisibility(View.VISIBLE);
+            mDataBinding.switchOriginal.setChecked(true);
             mMusicPlayer.play(music);
         } else {
             mDataBinding.rlMusicMenu.setVisibility(View.GONE);

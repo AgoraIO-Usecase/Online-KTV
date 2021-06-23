@@ -26,6 +26,14 @@ import io.agora.ktv.databinding.KtvDialogMusicSettingBinding;
 public class MusicSettingDialog extends DataBindBaseDialog<KtvDialogMusicSettingBinding> implements View.OnClickListener, CompoundButton.OnCheckedChangeListener, SeekBar.OnSeekBarChangeListener {
     private static final String TAG = MusicSettingDialog.class.getSimpleName();
 
+    private static final String TAG_EAR = "ear";
+    private static final String TAG_MIC_VOL = "mic_vol";
+    private static final String TAG_MUSIC_VOL = "music_vol";
+
+    private boolean isEar;
+    private int volMic;
+    private int volMusic;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -47,6 +55,9 @@ public class MusicSettingDialog extends DataBindBaseDialog<KtvDialogMusicSetting
 
     @Override
     public void iniBundle(@NonNull Bundle bundle) {
+        isEar = bundle.getBoolean(TAG_EAR);
+        volMic = bundle.getInt(TAG_MIC_VOL);
+        volMusic = bundle.getInt(TAG_MUSIC_VOL);
     }
 
     @Override
@@ -61,35 +72,49 @@ public class MusicSettingDialog extends DataBindBaseDialog<KtvDialogMusicSetting
 
     @Override
     public void iniListener() {
+    }
+
+    @Override
+    public void iniData() {
+        mDataBinding.switchEar.setChecked(isEar);
+        mDataBinding.sbVol1.setProgress(volMic);
+        mDataBinding.sbVol2.setProgress(volMusic);
+
         mDataBinding.switchEar.setOnCheckedChangeListener(this);
         mDataBinding.sbVol1.setOnSeekBarChangeListener(this);
         mDataBinding.sbVol2.setOnSeekBarChangeListener(this);
     }
 
-    @Override
-    public void iniData() {
-
-    }
-
-    public void show(@NonNull FragmentManager manager) {
+    public void show(@NonNull FragmentManager manager, boolean isEar, int volMic, int volMusic, Callback mCallback) {
+        Bundle bundle = new Bundle();
+        bundle.putBoolean(TAG_EAR, isEar);
+        bundle.putInt(TAG_MIC_VOL, volMic);
+        bundle.putInt(TAG_MUSIC_VOL, volMusic);
+        setArguments(bundle);
+        this.mCallback = mCallback;
         super.show(manager, TAG);
     }
 
     @Override
     public void onClick(View v) {
-//        if (v.getId() == R.id.btSeatoff) {
-//            seatOff();
-//        }
+
     }
 
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-
+        isEar = isChecked;
+        this.mCallback.onEarChanged(isEar);
     }
 
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-
+        if (seekBar == mDataBinding.sbVol1) {
+            volMic = progress;
+            this.mCallback.onMicVolChanged(progress);
+        } else if (seekBar == mDataBinding.sbVol2) {
+            volMusic = progress;
+            this.mCallback.onMusicVolChanged(progress);
+        }
     }
 
     @Override
@@ -100,5 +125,15 @@ public class MusicSettingDialog extends DataBindBaseDialog<KtvDialogMusicSetting
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
 
+    }
+
+    private Callback mCallback;
+
+    public interface Callback {
+        void onEarChanged(boolean isEar);
+
+        void onMicVolChanged(int vol);
+
+        void onMusicVolChanged(int vol);
     }
 }
