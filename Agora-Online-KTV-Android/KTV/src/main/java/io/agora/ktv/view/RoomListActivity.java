@@ -209,6 +209,7 @@ public class RoomListActivity extends DataBindBaseActivity<KtvActivityRoomListBi
                     public void onFail(AgoraException exception) {
                         mAdapter.deleteItem(position);
                         mDataBinding.list.setEnabled(true);
+                        ToastUtile.toastShort(RoomListActivity.this, "房间不存在");
                     }
                 });
     }

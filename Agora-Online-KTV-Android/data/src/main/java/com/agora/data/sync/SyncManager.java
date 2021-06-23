@@ -108,13 +108,8 @@ public final class SyncManager implements ISyncManager {
     }
 
     @Override
-    public void unsubcribe(DocumentReference reference, SyncManager.EventListener listener) {
-        mISyncManager.unsubcribe(reference, listener);
-    }
-
-    @Override
-    public void unsubcribe(CollectionReference reference, EventListener listener) {
-        mISyncManager.unsubcribe(reference, listener);
+    public void unsubcribe(SyncManager.EventListener listener) {
+        mISyncManager.unsubcribe(listener);
     }
 
     public interface EventListener {

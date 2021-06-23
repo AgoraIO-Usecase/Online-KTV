@@ -77,7 +77,7 @@ public final class RoomManager {
         @Override
         public void onConnectionStateChanged(int state, int reason) {
             super.onConnectionStateChanged(state, reason);
-            mLogger.d("onConnectionStateChanged() called with: state = [%s], reason = [%s]", state, reason);
+            mLoggerRTC.d("onConnectionStateChanged() called with: state = [%s], reason = [%s]", state, reason);
 
             if (state == Constants.CONNECTION_STATE_FAILED) {
                 if (emitterJoinRTC != null) {
@@ -90,7 +90,7 @@ public final class RoomManager {
         @Override
         public void onJoinChannelSuccess(String channel, int uid, int elapsed) {
             super.onJoinChannelSuccess(channel, uid, elapsed);
-            mLoggerRTC.d("onJoinChannelSuccess() called with: channel = [%s], uid = [%s], elapsed = [%s]", channel, uid, elapsed);
+            mLoggerRTC.i("onJoinChannelSuccess() called with: channel = [%s], uid = [%s], elapsed = [%s]", channel, uid, elapsed);
 
             if (emitterJoinRTC != null) {
                 emitterJoinRTC.onComplete();
@@ -102,19 +102,19 @@ public final class RoomManager {
         @Override
         public void onLeaveChannel(RtcStats stats) {
             super.onLeaveChannel(stats);
-            mLoggerRTC.d("onLeaveChannel() called with: stats = [%s]", stats);
+            mLoggerRTC.i("onLeaveChannel() called with: stats = [%s]", stats);
         }
 
         @Override
         public void onRemoteAudioStateChanged(int uid, REMOTE_AUDIO_STATE state, REMOTE_AUDIO_STATE_REASON reason, int elapsed) {
             super.onRemoteAudioStateChanged(uid, state, reason, elapsed);
-            mLoggerRTC.d("onRemoteAudioStateChanged() called with: uid = [%s], state = [%s], reason = [%s], elapsed = [%s]", uid, state, reason, elapsed);
+            mLoggerRTC.i("onRemoteAudioStateChanged() called with: uid = [%s], state = [%s], reason = [%s], elapsed = [%s]", uid, state, reason, elapsed);
         }
 
         @Override
         public void onLocalAudioStateChanged(LOCAL_AUDIO_STREAM_STATE state, LOCAL_AUDIO_STREAM_ERROR error) {
             super.onLocalAudioStateChanged(state, error);
-            mLoggerRTC.d("onLocalAudioStateChanged() called with: state = [%s], error = [%s]", state, error);
+            mLoggerRTC.i("onLocalAudioStateChanged() called with: state = [%s], error = [%s]", state, error);
         }
 
         @Override
@@ -169,7 +169,7 @@ public final class RoomManager {
             mRtcEngine = RtcEngine.create(config);
         } catch (Exception e) {
             e.printStackTrace();
-            mLogger.e("init error", e);
+            mLoggerRTC.e("init error", e);
         }
     }
 
@@ -230,7 +230,7 @@ public final class RoomManager {
     }
 
     private void onMemberJoin(@NonNull AgoraMember member) {
-        mLogger.d("onMemberJoin() called with: member = [%s]", member);
+        mLogger.i("onMemberJoin() called with: member = [%s]", member);
         memberHashMap.put(member.getId(), member);
         mMainThreadDispatch.onMemberJoin(member);
 
@@ -251,23 +251,23 @@ public final class RoomManager {
     }
 
     private void onMemberLeave(@NonNull AgoraMember member) {
-        mLogger.d("onMemberLeave() called with: member = [%s]", member);
+        mLogger.i("onMemberLeave() called with: member = [%s]", member);
         mMainThreadDispatch.onMemberLeave(member);
         memberHashMap.remove(member.getId());
     }
 
     private void onMemberRoleChanged(@NonNull AgoraMember member) {
-        mLogger.d("onMemberRoleChanged() called with: member = [%s]", member);
+        mLogger.i("onMemberRoleChanged() called with: member = [%s]", member);
         mMainThreadDispatch.onRoleChanged(member);
     }
 
     private void onAudioStatusChanged(boolean isMine, @NonNull AgoraMember member) {
-        mLogger.d("onAudioStatusChanged() called with: isMine = [%s], member = [%s]", isMine, member);
+        mLogger.i("onAudioStatusChanged() called with: isMine = [%s], member = [%s]", isMine, member);
         mMainThreadDispatch.onAudioStatusChanged(isMine, member);
     }
 
     private void onMusicAdd(MusicModel model) {
-        mLogger.d("onMusicAdd() called with: model = [%s]", model);
+        mLogger.i("onMusicAdd() called with: model = [%s]", model);
         synchronized (musicObject) {
             if (musics.contains(model)) {
                 return;
@@ -284,7 +284,7 @@ public final class RoomManager {
     }
 
     private void onMusicDelete(MusicModel model) {
-        mLogger.d("onMusicDelete() called with: model = [%s]", model);
+        mLogger.i("onMusicDelete() called with: model = [%s]", model);
         musics.remove(model);
         mMainThreadDispatch.onMusicDelete(model);
 
@@ -296,16 +296,59 @@ public final class RoomManager {
     }
 
     public void onMusicEmpty() {
-        mLogger.d("onMusicEmpty() called");
+        mLogger.i("onMusicEmpty() called");
         mMusicModel = null;
         mMainThreadDispatch.onMusicEmpty();
     }
 
     public void onMusicChanged(MusicModel model) {
-        mLogger.d("onMusicChanged() called with: model = [%s]", model);
+        mLogger.i("onMusicChanged() called with: model = [%s]", model);
         mMusicModel = model;
         mMainThreadDispatch.onMusicChanged(model);
     }
+
+    private SyncManager.EventListener mMemberEvent = new SyncManager.EventListener() {
+        @Override
+        public void onCreated(AgoraObject item) {
+            AgoraMember member = item.toObject(AgoraMember.class);
+            member.setId(item.getId());
+            member.setRoom(mRoom);
+
+            onMemberJoin(member);
+        }
+
+        @Override
+        public void onUpdated(AgoraObject item) {
+            AgoraMember memberRemote = item.toObject(AgoraMember.class);
+            memberRemote.setId(item.getId());
+            memberRemote.setRoom(mRoom);
+
+            AgoraMember memberLocal = memberHashMap.get(memberRemote.getId());
+            if (memberLocal != null && memberLocal.getRole() != memberRemote.getRole()) {
+                memberLocal.setRole(memberRemote.getRole());
+                onMemberRoleChanged(memberLocal);
+            }
+
+            if (memberLocal != null && memberLocal.getIsSelfAudioMuted() != memberRemote.getIsSelfAudioMuted()) {
+                memberLocal.setIsSelfAudioMuted(memberRemote.getIsSelfAudioMuted());
+                onAudioStatusChanged(true, memberLocal);
+            }
+        }
+
+        @Override
+        public void onDeleted(String objectId) {
+            AgoraMember member = memberHashMap.get(objectId);
+            if (member == null) {
+                return;
+            }
+            onMemberLeave(member);
+        }
+
+        @Override
+        public void onSubscribeError(int error) {
+
+        }
+    };
 
     public void subcribeMemberEvent() {
         DocumentReference dcRoom = SyncManager.Instance()
@@ -316,92 +359,54 @@ public final class RoomManager {
                 .getRoom(mRoom.getId())
                 .collection(AgoraMember.TABLE_NAME)
                 .query(new Query().whereEqualTo(AgoraMember.COLUMN_ROOMID, dcRoom))
-                .subcribe(new SyncManager.EventListener() {
-                    @Override
-                    public void onCreated(AgoraObject item) {
-                        AgoraMember member = item.toObject(AgoraMember.class);
-                        member.setId(item.getId());
-                        member.setRoom(mRoom);
-
-                        onMemberJoin(member);
-                    }
-
-                    @Override
-                    public void onUpdated(AgoraObject item) {
-                        AgoraMember memberRemote = item.toObject(AgoraMember.class);
-                        memberRemote.setId(item.getId());
-                        memberRemote.setRoom(mRoom);
-
-                        AgoraMember memberLocal = memberHashMap.get(memberRemote.getId());
-                        if (memberLocal != null && memberLocal.getRole() != memberRemote.getRole()) {
-                            memberLocal.setRole(memberRemote.getRole());
-                            onMemberRoleChanged(memberLocal);
-                        }
-
-                        if (memberLocal != null && memberLocal.getIsSelfAudioMuted() != memberRemote.getIsSelfAudioMuted()) {
-                            memberLocal.setIsSelfAudioMuted(memberRemote.getIsSelfAudioMuted());
-                            onAudioStatusChanged(true, memberLocal);
-                        }
-                    }
-
-                    @Override
-                    public void onDeleted(String objectId) {
-                        AgoraMember member = memberHashMap.get(objectId);
-                        if (member == null) {
-                            return;
-                        }
-                        onMemberLeave(member);
-                    }
-
-                    @Override
-                    public void onSubscribeError(int error) {
-
-                    }
-                });
+                .subcribe(mMemberEvent);
     }
+
+
+    private SyncManager.EventListener mMusicEvent = new SyncManager.EventListener() {
+        @Override
+        public void onCreated(AgoraObject item) {
+            MusicModel data = item.toObject(MusicModel.class);
+            data.setId(item.getId());
+            onMusicAdd(data);
+        }
+
+        @Override
+        public void onUpdated(AgoraObject item) {
+
+        }
+
+        @Override
+        public void onDeleted(String objectId) {
+            synchronized (musicObject) {
+                MusicModel musicLocal = null;
+                for (MusicModel music : musics) {
+                    if (ObjectsCompat.equals(objectId, music.getId())) {
+                        musicLocal = music;
+                        break;
+                    }
+                }
+
+                if (musicLocal == null) {
+                    return;
+                }
+
+                onMusicDelete(musicLocal);
+            }
+        }
+
+        @Override
+        public void onSubscribeError(int error) {
+
+        }
+    };
 
     public void subcribeMusicEvent() {
         SyncManager.Instance()
                 .getRoom(mRoom.getId())
                 .collection(MusicModel.TABLE_NAME)
                 .query(new Query().whereEqualTo(AgoraMember.COLUMN_ROOMID, mRoom.getId()))
-                .subcribe(new SyncManager.EventListener() {
-                    @Override
-                    public void onCreated(AgoraObject item) {
-                        MusicModel data = item.toObject(MusicModel.class);
-                        data.setId(item.getId());
-                        onMusicAdd(data);
-                    }
-
-                    @Override
-                    public void onUpdated(AgoraObject item) {
-
-                    }
-
-                    @Override
-                    public void onDeleted(String objectId) {
-                        synchronized (musicObject) {
-                            MusicModel musicLocal = null;
-                            for (MusicModel music : musics) {
-                                if (ObjectsCompat.equals(objectId, music.getId())) {
-                                    musicLocal = music;
-                                    break;
-                                }
-                            }
-
-                            if (musicLocal == null) {
-                                return;
-                            }
-
-                            onMusicDelete(musicLocal);
-                        }
-                    }
-
-                    @Override
-                    public void onSubscribeError(int error) {
-
-                    }
-                });
+                .subcribe(mMusicEvent);
     }
 
     private final static Object musicObject = new Object();
@@ -538,11 +543,15 @@ public final class RoomManager {
                 .doOnComplete(new Action() {
                     @Override
                     public void run() throws Exception {
-                        mMusicModel = null;
-                        subcribeMemberEvent();
-                        subcribeMusicEvent();
+                        onJoinRoom();
                     }
                 });
+    }
+
+    private void onJoinRoom() {
+        mMusicModel = null;
+        subcribeMemberEvent();
+        subcribeMusicEvent();
     }
 
     private CompletableEmitter emitterJoinRTC = null;
@@ -560,10 +569,10 @@ public final class RoomManager {
                 getRtcEngine().setClientRole(Constants.CLIENT_ROLE_AUDIENCE);
             }
 
-            mLogger.i("joinRTC() called with: results = [%s]", mRoom);
+            mLoggerRTC.i("joinRTC() called with: results = [%s]", mRoom);
             int ret = getRtcEngine().joinChannel("", mRoom.getId(), null, 0);
             if (ret != Constants.ERR_OK) {
-                mLogger.e("joinRTC() called error " + ret);
+                mLoggerRTC.e("joinRTC() called error " + ret);
                 emitter.onError(new Exception("join rtc room error " + ret));
                 emitterJoinRTC = null;
             }
@@ -646,11 +655,15 @@ public final class RoomManager {
     }
 
     public Completable leaveRoom() {
+        mLogger.i("leaveRoom() called");
         if (mRoom == null) {
             return Completable.complete();
         }
 
-        mLogger.d("leaveRoom() called");
+        SyncManager.Instance().unsubcribe(mMemberEvent);
+        SyncManager.Instance().unsubcribe(mMusicEvent);
+
+        mLoggerRTC.i("leaveChannel() called");
         getRtcEngine().leaveChannel();
 
         if (ObjectsCompat.equals(mMine, owner)) {

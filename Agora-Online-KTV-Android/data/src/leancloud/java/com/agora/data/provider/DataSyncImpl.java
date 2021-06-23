@@ -595,7 +595,7 @@ public class DataSyncImpl implements ISyncManager {
             @Override
             public void done(AVException e) {
                 if (null != e) {
-                    listener.onSubscribeError(1);
+                    listener.onSubscribeError(-1);
                 } else {
 
                 }
@@ -604,19 +604,7 @@ public class DataSyncImpl implements ISyncManager {
     }
 
     @Override
-    public void unsubcribe(DocumentReference reference, SyncManager.EventListener listener) {
-        if (events.get(listener) != null) {
-            events.get(listener).unsubscribeInBackground(new AVLiveQuerySubscribeCallback() {
-                @Override
-                public void done(AVException e) {
-
-                }
-            });
-        }
-    }
-
-    @Override
-    public void unsubcribe(CollectionReference reference, SyncManager.EventListener listener) {
+    public void unsubcribe(SyncManager.EventListener listener) {
         if (events.get(listener) != null) {
             events.get(listener).unsubscribeInBackground(new AVLiveQuerySubscribeCallback() {
                 @Override
