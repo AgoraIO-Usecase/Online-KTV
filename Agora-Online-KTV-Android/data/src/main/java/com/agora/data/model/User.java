@@ -2,6 +2,8 @@ package com.agora.data.model;
 
 import androidx.annotation.NonNull;
 
+import com.agora.data.R;
+
 import java.io.Serializable;
 
 public class User implements Serializable, Cloneable {
@@ -70,44 +72,42 @@ public class User implements Serializable, Cloneable {
     }
 
     public int getAvatarRes() {
-        return 0;
-//        if (avatar == null) {
-//            return R.mipmap.portrait01;
-//        }
+        if (avatar == null) {
+            return R.mipmap.portrait01;
+        }
 
-//        switch (avatar) {
-//            case "1":
-//                return R.mipmap.portrait01;
-//            case "2":
-//                return R.mipmap.portrait02;
-//            case "3":
-//                return R.mipmap.portrait03;
-//            case "4":
-//                return R.mipmap.portrait04;
-//            case "5":
-//                return R.mipmap.portrait05;
-//            case "6":
-//                return R.mipmap.portrait06;
-//            case "7":
-//                return R.mipmap.portrait07;
-//            case "8":
-//                return R.mipmap.portrait08;
-//            case "9":
-//                return R.mipmap.portrait09;
-//            case "10":
-//                return R.mipmap.portrait10;
-//            case "11":
-//                return R.mipmap.portrait11;
-//            case "12":
-//                return R.mipmap.portrait12;
-//            case "13":
-//                return R.mipmap.portrait13;
-//            case "14":
-//                return R.mipmap.portrait14;
-//            default:
-//                return R.mipmap.portrait01;
-//    }
-
+        switch (avatar) {
+            case "1":
+                return R.mipmap.portrait01;
+            case "2":
+                return R.mipmap.portrait02;
+            case "3":
+                return R.mipmap.portrait03;
+            case "4":
+                return R.mipmap.portrait04;
+            case "5":
+                return R.mipmap.portrait05;
+            case "6":
+                return R.mipmap.portrait06;
+            case "7":
+                return R.mipmap.portrait07;
+            case "8":
+                return R.mipmap.portrait08;
+            case "9":
+                return R.mipmap.portrait09;
+            case "10":
+                return R.mipmap.portrait10;
+            case "11":
+                return R.mipmap.portrait11;
+            case "12":
+                return R.mipmap.portrait12;
+            case "13":
+                return R.mipmap.portrait13;
+            case "14":
+                return R.mipmap.portrait14;
+            default:
+                return R.mipmap.portrait01;
+        }
     }
 
     @NonNull

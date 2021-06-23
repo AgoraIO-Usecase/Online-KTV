@@ -222,6 +222,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
 
                     @Override
                     public void onError(@NonNull Throwable e) {
+                        ToastUtile.toastShort(RoomActivity.this, "加入房间失败");
                         doLeave();
                     }
                 });

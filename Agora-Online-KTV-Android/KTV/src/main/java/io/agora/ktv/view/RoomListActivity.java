@@ -14,7 +14,9 @@ import com.agora.data.manager.UserManager;
 import com.agora.data.model.AgoraRoom;
 import com.agora.data.model.User;
 import com.agora.data.observer.DataObserver;
+import com.agora.data.provider.AgoraObject;
 import com.agora.data.provider.DataRepositroy;
+import com.agora.data.sync.AgoraException;
 import com.agora.data.sync.SyncManager;
 
 import java.util.List;
@@ -190,9 +192,25 @@ public class RoomListActivity extends DataBindBaseActivity<KtvActivityRoomListBi
         }
 
         mDataBinding.list.setEnabled(false);
-        Intent intent = RoomActivity.newIntent(this, data);
-        startActivity(intent);
-        mDataBinding.list.setEnabled(true);
+        SyncManager.Instance()
+                .getRoom(data.getId())
+                .get(new SyncManager.DataItemCallback() {
+                    @Override
+                    public void onSuccess(AgoraObject avObject) {
+                        AgoraRoom mRoom = avObject.toObject(AgoraRoom.class);
+                        mRoom.setId(avObject.getId());
+
+                        Intent intent = RoomActivity.newIntent(RoomListActivity.this, mRoom);
+                        startActivity(intent);
+                        mDataBinding.list.setEnabled(true);
+                    }
+
+                    @Override
+                    public void onFail(AgoraException exception) {
+                        mAdapter.deleteItem(position);
+                        mDataBinding.list.setEnabled(true);
+                    }
+                });
     }
 
     @Override

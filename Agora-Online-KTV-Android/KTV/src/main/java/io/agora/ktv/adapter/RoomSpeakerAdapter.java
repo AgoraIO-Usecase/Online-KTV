@@ -7,6 +7,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.agora.data.model.AgoraMember;
+import com.agora.data.model.User;
+import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -83,8 +85,16 @@ public class RoomSpeakerAdapter extends BaseRecyclerViewAdapter<AgoraMember, Roo
         Context mContext = holder.itemView.getContext();
         if (item.getRole() == AgoraMember.Role.Owner) {
             holder.mDataBinding.tvName.setText(mContext.getString(R.string.ktv_room_owner));
+        }
+
+        User mUser = item.getUser();
+        if (mUser != null) {
+            Glide.with(holder.itemView)
+                    .load(mUser.getAvatarRes())
+                    .circleCrop()
+                    .into(holder.mDataBinding.ivHead);
         } else {
-            holder.mDataBinding.tvName.setText(item.getUserId());
+            holder.mDataBinding.ivHead.setImageResource(R.mipmap.default_head);
         }
     }
 

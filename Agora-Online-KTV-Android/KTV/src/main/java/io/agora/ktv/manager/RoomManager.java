@@ -7,12 +7,15 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.util.ObjectsCompat;
 
+import com.agora.data.BaseError;
 import com.agora.data.R;
 import com.agora.data.manager.UserManager;
 import com.agora.data.model.AgoraMember;
 import com.agora.data.model.AgoraRoom;
 import com.agora.data.model.User;
+import com.agora.data.observer.DataObserver;
 import com.agora.data.provider.AgoraObject;
+import com.agora.data.provider.DataRepositroy;
 import com.agora.data.sync.AgoraException;
 import com.agora.data.sync.DocumentReference;
 import com.agora.data.sync.OrderBy;
@@ -36,6 +39,7 @@ import io.agora.rtc2.IRtcEngineEventHandler;
 import io.agora.rtc2.RtcEngine;
 import io.agora.rtc2.RtcEngineConfig;
 import io.reactivex.Completable;
+import io.reactivex.CompletableEmitter;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
@@ -69,10 +73,29 @@ public final class RoomManager {
     private RtcEngine mRtcEngine;
 
     private IRtcEngineEventHandler mIRtcEngineEventHandler = new IRtcEngineEventHandler() {
+
+        @Override
+        public void onConnectionStateChanged(int state, int reason) {
+            super.onConnectionStateChanged(state, reason);
+            mLogger.d("onConnectionStateChanged() called with: state = [%s], reason = [%s]", state, reason);
+
+            if (state == Constants.CONNECTION_STATE_FAILED) {
+                if (emitterJoinRTC != null) {
+                    emitterJoinRTC.onError(new Exception("connection_state_failed"));
+                    emitterJoinRTC = null;
+                }
+            }
+        }
+
         @Override
         public void onJoinChannelSuccess(String channel, int uid, int elapsed) {
             super.onJoinChannelSuccess(channel, uid, elapsed);
             mLoggerRTC.d("onJoinChannelSuccess() called with: channel = [%s], uid = [%s], elapsed = [%s]", channel, uid, elapsed);
+
+            if (emitterJoinRTC != null) {
+                emitterJoinRTC.onComplete();
+                emitterJoinRTC = null;
+            }
             mMainThreadDispatch.onRTCJoinRoom();
         }
 
@@ -210,6 +233,21 @@ public final class RoomManager {
         mLogger.d("onMemberJoin() called with: member = [%s]", member);
         memberHashMap.put(member.getId(), member);
         mMainThreadDispatch.onMemberJoin(member);
+
+        DataRepositroy.Instance(mContext)
+                .getUser(member.getUserId())
+                .subscribe(new DataObserver<User>(mContext) {
+                    @Override
+                    public void handleError(@NonNull BaseError e) {
+
+                    }
+
+                    @Override
+                    public void handleSuccess(@NonNull User user) {
+                        member.setUser(user);
+                        mMainThreadDispatch.onMemberJoin(member);
+                    }
+                });
     }
 
     private void onMemberLeave(@NonNull AgoraMember member) {
@@ -420,41 +458,24 @@ public final class RoomManager {
         return musics.contains(item);
     }
 
-    private Single<AgoraRoom> getRoom(String id) {
-        return Single.create(new SingleOnSubscribe<AgoraRoom>() {
-            @Override
-            public void subscribe(@NonNull SingleEmitter<AgoraRoom> emitter) throws Exception {
-                SyncManager.Instance()
-                        .getRoom(id)
-                        .get(new SyncManager.DataItemCallback() {
-                            @Override
-                            public void onSuccess(AgoraObject result) {
-                                AgoraRoom mRoom = result.toObject(AgoraRoom.class);
-                                mRoom.setId(result.getId());
-                                emitter.onSuccess(mRoom);
-                            }
-
-                            @Override
-                            public void onFail(AgoraException exception) {
-                                emitter.onError(exception);
-                            }
-                        });
-            }
-        });
-    }
-
-    private Single<AgoraMember> addMember(AgoraRoom room, AgoraMember member) {
-        return Single.create(emitter -> {
+    private Single<AgoraMember> preJoinAddMember(AgoraRoom room, AgoraMember member) {
+        return Single.create((SingleOnSubscribe<AgoraMember>) emitter -> {
             SyncManager.Instance()
                     .getRoom(room.getId())
                     .collection(AgoraMember.TABLE_NAME)
                     .add(member.toHashMap(), new SyncManager.DataItemCallback() {
                         @Override
                         public void onSuccess(AgoraObject result) {
-                            AgoraMember member = result.toObject(AgoraMember.class);
-                            member.setId(result.getId());
-                            member.setRoom(room);
-                            emitter.onSuccess(member);
+                            AgoraMember memberTemp = result.toObject(AgoraMember.class);
+                            AgoraObject roomObject = (AgoraObject) result.get(AgoraMember.COLUMN_ROOMID);
+
+                            AgoraRoom mRoom = roomObject.toObject(AgoraRoom.class);
+                            mRoom.setId(roomObject.getId());
+
+                            memberTemp.setId(result.getId());
+                            memberTemp.setRoom(room);
+                            memberTemp.setUser(member.getUser());
+                            emitter.onSuccess(memberTemp);
                         }
 
                         @Override
@@ -462,10 +483,15 @@ public final class RoomManager {
                             emitter.onError(exception);
                         }
                     });
+        }).doOnSuccess(new Consumer<AgoraMember>() {
+            @Override
+            public void accept(AgoraMember member) throws Exception {
+                mMine = member;
+            }
         });
     }
 
-    private Completable deleteMember(String roomId, String userId) {
+    private Completable preJoinDeleteMember(String roomId, String userId) {
         return Completable.create(emitter -> {
             SyncManager.Instance()
                     .getRoom(roomId)
@@ -487,134 +513,64 @@ public final class RoomManager {
     }
 
     public Completable joinRoom(AgoraRoom room) {
-        return Completable.create(emitter ->
-                {
-                    mLogger.d("joinRoom() called with: room = [%s]", room);
-                    User mUser = UserManager.Instance(mContext).getUserLiveData().getValue();
-                    if (mUser == null) {
-                        emitter.onError(new NullPointerException("mUser is empty"));
-                        return;
+        this.mRoom = room;
+
+        User mUser = UserManager.Instance(mContext).getUserLiveData().getValue();
+        if (mUser == null) {
+            return Completable.error(new NullPointerException("mUser is empty"));
+        }
+
+        mMine = new AgoraMember();
+        mMine.setRoom(mRoom);
+        mMine.setUserId(mUser.getObjectId());
+        mMine.setUser(mUser);
+
+        if (ObjectsCompat.equals(mUser.getObjectId(), mRoom.getOwnerId())) {
+            mMine.setRole(AgoraMember.Role.Owner);
+        } else {
+            mMine.setRole(AgoraMember.Role.Listener);
+        }
+
+        return preJoinDeleteMember(room.getId(), mUser.getObjectId())
+                .andThen(preJoinAddMember(mRoom, mMine).ignoreElement())
+                .andThen(preJoinSyncMembers().ignoreElement())
+                .andThen(joinRTC())
+                .doOnComplete(new Action() {
+                    @Override
+                    public void run() throws Exception {
+                        mMusicModel = null;
+                        subcribeMemberEvent();
+                        subcribeMusicEvent();
                     }
+                });
+    }
 
-                    //1：判断房间是否存在
-                    SyncManager.Instance()
-                            .getRoom(room.getId())
-                            .get(new SyncManager.DataItemCallback() {
-                                @Override
-                                public void onSuccess(AgoraObject result) {
-                                    mRoom = result.toObject(AgoraRoom.class);
-                                    mRoom.setId(result.getId());
+    private CompletableEmitter emitterJoinRTC = null;
 
-                                    //2：删除一次，因为有可能是异常退出导致第二次进入，所以删除之前的。
-                                    SyncManager.Instance()
-                                            .getRoom(room.getId())
-                                            .collection(AgoraMember.TABLE_NAME)
-                                            .query(new Query()
-                                                    .whereEqualTo(AgoraMember.COLUMN_USERID, mUser.getObjectId()))
-                                            .delete(new SyncManager.Callback() {
-                                                @Override
-                                                public void onSuccess() {
-                                                }
+    private Completable joinRTC() {
+        return Completable.create(emitter -> {
+            emitterJoinRTC = emitter;
+            getRtcEngine().setChannelProfile(Constants.CHANNEL_PROFILE_LIVE_BROADCASTING);
+            getRtcEngine().enableAudio();
+            if (ObjectsCompat.equals(mMine, owner)) {
+                getRtcEngine().setClientRole(Constants.CLIENT_ROLE_BROADCASTER);
+            } else if (mMine.getRole() == AgoraMember.Role.Speaker) {
+                getRtcEngine().setClientRole(Constants.CLIENT_ROLE_BROADCASTER);
+            } else {
+                getRtcEngine().setClientRole(Constants.CLIENT_ROLE_AUDIENCE);
+            }
 
-                                                @Override
-                                                public void onFail(AgoraException exception) {
-                                                    mLogger.e("delete() onFail() called with: exception = [%s]", exception.toString());
-                                                }
-                                            });
-
-                                    //3. 加入到Member中
-                                    mMine = new AgoraMember();
-                                    mMine.setRoom(mRoom);
-                                    mMine.setUserId(mUser.getObjectId());
-
-                                    if (ObjectsCompat.equals(mUser.getObjectId(), mRoom.getOwnerId())) {
-                                        mMine.setRole(AgoraMember.Role.Owner);
-                                    } else {
-                                        mMine.setRole(AgoraMember.Role.Listener);
-                                    }
-
-                                    SyncManager.Instance()
-                                            .getRoom(room.getId())
-                                            .collection(AgoraMember.TABLE_NAME)
-                                            .add(mMine.toHashMap(), new SyncManager.DataItemCallback() {
-                                                @Override
-                                                public void onSuccess(AgoraObject result) {
-                                                    mMine = result.toObject(AgoraMember.class);
-                                                    mMine.setId(result.getId());
-                                                    mMine.setRoom(mRoom);
-
-                                                    //4. 获取当前成员列表
-                                                    DocumentReference mRoomRef = SyncManager.Instance().getRoom(mRoom.getId());
-                                                    SyncManager.Instance()
-                                                            .getRoom(mRoom.getId())
-                                                            .collection(AgoraMember.TABLE_NAME)
-                                                            .query(new Query().whereEqualTo(AgoraMember.COLUMN_ROOMID, mRoomRef))
-                                                            .get(new SyncManager.DataListCallback() {
-                                                                @Override
-                                                                public void onSuccess(List<AgoraObject> results) {
-                                                                    List<AgoraMember> members = new ArrayList<>();
-                                                                    for (AgoraObject result : results) {
-                                                                        AgoraMember member = result.toObject(AgoraMember.class);
-                                                                        member.setId(result.getId());
-                                                                        members.add(member);
-
-                                                                        memberHashMap.put(member.getId(), member);
-
-                                                                        if (ObjectsCompat.equals(member, mMine)) {
-                                                                            mMine = member;
-                                                                        }
-
-                                                                        if (ObjectsCompat.equals(member.getUserId(), mRoom.getOwnerId())) {
-                                                                            owner = member;
-                                                                        }
-                                                                    }
-
-                                                                    getRtcEngine().setChannelProfile(Constants.CHANNEL_PROFILE_LIVE_BROADCASTING);
-                                                                    getRtcEngine().enableAudio();
-                                                                    if (ObjectsCompat.equals(mMine, owner)) {
-                                                                        getRtcEngine().setClientRole(IRtcEngineEventHandler.ClientRole.CLIENT_ROLE_BROADCASTER);
-                                                                    } else {
-                                                                        getRtcEngine().setClientRole(IRtcEngineEventHandler.ClientRole.CLIENT_ROLE_AUDIENCE);
-                                                                    }
-                                                                    getRtcEngine().joinChannel("", mRoom.getId(), null, 0);
-
-                                                                    emitter.onComplete();
-                                                                }
-
-                                                                @Override
-                                                                public void onFail(AgoraException exception) {
-                                                                    mLogger.e("getMembers() onFail() called with: exception = [%s]", exception.toString());
-                                                                    emitter.onError(exception);
-                                                                }
-                                                            });
-                                                }
-
-                                                @Override
-                                                public void onFail(AgoraException exception) {
-                                                    mLogger.e("add() onFail() called with: exception = [%s]", exception.toString());
-                                                    emitter.onError(exception);
-                                                }
-                                            });
-                                }
-
-                                @Override
-                                public void onFail(AgoraException exception) {
-                                    mLogger.e("getRoom() onFail() called with: exception = [%s]", exception.toString());
-                                    emitter.onError(exception);
-                                }
-                            });
-                }
-        ).doOnComplete(new Action() {
-            @Override
-            public void run() throws Exception {
-                mMusicModel = null;
-                subcribeMemberEvent();
-                subcribeMusicEvent();
+            mLogger.i("joinRTC() called with: results = [%s]", mRoom);
+            int ret = getRtcEngine().joinChannel("", mRoom.getId(), null, 0);
+            if (ret != Constants.ERR_OK) {
+                mLogger.e("joinRTC() called error " + ret);
+                emitter.onError(new Exception("join rtc room error " + ret));
+                emitterJoinRTC = null;
             }
         });
     }
 
-    private Single<List<AgoraMember>> getMembers() {
+    private Single<List<AgoraMember>> preJoinSyncMembers() {
         return Single.create(new SingleOnSubscribe<List<AgoraMember>>() {
             @Override
             public void subscribe(@NonNull SingleEmitter<List<AgoraMember>> emitter) throws Exception {
@@ -626,13 +582,37 @@ public final class RoomManager {
                             public void onSuccess(List<AgoraObject> results) {
                                 List<AgoraMember> members = new ArrayList<>();
                                 for (AgoraObject result : results) {
-                                    AgoraMember member = result.toObject(AgoraMember.class);
+                                    final AgoraMember member = result.toObject(AgoraMember.class);
                                     member.setId(result.getId());
+                                    member.setRoom(mRoom);
                                     members.add(member);
 
                                     memberHashMap.put(member.getId(), member);
-                                }
 
+                                    if (ObjectsCompat.equals(member, mMine)) {
+                                        mMine = member;
+                                        User mUser = UserManager.Instance(mContext).getUserLiveData().getValue();
+                                        mMine.setUser(mUser);
+                                    }
+
+                                    if (ObjectsCompat.equals(member.getUserId(), mRoom.getOwnerId())) {
+                                        owner = member;
+                                    }
+
+                                    DataRepositroy.Instance(mContext)
+                                            .getUser(member.getUserId())
+                                            .subscribe(new DataObserver<User>(mContext) {
+                                                @Override
+                                                public void handleError(@NonNull BaseError e) {
+
+                                                }
+
+                                                @Override
+                                                public void handleSuccess(@NonNull User user) {
+                                                    member.setUser(user);
+                                                }
+                                            });
+                                }
                                 emitter.onSuccess(members);
                             }
 
@@ -669,6 +649,9 @@ public final class RoomManager {
         if (mRoom == null) {
             return Completable.complete();
         }
+
+        mLogger.d("leaveRoom() called");
+        getRtcEngine().leaveChannel();
 
         if (ObjectsCompat.equals(mMine, owner)) {
             //房主退出
@@ -725,6 +708,7 @@ public final class RoomManager {
                                 }
                             }));
         }
+
     }
 
     public Completable toggleSelfAudio(boolean isMute) {

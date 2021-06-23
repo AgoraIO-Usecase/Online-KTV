@@ -87,6 +87,8 @@ public class CreateRoomActivity extends DataBindBaseActivity<KtvActivityCreateRo
         }
 
         AgoraRoom mRoom = new AgoraRoom();
+        mRoom.radomCover();
+        mRoom.radomMV();
         mRoom.setName(name);
         mRoom.setOwnerId(mUser.getObjectId());
 

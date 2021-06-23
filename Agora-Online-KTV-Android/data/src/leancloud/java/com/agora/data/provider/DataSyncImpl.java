@@ -67,8 +67,12 @@ public class DataSyncImpl implements ISyncManager {
     @Override
     public Observable<AgoraRoom> creatRoom(AgoraRoom room) {
         AVObject avObject = new AVObject(AgoraRoom.TABLE_NAME);
-        avObject.put(AgoraRoom.COLUMN_OWNERID, room.getOwnerId());
-        avObject.put(AgoraRoom.COLUMN_NAME, room.getName());
+        Map<String, Object> datas = room.toHashMap();
+        for (Map.Entry<String, Object> entry : datas.entrySet()) {
+            String key = entry.getKey();
+            Object value = entry.getValue();
+            avObject.put(key, value);
+        }
         return avObject.saveInBackground()
                 .subscribeOn(Schedulers.io())
                 .map(new Function<AVObject, AgoraRoom>() {

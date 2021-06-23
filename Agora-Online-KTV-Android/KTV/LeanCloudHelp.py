@@ -68,6 +68,12 @@ def createTable():
     mAgoraRoom.set('ownerId', '123456')
     mAgoraRoom.save()
 
+    AgoraMember = leancloud.Object.extend('AgoraMember')
+    mAgoraMember = AgoraMember()
+    mAgoraMember.set('name', 'TestId')
+    mAgoraMember.set('ownerId', '123456')
+    mAgoraMember.save()
+
     user.destroy()
     room.destroy()
     member.destroy()

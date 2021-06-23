@@ -51,6 +51,8 @@ public class AgoraMember implements Parcelable {
     private int isAudioMuted = 0;
     private int isSelfAudioMuted = 0;
 
+    private User user;
+
     public AgoraMember() {
 
     }
@@ -169,6 +171,14 @@ public class AgoraMember implements Parcelable {
 
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     @Override
