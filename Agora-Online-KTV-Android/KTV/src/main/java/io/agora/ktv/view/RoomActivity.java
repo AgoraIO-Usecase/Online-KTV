@@ -203,8 +203,6 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
         AgoraRoom mRoom = getIntent().getExtras().getParcelable(TAG_ROOM);
         mDataBinding.tvName.setText(mRoom.getName());
 
-        mMusicPlayer = new MusicPlayer(getApplicationContext(), RoomManager.Instance(this).getRtcEngine(), mDataBinding.lrcView);
-        mMusicPlayer.registerPlayerObserver(mMusicCallback);
         RoomManager.Instance(this)
                 .joinRoom(mRoom)
                 .observeOn(AndroidSchedulers.mainThread())
@@ -229,6 +227,9 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
     }
 
     private void onJoinRoom() {
+        mMusicPlayer = new MusicPlayer(getApplicationContext(), RoomManager.Instance(this).getRtcEngine(), mDataBinding.lrcView);
+        mMusicPlayer.registerPlayerObserver(mMusicCallback);
+
         AgoraMember owner = RoomManager.Instance(this).getOwner();
         assert owner != null;
         mRoomSpeakerAdapter.addItem(owner);
@@ -350,6 +351,10 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
     }
 
     private void toggleOriginal() {
+        if (mMusicPlayer == null) {
+            return;
+        }
+
         if (mMusicPlayer.getAudioTracksCount() >= 2) {
             if (mMusicPlayer.getAudioTrackIndex() == 0) {
                 mMusicPlayer.selectAudioTrack(1);
@@ -364,6 +369,10 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
     private int volMusic = 100;
 
     private void showMusicMenuDialog() {
+        if (mMusicPlayer == null) {
+            return;
+        }
+
         mDataBinding.ivMusicMenu.setEnabled(false);
         new MusicSettingDialog().show(getSupportFragmentManager(), isEar, volMic, volMusic, new MusicSettingDialog.Callback() {
             @Override
@@ -400,6 +409,10 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
 
         MusicModel musicModel = RoomManager.Instance(this).getMusicModel();
         if (musicModel == null) {
+            return;
+        }
+
+        if (mMusicPlayer == null) {
             return;
         }
 
@@ -440,6 +453,10 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
     }
 
     private void toggleStart() {
+        if (mMusicPlayer == null) {
+            return;
+        }
+
         if (mMusicPlayer.isPlaying() == false) {
             return;
         }
@@ -550,8 +567,11 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
     @Override
     protected void onDestroy() {
         RoomManager.Instance(this).removeRoomEventCallback(mRoomEventCallback);
-        mMusicPlayer.unregisterPlayerObserver();
-        mMusicPlayer.destory();
+        if (mMusicPlayer != null) {
+            mMusicPlayer.unregisterPlayerObserver();
+            mMusicPlayer.destory();
+            mMusicPlayer = null;
+        }
         super.onDestroy();
     }
 }

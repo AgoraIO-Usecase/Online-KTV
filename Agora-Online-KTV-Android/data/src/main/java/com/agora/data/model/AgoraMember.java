@@ -188,7 +188,7 @@ public class AgoraMember implements Parcelable {
 
         AgoraMember that = (AgoraMember) o;
 
-        return id.equals(that.id);
+        return id != null && id.equals(that.id);
     }
 
     @Override
