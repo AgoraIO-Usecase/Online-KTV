@@ -50,6 +50,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
                 android:text="@string/ktv_room_list_empty"
                 android:textColor="@color/ktv_list_empty"
                 android:textSize="@dimen/ktv_list_empty_size" />

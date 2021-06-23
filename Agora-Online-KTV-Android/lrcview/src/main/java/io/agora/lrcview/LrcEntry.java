@@ -100,8 +100,8 @@ class LrcEntry implements Comparable<LrcEntry> {
             Rect newLine = new Rect();
             textRects1[i] = newLine;
             fgLayout1.getLineBounds(i, textRects1[i]);
-            newLine.left = (int)fgLayout1.getLineLeft(i);
-            newLine.right = (int)fgLayout1.getLineRight(i);
+            newLine.left = (int) fgLayout1.getLineLeft(i);
+            newLine.right = (int) fgLayout1.getLineRight(i);
             text1Len += newLine.right - newLine.left;
             Log.i(TAG, String.format("init: line bounds: (%d, %d, %d, %d)", newLine.left, newLine.top, newLine.right, newLine.bottom));
         }
@@ -113,8 +113,8 @@ class LrcEntry implements Comparable<LrcEntry> {
                 Rect newLine = new Rect();
                 textRects2[i] = newLine;
                 fgLayout2.getLineBounds(i, textRects2[i]);
-                newLine.left = (int)fgLayout2.getLineLeft(i);
-                newLine.right = (int)fgLayout2.getLineRight(i);
+                newLine.left = (int) fgLayout2.getLineLeft(i);
+                newLine.right = (int) fgLayout2.getLineRight(i);
                 text2Len += newLine.right - newLine.left;
                 Log.i(TAG, String.format("init: line bounds: (%d, %d, %d, %d)", newLine.left, newLine.top, newLine.right, newLine.bottom));
             }
@@ -187,13 +187,13 @@ class LrcEntry implements Comparable<LrcEntry> {
     @SuppressLint("DefaultLocale")
     Rect[] getDrawRectByTime(long time) {
         StringBuilder logStr = new StringBuilder("time: " + time);
-        float pct =((float)(time - this.time)) / ((float)this.duration);
+        float pct = ((float) (time - this.time)) / ((float) this.duration);
         if (pct < 0)
             pct = 0;
         if (pct > 1)
             pct = 1;
-        int showLen1 = (int)(text1Len * pct);
-        int showLen2 = (int)(text2Len * pct);
+        int showLen1 = (int) (text1Len * pct);
+        int showLen2 = (int) (text2Len * pct);
         logStr.append(", lrcTime: ").append(this.time).append(", duration: ").append(this.duration);
         logStr.append("\npct: ").append(pct).append(", showLen1: ").append(showLen1).append(", showLen2: ").append(showLen2);
 

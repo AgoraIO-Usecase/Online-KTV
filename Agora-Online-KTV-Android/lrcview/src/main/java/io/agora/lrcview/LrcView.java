@@ -72,8 +72,6 @@ public class LrcView extends View {
     private long mCurrentTime = 0;
     private long mTotalDuration = 0;
 
-
-
     public LrcView(Context context) {
         this(context, null);
     }
@@ -111,7 +109,6 @@ public class LrcView extends View {
         mBgLrcPaint.setAntiAlias(true);
         mBgLrcPaint.setTextSize(mCurrentTextSize);
         mBgLrcPaint.setTextAlign(Paint.Align.LEFT);
-
     }
 
     public void setTotalDuration(long d) {
@@ -292,19 +289,17 @@ public class LrcView extends View {
      * @param time 当前播放时间
      */
     public void updateTime(long time) {
-        runOnUi(() -> {
-            if (!hasLrc()) {
-                return;
-            }
-            mCurrentTime = time;
+        if (!hasLrc()) {
+            return;
+        }
+        mCurrentTime = time;
 
-            int line = findShowLine(time);
-            if (line != mCurrentLine) {
-                mNewLine = true;
-                mCurrentLine = line;
-            }
-            invalidate();
-        });
+        int line = findShowLine(time);
+        if (line != mCurrentLine) {
+            mNewLine = true;
+            mCurrentLine = line;
+        }
+        invalidate();
     }
 
     @Override
@@ -314,10 +309,17 @@ public class LrcView extends View {
             //TODO: new bitmap and cavas
             int w = right - left;
             int h = bottom - top;
-            mFgText1 = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-            mBgText1 = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-            mFgTextCanvas1 = new Canvas(mFgText1);
-            mBgTextCanvas1 = new Canvas(mBgText1);
+
+            if (mFgText1 == null) {
+                mFgText1 = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+                mFgTextCanvas1 = new Canvas(mFgText1);
+            }
+
+            if (mBgText1 == null) {
+                mBgText1 = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+                mBgTextCanvas1 = new Canvas(mBgText1);
+            }
+
             // initPlayDrawable();
             initEntryList();
             if (hasLrc()) {
@@ -336,8 +338,8 @@ public class LrcView extends View {
             mLrcPaint.setColor(mCurrentTextColor);
             @SuppressLint("DrawAllocation")
             StaticLayout staticLayout = new StaticLayout(mDefaultLabel, mLrcPaint,
-                (int) getLrcWidth(), Layout.Alignment.ALIGN_CENTER, 1f, 0f, false);
-            drawText(canvas, staticLayout, (getHeight() - staticLayout.getHeight()) / 2);
+                    (int) getLrcWidth(), Layout.Alignment.ALIGN_CENTER, 1f, 0f, false);
+            drawText(canvas, staticLayout, (getHeight() - staticLayout.getHeight()) / 2F);
             return;
         }
 
@@ -359,14 +361,14 @@ public class LrcView extends View {
             for (int i = mCurrentLine; i < mLrcEntryList.size(); ++i) {
                 LrcEntry line = mLrcEntryList.get(i);
                 if (curY + line.getHeight() > mBgTextCanvas1.getHeight() &&
-                    i > (mCurrentLine + 1))
+                        i > (mCurrentLine + 1))
                     break;
                 line.drawBg(mBgTextCanvas1);
                 mBgTextCanvas1.translate(0, line.getHeight() + mDividerHeight);
                 curY += line.getHeight() + mDividerHeight;
             }
             mBgTextCanvas1.restore();
-            mTextHeight = curY - (int)mDividerHeight;
+            mTextHeight = curY - (int) mDividerHeight;
 
             mNewLine = false;
         }
@@ -375,12 +377,12 @@ public class LrcView extends View {
         //TODO: draw bg text to the canvas
         mTextBmpRect.left = 0;
         mTextBmpRect.top = 0;
-        mTextBmpRect.right = (int)getLrcWidth();
+        mTextBmpRect.right = (int) getLrcWidth();
         mTextBmpRect.bottom = mTextHeight;
 
-        mTextRenderRect.left = (int)mLrcPadding;
+        mTextRenderRect.left = (int) mLrcPadding;
         mTextRenderRect.top = 0;
-        mTextRenderRect.right = getWidth() - (int)mLrcPadding;
+        mTextRenderRect.right = getWidth() - (int) mLrcPadding;
         mTextRenderRect.bottom = mTextHeight;
         canvas.drawBitmap(mBgText1, mTextBmpRect, mTextRenderRect, null);
 
@@ -389,7 +391,7 @@ public class LrcView extends View {
 
         // canvas.translate(0, getHeight() - h);
         //TODO: draw fg text to the canvas
-        int xOffset = (int)mLrcPadding;
+        int xOffset = (int) mLrcPadding;
         int yOffset = 0;
         for (Rect dr : drawRects) {
             if (dr.left == dr.right)

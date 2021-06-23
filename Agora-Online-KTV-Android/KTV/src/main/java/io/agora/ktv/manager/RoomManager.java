@@ -402,7 +402,6 @@ public final class RoomManager {
             public void accept(List<MusicModel> musicModels) throws Exception {
                 synchronized (musicObject) {
                     musics = musicModels;
-                    mMusicModel = musics.get(0);
                 }
             }
         });

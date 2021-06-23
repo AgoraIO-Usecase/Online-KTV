@@ -5,7 +5,9 @@ import android.os.Parcelable;
 
 import androidx.annotation.Nullable;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * @author chenhengfei(Aslanchen)
@@ -25,6 +27,13 @@ public class MusicModel implements Parcelable {
     private String userId;
     private String roomId;
     private String musicId;
+
+    public static List<MusicModel> getMusicList() {
+        List<MusicModel> list = new ArrayList<>();
+        list.add(new MusicModel("qinghuaci", "qinghuaci"));
+        list.add(new MusicModel("send_it", "send_it"));
+        return list;
+    }
 
     protected MusicModel(Parcel in) {
         id = in.readString();
@@ -153,5 +162,16 @@ public class MusicModel implements Parcelable {
     @Override
     public int hashCode() {
         return id.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "MusicModel{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", userId='" + userId + '\'' +
+                ", roomId='" + roomId + '\'' +
+                ", musicId='" + musicId + '\'' +
+                '}';
     }
 }

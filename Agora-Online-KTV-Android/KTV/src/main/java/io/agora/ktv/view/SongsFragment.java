@@ -8,21 +8,22 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.agora.data.manager.UserManager;
 import com.agora.data.model.AgoraRoom;
-import io.agora.ktv.bean.MusicModel;
 import com.agora.data.model.User;
 import com.agora.data.provider.AgoraObject;
 import com.agora.data.sync.AgoraException;
-import io.agora.ktv.manager.RoomManager;
 import com.agora.data.sync.SyncManager;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import io.agora.baselibrary.base.DataBindBaseFragment;
 import io.agora.baselibrary.base.OnItemClickListener;
 import io.agora.baselibrary.util.ToastUtile;
 import io.agora.ktv.R;
 import io.agora.ktv.adapter.SongsAdapter;
+import io.agora.ktv.bean.MusicModel;
 import io.agora.ktv.databinding.KtvFragmentSongListBinding;
+import io.agora.ktv.manager.RoomManager;
 
 /**
  * 歌单列表
@@ -73,12 +74,12 @@ public class SongsFragment extends DataBindBaseFragment<KtvFragmentSongListBindi
     }
 
     private void loadMusics() {
-        onLoadMusics();
+        List<MusicModel> list = MusicModel.getMusicList();
+        onLoadMusics(list);
     }
 
-    private void onLoadMusics() {
-        mAdapter.addItem(new MusicModel("qinghuaci", "qinghuaci"));
-        mAdapter.addItem(new MusicModel("send_it", "send_it"));
+    private void onLoadMusics(List<MusicModel> list) {
+        mAdapter.setDatas(list);
     }
 
     @Override

@@ -211,7 +211,7 @@ class LrcUtils {
                 mil = mil * 10;
             }
             long time = min * DateUtils.MINUTE_IN_MILLIS + sec * DateUtils.SECOND_IN_MILLIS + mil;
-            entryList.add(new LrcEntry(time, text));
+            entryList.add(new LrcEntry(time * 1000, text));
         }
         return entryList;
     }

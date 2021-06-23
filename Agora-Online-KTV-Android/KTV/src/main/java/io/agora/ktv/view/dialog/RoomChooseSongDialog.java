@@ -13,6 +13,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
+import androidx.viewpager.widget.ViewPager;
 
 import io.agora.baselibrary.base.DataBindBaseDialog;
 import io.agora.ktv.R;
@@ -25,7 +26,7 @@ import io.agora.ktv.view.SongsFragment;
  *
  * @author chenhengfei@agora.io
  */
-public class RoomChooseSongDialog extends DataBindBaseDialog<KtvDialogChooseSongBinding> {
+public class RoomChooseSongDialog extends DataBindBaseDialog<KtvDialogChooseSongBinding> implements ViewPager.OnPageChangeListener {
 
     private static final String TAG = RoomChooseSongDialog.class.getSimpleName();
 
@@ -64,6 +65,7 @@ public class RoomChooseSongDialog extends DataBindBaseDialog<KtvDialogChooseSong
 
     @Override
     public void iniListener() {
+        mDataBinding.pager.addOnPageChangeListener(this);
     }
 
     private SongsFragment mSongsFragment = new SongsFragment();
@@ -104,5 +106,28 @@ public class RoomChooseSongDialog extends DataBindBaseDialog<KtvDialogChooseSong
 
     public void show(@NonNull FragmentManager manager) {
         super.show(manager, TAG);
+    }
+
+    @Override
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+    }
+
+    @Override
+    public void onPageSelected(int position) {
+        if (position == 1) {
+            mSongOrdersFragment.iniData();
+        }
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int state) {
+
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mDataBinding.pager.removeOnPageChangeListener(this);
     }
 }

@@ -42,6 +42,7 @@ public class RoomListAdapter extends BaseRecyclerViewAdapter<AgoraRoom, RoomList
         }
 
         holder.mDataBinding.tvName.setText(item.getName());
+        holder.mDataBinding.view.setBackgroundResource(R.mipmap.portrait01);
     }
 
     class ViewHolder extends BaseRecyclerViewAdapter.BaseViewHolder<KtvItemRoomListBinding> {
