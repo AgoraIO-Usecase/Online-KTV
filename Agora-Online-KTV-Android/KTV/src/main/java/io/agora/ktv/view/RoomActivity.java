@@ -99,7 +99,6 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
         @Override
         public void onRTCJoinRoom() {
             super.onRTCJoinRoom();
-            syncMusics();
         }
 
         @Override
@@ -131,6 +130,8 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
                 if (ObjectsCompat.equals(member, mMine)) {
                     showOnSeatStatus();
                     mMusicPlayer.switchRole(Constants.CLIENT_ROLE_BROADCASTER);
+
+                    RoomManager.Instance(RoomActivity.this).getRtcEngine().setClientRole(Constants.CLIENT_ROLE_BROADCASTER);
                 }
             } else if (member.getRole() == AgoraMember.Role.Listener) {
                 mRoomSpeakerAdapter.deleteItem(member);
@@ -138,7 +139,10 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
                 AgoraMember mMine = RoomManager.Instance(RoomActivity.this).getMine();
                 if (ObjectsCompat.equals(member, mMine)) {
                     showNotOnSeatStatus();
-                    mMusicPlayer.switchRole(Constants.CLIENT_ROLE_AUDIENCE);
+
+                    int role = Constants.CLIENT_ROLE_AUDIENCE;
+                    mMusicPlayer.switchRole(role);
+                    RoomManager.Instance(RoomActivity.this).getRtcEngine().setClientRole(role);
                 }
             }
         }
@@ -241,6 +245,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
         }
 
         RoomManager.Instance(this).loadMemberStatus();
+        syncMusics();
     }
 
     private void syncMusics() {

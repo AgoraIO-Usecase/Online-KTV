@@ -54,8 +54,8 @@ public class MusicModel implements Parcelable {
 
     public static List<MusicModel> getMusicList() {
         List<MusicModel> list = new ArrayList<>();
-        list.add(new MusicModel("qinghuaci", "qinghuaci"));
-        list.add(new MusicModel("send_it", "send_it"));
+        list.add(new MusicModel("music0", "青花瓷"));
+        list.add(new MusicModel("music1", "Send It"));
         return list;
     }
 
@@ -79,9 +79,9 @@ public class MusicModel implements Parcelable {
 
     @Nullable
     public String getMusicFile() {
-        if (musicId.equals("qinghuaci")) {
+        if (musicId.equals("music0")) {
             return "qinghuaci.m4a";
-        } else if (musicId.equals("send_it")) {
+        } else if (musicId.equals("music1")) {
             return "send_it.m4a";
         } else {
             return null;
@@ -90,9 +90,9 @@ public class MusicModel implements Parcelable {
 
     @Nullable
     public String getMusicLrcFile() {
-        if (musicId.equals("qinghuaci")) {
+        if (musicId.equals("music0")) {
             return "qinghuaci.lrc";
-        } else if (musicId.equals("send_it")) {
+        } else if (musicId.equals("music1")) {
             return "send_it_cn.lrc";
         } else {
             return null;

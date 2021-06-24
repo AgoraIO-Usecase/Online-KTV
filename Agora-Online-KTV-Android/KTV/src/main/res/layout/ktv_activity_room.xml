@@ -6,7 +6,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/ktv_colorPrimaryDark"
+        android:background="#494949"
         android:fitsSystemWindows="true"
         android:keepScreenOn="true">
 
@@ -15,14 +15,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_begin="20dp" />
+            app:layout_constraintGuide_begin="15dp" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/g2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_end="20dp" />
+            app:layout_constraintGuide_end="15dp" />
 
         <ImageView
             android:id="@+id/ivLeave"
@@ -37,7 +37,7 @@
             android:id="@+id/tvName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
+            android:layout_marginStart="10dp"
             android:textColor="@android:color/white"
             android:textSize="@dimen/ktv_title_size"
             app:layout_constraintStart_toEndOf="@+id/ivLeave"
@@ -85,7 +85,8 @@
             <RelativeLayout
                 android:id="@+id/rlSing"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:background="@mipmap/ktv_music_background1">
 
                 <io.agora.lrcview.LrcView
                     android:id="@+id/lrcView"
@@ -93,7 +94,6 @@
                     android:layout_height="match_parent"
                     android:background="#00000000"
                     app:lrcCurrentTextColor="#3F51B5"
-                    app:lrcLabel="找不到歌词(@_@)"
                     app:lrcNormalTextColor="#FFFFFF"
                     app:lrcNormalTextSize="15sp"
                     app:lrcPadding="16dp"
