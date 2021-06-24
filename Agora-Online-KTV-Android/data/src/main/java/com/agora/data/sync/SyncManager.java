@@ -119,7 +119,7 @@ public final class SyncManager implements ISyncManager {
 
         void onDeleted(String objectId);
 
-        void onSubscribeError(int error);
+        void onSubscribeError(int error, String msg);
     }
 
     public interface Callback {

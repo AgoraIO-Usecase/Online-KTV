@@ -93,12 +93,16 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="#00000000"
-                    app:lrcCurrentTextColor="#3F51B5"
-                    app:lrcNormalTextColor="#FFFFFF"
-                    app:lrcNormalTextSize="15sp"
-                    app:lrcPadding="16dp"
+                    android:paddingStart="10dp"
+                    android:paddingTop="20dp"
+                    android:paddingEnd="10dp"
+                    android:paddingBottom="20dp"
+                    app:lrcCurrentTextColor="#FFFFFF"
+                    app:lrcDividerHeight="14dp"
+                    app:lrcNormalTextColor="#80FFFFFF"
+                    app:lrcNormalTextSize="16sp"
                     app:lrcTextGravity="center"
-                    app:lrcTextSize="15sp" />
+                    app:lrcTextSize="26sp" />
 
                 <TextView
                     android:id="@+id/tvMusicName"

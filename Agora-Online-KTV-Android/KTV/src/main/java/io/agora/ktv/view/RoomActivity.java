@@ -490,11 +490,11 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
             return;
         }
 
-        if (mMine.getRole() != AgoraMember.Role.Owner) {
-            return;
-        }
-
-        if (data.getRole() == AgoraMember.Role.Owner) {
+        if (mMine.getRole() == AgoraMember.Role.Owner) {
+            if (ObjectsCompat.equals(mMine, data)) {
+                return;
+            }
+        } else if (ObjectsCompat.equals(mMine, data) == false) {
             return;
         }
 

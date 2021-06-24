@@ -55,7 +55,7 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
     private volatile boolean mIsPaused = false;
 
     private static volatile long mRecvedPlayPosition = 0;
-    private static volatile long mLastRecvPlayPosTime = 0;
+    private static volatile Long mLastRecvPlayPosTime = null;
 
     private int mAudioTracksCount = 0;
     private int[] mAudioTrackIndices = null;
@@ -140,7 +140,7 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
         mAudioTracksCount = 0;
         mAudioTrackIndices = null;
         mRecvedPlayPosition = 0;
-        mLastRecvPlayPosTime = 0;
+        mLastRecvPlayPosTime = null;
         mMusicModelOpen = null;
         mMusicModel = null;
         mAudioTrackIndex = 1;
@@ -335,11 +335,15 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
                 long curTime;
                 long offset;
                 while (!mStopDisplayLrc) {
-                    curTime = System.currentTimeMillis();
-                    offset = curTime - mLastRecvPlayPosTime;
-                    curTs = mRecvedPlayPosition + offset;
+                    if (mLastRecvPlayPosTime != null) {
+                        curTime = System.currentTimeMillis();
+                        offset = curTime - mLastRecvPlayPosTime;
+                        curTs = mRecvedPlayPosition + offset;
 
-                    mHandler.obtainMessage(ACTION_UPDATE_TIME, curTs).sendToTarget();
+                        if (isPlaying()) {
+                            mHandler.obtainMessage(ACTION_UPDATE_TIME, curTs).sendToTarget();
+                        }
+                    }
 
                     try {
                         Thread.sleep(50);

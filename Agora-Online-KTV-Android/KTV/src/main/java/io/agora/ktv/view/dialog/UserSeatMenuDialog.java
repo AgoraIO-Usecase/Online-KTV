@@ -13,11 +13,13 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentManager;
 
 import com.agora.data.model.AgoraMember;
-import io.agora.ktv.manager.RoomManager;
+import com.agora.data.model.User;
+import com.bumptech.glide.Glide;
 
 import io.agora.baselibrary.base.DataBindBaseDialog;
 import io.agora.ktv.R;
 import io.agora.ktv.databinding.KtvDialogUserSeatMenuBinding;
+import io.agora.ktv.manager.RoomManager;
 import io.reactivex.CompletableObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -75,14 +77,14 @@ public class UserSeatMenuDialog extends DataBindBaseDialog<KtvDialogUserSeatMenu
 
     @Override
     public void iniData() {
-//        User mUser = mMember.getUserId();
-//        mDataBinding.tvName.setText(mUser.getName());
-//        Glide.with(this)
-//                .load(mUser.getAvatarRes())
-//                .placeholder(R.mipmap.default_head)
-//                .error(R.mipmap.default_head)
-//                .circleCrop()
-//                .into(mDataBinding.ivUser);
+        User mUser = mMember.getUser();
+        mDataBinding.tvName.setText(mUser.getName());
+        Glide.with(this)
+                .load(mUser.getAvatarRes())
+                .placeholder(R.mipmap.default_head)
+                .error(R.mipmap.default_head)
+                .circleCrop()
+                .into(mDataBinding.ivUser);
     }
 
     public void show(@NonNull FragmentManager manager, AgoraMember data) {

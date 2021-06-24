@@ -33,8 +33,8 @@ class LrcEntry implements Comparable<LrcEntry> {
     private long duration;
     private String text;
     private String secondText;
-    private StaticLayout fgLayout1;
-    private StaticLayout fgLayout2;
+    private StaticLayout fgLayout1;//第一个歌词
+    private StaticLayout fgLayout2;//第二个歌词
     private StaticLayout bgLayout1;
     private StaticLayout bgLayout2;
 
@@ -84,10 +84,12 @@ class LrcEntry implements Comparable<LrcEntry> {
                 align = Layout.Alignment.ALIGN_OPPOSITE;
                 break;
         }
+
         fgLayout1 = new StaticLayout(text, fgPaint, width, align, 1f, 0f, false);
         if (!TextUtils.isEmpty(secondText)) {
             fgLayout2 = new StaticLayout(secondText, fgPaint, width, align, 1f, 0f, false);
         }
+
         bgLayout1 = new StaticLayout(text, bgPaint, width, align, 1f, 0f, false);
         if (!TextUtils.isEmpty(secondText)) {
             bgLayout2 = new StaticLayout(secondText, bgPaint, width, align, 1f, 0f, false);
@@ -105,6 +107,7 @@ class LrcEntry implements Comparable<LrcEntry> {
             text1Len += newLine.right - newLine.left;
             Log.i(TAG, String.format("init: line bounds: (%d, %d, %d, %d)", newLine.left, newLine.top, newLine.right, newLine.bottom));
         }
+
         if (fgLayout2 != null) {
             totalLine += fgLayout2.getLineCount();
             text2Len = 0;

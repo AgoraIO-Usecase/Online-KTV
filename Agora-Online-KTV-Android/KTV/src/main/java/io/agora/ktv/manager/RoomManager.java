@@ -1,7 +1,6 @@
 package io.agora.ktv.manager;
 
 import android.content.Context;
-import android.os.Handler;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
@@ -344,8 +343,8 @@ public final class RoomManager {
         }
 
         @Override
-        public void onSubscribeError(int error) {
-
+        public void onSubscribeError(int error, String msg) {
+            mLogger.e("mMemberEvent() called with: error = [%s], msg = [%s]", error, msg);
         }
     };
 
@@ -395,8 +394,8 @@ public final class RoomManager {
         }
 
         @Override
-        public void onSubscribeError(int error) {
-
+        public void onSubscribeError(int error, String msg) {
+            mLogger.e("mMusicEvent() called with: error = [%s], msg = [%s]", error, msg);
         }
     };
 
@@ -558,16 +557,16 @@ public final class RoomManager {
         mMusicModel = null;
         subcribeMemberEvent();
 
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (mRoom == null) {
-                    return;
-                }
-
-                subcribeMusicEvent();
-            }
-        }, 250L);
+//        new Handler().postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                if (mRoom == null) {
+//                    return;
+//                }
+//
+//                subcribeMusicEvent();
+//            }
+//        }, 500L);
     }
 
     private SingleEmitter<Integer> emitterJoinRTC = null;
@@ -651,7 +650,7 @@ public final class RoomManager {
     private Completable updateMineStreamId() {
         return Completable.create(emitter ->
                 {
-                    mLogger.d("updateMineStreamId() called");
+                    mLogger.d("updateMineStreamId() called with mMine= [%s]", mMine);
                     SyncManager.Instance()
                             .getRoom(mRoom.getId())
                             .collection(AgoraMember.TABLE_NAME)

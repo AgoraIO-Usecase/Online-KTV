@@ -62,16 +62,22 @@ def createTable():
     action.save()
 
     # AgoraRoom
-    AgoraRoom = leancloud.Object.extend('AgoraRoom')
+    AgoraRoom = leancloud.Object.extend('AGORA_ROOM')
     mAgoraRoom = AgoraRoom()
-    mAgoraRoom.set('name', 'TestId')
-    mAgoraRoom.set('ownerId', '123456')
+    mAgoraRoom.set('channelName', 'TestId')
+    mAgoraRoom.set('userId', '123456')
+    mAgoraRoom.set('cover', 'Test')
+    mAgoraRoom.set('mv', 'Test')
     mAgoraRoom.save()
 
-    AgoraMember = leancloud.Object.extend('AgoraMember')
+    AgoraMember = leancloud.Object.extend('MEMBER_KTV')
     mAgoraMember = AgoraMember()
-    mAgoraMember.set('name', 'TestId')
-    mAgoraMember.set('ownerId', '123456')
+    mAgoraMember.set('roomId', mAgoraRoom)
+    mAgoraMember.set('userId', 'TestId')
+    mAgoraMember.set('streamId', 123456)
+    mAgoraMember.set('role', 1)
+    mAgoraMember.set('isMuted', 0)
+    mAgoraMember.set('isSelfMuted', 0)
     mAgoraMember.save()
 
     user.destroy()

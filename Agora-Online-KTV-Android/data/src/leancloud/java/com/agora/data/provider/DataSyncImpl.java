@@ -521,7 +521,7 @@ public class DataSyncImpl implements ISyncManager {
                 @Override
                 public void done(AVException e) {
                     if (null != e) {
-                        listener.onSubscribeError(1);
+                        listener.onSubscribeError(e.getCode(), e.getMessage());
                     } else {
                     }
                 }
@@ -556,7 +556,7 @@ public class DataSyncImpl implements ISyncManager {
                 @Override
                 public void done(AVException e) {
                     if (null != e) {
-                        listener.onSubscribeError(1);
+                        listener.onSubscribeError(e.getCode(), e.getMessage());
                     } else {
                     }
                 }
@@ -595,7 +595,7 @@ public class DataSyncImpl implements ISyncManager {
             @Override
             public void done(AVException e) {
                 if (null != e) {
-                    listener.onSubscribeError(-1);
+                    listener.onSubscribeError(e.getCode(), e.getMessage());
                 } else {
 
                 }
