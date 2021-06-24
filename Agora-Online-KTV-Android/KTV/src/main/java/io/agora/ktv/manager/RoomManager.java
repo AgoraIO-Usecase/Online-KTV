@@ -39,11 +39,9 @@ import io.agora.rtc2.IRtcEngineEventHandler;
 import io.agora.rtc2.RtcEngine;
 import io.agora.rtc2.RtcEngineConfig;
 import io.reactivex.Completable;
-import io.reactivex.CompletableEmitter;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
-import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 
 /**
@@ -93,7 +91,7 @@ public final class RoomManager {
             mLoggerRTC.i("onJoinChannelSuccess() called with: channel = [%s], uid = [%s], elapsed = [%s]", channel, uid, elapsed);
 
             if (emitterJoinRTC != null) {
-                emitterJoinRTC.onComplete();
+                emitterJoinRTC.onSuccess(uid);
                 emitterJoinRTC = null;
             }
             mMainThreadDispatch.onRTCJoinRoom();
@@ -312,7 +310,7 @@ public final class RoomManager {
         public void onCreated(AgoraObject item) {
             AgoraMember member = item.toObject(AgoraMember.class);
             member.setId(item.getId());
-            member.setRoom(mRoom);
+            member.setRoomId(mRoom);
 
             onMemberJoin(member);
         }
@@ -321,7 +319,7 @@ public final class RoomManager {
         public void onUpdated(AgoraObject item) {
             AgoraMember memberRemote = item.toObject(AgoraMember.class);
             memberRemote.setId(item.getId());
-            memberRemote.setRoom(mRoom);
+            memberRemote.setRoomId(mRoom);
 
             AgoraMember memberLocal = memberHashMap.get(memberRemote.getId());
             if (memberLocal != null && memberLocal.getRole() != memberRemote.getRole()) {
@@ -329,8 +327,8 @@ public final class RoomManager {
                 onMemberRoleChanged(memberLocal);
             }
 
-            if (memberLocal != null && memberLocal.getIsSelfAudioMuted() != memberRemote.getIsSelfAudioMuted()) {
-                memberLocal.setIsSelfAudioMuted(memberRemote.getIsSelfAudioMuted());
+            if (memberLocal != null && memberLocal.getIsSelfMuted() != memberRemote.getIsSelfMuted()) {
+                memberLocal.setIsSelfMuted(memberRemote.getIsSelfMuted());
                 onAudioStatusChanged(true, memberLocal);
             }
         }
@@ -428,6 +426,7 @@ public final class RoomManager {
                                 List<MusicModel> items = new ArrayList<>();
                                 for (AgoraObject result : results) {
                                     MusicModel item = result.toObject(MusicModel.class);
+                                    item.setRoomId(mRoom);
                                     item.setId(result.getId());
                                     items.add(item);
                                 }
@@ -468,45 +467,48 @@ public final class RoomManager {
             SyncManager.Instance()
                     .getRoom(room.getId())
                     .collection(AgoraMember.TABLE_NAME)
-                    .add(member.toHashMap(), new SyncManager.DataItemCallback() {
+                    .query(new Query().whereEqualTo(AgoraMember.COLUMN_USERID, member.getUserId()))
+                    .get(new SyncManager.DataListCallback() {
                         @Override
-                        public void onSuccess(AgoraObject result) {
-                            AgoraMember memberTemp = result.toObject(AgoraMember.class);
-                            AgoraObject roomObject = (AgoraObject) result.get(AgoraMember.COLUMN_ROOMID);
+                        public void onSuccess(List<AgoraObject> result) {
+                            if (result == null || result.size() <= 0) {
+                                SyncManager.Instance()
+                                        .getRoom(room.getId())
+                                        .collection(AgoraMember.TABLE_NAME)
+                                        .add(member.toHashMap(), new SyncManager.DataItemCallback() {
+                                            @Override
+                                            public void onSuccess(AgoraObject result) {
+                                                AgoraMember memberTemp = result.toObject(AgoraMember.class);
+                                                AgoraObject roomObject = (AgoraObject) result.get(AgoraMember.COLUMN_ROOMID);
+
+                                                AgoraRoom mRoom = roomObject.toObject(AgoraRoom.class);
+                                                mRoom.setId(roomObject.getId());
+
+                                                memberTemp.setId(result.getId());
+                                                memberTemp.setRoomId(room);
+                                                memberTemp.setUser(member.getUser());
+                                                emitter.onSuccess(memberTemp);
+                                            }
+
+                                            @Override
+                                            public void onFail(AgoraException exception) {
+                                                emitter.onError(exception);
+                                            }
+                                        });
+                                return;
+                            }
+
+                            AgoraObject resultFirst = result.get(0);
+                            AgoraMember memberTemp = resultFirst.toObject(AgoraMember.class);
+                            AgoraObject roomObject = (AgoraObject) resultFirst.get(AgoraMember.COLUMN_ROOMID);
 
                             AgoraRoom mRoom = roomObject.toObject(AgoraRoom.class);
                             mRoom.setId(roomObject.getId());
 
-                            memberTemp.setId(result.getId());
-                            memberTemp.setRoom(room);
+                            memberTemp.setId(resultFirst.getId());
+                            memberTemp.setRoomId(room);
                             memberTemp.setUser(member.getUser());
                             emitter.onSuccess(memberTemp);
-                        }
-
-                        @Override
-                        public void onFail(AgoraException exception) {
-                            emitter.onError(exception);
-                        }
-                    });
-        }).doOnSuccess(new Consumer<AgoraMember>() {
-            @Override
-            public void accept(AgoraMember member) throws Exception {
-                mMine = member;
-            }
-        });
-    }
-
-    private Completable preJoinDeleteMember(String roomId, String userId) {
-        return Completable.create(emitter -> {
-            SyncManager.Instance()
-                    .getRoom(roomId)
-                    .collection(AgoraMember.TABLE_NAME)
-                    .query(new Query()
-                            .whereEqualTo(AgoraMember.COLUMN_USERID, userId))
-                    .delete(new SyncManager.Callback() {
-                        @Override
-                        public void onSuccess() {
-                            emitter.onComplete();
                         }
 
                         @Override
@@ -526,26 +528,26 @@ public final class RoomManager {
         }
 
         mMine = new AgoraMember();
-        mMine.setRoom(mRoom);
+        mMine.setRoomId(mRoom);
         mMine.setUserId(mUser.getObjectId());
         mMine.setUser(mUser);
 
-        if (ObjectsCompat.equals(mUser.getObjectId(), mRoom.getOwnerId())) {
+        if (ObjectsCompat.equals(mUser.getObjectId(), mRoom.getUserId())) {
             mMine.setRole(AgoraMember.Role.Owner);
         } else {
             mMine.setRole(AgoraMember.Role.Listener);
         }
 
-        return preJoinDeleteMember(room.getId(), mUser.getObjectId())
-                .andThen(preJoinAddMember(mRoom, mMine).ignoreElement())
+        return preJoinAddMember(mRoom, mMine).doOnSuccess(member -> {
+            mMine = member;
+        }).ignoreElement()
                 .andThen(preJoinSyncMembers().ignoreElement())
-                .andThen(joinRTC())
-                .doOnComplete(new Action() {
-                    @Override
-                    public void run() throws Exception {
-                        onJoinRoom();
-                    }
-                });
+                .andThen(joinRTC().doOnSuccess(uid -> {
+                    Long streamId = uid & 0xffffffffL;
+                    mMine.setStreamId(streamId);
+                }).ignoreElement())
+                .andThen(updateMineStreamId(mRoom, mMine))
+                .doOnComplete(() -> onJoinRoom());
     }
 
     private void onJoinRoom() {
@@ -554,10 +556,10 @@ public final class RoomManager {
         subcribeMusicEvent();
     }
 
-    private CompletableEmitter emitterJoinRTC = null;
+    private SingleEmitter<Integer> emitterJoinRTC = null;
 
-    private Completable joinRTC() {
-        return Completable.create(emitter -> {
+    private Single<Integer> joinRTC() {
+        return Single.create(emitter -> {
             emitterJoinRTC = emitter;
             getRtcEngine().setChannelProfile(Constants.CHANNEL_PROFILE_LIVE_BROADCASTING);
             getRtcEngine().enableAudio();
@@ -593,7 +595,7 @@ public final class RoomManager {
                                 for (AgoraObject result : results) {
                                     final AgoraMember member = result.toObject(AgoraMember.class);
                                     member.setId(result.getId());
-                                    member.setRoom(mRoom);
+                                    member.setRoomId(mRoom);
                                     members.add(member);
 
                                     memberHashMap.put(member.getId(), member);
@@ -604,7 +606,7 @@ public final class RoomManager {
                                         mMine.setUser(mUser);
                                     }
 
-                                    if (ObjectsCompat.equals(member.getUserId(), mRoom.getOwnerId())) {
+                                    if (ObjectsCompat.equals(member.getUserId(), mRoom.getUserId())) {
                                         owner = member;
                                     }
 
@@ -634,7 +636,7 @@ public final class RoomManager {
         });
     }
 
-    public Completable updateMineStreamId(AgoraRoom room, AgoraMember member) {
+    private Completable updateMineStreamId(AgoraRoom room, AgoraMember member) {
         return Completable.create(emitter ->
                 SyncManager.Instance()
                         .getRoom(room.getId())

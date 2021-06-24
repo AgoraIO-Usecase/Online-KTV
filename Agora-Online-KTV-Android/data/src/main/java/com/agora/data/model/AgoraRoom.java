@@ -9,18 +9,18 @@ import java.util.HashMap;
 import java.util.Random;
 
 public class AgoraRoom implements Parcelable {
-    public static final String TABLE_NAME = "AgoraRoom";
+    public static final String TABLE_NAME = "AGORA_ROOM";
 
     public static final String COLUMN_ID = "id";
-    public static final String COLUMN_OWNERID = "ownerId";
-    public static final String COLUMN_NAME = "name";
+    public static final String COLUMN_OWNERID = "userId";
+    public static final String COLUMN_NAME = "channelName";
     public static final String COLUMN_COVER = "cover";
     public static final String COLUMN_MV = "mv";
     public static final String COLUMN_CREATEDAT = "createdAt";
 
     private String id;
-    private String name;
-    private String ownerId;
+    private String channelName;
+    private String userId;
     private String cover;
     private String mv;
 
@@ -29,8 +29,8 @@ public class AgoraRoom implements Parcelable {
 
     protected AgoraRoom(Parcel in) {
         id = in.readString();
-        name = in.readString();
-        ownerId = in.readString();
+        channelName = in.readString();
+        userId = in.readString();
         cover = in.readString();
         mv = in.readString();
     }
@@ -38,16 +38,16 @@ public class AgoraRoom implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(id);
-        dest.writeString(name);
-        dest.writeString(ownerId);
+        dest.writeString(channelName);
+        dest.writeString(userId);
         dest.writeString(cover);
         dest.writeString(mv);
     }
 
     public HashMap<String, Object> toHashMap() {
         HashMap<String, Object> datas = new HashMap<>();
-        datas.put(COLUMN_OWNERID, ownerId);
-        datas.put(COLUMN_NAME, name);
+        datas.put(COLUMN_OWNERID, userId);
+        datas.put(COLUMN_NAME, channelName);
         datas.put(COLUMN_COVER, cover);
         datas.put(COLUMN_MV, mv);
         return datas;
@@ -78,20 +78,20 @@ public class AgoraRoom implements Parcelable {
         this.id = id;
     }
 
-    public String getOwnerId() {
-        return ownerId;
+    public String getUserId() {
+        return userId;
     }
 
-    public void setOwnerId(String ownerId) {
-        this.ownerId = ownerId;
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
-    public String getName() {
-        return name;
+    public String getChannelName() {
+        return channelName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setChannelName(String channelName) {
+        this.channelName = channelName;
     }
 
     public String getCover() {
@@ -147,8 +147,8 @@ public class AgoraRoom implements Parcelable {
     public String toString() {
         return "AgoraRoom{" +
                 "id='" + id + '\'' +
-                ", name='" + name + '\'' +
-                ", ownerId='" + ownerId + '\'' +
+                ", name='" + channelName + '\'' +
+                ", ownerId='" + userId + '\'' +
                 ", cover='" + cover + '\'' +
                 ", mv='" + mv + '\'' +
                 '}';

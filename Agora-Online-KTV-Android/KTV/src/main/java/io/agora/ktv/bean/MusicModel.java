@@ -5,6 +5,10 @@ import android.os.Parcelable;
 
 import androidx.annotation.Nullable;
 
+import com.agora.data.model.AgoraRoom;
+import com.agora.data.sync.DocumentReference;
+import com.agora.data.sync.SyncManager;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,7 +18,7 @@ import java.util.List;
  * @date 2021/6/9
  */
 public class MusicModel implements Parcelable {
-    public static final String TABLE_NAME = "AgoraMusic";
+    public static final String TABLE_NAME = "MUSIC_KTV";
 
     public static final String COLUMN_NAME = "name";
     public static final String COLUMN_USERID = "userId";
@@ -25,36 +29,15 @@ public class MusicModel implements Parcelable {
     private String id;
     private String name;
     private String userId;
-    private String roomId;
+    private AgoraRoom roomId;
     private String musicId;
-
-    public static List<MusicModel> getMusicList() {
-        List<MusicModel> list = new ArrayList<>();
-        list.add(new MusicModel("qinghuaci", "qinghuaci"));
-        list.add(new MusicModel("send_it", "send_it"));
-        return list;
-    }
 
     protected MusicModel(Parcel in) {
         id = in.readString();
         name = in.readString();
         userId = in.readString();
-        roomId = in.readString();
+        roomId = in.readParcelable(AgoraRoom.class.getClassLoader());
         musicId = in.readString();
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(id);
-        dest.writeString(name);
-        dest.writeString(userId);
-        dest.writeString(roomId);
-        dest.writeString(musicId);
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
     }
 
     public static final Creator<MusicModel> CREATOR = new Creator<MusicModel>() {
@@ -69,11 +52,22 @@ public class MusicModel implements Parcelable {
         }
     };
 
+    public static List<MusicModel> getMusicList() {
+        List<MusicModel> list = new ArrayList<>();
+        list.add(new MusicModel("qinghuaci", "qinghuaci"));
+        list.add(new MusicModel("send_it", "send_it"));
+        return list;
+    }
+
     public HashMap<String, Object> toHashMap() {
+        DocumentReference drRoom = SyncManager.Instance()
+                .collection(AgoraRoom.TABLE_NAME)
+                .document(roomId.getId());
+
         HashMap<String, Object> datas = new HashMap<>();
         datas.put(COLUMN_NAME, name);
         datas.put(COLUMN_USERID, userId);
-        datas.put(COLUMN_ROOMID, roomId);
+        datas.put(COLUMN_ROOMID, drRoom);
         datas.put(COLUMN_MUSICID, musicId);
         return datas;
     }
@@ -129,11 +123,11 @@ public class MusicModel implements Parcelable {
         this.userId = userId;
     }
 
-    public String getRoomId() {
+    public AgoraRoom getRoomId() {
         return roomId;
     }
 
-    public void setRoomId(String roomId) {
+    public void setRoomId(AgoraRoom roomId) {
         this.roomId = roomId;
     }
 
@@ -173,5 +167,19 @@ public class MusicModel implements Parcelable {
                 ", roomId='" + roomId + '\'' +
                 ", musicId='" + musicId + '\'' +
                 '}';
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id);
+        dest.writeString(name);
+        dest.writeString(userId);
+        dest.writeParcelable(roomId, flags);
+        dest.writeString(musicId);
     }
 }

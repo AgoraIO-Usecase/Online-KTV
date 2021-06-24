@@ -9,14 +9,14 @@ import com.agora.data.sync.SyncManager;
 import java.util.HashMap;
 
 public class AgoraMember implements Parcelable {
-    public static final String TABLE_NAME = "AgoraMember";
+    public static final String TABLE_NAME = "MEMBER_KTV";
 
     public static final String COLUMN_ROOMID = "roomId";
     public static final String COLUMN_STREAMID = "streamId";
     public static final String COLUMN_USERID = "userId";
     public static final String COLUMN_ROLE = "role";
-    public static final String COLUMN_ISAUDIOMUTED = "isAudioMuted";
-    public static final String COLUMN_ISSELFAUDIOMUTED = "isSelfAudioMuted";
+    public static final String COLUMN_ISAUDIOMUTED = "isMuted";
+    public static final String COLUMN_ISSELFAUDIOMUTED = "isSelfMuted";
 
     public enum Role {
         Listener(0), Owner(1), Speaker(2);
@@ -44,12 +44,12 @@ public class AgoraMember implements Parcelable {
     }
 
     private String id;
-    private AgoraRoom room;
+    private AgoraRoom roomId;
     private String userId;
-    private Long streamId;
+    private Long streamId = 0L;
     private Role role = Role.Listener;
-    private int isAudioMuted = 0;
-    private int isSelfAudioMuted = 0;
+    private int isMuted = 0;
+    private int isSelfMuted = 0;
 
     private User user;
 
@@ -59,21 +59,21 @@ public class AgoraMember implements Parcelable {
 
     protected AgoraMember(Parcel in) {
         id = in.readString();
-        room = in.readParcelable(AgoraRoom.class.getClassLoader());
+        roomId = in.readParcelable(AgoraRoom.class.getClassLoader());
         userId = in.readString();
         if (in.readByte() == 0) {
             streamId = null;
         } else {
             streamId = in.readLong();
         }
-        isAudioMuted = in.readInt();
-        isSelfAudioMuted = in.readInt();
+        isMuted = in.readInt();
+        isSelfMuted = in.readInt();
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(id);
-        dest.writeParcelable(room, flags);
+        dest.writeParcelable(roomId, flags);
         dest.writeString(userId);
         if (streamId == null) {
             dest.writeByte((byte) 0);
@@ -81,8 +81,8 @@ public class AgoraMember implements Parcelable {
             dest.writeByte((byte) 1);
             dest.writeLong(streamId);
         }
-        dest.writeInt(isAudioMuted);
-        dest.writeInt(isSelfAudioMuted);
+        dest.writeInt(isMuted);
+        dest.writeInt(isSelfMuted);
     }
 
     @Override
@@ -105,24 +105,24 @@ public class AgoraMember implements Parcelable {
     public HashMap<String, Object> toHashMap() {
         DocumentReference drRoom = SyncManager.Instance()
                 .collection(AgoraRoom.TABLE_NAME)
-                .document(room.getId());
+                .document(roomId.getId());
 
         HashMap<String, Object> datas = new HashMap<>();
         datas.put(COLUMN_ROOMID, drRoom);
         datas.put(COLUMN_STREAMID, streamId);
         datas.put(COLUMN_USERID, userId);
         datas.put(COLUMN_ROLE, role.value);
-        datas.put(COLUMN_ISAUDIOMUTED, isAudioMuted);
-        datas.put(COLUMN_ISSELFAUDIOMUTED, isSelfAudioMuted);
+        datas.put(COLUMN_ISAUDIOMUTED, isMuted);
+        datas.put(COLUMN_ISSELFAUDIOMUTED, isSelfMuted);
         return datas;
     }
 
-    public AgoraRoom getRoom() {
-        return room;
+    public AgoraRoom getRoomId() {
+        return roomId;
     }
 
-    public void setRoom(AgoraRoom room) {
-        this.room = room;
+    public void setRoomId(AgoraRoom roomId) {
+        this.roomId = roomId;
     }
 
     public String getId() {
@@ -149,20 +149,20 @@ public class AgoraMember implements Parcelable {
         this.role = role;
     }
 
-    public int getIsAudioMuted() {
-        return isAudioMuted;
+    public int getIsMuted() {
+        return isMuted;
     }
 
-    public void setIsAudioMuted(int isAudioMuted) {
-        this.isAudioMuted = isAudioMuted;
+    public void setIsMuted(int isMuted) {
+        this.isMuted = isMuted;
     }
 
-    public int getIsSelfAudioMuted() {
-        return isSelfAudioMuted;
+    public int getIsSelfMuted() {
+        return isSelfMuted;
     }
 
-    public void setIsSelfAudioMuted(int isSelfAudioMuted) {
-        this.isSelfAudioMuted = isSelfAudioMuted;
+    public void setIsSelfMuted(int isSelfMuted) {
+        this.isSelfMuted = isSelfMuted;
     }
 
     public String getUserId() {
@@ -200,12 +200,12 @@ public class AgoraMember implements Parcelable {
     public String toString() {
         return "AgoraMember{" +
                 "id='" + id + '\'' +
-                ", room=" + room +
+                ", room=" + roomId +
                 ", userId='" + userId + '\'' +
                 ", streamId=" + streamId +
                 ", role=" + role +
-                ", isAudioMuted=" + isAudioMuted +
-                ", isSelfAudioMuted=" + isSelfAudioMuted +
+                ", isAudioMuted=" + isMuted +
+                ", isSelfAudioMuted=" + isSelfMuted +
                 '}';
     }
 }

@@ -41,7 +41,7 @@ public class RoomListAdapter extends BaseRecyclerViewAdapter<AgoraRoom, RoomList
             return;
         }
 
-        holder.mDataBinding.tvName.setText(item.getName());
+        holder.mDataBinding.tvName.setText(item.getChannelName());
         holder.mDataBinding.view.setBackgroundResource(item.getCoverRes());
     }
 

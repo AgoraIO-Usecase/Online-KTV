@@ -201,7 +201,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
         showNotOnSeatStatus();
 
         AgoraRoom mRoom = getIntent().getExtras().getParcelable(TAG_ROOM);
-        mDataBinding.tvName.setText(mRoom.getName());
+        mDataBinding.tvName.setText(mRoom.getChannelName());
 
         RoomManager.Instance(this)
                 .joinRoom(mRoom)
@@ -328,7 +328,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
         }
 
         mDataBinding.ivMic.setEnabled(false);
-        boolean newValue = mMine.getIsSelfAudioMuted() == 0;
+        boolean newValue = mMine.getIsSelfMuted() == 0;
         RoomManager.Instance(this)
                 .toggleSelfAudio(newValue)
                 .observeOn(AndroidSchedulers.mainThread())

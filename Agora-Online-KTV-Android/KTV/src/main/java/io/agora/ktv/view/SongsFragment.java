@@ -99,7 +99,7 @@ public class SongsFragment extends DataBindBaseFragment<KtvFragmentSongListBindi
 //            return;
 //        }
 
-        data.setRoomId(mRoom.getId());
+        data.setRoomId(mRoom);
         data.setUserId(mUser.getObjectId());
         SyncManager.Instance()
                 .getRoom(mRoom.getId())
