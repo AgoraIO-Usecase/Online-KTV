@@ -590,6 +590,8 @@ public final class RoomManager {
 
     private void onJoinRoom() {
         mMusicModel = null;
+
+        //LeanCloud连续订阅会有问题，需要做延迟
         subcribeRoomEvent();
 
         Handler handler = new Handler();
@@ -727,6 +729,7 @@ public final class RoomManager {
             return Completable.complete();
         }
 
+        SyncManager.Instance().unsubcribe(mRoomEvent);
         SyncManager.Instance().unsubcribe(mMemberEvent);
         SyncManager.Instance().unsubcribe(mMusicEvent);
 
