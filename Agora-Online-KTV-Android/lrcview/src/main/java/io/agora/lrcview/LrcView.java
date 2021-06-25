@@ -60,14 +60,11 @@ public class LrcView extends View {
 
     private boolean mNewLine = true;
     private Bitmap mFgText1 = null;
-    // private Bitmap mFgText2 = null;
     private Bitmap mBgText1 = null;
-    // private Bitmap mBgText2 = null;
     private Canvas mFgTextCanvas1 = null;
     private Canvas mBgTextCanvas1 = null;
     private Rect mTextBmpRect = new Rect();
     private Rect mTextRenderRect = new Rect();
-    private int mTextHeight = 0;
     private long mCurrentTime = 0;
     private long mTotalDuration = 0;
 
@@ -356,11 +353,12 @@ public class LrcView extends View {
         }
 
         LrcEntry curEntry = mLrcEntryList.get(mCurrentLine);
-        mLrcPaint.setTextSize(mCurrentTextSize);
-        mBgLrcPaint.setTextSize(mCurrentTextSize);
-        curEntry.init(mLrcPaint, mBgLrcPaint, getLrcWidth(), mTextGravity);
 
         if (mNewLine) {
+            mLrcPaint.setTextSize(mCurrentTextSize);
+            mBgLrcPaint.setTextSize(mCurrentTextSize);
+            curEntry.init(mLrcPaint, mBgLrcPaint, getLrcWidth(), mTextGravity);
+
             // clear bitmap
             mFgText1.eraseColor(0);
             mBgText1.eraseColor(0);
@@ -420,7 +418,6 @@ public class LrcView extends View {
             }
             mFgTextCanvas1.restore();
             mBgTextCanvas1.restore();
-            mTextHeight = (int) (curPointY - mDividerHeight);
 
             mNewLine = false;
         }
@@ -435,25 +432,21 @@ public class LrcView extends View {
         mTextRenderRect.top = getPaddingTop();
         mTextRenderRect.right = getPaddingStart() + getLrcWidth();
         mTextRenderRect.bottom = getPaddingTop() + getLrcHeight();
+
         canvas.drawBitmap(mBgText1, mTextBmpRect, mTextRenderRect, null);
 
         //TODO: get fg text draw rect by current timestamp
         Rect[] drawRects = curEntry.getDrawRectByTime(mCurrentTime);
 
-        // canvas.translate(0, getHeight() - h);
         //TODO: draw fg text to the canvas
-        int xOffset = 0;
-        int yOffset = 0;
-//        for (Rect dr : drawRects) {
-//            if (dr.left == dr.right)
-//                continue;
-//
-////            mTextRenderRect.left = xOffset + dr.left;
-////            mTextRenderRect.top = yOffset + dr.top;
-////            mTextRenderRect.right = xOffset + dr.right;
-////            mTextRenderRect.bottom = yOffset + dr.bottom;
-        canvas.drawBitmap(mFgText1, mTextBmpRect, mTextRenderRect, null);
-//        }
+        for (Rect dr : drawRects) {
+            if (dr.left == dr.right)
+                continue;
+
+            mTextBmpRect.right = dr.right;
+            mTextRenderRect.right = getPaddingStart() + dr.right;
+            canvas.drawBitmap(mFgText1, mTextBmpRect, mTextRenderRect, null);
+        }
     }
 
     private volatile boolean isLrcLoadDone = false;

@@ -98,8 +98,8 @@
                     android:paddingEnd="10dp"
                     android:paddingBottom="20dp"
                     app:lrcCurrentTextColor="#FFFFFF"
-                    app:lrcDividerHeight="14dp"
-                    app:lrcNormalTextColor="#80FFFFFF"
+                    app:lrcDividerHeight="20dp"
+                    app:lrcNormalTextColor="#99FFFFFF"
                     app:lrcNormalTextSize="16sp"
                     app:lrcTextGravity="center"
                     app:lrcTextSize="26sp" />

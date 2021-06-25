@@ -555,7 +555,7 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
     @Override
     public void onPositionChanged(long position) {
         mLogger.d("onPositionChanged: position: " + position + ", duration: " + mPlayer.getDuration());
-        mRecvedPlayPosition = position * 1000;
+        mRecvedPlayPosition = position;
         mLastRecvPlayPosTime = System.currentTimeMillis();
     }
 

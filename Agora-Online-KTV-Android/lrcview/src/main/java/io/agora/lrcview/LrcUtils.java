@@ -40,8 +40,8 @@ import java.util.regex.Pattern;
  * 工具类
  */
 class LrcUtils {
-    private static final Pattern PATTERN_LINE = Pattern.compile("((\\[\\d\\d:\\d\\d\\.\\d{2,3}\\])+)(.+)");
-    private static final Pattern PATTERN_TIME = Pattern.compile("\\[(\\d\\d):(\\d\\d)\\.(\\d{2,3})\\]");
+    private static final Pattern PATTERN_LINE = Pattern.compile("((\\[\\d{2}:\\d{2}\\.\\d{2,3}\\])+)(.+)");
+    private static final Pattern PATTERN_TIME = Pattern.compile("\\[(\\d{2}):(\\d{2})\\.(\\d{2,3})\\]");
 
     /**
      * 从文件解析双语歌词
@@ -196,6 +196,10 @@ class LrcUtils {
         }
 
         String times = lineMatcher.group(1);
+        if (times == null) {
+            return null;
+        }
+
         String text = lineMatcher.group(3);
         List<LrcEntry> entryList = new ArrayList<>();
 
@@ -211,7 +215,7 @@ class LrcUtils {
                 mil = mil * 10;
             }
             long time = min * DateUtils.MINUTE_IN_MILLIS + sec * DateUtils.SECOND_IN_MILLIS + mil;
-            entryList.add(new LrcEntry(time * 1000, text));
+            entryList.add(new LrcEntry(time, text));
         }
         return entryList;
     }
