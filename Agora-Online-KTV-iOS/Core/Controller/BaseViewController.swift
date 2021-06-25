@@ -15,6 +15,7 @@ open class BaseViewContoller: UIViewController {
     private var dialogBackgroundMaskView: UIView?
     private var onDismiss: (() -> Void)?
     public var enableSwipeGesture: Bool = true
+    private let cancelSignal: PublishRelay<UITapGestureRecognizer> = PublishRelay()
 
     override open var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
@@ -32,6 +33,13 @@ open class BaseViewContoller: UIViewController {
         }
     }
 
+    override open func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        if dialogBackgroundMaskView != nil {
+            cancelSignal.accept(UITapGestureRecognizer())
+        }
+    }
+
     private func _showMaskView(dialog: UIView, alpha: CGFloat = 0.3) {
         if dialogBackgroundMaskView == nil {
             dialogBackgroundMaskView = UIView()
@@ -42,11 +50,15 @@ open class BaseViewContoller: UIViewController {
             dialogBackgroundMaskView!.fill(view: root).active()
         }
         if let mask = dialogBackgroundMaskView {
-            mask.onTap().rx.event.flatMap { [unowned self] _ in
-                self.dismiss(dialog: dialog)
-            }
-            .subscribe()
-            .disposed(by: disposeBag)
+            Observable.merge([
+                mask.onTap().rx.event.asObservable(),
+                cancelSignal.asObservable(),
+            ])
+                .concatMap { [unowned self] _ in
+                    self.dismiss(dialog: dialog)
+                }
+                .subscribe()
+                .disposed(by: disposeBag)
         }
         if let maskView: UIView = dialogBackgroundMaskView {
             maskView.alpha = 0

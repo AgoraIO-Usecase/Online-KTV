@@ -68,8 +68,8 @@ private class MVCardView: UICollectionViewCell {
     }
 
     @objc func onTapCard() {
-        if let delegate = delegate {
-            delegate.delegate.viewModel.changeRoomMV(mv: mv) { [unowned self] waiting in
+        if let viewModel = delegate?.delegate.viewModel {
+            viewModel.changeRoomMV(mv: mv) { [unowned self] waiting in
                 self.delegate?.delegate.show(processing: waiting)
             } onSuccess: { [unowned self] in
                 self.delegate?.selectMV = mv

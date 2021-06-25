@@ -224,7 +224,7 @@ extension LiveKtvRoom {
                     observer.onNext(Result<Void>(success: true))
                 }, failed: { _, message in
                     observer.onNext(Result<Void>(success: false, message: message))
-                    observer.onCompleted()
+                    // observer.onCompleted()
                 }))
             return Disposables.create {
                 handler.unsubscribe()
@@ -246,7 +246,7 @@ extension LiveKtvRoom {
                     observer.onNext(Result<Void>(success: true))
                 }, failed: { _, message in
                     observer.onNext(Result<Void>(success: false, message: message))
-                    observer.onCompleted()
+                    // observer.onCompleted()
                 }))
             return Disposables.create {
                 handler.unsubscribe()

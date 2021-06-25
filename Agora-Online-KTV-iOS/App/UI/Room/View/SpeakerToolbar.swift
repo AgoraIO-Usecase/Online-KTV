@@ -21,12 +21,7 @@ class SpeakerToolbar {
     var member: LiveKtvMember? {
         didSet {
             if let member = member {
-                switch member.toLiveKtvRoomRole() {
-                case .listener:
-                    root.isHidden = true
-                default:
-                    root.isHidden = false
-                }
+                root.isHidden = member.toLiveKtvRoomRole() == .listener
             } else {
                 root.isHidden = true
             }

@@ -60,7 +60,7 @@ class MVPlayer {
     var stopView: UIView = {
         let view = UIView()
         let icon = UIImageView()
-        icon.image = UIImage(named: "empty", in: Utils.bundle, with: nil)
+        icon.image = UIImage(named: "empty1", in: Utils.bundle, with: nil)
         let tips1 = UILabel()
         tips1.font = UIFont.systemFont(ofSize: 14, weight: .medium)
         tips1.textColor = UIColor(hex: Colors.Text)
@@ -101,6 +101,7 @@ class MVPlayer {
                 return
             }
             if let music = music {
+                status = .play
                 updateMusicLyricViewLayout()
                 if let localMusic = delegate.viewModel.getLocalMusic(music: music) {
                     musicLyricView.lyrics = LocalMusicManager.parseLyric(music: localMusic)
@@ -139,6 +140,9 @@ class MVPlayer {
             mv.isHidden = false
             musicLyricView.isHidden = false
             updateMusicLyricViewLayout()
+            if settingsView.superview?.isHidden == false {
+                playerControlView.setImage(UIImage(named: status == .play ? "iconPause" : "iconPlay", in: Utils.bundle, with: nil), for: .normal)
+            }
         }
     }
 

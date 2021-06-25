@@ -511,7 +511,6 @@ extension RtcServer: AgoraRtcEngineDelegate {
             case "musicStopped":
                 Logger.log(self, message: "musicStopped", level: .info)
             case "setLrcTime":
-                // Logger.log(self, message: "setLrcTime", level: .info)
                 let duration = content["duration"] as! Int
                 let position = content["time"] as! Int
                 let state = RtcMusicState(uid: uid, streamId: streamId, position: position, duration: duration, state: .playing)

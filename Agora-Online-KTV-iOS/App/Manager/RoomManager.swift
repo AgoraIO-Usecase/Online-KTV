@@ -123,11 +123,13 @@ extension RoomManager: IRoomManager {
                         result.onSuccess { LiveKtvRoom.getRoom(by: room.id) }
                     }
                     .concatMap { result -> Observable<Result<Void>> in
-                        member.roomId = room.id
-                        return result.onSuccess { member.join(streamId: self.rtcServer.uid) }
+                        result.onSuccess { member.join(room: room) }
                     }
                     .concatMap { result -> Observable<Result<Void>> in
                         result.onSuccess { self.rtcServer.joinChannel(member: member, channel: room.id, setting: self.setting) }
+                    }
+                    .concatMap { result -> Observable<Result<Void>> in
+                        result.onSuccess { member.update(streamId: self.rtcServer.uid) }
                     }
                     .concatMap { result -> Observable<Result<LiveKtvRoom>> in
                         if result.success {

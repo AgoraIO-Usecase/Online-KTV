@@ -235,7 +235,7 @@ class MusicLyricView: UIView, UITableViewDataSource, UITableViewDelegate {
             let nextIndex = lyricIndex + 1
             let nextLyric = nextIndex < lyrics.count ? lyrics[nextIndex] : nil
             var offset: TimeInterval = (Date().timeIntervalSince1970 * 1000 - curLyricsTimestamp)
-            if abs(offset) > 1000 {
+            if abs(offset) > 1500 {
                 offset = 0
             }
             if let nextLyric = nextLyric {
