@@ -1,0 +1,15 @@
+/* 
+  Localizable.strings
+  Scene-Examples
+
+  Created by XC on 2021/6/4.
+  
+*/
+"Room List" = "歌房";
+"Needs Network permission" = "请在设置中打开 App 的网络权限";
+"Close room" = "关闭歌房";
+"Leaving the room ends the session and removes everyone" = "关闭歌房后所有成员将被移除房间";
+"Leave room" = "离开歌房";
+"Cancel" = "取消";
+"Ok" = "确定";
+"Become audience" = "下麦";
