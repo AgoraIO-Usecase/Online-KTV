@@ -2,6 +2,9 @@
 <resources>
     <string name="ktv_app_name">KTV</string>
 
+    <string name="ok">好的</string>
+    <string name="done">完成</string>
+    ¬
     <string name="ktv_error_permisstion">需要相应权限，请打开</string>
 
     <string name="ktv_room_list_title">歌房</string>

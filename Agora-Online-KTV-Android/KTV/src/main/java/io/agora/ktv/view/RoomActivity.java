@@ -1,6 +1,8 @@
 package io.agora.ktv.view;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -95,6 +97,12 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
     };
 
     private SimpleRoomEventCallback mRoomEventCallback = new SimpleRoomEventCallback() {
+
+        @Override
+        public void onRoomError(int error, String msg) {
+            super.onRoomError(error, msg);
+            showRoomErrorDialog(msg);
+        }
 
         @Override
         public void onRoomInfoChanged(@NonNull AgoraRoom room) {
@@ -279,6 +287,24 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
                         e.printStackTrace();
                     }
                 });
+    }
+
+    private AlertDialog mAlertDialogRoomError;
+
+    private void showRoomErrorDialog(String msg) {
+        if (mAlertDialogRoomError != null && mAlertDialogRoomError.isShowing()) {
+            return;
+        }
+
+        mAlertDialogRoomError = new AlertDialog.Builder(this)
+                .setMessage(msg)
+                .setNegativeButton(R.string.done, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        doLeave();
+                    }
+                })
+                .show();
     }
 
     @Override

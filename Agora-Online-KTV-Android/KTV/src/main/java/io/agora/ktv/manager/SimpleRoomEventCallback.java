@@ -42,7 +42,7 @@ public class SimpleRoomEventCallback implements RoomEventCallback {
     }
 
     @Override
-    public void onRoomError(int error) {
+    public void onRoomError(int error, String msg) {
 
     }
 

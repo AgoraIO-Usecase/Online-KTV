@@ -326,14 +326,24 @@ public final class RoomManager {
         }
 
         @Override
-        public void onSubscribeError(int error, String msg) {
-
+        public void onSubscribeError(AgoraException ex) {
+            mLogger.e("mRoomEvent() called with: ex = [%s]", String.valueOf(ex));
+            if (ex.getCode() == AgoraException.ERROR_LEANCLOULD_OVER_COUNT) {
+                mMainThreadDispatch.onRoomError(ex.getCode(), "LeanCloud异常，超过开发版应用的每天限额，请购买商业版");
+            } else {
+                mMainThreadDispatch.onRoomError(ex.getCode(), String.format("LeanCloud异常，错误码：%s", ex.getCode()));
+            }
         }
     };
 
     public void subcribeRoomEvent() {
+        DocumentReference dcRoom = SyncManager.Instance()
+                .collection(AgoraRoom.TABLE_NAME)
+                .document(mRoom.getId());
+
         SyncManager.Instance()
                 .getRoom(mRoom.getId())
+                .query(new Query().whereEqualTo(AgoraRoom.COLUMN_ID, dcRoom))
                 .subcribe(mRoomEvent);
     }
 
@@ -375,8 +385,13 @@ public final class RoomManager {
         }
 
         @Override
-        public void onSubscribeError(int error, String msg) {
-            mLogger.e("mMemberEvent() called with: error = [%s], msg = [%s]", error, msg);
+        public void onSubscribeError(AgoraException ex) {
+            mLogger.e("mMemberEvent() called with: ex = [%s]", String.valueOf(ex));
+            if (ex.getCode() == AgoraException.ERROR_LEANCLOULD_OVER_COUNT) {
+                mMainThreadDispatch.onRoomError(ex.getCode(), "LeanCloud异常，超过开发版应用的每天限额，请购买商业版");
+            } else {
+                mMainThreadDispatch.onRoomError(ex.getCode(), String.format("LeanCloud异常，错误码：%s", ex.getCode()));
+            }
         }
     };
 
@@ -425,8 +440,13 @@ public final class RoomManager {
         }
 
         @Override
-        public void onSubscribeError(int error, String msg) {
-            mLogger.e("mMusicEvent() called with: error = [%s], msg = [%s]", error, msg);
+        public void onSubscribeError(AgoraException ex) {
+            mLogger.e("mMusicEvent() called with: ex = [%s]", String.valueOf(ex));
+            if (ex.getCode() == AgoraException.ERROR_LEANCLOULD_OVER_COUNT) {
+                mMainThreadDispatch.onRoomError(ex.getCode(), "LeanCloud异常，超过开发版应用的每天限额，请购买商业版");
+            } else {
+                mMainThreadDispatch.onRoomError(ex.getCode(), String.format("LeanCloud异常，错误码：%s", ex.getCode()));
+            }
         }
     };
 

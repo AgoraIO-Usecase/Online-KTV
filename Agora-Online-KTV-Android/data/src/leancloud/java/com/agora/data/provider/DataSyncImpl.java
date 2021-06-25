@@ -521,7 +521,11 @@ public class DataSyncImpl implements ISyncManager {
                 @Override
                 public void done(AVException e) {
                     if (null != e) {
-                        listener.onSubscribeError(e.getCode(), e.getMessage());
+                        if (e.getCode() == AVException.EXCEEDED_QUOTA) {
+                            listener.onSubscribeError(new AgoraException(AgoraException.ERROR_LEANCLOULD_OVER_COUNT, e.getMessage()));
+                        } else {
+                            listener.onSubscribeError(new AgoraException(AgoraException.ERROR_LEANCLOULD_DEFAULT, e.getMessage()));
+                        }
                     } else {
                     }
                 }
@@ -556,7 +560,11 @@ public class DataSyncImpl implements ISyncManager {
                 @Override
                 public void done(AVException e) {
                     if (null != e) {
-                        listener.onSubscribeError(e.getCode(), e.getMessage());
+                        if (e.getCode() == AVException.EXCEEDED_QUOTA) {
+                            listener.onSubscribeError(new AgoraException(AgoraException.ERROR_LEANCLOULD_OVER_COUNT, e.getMessage()));
+                        } else {
+                            listener.onSubscribeError(new AgoraException(AgoraException.ERROR_LEANCLOULD_DEFAULT, e.getMessage()));
+                        }
                     } else {
                     }
                 }
@@ -595,7 +603,11 @@ public class DataSyncImpl implements ISyncManager {
             @Override
             public void done(AVException e) {
                 if (null != e) {
-                    listener.onSubscribeError(e.getCode(), e.getMessage());
+                    if (e.getCode() == AVException.EXCEEDED_QUOTA) {
+                        listener.onSubscribeError(new AgoraException(AgoraException.ERROR_LEANCLOULD_OVER_COUNT, e.getMessage()));
+                    } else {
+                        listener.onSubscribeError(new AgoraException(AgoraException.ERROR_LEANCLOULD_DEFAULT, e.getMessage()));
+                    }
                 } else {
 
                 }

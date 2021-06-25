@@ -7,6 +7,7 @@ package com.agora.data;
  * @date 2019/9/23
  */
 public class BaseError extends Exception {
+    public static final int ERROR_DEFAULT = 100;
 
     private int code;
 

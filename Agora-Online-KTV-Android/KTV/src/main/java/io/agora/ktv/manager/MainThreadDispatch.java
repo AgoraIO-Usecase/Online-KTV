@@ -70,8 +70,12 @@ public class MainThreadDispatch implements RoomEventCallback {
                     callback.onAudioStatusChanged(isMine, member);
                 }
             } else if (msg.what == ON_ROOM_ERROR) {
+                Bundle bundle = msg.getData();
+                int error = bundle.getInt("error");
+                String msgError = bundle.getString("msg");
+
                 for (RoomEventCallback callback : enevtCallbacks) {
-                    callback.onRoomError((Integer) msg.obj);
+                    callback.onRoomError(error, msgError);
                 }
             } else if (msg.what == ON_ROOM_CLOSED) {
                 Bundle bundle = msg.getData();
@@ -164,9 +168,15 @@ public class MainThreadDispatch implements RoomEventCallback {
     }
 
     @Override
-    public void onRoomError(int error) {
-        mLogger.d("onRoomError() called with: error = [%s]", error);
-        mHandler.obtainMessage(ON_ROOM_ERROR, error).sendToTarget();
+    public void onRoomError(int error, String msg) {
+        mLogger.d("onRoomError() called with: error = [%s], msg = [%s]", error, msg);
+        Bundle bundle = new Bundle();
+        bundle.putInt("error", error);
+        bundle.putString("msg", msg);
+
+        Message message = mHandler.obtainMessage(ON_ROOM_ERROR);
+        message.setData(bundle);
+        message.sendToTarget();
     }
 
     @Override

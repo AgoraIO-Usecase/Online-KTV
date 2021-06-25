@@ -46,7 +46,7 @@ public interface RoomEventCallback {
      */
     void onAudioStatusChanged(boolean isMine, @NonNull AgoraMember member);
 
-    void onRoomError(int error);
+    void onRoomError(int error, String msg);
 
     void onMusicAdd(@NonNull MusicModel music);
 
