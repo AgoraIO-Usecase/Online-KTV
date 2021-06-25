@@ -143,6 +143,29 @@ public class AgoraRoom implements Parcelable {
         return R.mipmap.icon_room_cover1;
     }
 
+    public int getMVRes() {
+        if ("1".equals(mv)) {
+            return R.mipmap.ktv_music_background1;
+        } else if ("2".equals(mv)) {
+            return R.mipmap.ktv_music_background2;
+        } else if ("3".equals(mv)) {
+            return R.mipmap.ktv_music_background3;
+        } else if ("4".equals(mv)) {
+            return R.mipmap.ktv_music_background4;
+        } else if ("5".equals(mv)) {
+            return R.mipmap.ktv_music_background5;
+        } else if ("6".equals(mv)) {
+            return R.mipmap.ktv_music_background6;
+        } else if ("7".equals(mv)) {
+            return R.mipmap.ktv_music_background7;
+        } else if ("8".equals(mv)) {
+            return R.mipmap.ktv_music_background8;
+        } else if ("9".equals(mv)) {
+            return R.mipmap.ktv_music_background9;
+        }
+        return R.mipmap.ktv_music_background1;
+    }
+
     @Override
     public String toString() {
         return "AgoraRoom{" +

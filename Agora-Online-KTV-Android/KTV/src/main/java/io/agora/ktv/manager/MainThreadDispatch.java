@@ -34,7 +34,7 @@ public class MainThreadDispatch implements RoomEventCallback {
     private static final int ON_MUSIC_CHANGED = ON_MUSIC_DELETE + 1;
     private static final int ON_MUSIC_EMPTY = ON_MUSIC_CHANGED + 1;
     private static final int ON_MUSIC_PROGRESS = ON_MUSIC_EMPTY + 1;
-    private static final int onRTCJoinRoom = ON_MUSIC_PROGRESS + 1;
+    private static final int ON_ROOM_INFO_CHANGED = ON_MUSIC_PROGRESS + 1;
 
     private final List<RoomEventCallback> enevtCallbacks = new ArrayList<>();
 
@@ -106,14 +106,20 @@ public class MainThreadDispatch implements RoomEventCallback {
                 for (RoomEventCallback callback : enevtCallbacks) {
                     callback.onMusicProgress(total, cur);
                 }
-            } else if (msg.what == onRTCJoinRoom) {
+            } else if (msg.what == ON_ROOM_INFO_CHANGED) {
                 for (RoomEventCallback callback : enevtCallbacks) {
-                    callback.onRTCJoinRoom();
+                    callback.onRoomInfoChanged((AgoraRoom) msg.obj);
                 }
             }
             return false;
         }
     });
+
+    @Override
+    public void onRoomInfoChanged(@NonNull AgoraRoom room) {
+        mLogger.d("onRoomInfoChanged() called with: room = [%s]", room);
+        mHandler.obtainMessage(ON_ROOM_INFO_CHANGED, room).sendToTarget();
+    }
 
     @Override
     public void onRoomClosed(@NonNull AgoraRoom room, boolean fromUser) {
@@ -197,11 +203,5 @@ public class MainThreadDispatch implements RoomEventCallback {
         Message message = mHandler.obtainMessage(ON_MUSIC_PROGRESS);
         message.setData(bundle);
         message.sendToTarget();
-    }
-
-    @Override
-    public void onRTCJoinRoom() {
-        mLogger.d("onRTCJoinRoom() called");
-        mHandler.obtainMessage(onRTCJoinRoom).sendToTarget();
     }
 }

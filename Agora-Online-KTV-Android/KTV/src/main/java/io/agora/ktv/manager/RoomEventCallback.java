@@ -10,6 +10,9 @@ import io.agora.ktv.bean.MusicModel;
 
 @MainThread
 public interface RoomEventCallback {
+
+    void onRoomInfoChanged(@NonNull AgoraRoom room);
+
     /**
      * 房间被关闭
      *
@@ -55,5 +58,4 @@ public interface RoomEventCallback {
 
     void onMusicProgress(long total, long cur);
 
-    void onRTCJoinRoom();
 }

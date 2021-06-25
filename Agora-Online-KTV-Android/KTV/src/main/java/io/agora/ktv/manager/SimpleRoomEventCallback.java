@@ -12,6 +12,11 @@ import io.agora.ktv.bean.MusicModel;
 public class SimpleRoomEventCallback implements RoomEventCallback {
 
     @Override
+    public void onRoomInfoChanged(@NonNull AgoraRoom room) {
+
+    }
+
+    @Override
     public void onRoomClosed(@NonNull AgoraRoom room, boolean fromUser) {
 
     }
@@ -63,11 +68,6 @@ public class SimpleRoomEventCallback implements RoomEventCallback {
 
     @Override
     public void onMusicProgress(long total, long cur) {
-
-    }
-
-    @Override
-    public void onRTCJoinRoom() {
 
     }
 }

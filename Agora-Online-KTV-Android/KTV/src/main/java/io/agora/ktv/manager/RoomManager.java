@@ -95,7 +95,6 @@ public final class RoomManager {
                 emitterJoinRTC.onSuccess(uid);
                 emitterJoinRTC = null;
             }
-            mMainThreadDispatch.onRTCJoinRoom();
         }
 
         @Override
@@ -306,6 +305,38 @@ public final class RoomManager {
         mMainThreadDispatch.onMusicChanged(model);
     }
 
+    private SyncManager.EventListener mRoomEvent = new SyncManager.EventListener() {
+
+        @Override
+        public void onCreated(AgoraObject item) {
+
+        }
+
+        @Override
+        public void onUpdated(AgoraObject item) {
+            AgoraRoom room = item.toObject(AgoraRoom.class);
+            room.setId(item.getId());
+            mRoom = room;
+            mMainThreadDispatch.onRoomInfoChanged(mRoom);
+        }
+
+        @Override
+        public void onDeleted(String objectId) {
+
+        }
+
+        @Override
+        public void onSubscribeError(int error, String msg) {
+
+        }
+    };
+
+    public void subcribeRoomEvent() {
+        SyncManager.Instance()
+                .getRoom(mRoom.getId())
+                .subcribe(mRoomEvent);
+    }
+
     private SyncManager.EventListener mMemberEvent = new SyncManager.EventListener() {
         @Override
         public void onCreated(AgoraObject item) {
@@ -360,7 +391,6 @@ public final class RoomManager {
                 .query(new Query().whereEqualTo(AgoraMember.COLUMN_ROOMID, dcRoom))
                 .subcribe(mMemberEvent);
     }
-
 
     private SyncManager.EventListener mMusicEvent = new SyncManager.EventListener() {
         @Override
@@ -560,18 +590,28 @@ public final class RoomManager {
 
     private void onJoinRoom() {
         mMusicModel = null;
-        subcribeMemberEvent();
+        subcribeRoomEvent();
 
-        new Handler().postDelayed(new Runnable() {
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
             @Override
             public void run() {
                 if (mRoom == null) {
                     return;
                 }
+                subcribeMemberEvent();
+            }
+        }, 200L);
 
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (mRoom == null) {
+                    return;
+                }
                 subcribeMusicEvent();
             }
-        }, 250L);
+        }, 400L);
     }
 
     private SingleEmitter<Integer> emitterJoinRTC = null;
@@ -602,9 +642,15 @@ public final class RoomManager {
     private Single<List<AgoraMember>> preJoinSyncMembers() {
         return Single.create(emitter -> {
             mLogger.i("preJoinSyncMembers() called");
+
+            DocumentReference dcRoom = SyncManager.Instance()
+                    .collection(AgoraRoom.TABLE_NAME)
+                    .document(mRoom.getId());
+
             SyncManager.Instance()
                     .getRoom(mRoom.getId())
                     .collection(AgoraMember.TABLE_NAME)
+                    .query(new Query().whereEqualTo(AgoraMember.COLUMN_ROOMID, dcRoom))
                     .get(new SyncManager.DataListCallback() {
                         @Override
                         public void onSuccess(List<AgoraObject> results) {

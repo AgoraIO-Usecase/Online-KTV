@@ -97,8 +97,9 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
     private SimpleRoomEventCallback mRoomEventCallback = new SimpleRoomEventCallback() {
 
         @Override
-        public void onRTCJoinRoom() {
-            super.onRTCJoinRoom();
+        public void onRoomInfoChanged(@NonNull AgoraRoom room) {
+            super.onRoomInfoChanged(room);
+            mDataBinding.rlSing.setBackgroundResource(room.getMVRes());
         }
 
         @Override
@@ -231,6 +232,10 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
     }
 
     private void onJoinRoom() {
+        AgoraRoom mRoom = RoomManager.Instance(this).getRoom();
+        assert mRoom != null;
+        mDataBinding.rlSing.setBackgroundResource(mRoom.getMVRes());
+
         mMusicPlayer = new MusicPlayer(getApplicationContext(), RoomManager.Instance(this).getRtcEngine(), mDataBinding.lrcView);
         mMusicPlayer.registerPlayerObserver(mMusicCallback);
 
@@ -366,6 +371,9 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
             } else {
                 mMusicPlayer.selectAudioTrack(0);
             }
+        } else {
+            mDataBinding.switchOriginal.setChecked(true);
+            ToastUtile.toastShort(this, "该歌曲无法进行人声切换");
         }
     }
 
@@ -470,7 +478,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
 
     private void showOnSeatStatus() {
         mDataBinding.ivMic.setVisibility(View.VISIBLE);
-        mDataBinding.ivBackgroundPicture.setVisibility(View.INVISIBLE);
+        mDataBinding.ivBackgroundPicture.setVisibility(View.VISIBLE);
         mDataBinding.llChooseSong.setVisibility(View.VISIBLE);
         mDataBinding.tvNoOnSeat.setVisibility(View.GONE);
     }
