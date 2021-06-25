@@ -335,12 +335,12 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
                 long curTime;
                 long offset;
                 while (!mStopDisplayLrc) {
-                    if (mLastRecvPlayPosTime != null) {
-                        curTime = System.currentTimeMillis();
-                        offset = curTime - mLastRecvPlayPosTime;
-                        curTs = mRecvedPlayPosition + offset;
+                    if (!isPaused()) {
+                        if (mLastRecvPlayPosTime != null) {
+                            curTime = System.currentTimeMillis();
+                            offset = curTime - mLastRecvPlayPosTime;
+                            curTs = mRecvedPlayPosition + offset;
 
-                        if (isPlaying()) {
                             mHandler.obtainMessage(ACTION_UPDATE_TIME, curTs).sendToTarget();
                         }
                     }
@@ -407,7 +407,7 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
                 mStopSyncLrc = false;
                 while (!mStopSyncLrc && mIsPlaying) {
                     if (!mIsPaused)
-                        sendSyncLrc(lrcId, lrcDuration, mPlayer.getPlayPosition() * 1000);
+                        sendSyncLrc(lrcId, lrcDuration, mPlayer.getPlayPosition());
 
                     try {
                         Thread.sleep(100);
@@ -453,7 +453,7 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
     }
 
     private void startPublish() {
-        startSyncLrc(mMusicModel.getMusicId(), mPlayer.getDuration() * 1000);
+        startSyncLrc(mMusicModel.getMusicId(), mPlayer.getDuration());
     }
 
     private void stopPublish() {

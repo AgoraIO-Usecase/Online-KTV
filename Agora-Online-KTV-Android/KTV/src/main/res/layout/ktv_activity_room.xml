@@ -50,6 +50,7 @@
             android:layout_marginTop="20dp"
             app:layout_constraintBottom_toTopOf="@+id/rvSpeakers"
             app:layout_constraintEnd_toEndOf="@+id/g2"
+            app:layout_constraintHeight_percent="0.45"
             app:layout_constraintStart_toStartOf="@+id/g1"
             app:layout_constraintTop_toBottomOf="@+id/tvName">
 
@@ -62,8 +63,9 @@
                 android:orientation="vertical">
 
                 <ImageView
-                    android:layout_width="80dp"
-                    android:layout_height="80dp" />
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@mipmap/ktv_music_no" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -82,7 +84,7 @@
                     android:textSize="@dimen/ktv_room_text" />
             </LinearLayout>
 
-            <RelativeLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/rlSing"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -91,12 +93,16 @@
                 <io.agora.lrcview.LrcView
                     android:id="@+id/lrcView"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="0dp"
                     android:background="#00000000"
                     android:paddingStart="10dp"
                     android:paddingTop="20dp"
                     android:paddingEnd="10dp"
                     android:paddingBottom="20dp"
+                    app:layout_constraintBottom_toTopOf="@+id/rlMusicMenu"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
                     app:lrcCurrentTextColor="#FFFFFF"
                     app:lrcDividerHeight="20dp"
                     app:lrcNormalTextColor="#99FFFFFF"
@@ -113,7 +119,9 @@
                     android:drawableStart="@mipmap/ktv_room_music_name"
                     android:drawablePadding="4dp"
                     android:gravity="center"
-                    android:textColor="@android:color/white" />
+                    android:textColor="@android:color/white"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <RelativeLayout
                     android:id="@+id/rlMusicMenu"
@@ -121,7 +129,10 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentBottom="true"
                     android:background="@drawable/ktv_shape_room_irc_menu_background"
-                    android:padding="20dp">
+                    android:padding="20dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent">
 
                     <TextView
                         android:id="@+id/tvOriginalLabel"
@@ -166,7 +177,7 @@
                         android:layout_centerVertical="true"
                         android:src="@mipmap/ktv_room_music_qie" />
                 </RelativeLayout>
-            </RelativeLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
         </FrameLayout>
 
         <androidx.recyclerview.widget.RecyclerView

@@ -1,6 +1,7 @@
 package io.agora.ktv.manager;
 
 import android.content.Context;
+import android.os.Handler;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
@@ -400,10 +401,14 @@ public final class RoomManager {
     };
 
     public void subcribeMusicEvent() {
+        DocumentReference drRoom = SyncManager.Instance()
+                .collection(AgoraRoom.TABLE_NAME)
+                .document(mRoom.getId());
+
         SyncManager.Instance()
                 .getRoom(mRoom.getId())
                 .collection(MusicModel.TABLE_NAME)
-                .query(new Query().whereEqualTo(AgoraMember.COLUMN_ROOMID, mRoom.getId()))
+                .query(new Query().whereEqualTo(AgoraMember.COLUMN_ROOMID, drRoom))
                 .subcribe(mMusicEvent);
     }
 
@@ -557,16 +562,16 @@ public final class RoomManager {
         mMusicModel = null;
         subcribeMemberEvent();
 
-//        new Handler().postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-//                if (mRoom == null) {
-//                    return;
-//                }
-//
-//                subcribeMusicEvent();
-//            }
-//        }, 500L);
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (mRoom == null) {
+                    return;
+                }
+
+                subcribeMusicEvent();
+            }
+        }, 250L);
     }
 
     private SingleEmitter<Integer> emitterJoinRTC = null;

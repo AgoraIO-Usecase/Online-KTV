@@ -75,12 +75,12 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
 
         @Override
         public void onMusicPlaing() {
-
+            mDataBinding.ivMusicStart.setImageResource(R.mipmap.ktv_room_music_pause);
         }
 
         @Override
         public void onMusicPause() {
-
+            mDataBinding.ivMusicStart.setImageResource(R.mipmap.ktv_room_music_play);
         }
 
         @Override
@@ -470,7 +470,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
 
     private void showOnSeatStatus() {
         mDataBinding.ivMic.setVisibility(View.VISIBLE);
-        mDataBinding.ivBackgroundPicture.setVisibility(View.VISIBLE);
+        mDataBinding.ivBackgroundPicture.setVisibility(View.INVISIBLE);
         mDataBinding.llChooseSong.setVisibility(View.VISIBLE);
         mDataBinding.tvNoOnSeat.setVisibility(View.GONE);
     }
