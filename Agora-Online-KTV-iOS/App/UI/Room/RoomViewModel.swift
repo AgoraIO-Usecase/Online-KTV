@@ -15,7 +15,7 @@ class RoomViewModel {
     private let disposeBag = DisposeBag()
     private let manager = RoomManager.shared()
     let localMusicManager = LocalMusicManager()
-
+    private var scheduler = SerialDispatchQueueScheduler(internalSerialQueueName: "io")
     weak var delegate: RoomControlDelegate!
 
     var room: LiveKtvRoom {
@@ -354,5 +354,36 @@ class RoomViewModel {
                 onWaiting(false)
             }
             .disposed(by: disposeBag)
+    }
+
+    func search(music _: String,
+                onWaiting: @escaping (Bool) -> Void,
+                onSuccess: @escaping ([LocalMusic]) -> Void,
+                onError: @escaping (String) -> Void)
+    {
+        account.getMusicList()
+            .observe(on: MainScheduler.instance)
+            .do(onSubscribe: {
+                onWaiting(true)
+            }, onDispose: {
+                onWaiting(false)
+            })
+            .subscribe { result in
+                if result.success {
+                    let data = result.data ?? []
+                    onSuccess(data.map { lrcMusic in
+                        LocalMusic(id: lrcMusic.id, name: lrcMusic.name, path: "", lrcPath: "")
+                    })
+                } else {
+                    onError(result.message ?? "unknown error".localized)
+                }
+            } onDisposed: {
+                onWaiting(false)
+            }
+            .disposed(by: disposeBag)
+    }
+
+    func _musicDataSource(music: String) -> Observable<Result<[LocalMusic]>> {
+        return Observable.just(Result(success: true, data: music.isEmpty ? localMusicManager.localMusicList : [])).delay(DispatchTimeInterval.seconds(5), scheduler: scheduler)
     }
 }

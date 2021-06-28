@@ -54,6 +54,20 @@
                 return Result(success: result.success, message: result.message)
             }
         }
+
+        func getMusicList() -> Observable<Result<[LrcMusic]>> {
+            return Single.create { single in
+                single(.success(Result(success: false, message: "not instance!")))
+                return Disposables.create()
+            }.asObservable()
+        }
+
+        func getMusic(id _: String) -> Observable<Result<LrcMusic>> {
+            return Single.create { single in
+                single(.success(Result(success: false, message: "not instance!")))
+                return Disposables.create()
+            }.asObservable()
+        }
     }
 
 #endif
