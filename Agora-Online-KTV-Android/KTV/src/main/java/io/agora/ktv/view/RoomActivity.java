@@ -298,7 +298,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
 
         mAlertDialogRoomError = new AlertDialog.Builder(this)
                 .setMessage(msg)
-                .setNegativeButton(R.string.done, new DialogInterface.OnClickListener() {
+                .setNegativeButton(R.string.ktv_done, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         doLeave();

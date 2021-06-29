@@ -24,6 +24,7 @@ import io.agora.ktv.adapter.SongsAdapter;
 import io.agora.ktv.bean.MusicModel;
 import io.agora.ktv.databinding.KtvFragmentSongListBinding;
 import io.agora.ktv.manager.RoomManager;
+import io.agora.ktv.widget.SpaceItemDecoration;
 
 /**
  * 歌单列表
@@ -64,6 +65,7 @@ public class SongsFragment extends DataBindBaseFragment<KtvFragmentSongListBindi
     public void iniData() {
         mAdapter = new SongsAdapter(new ArrayList<>(), this);
         mDataBinding.list.setLayoutManager(new LinearLayoutManager(requireContext()));
+        mDataBinding.list.addItemDecoration(new SpaceItemDecoration(requireContext()));
         mDataBinding.list.setAdapter(mAdapter);
 
         mDataBinding.swipeRefreshLayout.setEnabled(false);
