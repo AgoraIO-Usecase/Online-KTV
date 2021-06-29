@@ -16,6 +16,7 @@ protocol RoomControlDelegate: AnyObject {
     func onRoomUpdate()
     func onRoomClosed()
     func onPlayListChanged()
+    func onFetchMusic(finish: Bool)
     func onMusic(state: RtcMusicState)
     func show(processing: Bool)
     func onError(message: String?)
@@ -353,6 +354,10 @@ class RoomController: BaseViewContoller, DialogDelegate {
 }
 
 extension RoomController: RoomControlDelegate {
+    func onFetchMusic(finish: Bool) {
+        show(loading: !finish, message: "歌曲准备中")
+    }
+
     func onRoomUpdate() {
         initUI()
     }

@@ -99,11 +99,11 @@ class ProcessingView: UIView {
     }
 }
 
-public extension Dialog {
+extension Dialog {
     func show(processing: Bool, message: String? = nil) {
         DispatchQueue.main.async { [weak self] in
             if let self = self {
-                var oldView = self.viewWithTag(233)
+                var oldView = self.viewWithTag(235)
                 if processing {
                     if oldView == nil {
                         oldView = UIView(frame: self.frame)
@@ -111,7 +111,7 @@ public extension Dialog {
                     guard let backgroundView = oldView else {
                         return
                     }
-                    backgroundView.tag = 233
+                    backgroundView.tag = 235
                     let view = ProcessingView()
                     view.message = message
                     // view.center = backgroundView.center
@@ -123,6 +123,47 @@ public extension Dialog {
                     backgroundView.alpha = 0
                     self.addSubview(backgroundView)
                     backgroundView.fill(view: self).active()
+
+                    UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseInOut, animations: {
+                        backgroundView.alpha = 1
+                    })
+                } else if let backgroundView = oldView {
+                    UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseInOut, animations: {
+                        backgroundView.alpha = 0
+                    }, completion: { _ in
+                        backgroundView.removeFromSuperview()
+                    })
+                }
+            }
+        }
+    }
+}
+
+extension BaseViewContoller {
+    func show(loading: Bool, message: String? = nil) {
+        DispatchQueue.main.async { [weak self] in
+            if let self = self {
+                let tag = 235
+                var oldView = self.view.viewWithTag(tag)
+                if loading {
+                    if oldView == nil {
+                        oldView = UIView(frame: self.view.frame)
+                    }
+                    guard let backgroundView = oldView else {
+                        return
+                    }
+                    backgroundView.tag = tag
+                    let view = ProcessingView()
+                    view.message = message
+                    // view.center = backgroundView.center
+
+                    backgroundView.addSubview(view)
+                    view.centerY(anchor: backgroundView.centerYAnchor, constant: 0)
+                        .centerX(anchor: backgroundView.centerXAnchor)
+                        .active()
+                    backgroundView.alpha = 0
+                    self.view.addSubview(backgroundView)
+                    backgroundView.fill(view: self.view).active()
 
                     UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseInOut, animations: {
                         backgroundView.alpha = 1

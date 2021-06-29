@@ -104,11 +104,21 @@ class MVPlayer {
                 originSettingView.setOn(true, animated: true)
                 status = .play
                 updateMusicLyricViewLayout()
-                if let localMusic = delegate.viewModel.getLocalMusic(music: music) {
-                    musicLyricView.lyrics = LocalMusicManager.parseLyric(music: localMusic)
-                } else {
-                    musicLyricView.lyrics = nil
+                delegate.viewModel.fetchMusicLrc(music: music) { [weak self] waiting in
+                    // delegate.show(processing: waiting)
+                    if waiting {
+                        self?.musicLyricView.lyrics = nil
+                    }
+                } onSuccess: { [weak self] localMusic in
+                    self?.musicLyricView.lyrics = LocalMusicManager.parseLyric(music: localMusic)
+                } onError: { [weak self] message in
+                    self?.delegate.show(message: message, type: .error)
                 }
+//                if let localMusic = delegate.viewModel.getLocalMusic(music: music) {
+//                    musicLyricView.lyrics = LocalMusicManager.parseLyric(music: localMusic)
+//                } else {
+//                    musicLyricView.lyrics = nil
+//                }
             } else {
                 status = .none
             }
