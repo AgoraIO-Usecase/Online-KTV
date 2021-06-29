@@ -11,7 +11,7 @@ import java.util.Random;
 public class AgoraRoom implements Parcelable {
     public static final String TABLE_NAME = "AGORA_ROOM";
 
-    public static final String COLUMN_ID = "id";
+    public static final String COLUMN_ID = "objectId";
     public static final String COLUMN_OWNERID = "userId";
     public static final String COLUMN_NAME = "channelName";
     public static final String COLUMN_COVER = "cover";
@@ -175,5 +175,20 @@ public class AgoraRoom implements Parcelable {
                 ", cover='" + cover + '\'' +
                 ", mv='" + mv + '\'' +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        AgoraRoom agoraRoom = (AgoraRoom) o;
+
+        return id.equals(agoraRoom.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
     }
 }
