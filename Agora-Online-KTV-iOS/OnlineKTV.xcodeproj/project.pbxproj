@@ -92,6 +92,7 @@
 		5783FEBF2667338E000B39F3 /* UserManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5783FEAC2666299A000B39F3 /* UserManager.swift */; };
 		5783FEDB26678197000B39F3 /* UserManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5783FEC526673A0B000B39F3 /* UserManager.swift */; };
 		5783FEDC26678340000B39F3 /* FirebaseHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5783FEC2266738AC000B39F3 /* FirebaseHelper.swift */; };
+		578545462689CF0B00605ABE /* Dialog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 578545452689CF0B00605ABE /* Dialog.swift */; };
 		5791A95C2678D89800A02B30 /* MusicListDialog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5791A95B2678D89800A02B30 /* MusicListDialog.swift */; };
 		5791A95E267AF2FB00A02B30 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5791A95D267AF2FB00A02B30 /* Main.storyboard */; };
 		57E8D504264A2C03007001BC /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 571AA46D2629862700B82B35 /* AppDelegate.swift */; };
@@ -286,6 +287,7 @@
 		5783FEAE26662C37000B39F3 /* LeanCloudHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeanCloudHelper.swift; sourceTree = "<group>"; };
 		5783FEC2266738AC000B39F3 /* FirebaseHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseHelper.swift; sourceTree = "<group>"; };
 		5783FEC526673A0B000B39F3 /* UserManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserManager.swift; sourceTree = "<group>"; };
+		578545452689CF0B00605ABE /* Dialog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dialog.swift; sourceTree = "<group>"; };
 		5791A95B2678D89800A02B30 /* MusicListDialog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicListDialog.swift; sourceTree = "<group>"; };
 		5791A95D267AF2FB00A02B30 /* Main.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		57E8D519264A2C03007001BC /* OnlineKTV_Firebase.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OnlineKTV_Firebase.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -576,6 +578,7 @@
 				5764BBB92670842700293B73 /* CenterNotification.swift */,
 				5764BBBD2670BAD000293B73 /* AlertDialog.swift */,
 				5764BBE52673AE1F00293B73 /* MusicLyricView.swift */,
+				578545452689CF0B00605ABE /* Dialog.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -1123,6 +1126,7 @@
 				574C9CD0266A24F000822A95 /* HomeController.swift in Sources */,
 				5764BBC02671EBE000293B73 /* ManageSpeakerDialog.swift in Sources */,
 				5764BBAB266F1D2D00293B73 /* RtcServer.swift in Sources */,
+				578545462689CF0B00605ABE /* Dialog.swift in Sources */,
 				574C9CD4266A26BE00822A95 /* Colors.swift in Sources */,
 				5764BBE426735D9900293B73 /* Lyric.swift in Sources */,
 				574C9CCA266A0C4300822A95 /* Model.swift in Sources */,
@@ -1374,8 +1378,8 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Manual;
-				DEVELOPMENT_TEAM = "";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = Y695MMFA83;
 				INFOPLIST_FILE = "$(SRCROOT)/OnlineKTV/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1399,8 +1403,8 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Manual;
-				DEVELOPMENT_TEAM = "";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = Y695MMFA83;
 				INFOPLIST_FILE = "$(SRCROOT)/OnlineKTV/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (

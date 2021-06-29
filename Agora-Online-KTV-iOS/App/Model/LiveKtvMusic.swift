@@ -11,11 +11,19 @@ import RxSwift
 
 class LiveKtvMusic: Codable, IAgoraModel {
     public var id: String
-
-    public var userId: String
     public var roomId: String
     public var name: String
     public var musicId: String
+
+    public var type: Int = 0
+
+    public var userId: String
+    public var userStatus: Int?
+
+    public var user1Id: String?
+    public var user1Status: Int?
+
+    public var applyUser1Id: String?
 
     init(id: String, userId: String, roomId: String, name: String, musicId: String) {
         self.id = id

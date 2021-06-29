@@ -62,6 +62,34 @@
                 return Result(success: result.success, message: result.message)
             }
         }
+
+        func getMusicList() -> Observable<Result<[LrcMusic]>> {
+            return Database.query(className: "MUSIC_REPOSITORY", queryWhere: nil) { (list: [LCObject]) in
+                list.map { data in
+                    let id = data.get("musicId")!.stringValue!
+                    let name = data.get("name")!.stringValue!
+                    return LrcMusic(id: id, name: name, song: "", lrc: "")
+                }
+            }
+        }
+
+        func getMusic(id: String) -> Observable<Result<LrcMusic>> {
+            return Single.create { single in
+                LCEngine.run("getMusic", parameters: ["id": id], completionQueue: Database.completionQueue) { result in
+                    switch result {
+                    case let .success(value: value):
+                        if let results = value as? LrcMusic {
+                            single(.success(Result(success: true, data: results)))
+                        } else {
+                            single(.success(Result(success: false, message: "empty result!")))
+                        }
+                    case let .failure(error: error):
+                        single(.success(Result(success: false, message: error.description)))
+                    }
+                }
+                return Disposables.create()
+            }.asObservable()
+        }
     }
 
 #endif
