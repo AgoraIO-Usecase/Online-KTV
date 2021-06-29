@@ -56,6 +56,11 @@ public class MusicModel implements Parcelable {
         List<MusicModel> list = new ArrayList<>();
         list.add(new MusicModel("music0", "青花瓷"));
         list.add(new MusicModel("music1", "Send It"));
+        list.add(new MusicModel("001", "七里香"));
+        list.add(new MusicModel("002", "十年"));
+        list.add(new MusicModel("003", "后来"));
+        list.add(new MusicModel("004", "我怀念的"));
+        list.add(new MusicModel("005", "突然好想你"));
         return list;
     }
 
@@ -83,6 +88,16 @@ public class MusicModel implements Parcelable {
             return "qinghuaci.m4a";
         } else if (musicId.equals("music1")) {
             return "send_it.m4a";
+        } else if (musicId.equals("001")) {
+            return "001.mp3";
+        } else if (musicId.equals("002")) {
+            return "002.mp3";
+        } else if (musicId.equals("003")) {
+            return "003.mp3";
+        } else if (musicId.equals("004")) {
+            return "004.mp3";
+        } else if (musicId.equals("005")) {
+            return "005.mp3";
         } else {
             return null;
         }
@@ -94,6 +109,16 @@ public class MusicModel implements Parcelable {
             return "qinghuaci.lrc";
         } else if (musicId.equals("music1")) {
             return "send_it_cn.lrc";
+        } else if (musicId.equals("001")) {
+            return "001.lrc";
+        } else if (musicId.equals("002")) {
+            return "002.lrc";
+        } else if (musicId.equals("003")) {
+            return "003.lrc";
+        } else if (musicId.equals("004")) {
+            return "004.lrc";
+        } else if (musicId.equals("005")) {
+            return "005.lrc";
         } else {
             return null;
         }
