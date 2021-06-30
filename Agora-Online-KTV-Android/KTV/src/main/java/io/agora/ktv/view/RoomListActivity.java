@@ -196,9 +196,9 @@ public class RoomListActivity extends DataBindBaseActivity<KtvActivityRoomListBi
                 .getRoom(data.getId())
                 .get(new SyncManager.DataItemCallback() {
                     @Override
-                    public void onSuccess(AgoraObject avObject) {
-                        AgoraRoom mRoom = avObject.toObject(AgoraRoom.class);
-                        mRoom.setId(avObject.getId());
+                    public void onSuccess(AgoraObject LCObject) {
+                        AgoraRoom mRoom = LCObject.toObject(AgoraRoom.class);
+                        mRoom.setId(LCObject.getId());
 
                         Intent intent = RoomActivity.newIntent(RoomListActivity.this, mRoom);
                         startActivity(intent);

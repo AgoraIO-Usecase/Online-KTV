@@ -28,7 +28,7 @@ class MVPlayer {
     weak var mv: UIImageView!
     weak var originSettingView: UISwitch! {
         didSet {
-            originSettingView.isOn = false
+            originSettingView.isOn = true
             originSettingView.superview?.addSubview(hookSwitchView)
             hookSwitchView.fill(view: originSettingView)
                 .active()
@@ -101,13 +101,24 @@ class MVPlayer {
                 return
             }
             if let music = music {
+                originSettingView.setOn(true, animated: true)
                 status = .play
                 updateMusicLyricViewLayout()
-                if let localMusic = delegate.viewModel.getLocalMusic(music: music) {
-                    musicLyricView.lyrics = LocalMusicManager.parseLyric(music: localMusic)
-                } else {
-                    musicLyricView.lyrics = nil
+                delegate.viewModel.fetchMusicLrc(music: music) { [weak self] waiting in
+                    // delegate.show(processing: waiting)
+                    if waiting {
+                        self?.musicLyricView.lyrics = nil
+                    }
+                } onSuccess: { [weak self] localMusic in
+                    self?.musicLyricView.lyrics = LocalMusicManager.parseLyric(music: localMusic)
+                } onError: { [weak self] message in
+                    self?.delegate.show(message: message, type: .error)
                 }
+//                if let localMusic = delegate.viewModel.getLocalMusic(music: music) {
+//                    musicLyricView.lyrics = LocalMusicManager.parseLyric(music: localMusic)
+//                } else {
+//                    musicLyricView.lyrics = nil
+//                }
             } else {
                 status = .none
             }
@@ -196,7 +207,7 @@ class MVPlayer {
             case .playBackCompleted, .playBackAllLoopsCompleted:
                 if status != .stop {
                     status = .stop
-                    originSettingView.setOn(false, animated: true)
+                    originSettingView.setOn(true, animated: true)
                 }
                 if let music = music {
                     delegate.viewModel.end(music: music) { [unowned self] waiting in
@@ -246,17 +257,17 @@ class MVPlayer {
     }
 
     @objc func onSwitchOrigin() {
-        let enable = !originSettingView.isOn
+        let enable = originSettingView.isOn
         if enable {
             if delegate.viewModel.isSupportSwitchOriginMusic {
-                originSettingView.setOn(true, animated: true)
+                originSettingView.setOn(false, animated: true)
                 delegate.viewModel.originMusic(enable: true)
             } else {
                 delegate.show(message: "该歌曲无法进行人声切换", type: .error)
             }
         } else {
             if delegate.viewModel.isSupportSwitchOriginMusic {
-                originSettingView.setOn(false, animated: true)
+                originSettingView.setOn(true, animated: true)
                 delegate.viewModel.originMusic(enable: false)
             }
         }

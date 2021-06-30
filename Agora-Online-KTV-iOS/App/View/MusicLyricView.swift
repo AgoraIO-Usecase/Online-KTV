@@ -343,7 +343,7 @@ class MusicLyricView: UIView, UITableViewDataSource, UITableViewDelegate {
             cell.lyricLabel.textColor = .clear
             cell.lyricLabel.text = nil
         } else {
-            cell.lyricLabel.text = lyrics?[index].content
+            cell.lyricLabel.text = lyrics?[index].content.trimmingCharacters(in: .newlines)
             if indexPath.row == current {
                 cell.lyricLabel.font = UIFont.systemFont(ofSize: 20, weight: .medium)
             } else {

@@ -316,8 +316,11 @@ public final class RoomManager {
         public void onUpdated(AgoraObject item) {
             AgoraRoom room = item.toObject(AgoraRoom.class);
             room.setId(item.getId());
-            mRoom = room;
-            mMainThreadDispatch.onRoomInfoChanged(mRoom);
+
+            if (ObjectsCompat.equals(room, mRoom)) {
+                mRoom = room;
+                mMainThreadDispatch.onRoomInfoChanged(mRoom);
+            }
         }
 
         @Override
@@ -337,13 +340,9 @@ public final class RoomManager {
     };
 
     public void subcribeRoomEvent() {
-        DocumentReference dcRoom = SyncManager.Instance()
-                .collection(AgoraRoom.TABLE_NAME)
-                .document(mRoom.getId());
-
         SyncManager.Instance()
                 .getRoom(mRoom.getId())
-                .query(new Query().whereEqualTo(AgoraRoom.COLUMN_ID, dcRoom))
+                .query(new Query().whereEqualTo(AgoraRoom.COLUMN_ID, mRoom.getId()))
                 .subcribe(mRoomEvent);
     }
 

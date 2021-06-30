@@ -88,6 +88,8 @@ private class OrderMusicCell: UITableViewCell {
 private class LocalMusicList: UITableView, UITableViewDataSource, OrderMusicDelegate {
     weak var roomDelegate: RoomController?
 
+    var data: [LocalMusic] = []
+
     override init(frame: CGRect, style: UITableView.Style) {
         super.init(frame: frame, style: style)
         register(OrderMusicCell.self, forCellReuseIdentifier: NSStringFromClass(OrderMusicCell.self))
@@ -104,13 +106,13 @@ private class LocalMusicList: UITableView, UITableViewDataSource, OrderMusicDele
     func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
         separatorStyle = .none
         backgroundColor = .clear
-        return roomDelegate?.viewModel.localMusicManager.localMusicList.count ?? 0
+        return data.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell: OrderMusicCell = tableView.dequeueReusableCell(withIdentifier: NSStringFromClass(OrderMusicCell.self), for: indexPath) as! OrderMusicCell
         cell.delegate = self
-        cell.music = roomDelegate!.viewModel.localMusicManager.localMusicList[indexPath.row]
+        cell.music = data[indexPath.row]
         return cell
     }
 
@@ -274,6 +276,76 @@ private class LiveMusicList: UITableView, UITableViewDataSource, OrderMusicDeleg
     }
 }
 
+private protocol SearchViewDelegate: AnyObject {
+    func onSearch(text: String)
+}
+
+private class SearchView: UIView, UITextFieldDelegate {
+    weak var delegate: SearchViewDelegate?
+
+    private var icon: UIImageView = {
+        let view = UIImageView()
+        view.image = UIImage(named: "iconSearch", in: Utils.bundle, with: nil)
+        return view
+    }()
+
+    private var editor: UITextField = {
+        let view = UITextField()
+        view.borderStyle = .none
+        view.attributedPlaceholder = NSAttributedString(string: "搜索歌曲或歌手", attributes: [NSAttributedString.Key.foregroundColor: UIColor(hex: "#7e7e7e")])
+        view.font = UIFont.systemFont(ofSize: 14)
+        view.textColor = UIColor(hex: "#ccffffff")
+        view.clearButtonMode = .whileEditing
+        view.returnKeyType = .search
+        return view
+    }()
+
+    init() {
+        super.init(frame: .zero)
+        let view = UIView()
+        view.backgroundColor = UIColor(hex: "#bd000000")
+        view.rounded(radius: 16)
+        addSubview(view)
+        view.height(constant: 32)
+            .marginLeading(anchor: leadingAnchor)
+            .marginTrailing(anchor: trailingAnchor)
+            .centerY(anchor: centerYAnchor)
+            .active()
+        view.addSubview(icon)
+        icon.width(constant: 16)
+            .height(constant: 16)
+            .marginLeading(anchor: view.leadingAnchor, constant: 12)
+            .centerY(anchor: view.centerYAnchor)
+            .active()
+        view.addSubview(editor)
+        editor.marginLeading(anchor: icon.trailingAnchor, constant: 6)
+            .marginTrailing(anchor: view.trailingAnchor, constant: 12)
+            .marginTop(anchor: view.topAnchor, constant: 5)
+            .marginBottom(anchor: view.bottomAnchor, constant: 5)
+            .active()
+        editor.delegate = self
+    }
+
+    @available(*, unavailable)
+    required init?(coder _: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func endEditing(_ force: Bool) -> Bool {
+        return editor.endEditing(force)
+    }
+
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        if let text = textField.text {
+            _ = editor.endEditing(true)
+            delegate?.onSearch(text: text)
+            return true
+        } else {
+            return false
+        }
+    }
+}
+
 private protocol HeaderViewDelegate: AnyObject {
     func onSelect(index: Int)
 }
@@ -397,7 +469,7 @@ private class HeaderView: UIView {
     }
 }
 
-class MusicListDialog: Dialog, UIScrollViewDelegate, HeaderViewDelegate {
+class MusicListDialog: Dialog, UIScrollViewDelegate, HeaderViewDelegate, SearchViewDelegate {
     weak var delegate: RoomController! {
         didSet {
             scrollView.contentSize.width = delegate.view.bounds.width * 2
@@ -416,6 +488,8 @@ class MusicListDialog: Dialog, UIScrollViewDelegate, HeaderViewDelegate {
         return view
     }()
 
+    private var searchView = SearchView()
+
     private var scrollView: UIScrollView = {
         let view = UIScrollView()
         view.bounces = false
@@ -427,6 +501,15 @@ class MusicListDialog: Dialog, UIScrollViewDelegate, HeaderViewDelegate {
 
     private var localMusicList: LocalMusicList = {
         let view = LocalMusicList()
+        return view
+    }()
+
+    private var emptyView: UILabel = {
+        let view = UILabel()
+        view.text = "未找到相关搜索结果"
+        view.textAlignment = .center
+        view.textColor = UIColor(hex: "#7e7e7e")
+        view.font = UIFont.systemFont(ofSize: 14)
         return view
     }()
 
@@ -448,7 +531,7 @@ class MusicListDialog: Dialog, UIScrollViewDelegate, HeaderViewDelegate {
         addSubview(tipsView)
         addSubview(scrollView)
 
-        tipsView.marginBottom(anchor: safeAreaLayoutGuide.bottomAnchor, constant: 18)
+        tipsView.marginBottom(anchor: safeAreaLayoutGuide.bottomAnchor, constant: 11)
             .centerX(anchor: centerXAnchor)
             .marginLeading(anchor: leadingAnchor, constant: 15, relation: .greaterOrEqual)
             .active()
@@ -466,16 +549,25 @@ class MusicListDialog: Dialog, UIScrollViewDelegate, HeaderViewDelegate {
             .marginLeading(anchor: view.leadingAnchor, constant: 0, relation: .greaterOrEqual)
             .centerX(anchor: view.centerXAnchor)
             .active()
-        scrollView.height(constant: 408, relation: .greaterOrEqual)
-            .marginTop(anchor: view.bottomAnchor, constant: 24)
+        scrollView.height(constant: 450, relation: .greaterOrEqual)
+            .marginTop(anchor: view.bottomAnchor, constant: 0)
             .marginLeading(anchor: leadingAnchor, constant: 0)
             .marginTrailing(anchor: trailingAnchor, constant: 0)
-            .marginBottom(anchor: tipsView.topAnchor, constant: 20)
+            .marginBottom(anchor: tipsView.topAnchor, constant: 11)
+            .active()
+
+        scrollView.addSubview(searchView)
+        searchView.marginLeading(anchor: scrollView.leadingAnchor, constant: 15)
+            .width(equalTo: scrollView.widthAnchor, constant: -15 * 2)
+            .height(constant: 32)
+            .marginTop(anchor: scrollView.topAnchor, constant: 16)
             .active()
 
         scrollView.addSubview(localMusicList)
-        localMusicList.width(equalTo: scrollView.widthAnchor)
-            .height(equalTo: scrollView.heightAnchor)
+        localMusicList.marginLeading(anchor: scrollView.leadingAnchor)
+            .width(equalTo: scrollView.widthAnchor)
+            .marginTop(anchor: searchView.bottomAnchor, constant: 16)
+            .height(equalTo: scrollView.heightAnchor, constant: -16 * 2 - 32)
             .active()
 
         scrollView.addSubview(liveMusicList)
@@ -486,6 +578,14 @@ class MusicListDialog: Dialog, UIScrollViewDelegate, HeaderViewDelegate {
 
         scrollView.delegate = self
         header.delegate = self
+        searchView.delegate = self
+    }
+
+    override func touchesBegan(_: Set<UITouch>, with _: UIEvent?) {
+        UIApplication
+            .shared
+            .sendAction(#selector(UIApplication.resignFirstResponder),
+                        to: nil, from: nil, for: nil)
     }
 
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
@@ -502,11 +602,35 @@ class MusicListDialog: Dialog, UIScrollViewDelegate, HeaderViewDelegate {
         }
     }
 
+    func onSearch(text: String) {
+        Logger.log(self, message: "onSearch \(text)", level: .info)
+        delegate.viewModel.search(music: text) { [unowned self] waiting in
+            self.show(processing: waiting, message: "歌曲搜索中")
+        } onSuccess: { [unowned self] list in
+            localMusicList.data = list
+            localMusicList.reloadData()
+            if list.count == 0 {
+                if emptyView.superview == nil {
+                    scrollView.addSubview(emptyView)
+                    emptyView.fill(view: localMusicList)
+                        .active()
+                }
+            } else {
+                if emptyView.superview != nil {
+                    emptyView.removeFromSuperview()
+                }
+            }
+        } onError: { [unowned self] message in
+            self.delegate.show(message: message, type: .error)
+        }
+    }
+
     func show(delegate: RoomController) {
         self.delegate = delegate
         onSelect(index: 0)
         reload()
         show(controller: delegate)
+        onSearch(text: "")
     }
 
     func reload() {

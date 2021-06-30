@@ -15,7 +15,7 @@ class RoomViewModel {
     private let disposeBag = DisposeBag()
     private let manager = RoomManager.shared()
     let localMusicManager = LocalMusicManager()
-
+    private var scheduler = SerialDispatchQueueScheduler(internalSerialQueueName: "io")
     weak var delegate: RoomControlDelegate!
 
     var room: LiveKtvRoom {
@@ -69,6 +69,8 @@ class RoomViewModel {
     private(set) var memberList: [LiveKtvMember] = []
     private(set) var musicList: [LiveKtvMusic] = []
 
+    private var lrcMusicCache = [String: LrcMusic]()
+
     func subcribeRoomEvent() {
         manager.subscribeRoom()
             .observe(on: MainScheduler.instance)
@@ -100,24 +102,32 @@ class RoomViewModel {
 
         manager.subscribeMusicList()
             .observe(on: MainScheduler.instance)
+            .concatMap { [unowned self] result -> Observable<Result<LocalMusic>> in
+                result.onSuccess {
+                    let list = result.data ?? []
+                    self.musicList = list
+                    self.delegate?.onPlayListChanged()
+                    if let music = self.playingMusic {
+                        if music.isOrderBy(member: self.member) {
+                            return self.fetchMusic(music: music)
+                                .do(onSubscribe: {
+                                    self.delegate?.onFetchMusic(finish: false)
+                                }, onDispose: {
+                                    self.delegate?.onFetchMusic(finish: true)
+                                })
+                        }
+                    }
+                    return Observable.just(Result(success: true, data: nil))
+                }
+            }
+            .observe(on: MainScheduler.instance)
             .subscribe(onNext: { [unowned self] result in
                 if result.success {
-                    if let list = result.data {
-                        self.musicList = list
-                        self.delegate?.onPlayListChanged()
-                        if let music = self.playingMusic {
-                            if !music.isOrderBy(member: self.member) {
-                                return
-                            }
-                            if let localMusic = self.getLocalMusic(music: music),
-                               !self.isLocalMusicPlaying(music: localMusic)
-                            {
-                                self.play(music: localMusic) { [unowned self] waiting in
-                                    self.delegate.show(processing: waiting)
-                                } onSuccess: {} onError: { [unowned self] message in
-                                    self.delegate.onError(message: message)
-                                }
-                            }
+                    if let localMusic = result.data, !self.isLocalMusicPlaying(music: localMusic) {
+                        self.play(music: localMusic) { [unowned self] waiting in
+                            self.delegate.show(processing: waiting)
+                        } onSuccess: {} onError: { [unowned self] message in
+                            self.delegate.onError(message: message)
                         }
                     }
                 } else {
@@ -168,10 +178,82 @@ class RoomViewModel {
             .disposed(by: disposeBag)
     }
 
-    func getLocalMusic(music: LiveKtvMusic) -> LocalMusic? {
-        return localMusicManager.localMusicList.first { local in
-            local.id == music.musicId
+    private func getLrcMusic(music: LiveKtvMusic) -> Observable<Result<LrcMusic>> {
+        if let data = lrcMusicCache[music.musicId] {
+            return Observable.just(Result(success: true, data: data))
+        } else {
+            return account.getMusic(id: music.musicId)
+                .map { [weak self] result -> Result<LrcMusic> in
+                    if result.success {
+                        let data: LrcMusic = result.data!
+                        data.id = music.musicId
+                        data.name = music.name
+                        self?.lrcMusicCache[music.musicId] = data
+                    }
+                    return result
+                }
         }
+    }
+
+    private func fetchMusic(music: LiveKtvMusic) -> Observable<Result<LocalMusic>> {
+        return getLrcMusic(music: music)
+            .concatMap { result -> Observable<Result<LocalMusic>> in
+                result.onSuccess {
+                    let lrcMusic = result.data!
+                    return Single.create { single in
+                        DownloadManager.shared.getFile(url: lrcMusic.song) { downloadResult in
+                            switch downloadResult {
+                            case let .success(file: file):
+                                single(.success(Result(success: true, data: LocalMusic(id: lrcMusic.id!, name: lrcMusic.name!, path: file, lrcPath: ""))))
+                            case let .failed(error: error):
+                                single(.success(Result(success: false, message: error)))
+                            }
+                        }
+                        return Disposables.create()
+                    }.asObservable()
+                }
+            }
+//            .delay(DispatchTimeInterval.seconds(1), scheduler: scheduler)
+    }
+
+    func fetchMusicLrc(music: LiveKtvMusic,
+                       onWaiting: @escaping (Bool) -> Void,
+                       onSuccess: @escaping (LocalMusic) -> Void,
+                       onError: @escaping (String) -> Void)
+    {
+        getLrcMusic(music: music)
+            .concatMap { result -> Observable<Result<LocalMusic>> in
+                result.onSuccess {
+                    let lrcMusic = result.data!
+                    return Single.create { single in
+                        DownloadManager.shared.getFile(url: lrcMusic.lrc) { downloadResult in
+                            switch downloadResult {
+                            case let .success(file: file):
+                                single(.success(Result(success: true, data: LocalMusic(id: lrcMusic.id!, name: lrcMusic.name!, path: "", lrcPath: file))))
+                            case let .failed(error: error):
+                                single(.success(Result(success: false, message: error)))
+                            }
+                        }
+                        return Disposables.create()
+                    }.asObservable()
+                }
+            }
+            .observe(on: MainScheduler.instance)
+            .do(onSubscribe: {
+                onWaiting(true)
+            }, onDispose: {
+                onWaiting(false)
+            })
+            .subscribe { result in
+                if result.success {
+                    onSuccess(result.data!)
+                } else {
+                    onError(result.message ?? "unknown error".localized)
+                }
+            } onDisposed: {
+                onWaiting(false)
+            }
+            .disposed(by: disposeBag)
     }
 
     func isLocalMusicPlaying(music: LocalMusic) -> Bool {
@@ -354,5 +436,60 @@ class RoomViewModel {
                 onWaiting(false)
             }
             .disposed(by: disposeBag)
+    }
+
+    func search(music _: String,
+                onWaiting: @escaping (Bool) -> Void,
+                onSuccess: @escaping ([LocalMusic]) -> Void,
+                onError: @escaping (String) -> Void)
+    {
+        account.getMusicList()
+            .observe(on: MainScheduler.instance)
+            .do(onSubscribe: {
+                onWaiting(true)
+            }, onDispose: {
+                onWaiting(false)
+            })
+            .subscribe { result in
+                if result.success {
+                    let data = result.data ?? []
+                    onSuccess(data.map { lrcMusic in
+                        LocalMusic(id: lrcMusic.id!, name: lrcMusic.name!, path: "", lrcPath: "")
+                    })
+                } else {
+                    onError(result.message ?? "unknown error".localized)
+                }
+            } onDisposed: {
+                onWaiting(false)
+            }
+            .disposed(by: disposeBag)
+    }
+
+    func getMusic(id: String,
+                  onWaiting: @escaping (Bool) -> Void,
+                  onSuccess: @escaping (LrcMusic) -> Void,
+                  onError: @escaping (String) -> Void)
+    {
+        account.getMusic(id: id)
+            .observe(on: MainScheduler.instance)
+            .do(onSubscribe: {
+                onWaiting(true)
+            }, onDispose: {
+                onWaiting(false)
+            })
+            .subscribe { result in
+                if result.success {
+                    onSuccess(result.data!)
+                } else {
+                    onError(result.message ?? "unknown error".localized)
+                }
+            } onDisposed: {
+                onWaiting(false)
+            }
+            .disposed(by: disposeBag)
+    }
+
+    func _musicDataSource(music: String) -> Observable<Result<[LocalMusic]>> {
+        return Observable.just(Result(success: true, data: music.isEmpty ? localMusicManager.localMusicList : [])).delay(DispatchTimeInterval.seconds(5), scheduler: scheduler)
     }
 }

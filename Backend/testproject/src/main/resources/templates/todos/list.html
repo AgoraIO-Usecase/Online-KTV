@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>LeanEngine</title>
+<link rel="stylesheet" href="/stylesheets/style.css" />
+</head>
+<body>
+	<h1>TODO list</h1>
+	<form action="/todos/" method="post">
+		<input type="text" name="content" /> <input type="submit" value="New todo" />
+	</form>
+	<table>
+		<thead>
+			<tr>
+				<td><h3>content</h3></td>
+				<td><h3>createdAt</h3></td>
+			</tr>
+		</thead>
+		<tbody>
+			<tr th:each="todo: ${todos}">
+				<td th:text="${todo.content}">Todo content</td>
+				<td th:text="${todo.createdAt}">time</td>
+			</tr>
+		</tbody>
+	</table>
+</body>
+</html>

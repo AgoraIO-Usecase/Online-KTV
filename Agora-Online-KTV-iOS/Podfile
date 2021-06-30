@@ -19,6 +19,7 @@ target 'app' do
   commonPods
   use_frameworks!
   pod 'AgoraSdk', :path => './AgoraSdk'
+  #pod 'YYCache'
 end
 
 # target with leancloud sdk

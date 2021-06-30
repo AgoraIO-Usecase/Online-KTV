@@ -55,3 +55,17 @@ public class LocalSetting: Codable {
         self.audienceLatency = audienceLatency
     }
 }
+
+public class LrcMusic: Decodable, Encodable {
+    public var id: String?
+    public var name: String?
+    public var song: String
+    public var lrc: String
+
+    public init(id: String?, name: String?, song: String, lrc: String) {
+        self.id = id
+        self.name = name
+        self.song = song
+        self.lrc = lrc
+    }
+}

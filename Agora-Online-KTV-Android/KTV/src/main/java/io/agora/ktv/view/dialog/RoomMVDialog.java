@@ -23,6 +23,7 @@ import java.util.List;
 
 import io.agora.baselibrary.base.DataBindBaseDialog;
 import io.agora.baselibrary.base.OnItemClickListener;
+import io.agora.baselibrary.util.ToastUtile;
 import io.agora.ktv.R;
 import io.agora.ktv.adapter.MVAdapter;
 import io.agora.ktv.databinding.KtvDialogMvBinding;
@@ -118,7 +119,7 @@ public class RoomMVDialog extends DataBindBaseDialog<KtvDialogMvBinding> impleme
 
                     @Override
                     public void onFail(AgoraException exception) {
-
+                        ToastUtile.toastShort(requireContext(), exception.getMessage());
                     }
                 });
     }

@@ -130,8 +130,10 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
 
         //copy local music to SDCard
         resourceRoot = mContext.getExternalCacheDir().getPath();
-        extractAsset(mContext, "qinghuaci.m4a");
-        extractAsset(mContext, "send_it.m4a");
+        List<MusicModel> musics = MusicModel.getMusicList();
+        for (MusicModel music : musics) {
+            extractAsset(mContext, music.getMusicFile());
+        }
     }
 
     private void reset() {
