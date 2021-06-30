@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.os.Handler;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentManager;
 
 import io.agora.baselibrary.base.DataBindBaseDialog;
@@ -32,6 +33,12 @@ public class WaitingDialog extends DataBindBaseDialog<KtvDialogWaitingBinding> {
     };
 
     @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setStyle(STYLE_NORMAL, R.style.ktv_Dialog_Waiting);
+    }
+
+    @Override
     public void iniBundle(@NonNull Bundle bundle) {
         msg = bundle.getString(TAG_MSG);
     }
@@ -53,8 +60,10 @@ public class WaitingDialog extends DataBindBaseDialog<KtvDialogWaitingBinding> {
 
     @Override
     public void iniData() {
+        setCancelable(false);
+
         mDataBinding.tvMsg.setText(msg);
-        mHandler.postDelayed(mRunnable, 30 * 1000L);
+        mHandler.postDelayed(mRunnable, 60 * 1000L);
     }
 
     public void show(@NonNull FragmentManager manager, String msg, Callback mCallback) {

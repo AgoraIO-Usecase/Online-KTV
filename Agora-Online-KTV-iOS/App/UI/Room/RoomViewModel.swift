@@ -7,6 +7,7 @@
 
 import Core
 import Foundation
+import LrcView
 import RxCocoa
 import RxRelay
 import RxSwift
@@ -78,6 +79,9 @@ class RoomViewModel {
                 if !result.success {
                     self.delegate?.onError(message: result.message)
                 } else if result.data == nil {
+                    if let message = result.message {
+                        self.delegate?.onError(message: message)
+                    }
                     self.delegate?.onRoomClosed()
                 } else {
                     self.delegate?.onRoomUpdate()
@@ -123,7 +127,7 @@ class RoomViewModel {
             .observe(on: MainScheduler.instance)
             .subscribe(onNext: { [unowned self] result in
                 if result.success {
-                    if let localMusic = result.data, !self.isLocalMusicPlaying(music: localMusic) {
+                    if let localMusic = result.data, localMusic.id == self.playingMusic?.musicId, !self.isLocalMusicPlaying(music: localMusic) {
                         self.play(music: localMusic) { [unowned self] waiting in
                             self.delegate.show(processing: waiting)
                         } onSuccess: {} onError: { [unowned self] message in
@@ -188,6 +192,8 @@ class RoomViewModel {
                         let data: LrcMusic = result.data!
                         data.id = music.musicId
                         data.name = music.name
+                        data.singer = music.singer
+                        data.poster = music.poster
                         self?.lrcMusicCache[music.musicId] = data
                     }
                     return result
@@ -201,15 +207,19 @@ class RoomViewModel {
                 result.onSuccess {
                     let lrcMusic = result.data!
                     return Single.create { single in
-                        DownloadManager.shared.getFile(url: lrcMusic.song) { downloadResult in
+                        let task = DownloadManager.shared.getFile(url: lrcMusic.song) { downloadResult in
                             switch downloadResult {
                             case let .success(file: file):
-                                single(.success(Result(success: true, data: LocalMusic(id: lrcMusic.id!, name: lrcMusic.name!, path: file, lrcPath: ""))))
+                                single(.success(Result(success: true, data: LocalMusic(id: lrcMusic.id!, name: lrcMusic.name!, path: file, lrcPath: "", singer: lrcMusic.singer!, poster: lrcMusic.poster!))))
                             case let .failed(error: error):
                                 single(.success(Result(success: false, message: error)))
                             }
                         }
-                        return Disposables.create()
+                        return Disposables.create {
+                            if task?.state == .running {
+                                task?.cancel()
+                            }
+                        }
                     }.asObservable()
                 }
             }
@@ -226,15 +236,19 @@ class RoomViewModel {
                 result.onSuccess {
                     let lrcMusic = result.data!
                     return Single.create { single in
-                        DownloadManager.shared.getFile(url: lrcMusic.lrc) { downloadResult in
+                        let task = DownloadManager.shared.getFile(url: lrcMusic.lrc) { downloadResult in
                             switch downloadResult {
                             case let .success(file: file):
-                                single(.success(Result(success: true, data: LocalMusic(id: lrcMusic.id!, name: lrcMusic.name!, path: "", lrcPath: file))))
+                                single(.success(Result(success: true, data: LocalMusic(id: lrcMusic.id!, name: lrcMusic.name!, path: "", lrcPath: file, singer: lrcMusic.singer!, poster: lrcMusic.poster!))))
                             case let .failed(error: error):
                                 single(.success(Result(success: false, message: error)))
                             }
                         }
-                        return Disposables.create()
+                        return Disposables.create {
+                            if task?.state == .running {
+                                task?.cancel()
+                            }
+                        }
                     }.asObservable()
                 }
             }
@@ -258,6 +272,10 @@ class RoomViewModel {
 
     func isLocalMusicPlaying(music: LocalMusic) -> Bool {
         return music.id == manager.playingMusic?.id
+    }
+
+    func seekMusic(position: TimeInterval) {
+        manager.seekMusic(position: position)
     }
 
     func pauseMusic() {
@@ -321,7 +339,7 @@ class RoomViewModel {
                onSuccess: @escaping () -> Void,
                onError: @escaping (String) -> Void)
     {
-        member.orderMusic(id: music.id, name: music.name)
+        member.orderMusic(id: music.id, name: music.name, singer: music.singer, poster: music.poster)
             .observe(on: MainScheduler.instance)
             .do(onSubscribe: {
                 onWaiting(true)
@@ -438,12 +456,12 @@ class RoomViewModel {
             .disposed(by: disposeBag)
     }
 
-    func search(music _: String,
+    func search(music: String,
                 onWaiting: @escaping (Bool) -> Void,
                 onSuccess: @escaping ([LocalMusic]) -> Void,
                 onError: @escaping (String) -> Void)
     {
-        account.getMusicList()
+        account.getMusicList(key: music)
             .observe(on: MainScheduler.instance)
             .do(onSubscribe: {
                 onWaiting(true)
@@ -454,7 +472,7 @@ class RoomViewModel {
                 if result.success {
                     let data = result.data ?? []
                     onSuccess(data.map { lrcMusic in
-                        LocalMusic(id: lrcMusic.id!, name: lrcMusic.name!, path: "", lrcPath: "")
+                        LocalMusic(id: lrcMusic.id!, name: lrcMusic.name!, path: "", lrcPath: "", singer: lrcMusic.singer!, poster: lrcMusic.poster!)
                     })
                 } else {
                     onError(result.message ?? "unknown error".localized)
@@ -489,7 +507,7 @@ class RoomViewModel {
             .disposed(by: disposeBag)
     }
 
-    func _musicDataSource(music: String) -> Observable<Result<[LocalMusic]>> {
-        return Observable.just(Result(success: true, data: music.isEmpty ? localMusicManager.localMusicList : [])).delay(DispatchTimeInterval.seconds(5), scheduler: scheduler)
-    }
+//    func _musicDataSource(music: String) -> Observable<Result<[LocalMusic]>> {
+//        return Observable.just(Result(success: true, data: music.isEmpty ? localMusicManager.localMusicList : [])).delay(DispatchTimeInterval.seconds(5), scheduler: scheduler)
+//    }
 }

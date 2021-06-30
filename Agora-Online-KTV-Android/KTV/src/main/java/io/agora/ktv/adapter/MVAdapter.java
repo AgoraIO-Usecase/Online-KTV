@@ -4,6 +4,9 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+
+import com.bumptech.glide.Glide;
 
 import java.util.List;
 
@@ -17,6 +20,8 @@ import io.agora.ktv.databinding.KtvItemMvBinding;
  * @author chenhengfei@agora.io
  */
 public class MVAdapter extends BaseRecyclerViewAdapter<MVAdapter.MVModel, MVAdapter.ViewHolder> {
+
+    private int selectIndex = -1;
 
     public MVAdapter(@Nullable List<MVModel> datas, @Nullable Object listener) {
         super(datas, listener);
@@ -39,7 +44,17 @@ public class MVAdapter extends BaseRecyclerViewAdapter<MVAdapter.MVModel, MVAdap
             return;
         }
 
-        holder.mDataBinding.iv.setImageResource(item.resId);
+        if (selectIndex == position) {
+            holder.mDataBinding.llRoot.setBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.ktv_mv_selected));
+            holder.mDataBinding.ivSelected.setVisibility(View.VISIBLE);
+        } else {
+            holder.mDataBinding.llRoot.setBackground(null);
+            holder.mDataBinding.ivSelected.setVisibility(View.GONE);
+        }
+
+        Glide.with(holder.itemView)
+                .load(item.resId)
+                .into(holder.mDataBinding.iv);
     }
 
     class ViewHolder extends BaseRecyclerViewAdapter.BaseViewHolder<KtvItemMvBinding> {
@@ -47,6 +62,11 @@ public class MVAdapter extends BaseRecyclerViewAdapter<MVAdapter.MVModel, MVAdap
         public ViewHolder(View view) {
             super(view);
         }
+    }
+
+    public void setSelectIndex(int selectIndex) {
+        this.selectIndex = selectIndex;
+        notifyDataSetChanged();
     }
 
     public static class MVModel {

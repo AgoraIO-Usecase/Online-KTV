@@ -5,6 +5,7 @@ import android.os.Parcelable;
 
 import com.agora.data.R;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -23,6 +24,7 @@ public class AgoraRoom implements Parcelable {
     private String userId;
     private String cover;
     private String mv;
+    private Date createdAt;
 
     public AgoraRoom() {
     }
@@ -33,6 +35,7 @@ public class AgoraRoom implements Parcelable {
         userId = in.readString();
         cover = in.readString();
         mv = in.readString();
+        createdAt = (Date) in.readSerializable();
     }
 
     @Override
@@ -42,6 +45,7 @@ public class AgoraRoom implements Parcelable {
         dest.writeString(userId);
         dest.writeString(cover);
         dest.writeString(mv);
+        dest.writeSerializable(createdAt);
     }
 
     public HashMap<String, Object> toHashMap() {
@@ -110,6 +114,14 @@ public class AgoraRoom implements Parcelable {
         this.mv = mv;
     }
 
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
+
     public void radomCover() {
         int value = new Random().nextInt(8) + 1;
         cover = String.valueOf(value);
@@ -170,10 +182,11 @@ public class AgoraRoom implements Parcelable {
     public String toString() {
         return "AgoraRoom{" +
                 "id='" + id + '\'' +
-                ", name='" + channelName + '\'' +
-                ", ownerId='" + userId + '\'' +
+                ", channelName='" + channelName + '\'' +
+                ", userId='" + userId + '\'' +
                 ", cover='" + cover + '\'' +
                 ", mv='" + mv + '\'' +
+                ", createdAt=" + createdAt +
                 '}';
     }
 

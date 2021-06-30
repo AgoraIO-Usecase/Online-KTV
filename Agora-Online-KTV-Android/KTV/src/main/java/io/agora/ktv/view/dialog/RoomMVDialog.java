@@ -38,6 +38,9 @@ import io.agora.ktv.widget.SpaceItemDecoration;
 public class RoomMVDialog extends DataBindBaseDialog<KtvDialogMvBinding> implements OnItemClickListener<MVAdapter.MVModel> {
     private static final String TAG = RoomMVDialog.class.getSimpleName();
 
+    private static final String TAG_MV_INDEX = "mvIndex";
+
+    private int index = 0;
     private MVAdapter mAdapter;
 
     @Nullable
@@ -61,7 +64,7 @@ public class RoomMVDialog extends DataBindBaseDialog<KtvDialogMvBinding> impleme
 
     @Override
     public void iniBundle(@NonNull Bundle bundle) {
-
+        index = bundle.getInt(TAG_MV_INDEX);
     }
 
     @Override
@@ -94,10 +97,13 @@ public class RoomMVDialog extends DataBindBaseDialog<KtvDialogMvBinding> impleme
 
     @Override
     public void iniData() {
-
+        mAdapter.setSelectIndex(index);
     }
 
-    public void show(@NonNull FragmentManager manager) {
+    public void show(@NonNull FragmentManager manager, int index) {
+        Bundle mBundle = new Bundle();
+        mBundle.putInt(TAG_MV_INDEX, index);
+        setArguments(mBundle);
         super.show(manager, TAG);
     }
 
@@ -109,6 +115,7 @@ public class RoomMVDialog extends DataBindBaseDialog<KtvDialogMvBinding> impleme
             return;
         }
 
+        mAdapter.setSelectIndex(position);
         SyncManager.Instance()
                 .getRoom(mRoom.getId())
                 .update(AgoraRoom.COLUMN_MV, String.valueOf(position + 1), new SyncManager.DataItemCallback() {

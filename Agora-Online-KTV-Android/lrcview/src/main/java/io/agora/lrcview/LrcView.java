@@ -1,17 +1,3 @@
-/*
- * Copyright (C) 2017 wangchenyan
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
- * except in compliance with the License. You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the
- * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
- */
-
 package io.agora.lrcview;
 
 import android.annotation.SuppressLint;
@@ -21,30 +7,38 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.os.AsyncTask;
-import android.os.Looper;
 import android.text.Layout;
 import android.text.StaticLayout;
 import android.text.TextPaint;
 import android.text.TextUtils;
-import android.text.format.DateUtils;
 import android.util.AttributeSet;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
+import androidx.annotation.ColorInt;
+import androidx.annotation.MainThread;
+
 import java.util.List;
 
+import io.agora.lrcview.bean.LrcData;
+import io.agora.lrcview.bean.LrcEntryData;
+
+/**
+ * 歌词View
+ * 主要负责歌词的显示，支持上下拖动调整进度。
+ *
+ * @author chenhengfei(Aslanchen)
+ * @date 2021/7/6
+ */
 @SuppressLint("StaticFieldLeak")
 public class LrcView extends View {
     private static final String TAG = "LrcView";
-    private static final long ADJUST_DURATION = 100;
-    private static final long TIMELINE_KEEP_TIME = 4 * DateUtils.SECOND_IN_MILLIS;
 
-    private List<LrcEntry> mLrcEntryList = new ArrayList<>();
-    private TextPaint mLrcPaint = new TextPaint();
-    private TextPaint mBgLrcPaint = new TextPaint();
+    private static volatile LrcData lrcData;
+
+    private final TextPaint mPaintFG = new TextPaint(Paint.ANTI_ALIAS_FLAG);
+    private final TextPaint mPaintBG = new TextPaint(Paint.ANTI_ALIAS_FLAG);
     private int mNormalTextColor;
     private float mNormalTextSize;
     private int mCurrentTextColor;
@@ -52,21 +46,50 @@ public class LrcView extends View {
     private float mDividerHeight;
     private String mDefaultLabel;
     private int mCurrentLine = 0;
-    private Object mFlag;
     /**
      * 歌词显示位置，靠左/居中/靠右
      */
-    private int mTextGravity;
+    private LrcEntry.Gravity mTextGravity;
 
     private boolean mNewLine = true;
-    private Bitmap mFgText1 = null;
-    private Bitmap mBgText1 = null;
-    private Canvas mFgTextCanvas1 = null;
-    private Canvas mBgTextCanvas1 = null;
-    private Rect mTextBmpRect = new Rect();
-    private Rect mTextRenderRect = new Rect();
+
+    private final Rect mRectClip = new Rect();
+    private final Rect mRectSrc = new Rect();
+    private final Rect mRectDst = new Rect();
+
     private long mCurrentTime = 0;
-    private long mTotalDuration = 0;
+    private Long mTotalDuration;
+
+    private Bitmap mBitmapBG;
+    private Canvas mCanvasBG;
+
+    private Bitmap mBitmapFG;
+    private Canvas mCanvasFG;
+
+    private OnActionListener mOnActionListener;
+    private boolean enableDrag = true;
+    private boolean isInDrag = false;
+    private GestureDetector mGestureDetector;
+    private float mOffset;
+    private final GestureDetector.SimpleOnGestureListener mSimpleOnGestureListener = new GestureDetector.SimpleOnGestureListener() {
+
+        @Override
+        public boolean onDown(MotionEvent e) {
+            isInDrag = true;
+
+            if (mOnActionListener != null) {
+                mOnActionListener.onStartTrackingTouch();
+            }
+            return true;
+        }
+
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            mOffset += -distanceY;
+            invalidate();
+            return true;
+        }
+    };
 
     public LrcView(Context context) {
         this(context, null);
@@ -94,31 +117,97 @@ public class LrcView extends View {
         mCurrentTextColor = ta.getColor(R.styleable.LrcView_lrcCurrentTextColor, getResources().getColor(R.color.lrc_current_text_color));
         mDefaultLabel = ta.getString(R.styleable.LrcView_lrcLabel);
         mDefaultLabel = TextUtils.isEmpty(mDefaultLabel) ? getContext().getString(R.string.lrc_label) : mDefaultLabel;
-        mTextGravity = ta.getInteger(R.styleable.LrcView_lrcTextGravity, LrcEntry.GRAVITY_CENTER);
+        int lrcTextGravity = ta.getInteger(R.styleable.LrcView_lrcTextGravity, 0);
+        mTextGravity = io.agora.lrcview.LrcEntry.Gravity.parse(lrcTextGravity);
 
         ta.recycle();
 
-        mLrcPaint.setTextSize(mCurrentTextSize);
-        mLrcPaint.setColor(mCurrentTextColor);
-        mLrcPaint.setAntiAlias(true);
-        mLrcPaint.setTextAlign(Paint.Align.LEFT);
+        mPaintFG.setTextSize(mCurrentTextSize);
+        mPaintFG.setColor(mCurrentTextColor);
+        mPaintFG.setAntiAlias(true);
+        mPaintFG.setTextAlign(Paint.Align.LEFT);
 
-        mLrcPaint.setTextSize(mCurrentTextSize);
-        mBgLrcPaint.setColor(mNormalTextColor);
-        mBgLrcPaint.setAntiAlias(true);
-        mBgLrcPaint.setTextAlign(Paint.Align.LEFT);
+        mPaintBG.setTextSize(mNormalTextSize);
+        mPaintBG.setColor(mNormalTextColor);
+        mPaintBG.setAntiAlias(true);
+        mPaintBG.setTextAlign(Paint.Align.LEFT);
+
+        mGestureDetector = new GestureDetector(getContext(), mSimpleOnGestureListener);
+        mGestureDetector.setIsLongpressEnabled(false);
     }
 
-    public void setTotalDuration(long d) {
+    /**
+     * 绑定事件回调，用于接收运行中的事件。具体事件参考{@link OnActionListener}
+     *
+     * @param mOnActionListener
+     */
+    public void setActionListener(OnActionListener mOnActionListener) {
+        this.mOnActionListener = mOnActionListener;
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        if (!enableDrag) {
+            return super.onTouchEvent(event);
+        }
+
+        if (lrcData == null || lrcData.entrys == null || lrcData.entrys.isEmpty()) {
+            return super.onTouchEvent(event);
+        }
+
+        if (targetIndex < 0 || lrcData.entrys.size() <= targetIndex) {
+            return super.onTouchEvent(event);
+        }
+
+        if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL) {
+            isInDrag = false;
+            mNewLine = true;
+            mRectClip.setEmpty();
+
+            LrcEntryData mIEntry = lrcData.entrys.get(targetIndex);
+            updateTime(mIEntry.getStartTime());
+
+            if (mOnActionListener != null) {
+                mOnActionListener.onProgressChanged(mIEntry.getStartTime());
+                mOnActionListener.onStopTrackingTouch();
+            }
+        }
+        return mGestureDetector.onTouchEvent(event);
+    }
+
+    /**
+     * 设置是否允许上下滑动
+     *
+     * @param enableDrag
+     */
+    public void setEnableDrag(boolean enableDrag) {
+        this.enableDrag = enableDrag;
+    }
+
+    /**
+     * 设置音乐总长度，单位毫秒
+     *
+     * @param d 时间，单位毫秒
+     */
+    public synchronized void setTotalDuration(long d) {
         mTotalDuration = d;
+
+        if (lrcData != null && lrcData.entrys != null && !lrcData.entrys.isEmpty()) {
+            List<LrcEntryData.Tone> tone = lrcData.entrys.get(lrcData.entrys.size() - 1).tones;
+            if (tone != null && !tone.isEmpty()) {
+                tone.get(tone.size() - 1).end = mTotalDuration;
+            }
+        }
     }
 
     /**
      * 设置非当前行歌词字体颜色
      */
-    public void setNormalColor(int normalColor) {
+    public void setNormalColor(@ColorInt int normalColor) {
         mNormalTextColor = normalColor;
-        postInvalidate();
+        mPaintBG.setColor(mNormalTextColor);
+        mNewLine = true;
+        invalidate();
     }
 
     /**
@@ -126,6 +215,8 @@ public class LrcView extends View {
      */
     public void setNormalTextSize(float size) {
         mNormalTextSize = size;
+        mNewLine = true;
+        invalidate();
     }
 
     /**
@@ -133,143 +224,26 @@ public class LrcView extends View {
      */
     public void setCurrentTextSize(float size) {
         mCurrentTextSize = size;
+        mNewLine = true;
+        invalidate();
     }
 
     /**
      * 设置当前行歌词的字体颜色
      */
-    public void setCurrentColor(int currentColor) {
+    public void setCurrentColor(@ColorInt int currentColor) {
         mCurrentTextColor = currentColor;
-        postInvalidate();
+        mPaintFG.setColor(mCurrentTextColor);
+        mNewLine = true;
+        invalidate();
     }
 
     /**
      * 设置歌词为空时屏幕中央显示的文字，如“暂无歌词”
      */
     public void setLabel(String label) {
-        runOnUi(() -> {
-            mDefaultLabel = label;
-            invalidate();
-        });
-    }
-
-    /**
-     * 加载歌词文件
-     *
-     * @param lrcFile 歌词文件
-     */
-    public void loadLrc(File lrcFile) {
-        loadLrc(lrcFile, null);
-    }
-
-    /**
-     * 加载双语歌词文件，两种语言的歌词时间戳需要一致
-     *
-     * @param mainLrcFile   第一种语言歌词文件
-     * @param secondLrcFile 第二种语言歌词文件
-     */
-    public void loadLrc(File mainLrcFile, File secondLrcFile) {
-        runOnUi(() -> {
-            reset();
-
-            StringBuilder sb = new StringBuilder("file://");
-            sb.append(mainLrcFile.getPath());
-            if (secondLrcFile != null) {
-                sb.append("#").append(secondLrcFile.getPath());
-            }
-            String flag = sb.toString();
-            setFlag(flag);
-            new AsyncTask<File, Integer, List<LrcEntry>>() {
-                @Override
-                protected List<LrcEntry> doInBackground(File... params) {
-                    return LrcUtils.parseLrc(params);
-                }
-
-                @Override
-                protected void onPostExecute(List<LrcEntry> lrcEntries) {
-                    if (getFlag() == flag) {
-                        onLrcLoaded(lrcEntries);
-                        setFlag(null);
-                    }
-                }
-            }.execute(mainLrcFile, secondLrcFile);
-        });
-    }
-
-    /**
-     * 加载歌词文本
-     *
-     * @param lrcText 歌词文本
-     */
-    public void loadLrc(String lrcText) {
-        loadLrc(lrcText, null);
-    }
-
-    /**
-     * 加载双语歌词文本，两种语言的歌词时间戳需要一致
-     *
-     * @param mainLrcText   第一种语言歌词文本
-     * @param secondLrcText 第二种语言歌词文本
-     */
-    public void loadLrc(String mainLrcText, String secondLrcText) {
-        runOnUi(() -> {
-            reset();
-
-            StringBuilder sb = new StringBuilder("file://");
-            sb.append(mainLrcText);
-            if (secondLrcText != null) {
-                sb.append("#").append(secondLrcText);
-            }
-            String flag = sb.toString();
-            setFlag(flag);
-            new AsyncTask<String, Integer, List<LrcEntry>>() {
-                @Override
-                protected List<LrcEntry> doInBackground(String... params) {
-                    return LrcUtils.parseLrc(params);
-                }
-
-                @Override
-                protected void onPostExecute(List<LrcEntry> lrcEntries) {
-                    if (getFlag() == flag) {
-                        onLrcLoaded(lrcEntries);
-                        setFlag(null);
-                    }
-                }
-            }.execute(mainLrcText, secondLrcText);
-        });
-    }
-
-    /**
-     * 加载在线歌词，默认使用 utf-8 编码
-     *
-     * @param lrcUrl 歌词文件的网络地址
-     */
-    public void loadLrcByUrl(String lrcUrl) {
-        loadLrcByUrl(lrcUrl, "utf-8");
-    }
-
-    /**
-     * 加载在线歌词
-     *
-     * @param lrcUrl  歌词文件的网络地址
-     * @param charset 编码格式
-     */
-    public void loadLrcByUrl(String lrcUrl, String charset) {
-        String flag = "url://" + lrcUrl;
-        setFlag(flag);
-        new AsyncTask<String, Integer, String>() {
-            @Override
-            protected String doInBackground(String... params) {
-                return LrcUtils.getContentFromNetwork(params[0], params[1]);
-            }
-
-            @Override
-            protected void onPostExecute(String lrcText) {
-                if (getFlag() == flag) {
-                    loadLrc(lrcText);
-                }
-            }
-        }.execute(lrcUrl, charset);
+        mDefaultLabel = label;
+        invalidate();
     }
 
     /**
@@ -277,21 +251,17 @@ public class LrcView extends View {
      *
      * @return true，如果歌词有效，否则false
      */
-    public boolean hasLrc() {
-        return !mLrcEntryList.isEmpty();
+    private boolean hasLrc() {
+        return lrcData != null && lrcData.entrys != null && !lrcData.entrys.isEmpty();
     }
 
     /**
-     * 刷新歌词
+     * 更新进度，单位毫秒
      *
-     * @param time 当前播放时间
+     * @param time 当前播放时间，毫秒
      */
     public void updateTime(long time) {
         if (!hasLrc()) {
-            return;
-        }
-
-        if (isLrcLoadDone == false) {
             return;
         }
 
@@ -302,6 +272,7 @@ public class LrcView extends View {
             mNewLine = true;
             mCurrentLine = line;
         }
+
         invalidate();
     }
 
@@ -309,36 +280,67 @@ public class LrcView extends View {
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
         if (changed) {
-            //TODO: new bitmap and cavas
             int w = right - left - getPaddingStart() - getPaddingEnd();
             int h = bottom - top - getPaddingTop() - getPaddingBottom();
 
-            if (mFgText1 == null) {
-                mFgText1 = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-                mFgTextCanvas1 = new Canvas(mFgText1);
+            if (mBitmapFG == null) {
+                createBitmapFG(w, h);
+            } else if (mBitmapFG.getWidth() != w || mBitmapFG.getHeight() != h) {
+                if (!mBitmapFG.isRecycled()) {
+                    mBitmapFG.recycle();
+                }
+
+                createBitmapFG(w, h);
             }
 
-            if (mBgText1 == null) {
-                mBgText1 = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-                mBgTextCanvas1 = new Canvas(mBgText1);
+            if (mBitmapBG == null) {
+                createBitmapBG(w, h);
+            } else if (mBitmapBG.getWidth() != w || mBitmapBG.getHeight() != h) {
+                if (!mBitmapBG.isRecycled()) {
+                    mBitmapBG.recycle();
+                }
+
+                createBitmapBG(w, h);
             }
+
+            mRectSrc.left = 0;
+            mRectSrc.top = 0;
+            mRectSrc.right = getLrcWidth();
+            mRectSrc.bottom = getLrcHeight();
+
+            mRectDst.left = getPaddingStart();
+            mRectDst.top = getPaddingTop();
+            mRectDst.right = getPaddingStart() + getLrcWidth();
+            mRectDst.bottom = getPaddingTop() + getLrcHeight();
+
+            invalidate();
         }
     }
+
+    private void createBitmapBG(int w, int h) {
+        mBitmapBG = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+        mCanvasBG = new Canvas(mBitmapBG);
+    }
+
+    private void createBitmapFG(int w, int h) {
+        mBitmapFG = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+        mCanvasFG = new Canvas(mBitmapFG);
+    }
+
+    private LrcEntry curLrcEntry;
+    private int targetIndex = 0;
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-
         // 无歌词文件
         if (!hasLrc()) {
-            mLrcPaint.setColor(mCurrentTextColor);
-
             int width = getLrcWidth();
             int height = getLrcHeight();
             @SuppressLint("DrawAllocation")
             StaticLayout staticLayout = new StaticLayout(
                     mDefaultLabel,
-                    mLrcPaint,
+                    mPaintFG,
                     width,
                     Layout.Alignment.ALIGN_CENTER,
                     1f,
@@ -346,141 +348,243 @@ public class LrcView extends View {
                     false);
 
             canvas.save();
-            canvas.translate(0, (height - staticLayout.getHeight()) / 2F);
+            float y = getPaddingTop() + (height - staticLayout.getHeight()) / 2F;
+            canvas.translate(0, y);
             staticLayout.draw(canvas);
             canvas.restore();
             return;
         }
 
-        LrcEntry curEntry = mLrcEntryList.get(mCurrentLine);
+        float centerY = getLrcHeight() / 2F + getPaddingTop();
+        if (isInDrag) {
+            //拖动状态下
+            mBitmapBG.eraseColor(0);
+            mBitmapFG.eraseColor(0);
+            mPaintBG.setColor(mNormalTextColor);
 
-        if (mNewLine) {
-            mLrcPaint.setTextSize(mCurrentTextSize);
-            mBgLrcPaint.setTextSize(mCurrentTextSize);
-            curEntry.init(mLrcPaint, mBgLrcPaint, getLrcWidth(), mTextGravity);
+            LrcEntry mLrcEntry;
+            float y = 0;
+            float yReal;
+            for (int i = 0; i < lrcData.entrys.size(); i++) {
+                if (i == mCurrentLine) {
+                    mPaintBG.setTextSize(mCurrentTextSize);
+                } else {
+                    mPaintBG.setTextSize(mNormalTextSize);
+                }
 
-            // clear bitmap
-            mFgText1.eraseColor(0);
-            mBgText1.eraseColor(0);
+                LrcEntryData mIEntry = lrcData.entrys.get(i);
+                mLrcEntry = new LrcEntry(mIEntry, mPaintFG, mPaintBG, getLrcWidth(), mTextGravity);
 
-            //TODO: draw text on the bitmap
-            if (mCurrentLine < 0 || mCurrentLine >= mLrcEntryList.size()) {
-                return;
-            }
+                yReal = y + mOffset;
+                if (i == 0 && yReal > (centerY - getPaddingTop() - (mLrcEntry.getHeight() / 2F))) {
+                    //顶部限制
+                    mOffset = centerY - getPaddingTop() - (mLrcEntry.getHeight() / 2F);
+                    yReal = y + mOffset;
+                }
 
-            mFgTextCanvas1.save();
-            mBgTextCanvas1.save();
+                if (yReal + mLrcEntry.getHeight() < 0) {
+                    y = y + mLrcEntry.getHeight() + mDividerHeight;
+                    continue;
+                }
 
-            float curPointY = 0;
+                mCanvasBG.save();
+                mCanvasBG.translate(0, yReal);
+                mLrcEntry.draw(mCanvasBG);
+                mCanvasBG.restore();
 
-            //draw current
-            float y = (getLrcHeight() - curEntry.getHeight()) / 2F;
-            mFgTextCanvas1.translate(0, y);
-            curEntry.drawFg(mFgTextCanvas1);
+                if (i == mCurrentLine) {
+                    Rect[] drawRects = mLrcEntry.getDrawRectByTime(mCurrentTime);
 
-            mBgTextCanvas1.translate(0, y);
-            curEntry.drawBg(mBgTextCanvas1);
-            curPointY = y;
+                    for (Rect dr : drawRects) {
+                        if (dr.left == dr.right)
+                            continue;
 
-            LrcEntry line = null;
-            //draw top
-            mLrcPaint.setTextSize(mNormalTextSize);
-            mBgLrcPaint.setTextSize(mNormalTextSize);
-            for (int i = mCurrentLine - 1; i >= 0; i--) {
-                line = mLrcEntryList.get(i);
-                line.init(mLrcPaint, mBgLrcPaint, getLrcWidth(), mTextGravity);
+                        mRectClip.left = dr.left;
+                        mRectClip.top = (int) (dr.top + yReal);
+                        mRectClip.right = dr.right;
+                        mRectClip.bottom = (int) (dr.bottom + yReal);
 
-                if (curPointY - mDividerHeight - line.getHeight() < 0)
+                        mCanvasFG.save();
+                        mCanvasFG.clipRect(mRectClip);
+                        mCanvasFG.translate(0, yReal);
+                        mLrcEntry.drawFG(mCanvasFG);
+                        mCanvasFG.restore();
+                    }
+                }
+
+                if ((y - mDividerHeight + getPaddingTop() + mOffset) <= centerY
+                        && centerY <= (y + mLrcEntry.getHeight() + getPaddingTop() + mOffset)) {
+                    targetIndex = i;
+                }
+
+                y = y + mLrcEntry.getHeight() + mDividerHeight;
+                if (y + mOffset > getLrcHeight()) {
                     break;
-
-                y = mDividerHeight + line.getHeight();
-                mBgTextCanvas1.translate(0, -y);
-                line.drawBg(mBgTextCanvas1);
-                curPointY = curPointY - y;
+                }
             }
 
-            //draw bottom
-            y = (getLrcHeight() + curEntry.getHeight()) / 2F - curPointY + mDividerHeight;
-            mBgTextCanvas1.translate(0, y);
-            curPointY = curPointY + y;
+            canvas.drawBitmap(mBitmapBG, mRectSrc, mRectDst, null);
+            canvas.drawBitmap(mBitmapFG, mRectSrc, mRectDst, null);
 
-            for (int i = mCurrentLine + 1; i < mLrcEntryList.size(); i++) {
-                line = mLrcEntryList.get(i);
-                line.init(mLrcPaint, mBgLrcPaint, getLrcWidth(), mTextGravity);
+            canvas.drawLine(0, centerY, getWidth(), centerY + 1, mPaintFG);
+        } else {
+            LrcEntryData cur = lrcData.entrys.get(mCurrentLine);
+            if (mNewLine) {
+                mPaintBG.setColor(mNormalTextColor);
+                mPaintBG.setTextSize(mCurrentTextSize);
 
-                if (curPointY + line.getHeight() > getLrcHeight())
-                    break;
+                curLrcEntry = new LrcEntry(cur, mPaintFG, mPaintBG, getLrcWidth(), mTextGravity);
 
-                line.drawBg(mBgTextCanvas1);
-                y = line.getHeight() + mDividerHeight;
-                mBgTextCanvas1.translate(0, y);
-                curPointY = curPointY + y;
+                // clear bitmap
+                mBitmapBG.eraseColor(0);
+
+                if (mCurrentLine < 0 || mCurrentLine >= lrcData.entrys.size()) {
+                    mNewLine = false;
+                    return;
+                }
+
+                drawCurrent();
+                drawTop();
+                drawBottom();
+
+                mNewLine = false;
             }
-            mFgTextCanvas1.restore();
-            mBgTextCanvas1.restore();
 
-            mNewLine = false;
+            canvas.drawBitmap(mBitmapBG, mRectSrc, mRectDst, null);
+
+            drawHighLight();
+            canvas.drawBitmap(mBitmapFG, mRectSrc, mRectDst, null);
+        }
+    }
+
+    private void drawTop() {
+        if (curLrcEntry == null) {
+            return;
         }
 
-        //TODO: draw bg text to the canvas
-        mTextBmpRect.left = 0;
-        mTextBmpRect.top = 0;
-        mTextBmpRect.right = getLrcWidth();
-        mTextBmpRect.bottom = getLrcHeight();
+        float curPointY = (getLrcHeight() - curLrcEntry.getHeight()) / 2F;
+        float y;
+        LrcEntryData line;
+        LrcEntry mLrcEntry;
+        mPaintBG.setTextSize(mNormalTextSize);
 
-        mTextRenderRect.left = getPaddingStart();
-        mTextRenderRect.top = getPaddingTop();
-        mTextRenderRect.right = getPaddingStart() + getLrcWidth();
-        mTextRenderRect.bottom = getPaddingTop() + getLrcHeight();
+        mCanvasBG.save();
+        mCanvasBG.translate(0, curPointY);
 
-        canvas.drawBitmap(mBgText1, mTextBmpRect, mTextRenderRect, null);
+        for (int i = mCurrentLine - 1; i >= 0; i--) {
+            line = lrcData.entrys.get(i);
+            mLrcEntry = new LrcEntry(line, mPaintBG, getLrcWidth(), mTextGravity);
 
-        //TODO: get fg text draw rect by current timestamp
-        Rect[] drawRects = curEntry.getDrawRectByTime(mCurrentTime);
+            mOffset = mOffset - mLrcEntry.getHeight() - mDividerHeight;
 
-        //TODO: draw fg text to the canvas
+            if (curPointY - mDividerHeight - mLrcEntry.getHeight() < 0)
+                continue;
+
+            y = mDividerHeight + mLrcEntry.getHeight();
+            mCanvasBG.translate(0, -y);
+            mLrcEntry.draw(mCanvasBG);
+            curPointY = curPointY - y;
+        }
+        mCanvasBG.restore();
+    }
+
+    private void drawCurrent() {
+        if (curLrcEntry == null) {
+            return;
+        }
+
+        float y = (getLrcHeight() - curLrcEntry.getHeight()) / 2F;
+        mCanvasBG.save();
+        mCanvasBG.translate(0, y);
+        curLrcEntry.draw(mCanvasBG);
+        mCanvasBG.restore();
+
+        mOffset = y;
+    }
+
+    private void drawBottom() {
+        if (curLrcEntry == null) {
+            return;
+        }
+
+        float curPointY = (getLrcHeight() + curLrcEntry.getHeight()) / 2F + mDividerHeight;
+        float y;
+        LrcEntryData data;
+        LrcEntry mLrcEntry;
+        mPaintBG.setTextSize(mNormalTextSize);
+
+        mCanvasBG.save();
+        mCanvasBG.translate(0, curPointY);
+
+        for (int i = mCurrentLine + 1; i < lrcData.entrys.size(); i++) {
+            data = lrcData.entrys.get(i);
+            mLrcEntry = new LrcEntry(data, mPaintBG, getLrcWidth(), mTextGravity);
+
+            if (curPointY + mLrcEntry.getHeight() > getLrcHeight())
+                break;
+
+            mLrcEntry.draw(mCanvasBG);
+            y = mLrcEntry.getHeight() + mDividerHeight;
+            mCanvasBG.translate(0, y);
+            curPointY = curPointY + y;
+        }
+        mCanvasBG.restore();
+    }
+
+    private void drawHighLight() {
+        if (curLrcEntry == null) {
+            return;
+        }
+
+        mBitmapFG.eraseColor(0);
+
+        Rect[] drawRects = curLrcEntry.getDrawRectByTime(mCurrentTime);
+        float y = (getLrcHeight() - curLrcEntry.getHeight()) / 2F;
+
         for (Rect dr : drawRects) {
             if (dr.left == dr.right)
                 continue;
 
-            mTextBmpRect.right = dr.right;
-            mTextRenderRect.right = getPaddingStart() + dr.right;
-            canvas.drawBitmap(mFgText1, mTextBmpRect, mTextRenderRect, null);
+            mRectClip.left = dr.left;
+            mRectClip.top = (int) (dr.top + y);
+            mRectClip.right = dr.right;
+            mRectClip.bottom = (int) (dr.bottom + y);
+
+            mCanvasFG.save();
+            mCanvasFG.clipRect(mRectClip);
+            mCanvasFG.translate(0, y);
+            curLrcEntry.drawFG(mCanvasFG);
+            mCanvasFG.restore();
         }
     }
 
-    private volatile boolean isLrcLoadDone = false;
+    public void setLrcData(LrcData data) {
+        lrcData = data;
 
-    private void onLrcLoaded(List<LrcEntry> entryList) {
-        if (entryList != null && !entryList.isEmpty()) {
-            mLrcEntryList.addAll(entryList);
+        if (mTotalDuration != null) {
+            if (lrcData != null && lrcData.entrys != null && !lrcData.entrys.isEmpty()) {
+                List<LrcEntryData.Tone> tone = lrcData.entrys.get(lrcData.entrys.size() - 1).tones;
+                if (tone != null && !tone.isEmpty()) {
+                    tone.get(tone.size() - 1).end = mTotalDuration;
+                }
+            }
         }
 
-        Collections.sort(mLrcEntryList);
-
-        initEntryList();
-        isLrcLoadDone = true;
         invalidate();
     }
 
-    private void initEntryList() {
-        if (!hasLrc() || getWidth() == 0) {
-            return;
-        }
-
-        LrcEntry lastEntry = null;
-        if (mLrcEntryList.size() > 0 && mTotalDuration > 0) {
-            lastEntry = mLrcEntryList.get(mLrcEntryList.size() - 1);
-            lastEntry.setDuration(mTotalDuration - lastEntry.getTime());
-        }
-    }
-
+    /**
+     * 重置内部状态，清空已经加载的歌词
+     */
     public void reset() {
-        mLrcEntryList.clear();
+        lrcData = null;
         mCurrentLine = 0;
         mNewLine = true;
         mCurrentTime = 0;
-        isLrcLoadDone = false;
+        mOffset = 0;
+        targetIndex = 0;
+        mTotalDuration = null;
+
         invalidate();
     }
 
@@ -489,15 +593,15 @@ public class LrcView extends View {
      */
     private int findShowLine(long time) {
         int left = 0;
-        int right = mLrcEntryList.size();
+        int right = lrcData.entrys.size();
         while (left <= right) {
             int middle = (left + right) / 2;
-            long middleTime = mLrcEntryList.get(middle).getTime();
+            long middleTime = lrcData.entrys.get(middle).getStartTime();
 
             if (time < middleTime) {
                 right = middle - 1;
             } else {
-                if (middle + 1 >= mLrcEntryList.size() || time < mLrcEntryList.get(middle + 1).getTime()) {
+                if (middle + 1 >= lrcData.entrys.size() || time < lrcData.entrys.get(middle + 1).getStartTime()) {
                     return middle;
                 }
 
@@ -516,22 +620,23 @@ public class LrcView extends View {
         return getHeight() - getPaddingTop() - getPaddingBottom();
     }
 
-    /**
-     * 在主线程中运行
-     */
-    private void runOnUi(Runnable r) {
-        if (Looper.myLooper() == Looper.getMainLooper()) {
-            r.run();
-        } else {
-            post(r);
-        }
-    }
+    @MainThread
+    public interface OnActionListener {
+        /**
+         * 进度条改变回调
+         *
+         * @param time 毫秒
+         */
+        void onProgressChanged(long time);
 
-    private Object getFlag() {
-        return mFlag;
-    }
+        /**
+         * 开始拖动
+         */
+        void onStartTrackingTouch();
 
-    private void setFlag(Object flag) {
-        this.mFlag = flag;
+        /**
+         * 结束拖动
+         */
+        void onStopTrackingTouch();
     }
 }

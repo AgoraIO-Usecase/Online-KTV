@@ -59,13 +59,17 @@ public class LocalSetting: Codable {
 public class LrcMusic: Decodable, Encodable {
     public var id: String?
     public var name: String?
+    public var singer: String?
+    public var poster: String?
     public var song: String
     public var lrc: String
 
-    public init(id: String?, name: String?, song: String, lrc: String) {
+    public init(id: String?, name: String?, song: String, lrc: String, singer: String, poster: String) {
         self.id = id
         self.name = name
         self.song = song
         self.lrc = lrc
+        self.singer = singer
+        self.poster = poster
     }
 }

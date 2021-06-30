@@ -10,12 +10,17 @@ import Foundation
 import RxSwift
 
 class LiveKtvMusic: Codable, IAgoraModel {
+    public static let NORMAL = 0
+    public static let CHORUS = 1
+
     public var id: String
     public var roomId: String
     public var name: String
     public var musicId: String
+    public var singer: String
+    public var poster: String
 
-    public var type: Int = 0
+    public var type: Int
 
     public var userId: String
     public var userStatus: Int?
@@ -25,12 +30,15 @@ class LiveKtvMusic: Codable, IAgoraModel {
 
     public var applyUser1Id: String?
 
-    init(id: String, userId: String, roomId: String, name: String, musicId: String) {
+    init(id: String, userId: String, roomId: String, name: String, musicId: String, type: Int = LiveKtvMusic.NORMAL, singer: String, poster: String) {
         self.id = id
         self.userId = userId
         self.roomId = roomId
         self.name = name
         self.musicId = musicId
+        self.type = type
+        self.singer = singer
+        self.poster = poster
     }
 
     func isOrderBy(member: LiveKtvMember) -> Bool {
@@ -43,6 +51,8 @@ class LiveKtvMusic: Codable, IAgoraModel {
             LiveKtvMusic.MUSIC_ID: musicId,
             LiveKtvMusic.ROOM: roomId,
             LiveKtvMusic.USER: userId,
+            LiveKtvMusic.SINGER: singer,
+            LiveKtvMusic.POSTER: poster,
         ]
     }
 }
@@ -53,6 +63,8 @@ extension LiveKtvMusic {
     static let USER = "userId"
     static let NAME = "name"
     static let MUSIC_ID = "musicId"
+    static let SINGER = "singer"
+    static let POSTER = "poster"
 
     private static var manager: SyncManager {
         SyncManager.shared
@@ -62,9 +74,11 @@ extension LiveKtvMusic {
         let id = try object.getId()
         let name: String = try object.getValue(key: LiveKtvMusic.NAME, type: String.self) as! String
         let music: String = try object.getValue(key: LiveKtvMusic.MUSIC_ID, type: String.self) as! String
+        let singer: String = try object.getValue(key: LiveKtvMusic.SINGER, type: String.self) as! String
+        let poster: String = try object.getValue(key: LiveKtvMusic.POSTER, type: String.self) as! String
         let roomId = room.id
         let userId: String = try object.getValue(key: LiveKtvMusic.USER, type: String.self) as! String
-        return LiveKtvMusic(id: id, userId: userId, roomId: roomId, name: name, musicId: music)
+        return LiveKtvMusic(id: id, userId: userId, roomId: roomId, name: name, musicId: music, singer: singer, poster: poster)
     }
 
 //    static func get(object: IAgoraObject, member: LiveKtvMember) throws -> LiveKtvMusic {

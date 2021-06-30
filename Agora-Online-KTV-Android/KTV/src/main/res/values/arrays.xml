@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="ktv_roomName">
+        <item>和你一起看月亮</item>
+        <item>治愈</item>
+        <item>一锤定音</item>
+        <item>有酒吗</item>
+        <item>早安序曲</item>
+        <item>风情万种的歌房</item>
+    </string-array>
+
+    <string-array name="ktv_audioPreset">
+        <item>原声</item>
+        <item>KTV</item>
+        <item>演唱会</item>
+        <item>录音棚</item>
+        <item>留声机</item>
+        <item>空旷</item>
+        <item>空灵</item>
+        <item>流行</item>
+        <item>RnB</item>
+    </string-array>
+</resources>

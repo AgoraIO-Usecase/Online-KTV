@@ -13,6 +13,7 @@ import com.agora.data.R;
 import com.agora.data.manager.UserManager;
 import com.agora.data.model.AgoraMember;
 import com.agora.data.model.AgoraRoom;
+import com.agora.data.model.MusicModel;
 import com.agora.data.model.User;
 import com.agora.data.observer.DataObserver;
 import com.agora.data.provider.AgoraObject;
@@ -34,10 +35,10 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import io.agora.ktv.bean.MemberMusicModel;
-import io.agora.rtc2.Constants;
-import io.agora.rtc2.IRtcEngineEventHandler;
-import io.agora.rtc2.RtcEngine;
-import io.agora.rtc2.RtcEngineConfig;
+import io.agora.rtc.Constants;
+import io.agora.rtc.IRtcEngineEventHandler;
+import io.agora.rtc.RtcEngine;
+import io.agora.rtc.RtcEngineConfig;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
@@ -51,15 +52,15 @@ import io.reactivex.functions.Consumer;
  * @date 2021/06/01
  */
 public final class RoomManager {
-    private Logger.Builder mLogger = XLog.tag("RoomManager");
-    private Logger.Builder mLoggerRTC = XLog.tag("RTC");
+    private final Logger.Builder mLogger = XLog.tag("RoomManager");
+    private final Logger.Builder mLoggerRTC = XLog.tag("RTC");
 
     private volatile static RoomManager instance;
 
     private Context mContext;
-    private MainThreadDispatch mMainThreadDispatch = new MainThreadDispatch();
+    private final MainThreadDispatch mMainThreadDispatch = new MainThreadDispatch();
 
-    private Map<String, AgoraMember> memberHashMap = new ConcurrentHashMap<>();
+    private final Map<String, AgoraMember> memberHashMap = new ConcurrentHashMap<>();
 
     private volatile static AgoraRoom mRoom;
     private volatile static AgoraMember owner;
@@ -69,7 +70,18 @@ public final class RoomManager {
 
     private RtcEngine mRtcEngine;
 
+    /**
+     * 唱歌人的UserId
+     */
+    private final List<String> singers = new ArrayList<>();
+
     private IRtcEngineEventHandler mIRtcEngineEventHandler = new IRtcEngineEventHandler() {
+
+        @Override
+        public void onError(int err) {
+            super.onError(err);
+            mLogger.e("onError() called with: err = [%s]", err);
+        }
 
         @Override
         public void onConnectionStateChanged(int state, int reason) {
@@ -99,18 +111,6 @@ public final class RoomManager {
         public void onLeaveChannel(RtcStats stats) {
             super.onLeaveChannel(stats);
             mLoggerRTC.i("onLeaveChannel() called with: stats = [%s]", stats);
-        }
-
-        @Override
-        public void onRemoteAudioStateChanged(int uid, REMOTE_AUDIO_STATE state, REMOTE_AUDIO_STATE_REASON reason, int elapsed) {
-            super.onRemoteAudioStateChanged(uid, state, reason, elapsed);
-            mLoggerRTC.i("onRemoteAudioStateChanged() called with: uid = [%s], state = [%s], reason = [%s], elapsed = [%s]", uid, state, reason, elapsed);
-        }
-
-        @Override
-        public void onLocalAudioStateChanged(LOCAL_AUDIO_STREAM_STATE state, LOCAL_AUDIO_STREAM_ERROR error) {
-            super.onLocalAudioStateChanged(state, error);
-            mLoggerRTC.i("onLocalAudioStateChanged() called with: state = [%s], error = [%s]", state, error);
         }
 
         @Override
@@ -154,7 +154,7 @@ public final class RoomManager {
         config.mContext = mContext;
         config.mAppId = appid;
         config.mEventHandler = mIRtcEngineEventHandler;
-        config.mChannelProfile = Constants.CHANNEL_PROFILE_LIVE_BROADCASTING;
+//        config.mChannelProfile = Constants.CHANNEL_PROFILE_LIVE_BROADCASTING;
 //        if (Config.isLeanCloud()) {
 //            config.mAreaCode = RtcEngineConfig.AreaCode.AREA_CODE_CN;
 //        } else {
@@ -163,6 +163,7 @@ public final class RoomManager {
 
         try {
             mRtcEngine = RtcEngine.create(config);
+            mRtcEngine.setChannelProfile(Constants.CHANNEL_PROFILE_LIVE_BROADCASTING);
         } catch (Exception e) {
             e.printStackTrace();
             mLoggerRTC.e("init error", e);
@@ -210,6 +211,10 @@ public final class RoomManager {
         return mMine;
     }
 
+    public boolean isSinger(String userId) {
+        return singers.contains(userId);
+    }
+
     public void addRoomEventCallback(@NonNull RoomEventCallback callback) {
         mMainThreadDispatch.addRoomEventCallback(callback);
     }
@@ -255,7 +260,7 @@ public final class RoomManager {
         mMainThreadDispatch.onAudioStatusChanged(isMine, member);
     }
 
-    private void onMusicAdd(MemberMusicModel model) {
+    public void onMusicAdd(MemberMusicModel model) {
         mLogger.i("onMusicAdd() called with: model = [%s]", model);
         synchronized (musicObject) {
             if (musics.contains(model)) {
@@ -287,12 +292,17 @@ public final class RoomManager {
     public void onMusicEmpty() {
         mLogger.i("onMusicEmpty() called");
         mMusicModel = null;
+        singers.clear();
+        musics.clear();
         mMainThreadDispatch.onMusicEmpty();
     }
 
     public void onMusicChanged(MemberMusicModel model) {
         mLogger.i("onMusicChanged() called with: model = [%s]", model);
         mMusicModel = model;
+
+        singers.add(model.getUserId());
+
         mMainThreadDispatch.onMusicChanged(model);
     }
 
@@ -507,8 +517,13 @@ public final class RoomManager {
         return musics;
     }
 
-    public boolean isInMusicOrderList(MemberMusicModel item) {
-        return musics.contains(item);
+    public boolean isInMusicOrderList(MusicModel item) {
+        for (MemberMusicModel music : musics) {
+            if (ObjectsCompat.equals(music.getMusicId(), item.getMusicId())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private Single<AgoraMember> preJoinAddMember(AgoraRoom room, AgoraMember member) {
@@ -517,7 +532,8 @@ public final class RoomManager {
             SyncManager.Instance()
                     .getRoom(room.getId())
                     .collection(AgoraMember.TABLE_NAME)
-                    .query(new Query().whereEqualTo(AgoraMember.COLUMN_USERID, member.getUserId()))
+                    .query(new Query().whereEqualTo(AgoraMember.COLUMN_USERID, member.getUserId())
+                                        .whereEqualTo(AgoraMember.COLUMN_ROOMID, room.getId()))
                     .get(new SyncManager.DataListCallback() {
                         @Override
                         public void onSuccess(List<AgoraObject> result) {
@@ -745,6 +761,9 @@ public final class RoomManager {
 
         mLoggerRTC.i("leaveChannel() called");
         getRtcEngine().leaveChannel();
+
+        memberHashMap.clear();
+        singers.clear();
 
         if (ObjectsCompat.equals(mMine, owner)) {
             //房主退出

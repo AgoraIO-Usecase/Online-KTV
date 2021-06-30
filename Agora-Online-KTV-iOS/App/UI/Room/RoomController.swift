@@ -7,7 +7,30 @@
 
 import Core
 import Foundation
+import LrcView
 import UIKit
+
+extension UIColor {
+    func lighter(by percentage: CGFloat = 30.0) -> UIColor? {
+        return adjust(by: abs(percentage))
+    }
+
+    func darker(by percentage: CGFloat = 30.0) -> UIColor? {
+        return adjust(by: -1 * abs(percentage))
+    }
+
+    func adjust(by percentage: CGFloat = 30.0) -> UIColor? {
+        var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
+        if getRed(&r, green: &g, blue: &b, alpha: &a) {
+            return UIColor(red: min(r + percentage / 100, 1.0),
+                           green: min(g + percentage / 100, 1.0),
+                           blue: min(b + percentage / 100, 1.0),
+                           alpha: a)
+        } else {
+            return nil
+        }
+    }
+}
 
 protocol RoomControlDelegate: AnyObject {
     func onTap(view: SeatView)
@@ -286,6 +309,17 @@ class RoomController: BaseViewContoller, DialogDelegate {
         roomNameView.text = viewModel.room.channelName
         roomCoverView.image = UIImage(named: LiveKtvRoom.getLocalCover(cover: viewModel.room.cover), in: Utils.bundle, with: nil)
         mvPlayer.mv.image = UIImage(named: LiveKtvRoom.getLocalMV(cover: viewModel.room.mv), in: Utils.bundle, with: nil)
+        performSelector(inBackground: #selector(getImageColor), with: nil)
+    }
+
+    @objc private func getImageColor() {
+        if let image = UIImage(named: LiveKtvRoom.getLocalMV(cover: viewModel.room.mv), in: Utils.bundle, with: nil) {
+            let color = ColorThief.getColor(from: image)?.makeUIColor()
+            if let color = color {
+                Logger.log(self, message: "set MusicLyricView.hightColor \(color)", level: .info)
+                MusicLyricView.hightColor = (color.lighter(by: 30))!
+            }
+        }
     }
 
     private func renderToolbar() {
@@ -355,7 +389,7 @@ class RoomController: BaseViewContoller, DialogDelegate {
 
 extension RoomController: RoomControlDelegate {
     func onFetchMusic(finish: Bool) {
-        show(loading: !finish, message: "歌曲准备中")
+        show(loading: !finish, message: "Preparing Music".localized)
     }
 
     func onRoomUpdate() {
@@ -363,7 +397,7 @@ extension RoomController: RoomControlDelegate {
     }
 
     func onRoomClosed() {
-        dismiss(completion: nil)
+        leaveRoom()
     }
 
     func onPlayListChanged() {

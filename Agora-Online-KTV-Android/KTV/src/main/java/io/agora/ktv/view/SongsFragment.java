@@ -146,6 +146,8 @@ public class SongsFragment extends DataBindBaseFragment<KtvFragmentSongListBindi
                     public void onSuccess(AgoraObject result) {
                         MemberMusicModel musicModel = result.toObject(MemberMusicModel.class);
                         musicModel.setId(result.getId());
+
+                        RoomManager.Instance(requireContext()).onMusicAdd(musicModel);
                         mAdapter.notifyItemChanged(position);
                     }
 

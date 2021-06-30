@@ -7,6 +7,8 @@
 
 import Core
 import Foundation
+import LrcView
+import SDWebImage
 import UIKit
 
 protocol OrderMusicDelegate: AnyObject {
@@ -16,10 +18,17 @@ protocol OrderMusicDelegate: AnyObject {
 }
 
 private class OrderMusicCell: UITableViewCell {
+    static var defaultPoster: UIImage? = UIImage(named: "bg", in: Utils.bundle, with: nil)
     weak var delegate: OrderMusicDelegate!
     var music: LocalMusic! {
         didSet {
-            nameView.text = music.name
+            nameView.text = "\(music.name)-\(music.singer)"
+            let url = URL(string: music.poster)!
+            coverView.sd_setImage(with: url) { [weak self] image, _, _, _ in
+                if let weakself = self {
+                    weakself.coverView.image = image
+                }
+            }
             orderButton.isEnabled = !delegate.isOrdered(music: music)
             orderButton.backgroundColor = orderButton.isEnabled ? UIColor(hex: Colors.Blue) : UIColor(hex: Colors.Blue).withAlphaComponent(0.3)
         }
@@ -28,7 +37,7 @@ private class OrderMusicCell: UITableViewCell {
     private var coverView: UIImageView = {
         let view = RoundImageView()
         view.radius = 8
-        view.image = UIImage(named: "bg", in: Utils.bundle, with: nil)
+        view.image = OrderMusicCell.defaultPoster
         return view
     }()
 
@@ -147,7 +156,7 @@ private class LiveMusicCell: UITableViewCell {
     weak var delegate: OrderMusicDelegate!
     var music: LiveKtvMusic! {
         didSet {
-            nameView.text = music.name
+            nameView.text = "\(music.name)-\(music.singer)"
             let isPlaying = delegate.isPlaying(music: music)
             indexView.isHidden = isPlaying
             icon.isHidden = !isPlaying
@@ -195,7 +204,7 @@ private class LiveMusicCell: UITableViewCell {
         let view = UILabel()
         view.textColor = UIColor(hex: Colors.Text).withAlphaComponent(0.6)
         view.font = UIFont.systemFont(ofSize: 12)
-        view.text = "正在演唱"
+        view.text = "Singing".localized
         return view
     }()
 
@@ -292,13 +301,17 @@ private class SearchView: UIView, UITextFieldDelegate {
     private var editor: UITextField = {
         let view = UITextField()
         view.borderStyle = .none
-        view.attributedPlaceholder = NSAttributedString(string: "搜索歌曲或歌手", attributes: [NSAttributedString.Key.foregroundColor: UIColor(hex: "#7e7e7e")])
+        view.attributedPlaceholder = NSAttributedString(string: "搜索歌曲", attributes: [NSAttributedString.Key.foregroundColor: UIColor(hex: "#7e7e7e")])
         view.font = UIFont.systemFont(ofSize: 14)
         view.textColor = UIColor(hex: "#ccffffff")
         view.clearButtonMode = .whileEditing
         view.returnKeyType = .search
         return view
     }()
+
+    var text: String {
+        return editor.text ?? ""
+    }
 
     init() {
         super.init(frame: .zero)
@@ -630,7 +643,7 @@ class MusicListDialog: Dialog, UIScrollViewDelegate, HeaderViewDelegate, SearchV
         onSelect(index: 0)
         reload()
         show(controller: delegate)
-        onSearch(text: "")
+        onSearch(text: searchView.text)
     }
 
     func reload() {

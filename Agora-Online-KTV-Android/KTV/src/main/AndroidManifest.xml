@@ -11,24 +11,26 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
-    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application
         android:name=".AppApplication"
         android:allowBackup="false"
+        android:icon="@mipmap/ktv_launcher"
         android:label="@string/ktv_app_name"
         android:requestLegacyExternalStorage="true"
         android:screenOrientation="portrait"
         android:supportsRtl="true"
         android:theme="@style/ktv_AppTheme"
-        tools:ignore="GoogleAppIndexingWarning">
+        tools:ignore="GoogleAppIndexingWarning"
+        tools:replace="android:label,android:allowBackup">
         <meta-data
             android:name="android.max_aspect"
             android:value="2.4" />
 
         <activity
             android:name=".view.SplashActivity"
-            android:launchMode="singleTask"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -48,5 +50,7 @@
             android:name=".view.RoomActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
+
+        <service android:name="io.agora.ktv.service.MyForegroundService" />
     </application>
 </manifest>

@@ -7,12 +7,16 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.agora.data.model.MusicModel;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
+import com.bumptech.glide.request.RequestOptions;
 
 import java.util.List;
 
 import io.agora.baselibrary.base.BaseRecyclerViewAdapter;
 import io.agora.ktv.R;
 import io.agora.ktv.databinding.KtvItemChooseSongListBinding;
+import io.agora.ktv.manager.RoomManager;
 
 /**
  * 歌曲列表
@@ -43,13 +47,20 @@ public class SongsAdapter extends BaseRecyclerViewAdapter<MusicModel, SongsAdapt
         }
 
         Context context = holder.itemView.getContext();
-        holder.mDataBinding.tvName.setText(item.getName());
+        holder.mDataBinding.tvName.setText(item.getName() + "-" + item.getSinger());
 
-//        if (RoomManager.Instance(context).isInMusicOrderList(item)) {
-//            holder.mDataBinding.btChooseSong.setEnabled(false);
-//        } else {
-        holder.mDataBinding.btChooseSong.setEnabled(true);
-//        }
+        Glide.with(holder.itemView)
+                .load(item.getPoster())
+                .apply(RequestOptions.bitmapTransform(new RoundedCorners(10)))
+                .into(holder.mDataBinding.iv);
+
+        if (RoomManager.Instance(context).isInMusicOrderList(item)) {
+            holder.mDataBinding.btChooseSong.setEnabled(false);
+            holder.mDataBinding.btChooseSong.setText(R.string.ktv_room_choosed_song);
+        } else {
+            holder.mDataBinding.btChooseSong.setEnabled(true);
+            holder.mDataBinding.btChooseSong.setText(R.string.ktv_room_choose_song);
+        }
     }
 
     class ViewHolder extends BaseRecyclerViewAdapter.BaseViewHolder<KtvItemChooseSongListBinding> {
