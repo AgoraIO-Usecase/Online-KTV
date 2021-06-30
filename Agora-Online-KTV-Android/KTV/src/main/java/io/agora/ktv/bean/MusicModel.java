@@ -18,6 +18,7 @@ import java.util.List;
  * @date 2021/6/9
  */
 public class MusicModel implements Parcelable {
+    public static final String TABLE_MUSIC_NAME = "MUSIC_REPOSITORT";
     public static final String TABLE_NAME = "MUSIC_KTV";
 
     public static final String COLUMN_NAME = "name";

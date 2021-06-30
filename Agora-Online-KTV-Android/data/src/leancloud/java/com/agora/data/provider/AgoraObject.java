@@ -5,7 +5,7 @@ import androidx.annotation.NonNull;
 import com.agora.data.sync.IAgoraObject;
 import com.agora.data.sync.SyncManager;
 
-import cn.leancloud.AVObject;
+import cn.leancloud.LCObject;
 
 /**
  * @author chenhengfei(Aslanchen)
@@ -13,26 +13,26 @@ import cn.leancloud.AVObject;
  */
 public class AgoraObject implements IAgoraObject {
 
-    private final AVObject avObject;
+    private final LCObject LCObject;
 
-    public AgoraObject(AVObject avObject) {
-        this.avObject = avObject;
+    public AgoraObject(LCObject LCObject) {
+        this.LCObject = LCObject;
     }
 
     @Override
     public <T> T toObject(@NonNull Class<T> valueType) {
-        return SyncManager.getConverter().toObject(avObject.toJSONObject().toJSONString(), valueType);
+        return SyncManager.getConverter().toObject(LCObject.toJSONObject().toJSONString(), valueType);
     }
 
     @Override
     public String getId() {
-        return avObject.getObjectId();
+        return LCObject.getObjectId();
     }
 
     public Object get(String key) {
-        Object object = avObject.get(key);
-        if (object instanceof AVObject) {
-            object = new AgoraObject((AVObject) object);
+        Object object = LCObject.get(key);
+        if (object instanceof LCObject) {
+            object = new AgoraObject((LCObject) object);
         }
         return object;
     }

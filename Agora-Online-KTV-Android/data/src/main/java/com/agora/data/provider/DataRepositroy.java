@@ -4,7 +4,10 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 
+import com.agora.data.model.MusicModel;
 import com.agora.data.model.User;
+
+import java.util.List;
 
 import io.reactivex.Observable;
 
@@ -44,5 +47,10 @@ public class DataRepositroy implements IDataRepositroy {
     @Override
     public Observable<User> getUser(@NonNull String userId) {
         return mIDataRepositroy.getUser(userId);
+    }
+
+    @Override
+    public Observable<List<MusicModel>> getMusics() {
+        return mIDataRepositroy.getMusics();
     }
 }

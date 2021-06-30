@@ -1,6 +1,6 @@
 package com.agora.data.sync;
 
-import cn.leancloud.AVException;
+import cn.leancloud.LCException;
 
 /**
  * 异常
@@ -24,8 +24,8 @@ public class AgoraException extends Exception {
 
     public AgoraException(String message, Throwable cause) {
         super(message, cause);
-        if (cause instanceof AVException) {
-            if (((AVException) cause).getCode() == AVException.OBJECT_NOT_FOUND) {
+        if (cause instanceof LCException) {
+            if (((LCException) cause).getCode() == LCException.OBJECT_NOT_FOUND) {
                 this.code = ERROR_OBJECT_NOT_FOUND;
             } else {
                 this.code = ERROR_DEFAULT;
@@ -37,8 +37,8 @@ public class AgoraException extends Exception {
 
     public AgoraException(Throwable cause) {
         super(cause);
-        if (cause instanceof AVException) {
-            if (((AVException) cause).getCode() == AVException.OBJECT_NOT_FOUND) {
+        if (cause instanceof LCException) {
+            if (((LCException) cause).getCode() == LCException.OBJECT_NOT_FOUND) {
                 this.code = ERROR_OBJECT_NOT_FOUND;
             } else {
                 this.code = ERROR_DEFAULT;
