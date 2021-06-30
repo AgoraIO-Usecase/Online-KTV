@@ -123,7 +123,7 @@ class RoomViewModel {
             .observe(on: MainScheduler.instance)
             .subscribe(onNext: { [unowned self] result in
                 if result.success {
-                    if let localMusic = result.data, !self.isLocalMusicPlaying(music: localMusic) {
+                    if let localMusic = result.data, localMusic.id == self.playingMusic?.musicId, !self.isLocalMusicPlaying(music: localMusic) {
                         self.play(music: localMusic) { [unowned self] waiting in
                             self.delegate.show(processing: waiting)
                         } onSuccess: {} onError: { [unowned self] message in
@@ -446,12 +446,12 @@ class RoomViewModel {
             .disposed(by: disposeBag)
     }
 
-    func search(music _: String,
+    func search(music: String,
                 onWaiting: @escaping (Bool) -> Void,
                 onSuccess: @escaping ([LocalMusic]) -> Void,
                 onError: @escaping (String) -> Void)
     {
-        account.getMusicList()
+        account.getMusicList(key: music)
             .observe(on: MainScheduler.instance)
             .do(onSubscribe: {
                 onWaiting(true)
