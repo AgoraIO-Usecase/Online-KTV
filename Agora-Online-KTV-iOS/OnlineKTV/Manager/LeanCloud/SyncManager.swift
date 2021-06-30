@@ -305,6 +305,12 @@
                         delegate.onDeleted(objectId: object.objectId!.stringValue!)
                     case .update(object: let object, updatedKeys: _):
                         delegate.onUpdated(object: AgoraObject(object: object))
+                    case let .state(state):
+                        switch state {
+                        case .subscribed:
+                            delegate.onSubscribed()
+                        default: break
+                        }
                     default: break
                     }
                 })

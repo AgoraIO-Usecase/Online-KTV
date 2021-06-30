@@ -363,7 +363,7 @@ extension RoomController: RoomControlDelegate {
     }
 
     func onRoomClosed() {
-        dismiss(completion: nil)
+        leaveRoom()
     }
 
     func onPlayListChanged() {

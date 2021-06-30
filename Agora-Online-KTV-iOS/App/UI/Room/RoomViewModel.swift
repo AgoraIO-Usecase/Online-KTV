@@ -201,7 +201,7 @@ class RoomViewModel {
                 result.onSuccess {
                     let lrcMusic = result.data!
                     return Single.create { single in
-                        DownloadManager.shared.getFile(url: lrcMusic.song) { downloadResult in
+                        let task = DownloadManager.shared.getFile(url: lrcMusic.song) { downloadResult in
                             switch downloadResult {
                             case let .success(file: file):
                                 single(.success(Result(success: true, data: LocalMusic(id: lrcMusic.id!, name: lrcMusic.name!, path: file, lrcPath: ""))))
@@ -209,7 +209,11 @@ class RoomViewModel {
                                 single(.success(Result(success: false, message: error)))
                             }
                         }
-                        return Disposables.create()
+                        return Disposables.create {
+                            if task?.state == .running {
+                                task?.cancel()
+                            }
+                        }
                     }.asObservable()
                 }
             }
@@ -226,7 +230,7 @@ class RoomViewModel {
                 result.onSuccess {
                     let lrcMusic = result.data!
                     return Single.create { single in
-                        DownloadManager.shared.getFile(url: lrcMusic.lrc) { downloadResult in
+                        let task = DownloadManager.shared.getFile(url: lrcMusic.lrc) { downloadResult in
                             switch downloadResult {
                             case let .success(file: file):
                                 single(.success(Result(success: true, data: LocalMusic(id: lrcMusic.id!, name: lrcMusic.name!, path: "", lrcPath: file))))
@@ -234,7 +238,11 @@ class RoomViewModel {
                                 single(.success(Result(success: false, message: error)))
                             }
                         }
-                        return Disposables.create()
+                        return Disposables.create {
+                            if task?.state == .running {
+                                task?.cancel()
+                            }
+                        }
                     }.asObservable()
                 }
             }

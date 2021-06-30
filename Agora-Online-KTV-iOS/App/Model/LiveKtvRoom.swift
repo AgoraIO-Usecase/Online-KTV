@@ -215,7 +215,7 @@ extension LiveKtvRoom {
     }
 
     func subscribeMembers() -> Observable<Result<[LiveKtvMember]>> {
-        return Observable.create { [unowned self] observer -> Disposable in
+        return Observable<Result<Void>>.create { [unowned self] observer -> Disposable in
             let handler = LiveKtvRoom.manager
                 .getRoom(id: self.id)
                 .collection(className: LiveKtvMember.TABLE)
@@ -237,7 +237,7 @@ extension LiveKtvRoom {
     }
 
     func subscribeMusicList() -> Observable<Result<[LiveKtvMusic]>> {
-        return Observable.create { [unowned self] observer -> Disposable in
+        return Observable<Result<Void>>.create { [unowned self] observer -> Disposable in
             let handler = LiveKtvRoom.manager
                 .getRoom(id: self.id)
                 .collection(className: LiveKtvMusic.TABLE)
@@ -276,6 +276,8 @@ extension LiveKtvRoom {
                         case let .delete(id: id):
                             Logger.log(self, message: "(\(id)) delete", level: .info)
                             observer.onNext(Result<LiveKtvRoom>(success: true, data: nil))
+                        case .subscribed:
+                            observer.onNext(Result<LiveKtvRoom>(success: true, data: self))
                         }
                     } catch {
                         observer.onNext(Result<LiveKtvRoom>(success: false, message: error.localizedDescription))

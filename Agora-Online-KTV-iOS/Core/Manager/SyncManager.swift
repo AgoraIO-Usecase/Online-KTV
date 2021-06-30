@@ -134,6 +134,7 @@ public protocol ISyncManagerEventDelegate {
     func onCreated(object: IAgoraObject) -> Void
     func onUpdated(object: IAgoraObject) -> Void
     func onDeleted(objectId: String) -> Void
+    func onSubscribed() -> Void
     func onError(code: Int, msg: String) -> Void
 }
 
