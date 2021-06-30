@@ -64,6 +64,9 @@ private class RtcMusicPlayer: NSObject {
     func play(music: LocalMusic) -> Bool {
         if let player = player, let rtc = rtcServer.rtcEngine {
             self.music = music
+            if player.getPlayerState() == .playing {
+                player.stop()
+            }
             let option = AgoraRtcChannelMediaOptions()
             option.publishMediaPlayerId = AgoraRtcIntOptional.of(player.getMediaPlayerId())
             option.clientRoleType = AgoraRtcIntOptional.of(Int32(AgoraClientRole.broadcaster.rawValue))
@@ -76,6 +79,7 @@ private class RtcMusicPlayer: NSObject {
             option.enableAudioRecordingOrPlayout = AgoraRtcBoolOptional.of(true)
             option.publishMediaPlayerAudioTrack = AgoraRtcBoolOptional.of(true)
             rtc.updateChannel(with: option)
+            Logger.log(self, message: "open \(music.path)", level: .info)
             return player.open(music.path, startPos: 0) == 0
         } else {
             return false

@@ -299,7 +299,7 @@ extension RoomManager: IRoomManager {
     }
 
     func stop(music: LiveKtvMusic) -> Observable<Result<Void>> {
-        if rtcServer.isJoinChannel, playingMusic?.id == music.musicId {
+        if rtcServer.isJoinChannel /* , playingMusic?.id == music.musicId */ {
             rtcServer.stopMusic()
             return music.delete()
         } else {

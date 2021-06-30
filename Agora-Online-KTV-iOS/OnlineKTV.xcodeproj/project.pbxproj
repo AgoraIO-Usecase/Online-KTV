@@ -95,6 +95,7 @@
 		578545462689CF0B00605ABE /* Dialog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 578545452689CF0B00605ABE /* Dialog.swift */; };
 		5791A95C2678D89800A02B30 /* MusicListDialog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5791A95B2678D89800A02B30 /* MusicListDialog.swift */; };
 		5791A95E267AF2FB00A02B30 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5791A95D267AF2FB00A02B30 /* Main.storyboard */; };
+		57AC4627268B202500A62DD1 /* DownloadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57AC4626268B202500A62DD1 /* DownloadManager.swift */; };
 		57E8D504264A2C03007001BC /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 571AA46D2629862700B82B35 /* AppDelegate.swift */; };
 		57E8D505264A2C03007001BC /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 571AA46F2629862700B82B35 /* SceneDelegate.swift */; };
 		57E8D50E264A2C03007001BC /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 571AA47B2629862800B82B35 /* LaunchScreen.storyboard */; };
@@ -290,6 +291,7 @@
 		578545452689CF0B00605ABE /* Dialog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dialog.swift; sourceTree = "<group>"; };
 		5791A95B2678D89800A02B30 /* MusicListDialog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicListDialog.swift; sourceTree = "<group>"; };
 		5791A95D267AF2FB00A02B30 /* Main.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
+		57AC4626268B202500A62DD1 /* DownloadManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadManager.swift; sourceTree = "<group>"; };
 		57E8D519264A2C03007001BC /* OnlineKTV_Firebase.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OnlineKTV_Firebase.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		57E8D60C264A5904007001BC /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = SOURCE_ROOT; };
 		57E8D623264A6FDC007001BC /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
@@ -548,6 +550,7 @@
 				570997CA265756EC00B87998 /* AppDataManager.swift */,
 				5783FE932664B571000B39F3 /* SyncManager.swift */,
 				5783FEAA26662859000B39F3 /* UserManager.swift */,
+				57AC4626268B202500A62DD1 /* DownloadManager.swift */,
 			);
 			path = Manager;
 			sourceTree = "<group>";
@@ -1165,6 +1168,7 @@
 				5757D05D262D84AA00B4A785 /* Notification.swift in Sources */,
 				5757D160262DB96900B4A785 /* CoreDataManager.swift in Sources */,
 				5783FE942664B571000B39F3 /* SyncManager.swift in Sources */,
+				57AC4627268B202500A62DD1 /* DownloadManager.swift in Sources */,
 				5757D060262D84AF00B4A785 /* NotificationView.swift in Sources */,
 				5757D21F262EB8F300B4A785 /* ActivityIndicator.swift in Sources */,
 				5757D076262D8EBE00B4A785 /* Utils.swift in Sources */,
