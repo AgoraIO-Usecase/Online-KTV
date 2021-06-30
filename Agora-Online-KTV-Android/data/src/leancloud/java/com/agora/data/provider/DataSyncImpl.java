@@ -23,16 +23,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import cn.leancloud.AVException;
-import cn.leancloud.AVLogger;
-import cn.leancloud.AVOSCloud;
-import cn.leancloud.AVObject;
-import cn.leancloud.AVQuery;
-import cn.leancloud.livequery.AVLiveQuery;
-import cn.leancloud.livequery.AVLiveQueryEventHandler;
-import cn.leancloud.livequery.AVLiveQuerySubscribeCallback;
+import cn.leancloud.LCException;
+import cn.leancloud.LCLogger;
+import cn.leancloud.LCObject;
+import cn.leancloud.LCQuery;
+import cn.leancloud.LeanCloud;
+import cn.leancloud.livequery.LCLiveQuery;
+import cn.leancloud.livequery.LCLiveQueryEventHandler;
+import cn.leancloud.livequery.LCLiveQuerySubscribeCallback;
 import cn.leancloud.push.PushService;
-import cn.leancloud.types.AVNull;
+import cn.leancloud.types.LCNull;
 import io.agora.baselibrary.BuildConfig;
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
@@ -47,9 +47,9 @@ public class DataSyncImpl implements ISyncManager {
 
     public DataSyncImpl(Context mContext) {
         if (BuildConfig.DEBUG) {
-            AVOSCloud.setLogLevel(AVLogger.Level.DEBUG);
+            LeanCloud.setLogLevel(LCLogger.Level.DEBUG);
         } else {
-            AVOSCloud.setLogLevel(AVLogger.Level.ERROR);
+            LeanCloud.setLogLevel(LCLogger.Level.ERROR);
         }
 
         String appid = mContext.getString(R.string.leancloud_app_id);
@@ -59,27 +59,27 @@ public class DataSyncImpl implements ISyncManager {
             throw new NullPointerException("please check \"strings_config.xml\"");
         }
 
-        AVOSCloud.initialize(mContext, appid, appKey, url);
+        LeanCloud.initialize(mContext, appid, appKey, url);
 
         PushService.startIfRequired(mContext);
     }
 
     @Override
     public Observable<AgoraRoom> creatRoom(AgoraRoom room) {
-        AVObject avObject = new AVObject(AgoraRoom.TABLE_NAME);
+        LCObject mLCObject = new LCObject(AgoraRoom.TABLE_NAME);
         Map<String, Object> datas = room.toHashMap();
         for (Map.Entry<String, Object> entry : datas.entrySet()) {
             String key = entry.getKey();
             Object value = entry.getValue();
-            avObject.put(key, value);
+            mLCObject.put(key, value);
         }
-        return avObject.saveInBackground()
+        return mLCObject.saveInBackground()
                 .subscribeOn(Schedulers.io())
-                .map(new Function<AVObject, AgoraRoom>() {
+                .map(new Function<LCObject, AgoraRoom>() {
                     @Override
-                    public AgoraRoom apply(@NonNull AVObject avObject) throws Exception {
-                        AgoraRoom mAgoraRoom = mGson.fromJson(avObject.toJSONObject().toJSONString(), AgoraRoom.class);
-                        mAgoraRoom.setId(avObject.getObjectId());
+                    public AgoraRoom apply(@NonNull LCObject LCObject) throws Exception {
+                        AgoraRoom mAgoraRoom = mGson.fromJson(LCObject.toJSONObject().toJSONString(), AgoraRoom.class);
+                        mAgoraRoom.setId(LCObject.getObjectId());
                         return mAgoraRoom;
                     }
                 }).onErrorResumeNext(new Function<Throwable, ObservableSource<? extends AgoraRoom>>() {
@@ -92,16 +92,16 @@ public class DataSyncImpl implements ISyncManager {
 
     @Override
     public Observable<List<AgoraRoom>> getRooms() {
-        AVQuery<AVObject> query = AVQuery.getQuery(AgoraRoom.TABLE_NAME);
-        query.limit(30);
-        query.orderByDescending(AgoraRoom.COLUMN_CREATEDAT);
-        return query.findInBackground()
+        LCQuery<LCObject> mLCQuery = LCQuery.getQuery(AgoraRoom.TABLE_NAME);
+        mLCQuery.limit(30);
+        mLCQuery.orderByDescending(AgoraRoom.COLUMN_CREATEDAT);
+        return mLCQuery.findInBackground()
                 .subscribeOn(Schedulers.io())
-                .map(new Function<List<AVObject>, List<AgoraRoom>>() {
+                .map(new Function<List<LCObject>, List<AgoraRoom>>() {
                     @Override
-                    public List<AgoraRoom> apply(@NonNull List<AVObject> avObjects) throws Exception {
+                    public List<AgoraRoom> apply(@NonNull List<LCObject> LCObjects) throws Exception {
                         List<AgoraRoom> rooms = new ArrayList<>();
-                        for (AVObject object : avObjects) {
+                        for (LCObject object : LCObjects) {
                             AgoraRoom room = mGson.fromJson(object.toJSONObject().toJSONString(), AgoraRoom.class);
                             room.setId(object.getObjectId());
                             rooms.add(room);
@@ -120,17 +120,17 @@ public class DataSyncImpl implements ISyncManager {
     @Override
     public void get(DocumentReference reference, SyncManager.DataItemCallback callback) {
         if (reference instanceof RoomReference) {
-            AVQuery<AVObject> query = AVQuery.getQuery(AgoraRoom.TABLE_NAME);
-            query.getInBackground(reference.getId())
-                    .subscribe(new Observer<AVObject>() {
+            LCQuery<LCObject> mLCQuery = LCQuery.getQuery(AgoraRoom.TABLE_NAME);
+            mLCQuery.getInBackground(reference.getId())
+                    .subscribe(new Observer<LCObject>() {
                         @Override
                         public void onSubscribe(@NonNull Disposable d) {
 
                         }
 
                         @Override
-                        public void onNext(@NonNull AVObject avObject) {
-                            callback.onSuccess(new AgoraObject(avObject));
+                        public void onNext(@NonNull LCObject LCObject) {
+                            callback.onSuccess(new AgoraObject(LCObject));
                         }
 
                         @Override
@@ -145,17 +145,17 @@ public class DataSyncImpl implements ISyncManager {
                     });
         } else {
             String collectionKey = reference.getParent().getKey();
-            AVQuery<AVObject> avQuery = AVQuery.getQuery(collectionKey);
-            avQuery.getInBackground(reference.getId())
-                    .subscribe(new Observer<AVObject>() {
+            LCQuery<LCObject> mLCQuery = LCQuery.getQuery(collectionKey);
+            mLCQuery.getInBackground(reference.getId())
+                    .subscribe(new Observer<LCObject>() {
                         @Override
                         public void onSubscribe(@NonNull Disposable d) {
 
                         }
 
                         @Override
-                        public void onNext(@NonNull AVObject avObject) {
-                            callback.onSuccess(new AgoraObject(avObject));
+                        public void onNext(@NonNull LCObject LCObject) {
+                            callback.onSuccess(new AgoraObject(LCObject));
                         }
 
                         @Override
@@ -173,19 +173,19 @@ public class DataSyncImpl implements ISyncManager {
 
     @Override
     public void get(CollectionReference reference, SyncManager.DataListCallback callback) {
-        AVQuery<AVObject> avQuery = createAVQuery(reference.getKey(), reference.getQuery());
-        avQuery.findInBackground()
-                .subscribe(new Observer<List<AVObject>>() {
+        LCQuery<LCObject> mLCQuery = createLCQuery(reference.getKey(), reference.getQuery());
+        mLCQuery.findInBackground()
+                .subscribe(new Observer<List<LCObject>>() {
                     @Override
                     public void onSubscribe(@NonNull Disposable d) {
 
                     }
 
                     @Override
-                    public void onNext(@NonNull List<AVObject> avObjects) {
+                    public void onNext(@NonNull List<LCObject> LCObjects) {
                         List<AgoraObject> list = new ArrayList<>();
-                        for (AVObject avObject : avObjects) {
-                            list.add(new AgoraObject(avObject));
+                        for (LCObject LCObject : LCObjects) {
+                            list.add(new AgoraObject(LCObject));
                         }
                         callback.onSuccess(list);
                     }
@@ -205,28 +205,28 @@ public class DataSyncImpl implements ISyncManager {
     @Override
     public void add(CollectionReference reference, HashMap<String, Object> datas, SyncManager.DataItemCallback callback) {
         String collectionKey = reference.getKey();
-        AVObject avObject = new AVObject(collectionKey);
+        LCObject mLCObject = new LCObject(collectionKey);
         for (Map.Entry<String, Object> entry : datas.entrySet()) {
             String key = entry.getKey();
             Object value = entry.getValue();
             if (value instanceof DocumentReference) {
                 CollectionReference referenceParent = ((DocumentReference) value).getParent();
-                AVObject avObjectItem = AVObject.createWithoutData(referenceParent.getKey(), ((DocumentReference) value).getId());
-                avObject.put(key, avObjectItem);
+                LCObject LCObjectItem = mLCObject.createWithoutData(referenceParent.getKey(), ((DocumentReference) value).getId());
+                mLCObject.put(key, LCObjectItem);
             } else {
-                avObject.put(key, value);
+                mLCObject.put(key, value);
             }
         }
-        avObject.saveInBackground()
-                .subscribe(new Observer<AVObject>() {
+        mLCObject.saveInBackground()
+                .subscribe(new Observer<LCObject>() {
                     @Override
                     public void onSubscribe(@NonNull Disposable d) {
 
                     }
 
                     @Override
-                    public void onNext(@NonNull AVObject avObject) {
-                        callback.onSuccess(new AgoraObject(avObject));
+                    public void onNext(@NonNull LCObject LCObject) {
+                        callback.onSuccess(new AgoraObject(LCObject));
                     }
 
                     @Override
@@ -244,16 +244,16 @@ public class DataSyncImpl implements ISyncManager {
     @Override
     public void delete(DocumentReference reference, SyncManager.Callback callback) {
         if (reference instanceof RoomReference) {
-            AVObject avObjectRoom = AVObject.createWithoutData(AgoraRoom.TABLE_NAME, reference.getId());
-            avObjectRoom.deleteInBackground()
-                    .subscribe(new Observer<AVNull>() {
+            LCObject mLCObject = LCObject.createWithoutData(AgoraRoom.TABLE_NAME, reference.getId());
+            mLCObject.deleteInBackground()
+                    .subscribe(new Observer<LCNull>() {
                         @Override
                         public void onSubscribe(@NonNull Disposable d) {
 
                         }
 
                         @Override
-                        public void onNext(@NonNull AVNull avNull) {
+                        public void onNext(@NonNull LCNull LCNull) {
                             callback.onSuccess();
                         }
 
@@ -269,16 +269,16 @@ public class DataSyncImpl implements ISyncManager {
                     });
         } else {
             String collectionKey = reference.getParent().getKey();
-            AVObject avObjectcollection = AVObject.createWithoutData(collectionKey, reference.getId());
-            avObjectcollection.deleteInBackground()
-                    .subscribe(new Observer<AVNull>() {
+            LCObject mLCObjectCollection = LCObject.createWithoutData(collectionKey, reference.getId());
+            mLCObjectCollection.deleteInBackground()
+                    .subscribe(new Observer<LCNull>() {
                         @Override
                         public void onSubscribe(@NonNull Disposable d) {
 
                         }
 
                         @Override
-                        public void onNext(@NonNull AVNull avNull) {
+                        public void onNext(@NonNull LCNull LCNull) {
                             callback.onSuccess();
                         }
 
@@ -295,8 +295,8 @@ public class DataSyncImpl implements ISyncManager {
         }
     }
 
-    private AVQuery<AVObject> createAVQuery(String theClassName, Query mQuery) {
-        AVQuery<AVObject> mAVQuery = AVQuery.getQuery(theClassName);
+    private LCQuery<LCObject> createLCQuery(String theClassName, Query mQuery) {
+        LCQuery<LCObject> mLCQuery = LCQuery.getQuery(theClassName);
 
         if (mQuery != null) {
             List<FieldFilter> list = mQuery.getFilters();
@@ -306,10 +306,10 @@ public class DataSyncImpl implements ISyncManager {
                     Object value = filter.getValue();
                     if (value instanceof DocumentReference) {
                         CollectionReference referenceParent = ((DocumentReference) value).getParent();
-                        AVObject avObjectItem = AVObject.createWithoutData(referenceParent.getKey(), ((DocumentReference) value).getId());
-                        mAVQuery.whereEqualTo(field, avObjectItem);
+                        LCObject LCObjectItem = LCObject.createWithoutData(referenceParent.getKey(), ((DocumentReference) value).getId());
+                        mLCQuery.whereEqualTo(field, LCObjectItem);
                     } else {
-                        mAVQuery.whereEqualTo(field, value);
+                        mLCQuery.whereEqualTo(field, value);
                     }
                 }
             }
@@ -317,30 +317,30 @@ public class DataSyncImpl implements ISyncManager {
             List<OrderBy> orderByList = mQuery.getOrderByList();
             for (OrderBy item : orderByList) {
                 if (item.getDirection() == OrderBy.Direction.ASCENDING) {
-                    mAVQuery.addAscendingOrder(item.getField());
+                    mLCQuery.addAscendingOrder(item.getField());
                 } else if (item.getDirection() == OrderBy.Direction.DESCENDING) {
-                    mAVQuery.addDescendingOrder(item.getField());
+                    mLCQuery.addDescendingOrder(item.getField());
                 }
             }
         }
 
-        return mAVQuery;
+        return mLCQuery;
     }
 
     @Override
     public void delete(CollectionReference reference, SyncManager.Callback callback) {
         String collectionKey = reference.getKey();
         Query mQuery = reference.getQuery();
-        AVQuery<AVObject> mAVQuery = createAVQuery(collectionKey, mQuery);
-        mAVQuery.deleteAllInBackground()
-                .subscribe(new Observer<AVNull>() {
+        LCQuery<LCObject> mLCQuery = createLCQuery(collectionKey, mQuery);
+        mLCQuery.deleteAllInBackground()
+                .subscribe(new Observer<LCNull>() {
                     @Override
                     public void onSubscribe(@NonNull Disposable d) {
 
                     }
 
                     @Override
-                    public void onNext(@NonNull AVNull avNull) {
+                    public void onNext(@NonNull LCNull LCNull) {
                         callback.onSuccess();
                     }
 
@@ -359,18 +359,18 @@ public class DataSyncImpl implements ISyncManager {
     @Override
     public void update(DocumentReference reference, String key, Object data, SyncManager.DataItemCallback callback) {
         if (reference instanceof RoomReference) {
-            AVObject avObject = AVObject.createWithoutData(AgoraRoom.TABLE_NAME, reference.getId());
-            avObject.put(key, data);
-            avObject.saveInBackground()
-                    .subscribe(new Observer<AVObject>() {
+            LCObject mLCQuery = LCObject.createWithoutData(AgoraRoom.TABLE_NAME, reference.getId());
+            mLCQuery.put(key, data);
+            mLCQuery.saveInBackground()
+                    .subscribe(new Observer<LCObject>() {
                         @Override
                         public void onSubscribe(@NonNull Disposable d) {
 
                         }
 
                         @Override
-                        public void onNext(@NonNull AVObject avObject) {
-                            callback.onSuccess(new AgoraObject(avObject));
+                        public void onNext(@NonNull LCObject LCObject) {
+                            callback.onSuccess(new AgoraObject(LCObject));
                         }
 
                         @Override
@@ -385,18 +385,18 @@ public class DataSyncImpl implements ISyncManager {
                     });
         } else {
             String collectionKey = reference.getParent().getKey();
-            AVObject avObjectCollection = AVObject.createWithoutData(collectionKey, reference.getId());
-            avObjectCollection.put(key, data);
-            avObjectCollection.saveInBackground()
-                    .subscribe(new Observer<AVObject>() {
+            LCObject mLCObjectCollection = LCObject.createWithoutData(collectionKey, reference.getId());
+            mLCObjectCollection.put(key, data);
+            mLCObjectCollection.saveInBackground()
+                    .subscribe(new Observer<LCObject>() {
                         @Override
                         public void onSubscribe(@NonNull Disposable d) {
 
                         }
 
                         @Override
-                        public void onNext(@NonNull AVObject avObject) {
-                            callback.onSuccess(new AgoraObject(avObject));
+                        public void onNext(@NonNull LCObject LCObject) {
+                            callback.onSuccess(new AgoraObject(LCObject));
                         }
 
                         @Override
@@ -415,28 +415,28 @@ public class DataSyncImpl implements ISyncManager {
     @Override
     public void update(DocumentReference reference, HashMap<String, Object> datas, SyncManager.DataItemCallback callback) {
         if (reference instanceof RoomReference) {
-            AVObject avObject = AVObject.createWithoutData(AgoraRoom.TABLE_NAME, reference.getId());
+            LCObject mLCObject = LCObject.createWithoutData(AgoraRoom.TABLE_NAME, reference.getId());
             for (Map.Entry<String, Object> entry : datas.entrySet()) {
                 String key = entry.getKey();
                 Object value = entry.getValue();
                 if (value instanceof DocumentReference) {
                     CollectionReference referenceParent = ((DocumentReference) value).getParent();
-                    AVObject avObjectItem = AVObject.createWithoutData(referenceParent.getKey(), ((DocumentReference) value).getId());
-                    avObject.put(key, avObjectItem);
+                    LCObject LCObjectItem = mLCObject.createWithoutData(referenceParent.getKey(), ((DocumentReference) value).getId());
+                    mLCObject.put(key, LCObjectItem);
                 } else {
-                    avObject.put(key, value);
+                    mLCObject.put(key, value);
                 }
             }
-            avObject.saveInBackground()
-                    .subscribe(new Observer<AVObject>() {
+            mLCObject.saveInBackground()
+                    .subscribe(new Observer<LCObject>() {
                         @Override
                         public void onSubscribe(@NonNull Disposable d) {
 
                         }
 
                         @Override
-                        public void onNext(@NonNull AVObject avObject) {
-                            callback.onSuccess(new AgoraObject(avObject));
+                        public void onNext(@NonNull LCObject LCObject) {
+                            callback.onSuccess(new AgoraObject(LCObject));
                         }
 
                         @Override
@@ -451,28 +451,28 @@ public class DataSyncImpl implements ISyncManager {
                     });
         } else {
             String collectionKey = reference.getParent().getKey();
-            AVObject avObjectCollection = AVObject.createWithoutData(collectionKey, reference.getId());
+            LCObject mLCObjectCollection = LCObject.createWithoutData(collectionKey, reference.getId());
             for (Map.Entry<String, Object> entry : datas.entrySet()) {
                 String key = entry.getKey();
                 Object value = entry.getValue();
                 if (value instanceof DocumentReference) {
                     CollectionReference referenceParent = ((DocumentReference) value).getParent();
-                    AVObject avObjectItem = AVObject.createWithoutData(referenceParent.getKey(), ((DocumentReference) value).getId());
-                    avObjectCollection.put(key, avObjectItem);
+                    LCObject LCObjectItem = LCObject.createWithoutData(referenceParent.getKey(), ((DocumentReference) value).getId());
+                    mLCObjectCollection.put(key, LCObjectItem);
                 } else {
-                    avObjectCollection.put(key, value);
+                    mLCObjectCollection.put(key, value);
                 }
             }
-            avObjectCollection.saveInBackground()
-                    .subscribe(new Observer<AVObject>() {
+            mLCObjectCollection.saveInBackground()
+                    .subscribe(new Observer<LCObject>() {
                         @Override
                         public void onSubscribe(@NonNull Disposable d) {
 
                         }
 
                         @Override
-                        public void onNext(@NonNull AVObject avObject) {
-                            callback.onSuccess(new AgoraObject(avObject));
+                        public void onNext(@NonNull LCObject LCObject) {
+                            callback.onSuccess(new AgoraObject(LCObject));
                         }
 
                         @Override
@@ -488,25 +488,25 @@ public class DataSyncImpl implements ISyncManager {
         }
     }
 
-    private HashMap<SyncManager.EventListener, AVLiveQuery> events = new HashMap<>();
+    private HashMap<SyncManager.EventListener, LCLiveQuery> events = new HashMap<>();
 
     @Override
     public void subcribe(DocumentReference reference, SyncManager.EventListener listener) {
         if (reference instanceof RoomReference) {
-            AVQuery<AVObject> query = createAVQuery(AgoraRoom.TABLE_NAME, reference.getQuery());
-            AVLiveQuery avLiveQuery = AVLiveQuery.initWithQuery(query);
-            avLiveQuery.setEventHandler(new AVLiveQueryEventHandler() {
+            LCQuery<LCObject> query = createLCQuery(AgoraRoom.TABLE_NAME, reference.getQuery());
+            LCLiveQuery mLCLiveQuery = LCLiveQuery.initWithQuery(query);
+            mLCLiveQuery.setEventHandler(new LCLiveQueryEventHandler() {
 
                 @Override
-                public void onObjectCreated(AVObject avObject) {
-                    super.onObjectCreated(avObject);
-                    listener.onCreated(new AgoraObject(avObject));
+                public void onObjectCreated(LCObject LCObject) {
+                    super.onObjectCreated(LCObject);
+                    listener.onCreated(new AgoraObject(LCObject));
                 }
 
                 @Override
-                public void onObjectUpdated(AVObject avObject, List<String> updatedKeys) {
-                    super.onObjectUpdated(avObject, updatedKeys);
-                    listener.onUpdated(new AgoraObject(avObject));
+                public void onObjectUpdated(LCObject LCObject, List<String> updatedKeys) {
+                    super.onObjectUpdated(LCObject, updatedKeys);
+                    listener.onUpdated(new AgoraObject(LCObject));
                 }
 
                 @Override
@@ -516,12 +516,12 @@ public class DataSyncImpl implements ISyncManager {
                 }
             });
 
-            events.put(listener, avLiveQuery);
-            avLiveQuery.subscribeInBackground(new AVLiveQuerySubscribeCallback() {
+            events.put(listener, mLCLiveQuery);
+            mLCLiveQuery.subscribeInBackground(new LCLiveQuerySubscribeCallback() {
                 @Override
-                public void done(AVException e) {
+                public void done(LCException e) {
                     if (null != e) {
-                        if (e.getCode() == AVException.EXCEEDED_QUOTA) {
+                        if (e.getCode() == LCException.EXCEEDED_QUOTA) {
                             listener.onSubscribeError(new AgoraException(AgoraException.ERROR_LEANCLOULD_OVER_COUNT, e.getMessage()));
                         } else {
                             listener.onSubscribeError(new AgoraException(AgoraException.ERROR_LEANCLOULD_DEFAULT, e.getMessage()));
@@ -532,20 +532,20 @@ public class DataSyncImpl implements ISyncManager {
             });
         } else {
             String collectionKey = reference.getParent().getKey();
-            AVQuery<AVObject> query = createAVQuery(collectionKey, reference.getQuery());
-            AVLiveQuery avLiveQuery = AVLiveQuery.initWithQuery(query);
-            avLiveQuery.setEventHandler(new AVLiveQueryEventHandler() {
+            LCQuery<LCObject> query = createLCQuery(collectionKey, reference.getQuery());
+            LCLiveQuery mLCLiveQuery = LCLiveQuery.initWithQuery(query);
+            mLCLiveQuery.setEventHandler(new LCLiveQueryEventHandler() {
 
                 @Override
-                public void onObjectCreated(AVObject avObject) {
-                    super.onObjectCreated(avObject);
-                    listener.onCreated(new AgoraObject(avObject));
+                public void onObjectCreated(LCObject LCObject) {
+                    super.onObjectCreated(LCObject);
+                    listener.onCreated(new AgoraObject(LCObject));
                 }
 
                 @Override
-                public void onObjectUpdated(AVObject avObject, List<String> updatedKeys) {
-                    super.onObjectUpdated(avObject, updatedKeys);
-                    listener.onUpdated(new AgoraObject(avObject));
+                public void onObjectUpdated(LCObject LCObject, List<String> updatedKeys) {
+                    super.onObjectUpdated(LCObject, updatedKeys);
+                    listener.onUpdated(new AgoraObject(LCObject));
                 }
 
                 @Override
@@ -555,12 +555,12 @@ public class DataSyncImpl implements ISyncManager {
                 }
             });
 
-            events.put(listener, avLiveQuery);
-            avLiveQuery.subscribeInBackground(new AVLiveQuerySubscribeCallback() {
+            events.put(listener, mLCLiveQuery);
+            mLCLiveQuery.subscribeInBackground(new LCLiveQuerySubscribeCallback() {
                 @Override
-                public void done(AVException e) {
+                public void done(LCException e) {
                     if (null != e) {
-                        if (e.getCode() == AVException.EXCEEDED_QUOTA) {
+                        if (e.getCode() == LCException.EXCEEDED_QUOTA) {
                             listener.onSubscribeError(new AgoraException(AgoraException.ERROR_LEANCLOULD_OVER_COUNT, e.getMessage()));
                         } else {
                             listener.onSubscribeError(new AgoraException(AgoraException.ERROR_LEANCLOULD_DEFAULT, e.getMessage()));
@@ -575,20 +575,20 @@ public class DataSyncImpl implements ISyncManager {
     @Override
     public void subcribe(CollectionReference reference, SyncManager.EventListener listener) {
         String collectionKey = reference.getKey();
-        AVQuery<AVObject> query = createAVQuery(collectionKey, reference.getQuery());
-        AVLiveQuery avLiveQuery = AVLiveQuery.initWithQuery(query);
-        avLiveQuery.setEventHandler(new AVLiveQueryEventHandler() {
+        LCQuery<LCObject> query = createLCQuery(collectionKey, reference.getQuery());
+        LCLiveQuery mLCLiveQuery = LCLiveQuery.initWithQuery(query);
+        mLCLiveQuery.setEventHandler(new LCLiveQueryEventHandler() {
 
             @Override
-            public void onObjectCreated(AVObject avObject) {
-                super.onObjectCreated(avObject);
-                listener.onCreated(new AgoraObject(avObject));
+            public void onObjectCreated(LCObject LCObject) {
+                super.onObjectCreated(LCObject);
+                listener.onCreated(new AgoraObject(LCObject));
             }
 
             @Override
-            public void onObjectUpdated(AVObject avObject, List<String> updatedKeys) {
-                super.onObjectUpdated(avObject, updatedKeys);
-                listener.onUpdated(new AgoraObject(avObject));
+            public void onObjectUpdated(LCObject LCObject, List<String> updatedKeys) {
+                super.onObjectUpdated(LCObject, updatedKeys);
+                listener.onUpdated(new AgoraObject(LCObject));
             }
 
             @Override
@@ -598,12 +598,12 @@ public class DataSyncImpl implements ISyncManager {
             }
         });
 
-        events.put(listener, avLiveQuery);
-        avLiveQuery.subscribeInBackground(new AVLiveQuerySubscribeCallback() {
+        events.put(listener, mLCLiveQuery);
+        mLCLiveQuery.subscribeInBackground(new LCLiveQuerySubscribeCallback() {
             @Override
-            public void done(AVException e) {
+            public void done(LCException e) {
                 if (null != e) {
-                    if (e.getCode() == AVException.EXCEEDED_QUOTA) {
+                    if (e.getCode() == LCException.EXCEEDED_QUOTA) {
                         listener.onSubscribeError(new AgoraException(AgoraException.ERROR_LEANCLOULD_OVER_COUNT, e.getMessage()));
                     } else {
                         listener.onSubscribeError(new AgoraException(AgoraException.ERROR_LEANCLOULD_DEFAULT, e.getMessage()));
@@ -618,9 +618,9 @@ public class DataSyncImpl implements ISyncManager {
     @Override
     public void unsubcribe(SyncManager.EventListener listener) {
         if (events.get(listener) != null) {
-            events.get(listener).unsubscribeInBackground(new AVLiveQuerySubscribeCallback() {
+            events.get(listener).unsubscribeInBackground(new LCLiveQuerySubscribeCallback() {
                 @Override
-                public void done(AVException e) {
+                public void done(LCException e) {
 
                 }
             });

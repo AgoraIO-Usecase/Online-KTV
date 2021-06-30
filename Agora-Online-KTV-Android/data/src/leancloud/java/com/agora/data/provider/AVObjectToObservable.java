@@ -4,11 +4,11 @@ import com.google.gson.Gson;
 
 import java.lang.reflect.Type;
 
-import cn.leancloud.AVObject;
+import cn.leancloud.LCObject;
 import io.reactivex.Observable;
 import io.reactivex.functions.Function;
 
-class AVObjectToObservable<T> implements Function<AVObject, Observable<T>> {
+class AVObjectToObservable<T> implements Function<LCObject, Observable<T>> {
 
     private Type type;
 
@@ -17,7 +17,7 @@ class AVObjectToObservable<T> implements Function<AVObject, Observable<T>> {
     }
 
     @Override
-    public Observable<T> apply(AVObject respone) throws Exception {
+    public Observable<T> apply(LCObject respone) throws Exception {
         T data = new Gson().fromJson(respone.toJSONObject().toJSONString(), type);
         return Observable.just(data);
     }
