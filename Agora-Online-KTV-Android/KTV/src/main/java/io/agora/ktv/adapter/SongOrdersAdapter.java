@@ -9,7 +9,7 @@ import java.util.List;
 
 import io.agora.baselibrary.base.BaseRecyclerViewAdapter;
 import io.agora.ktv.R;
-import io.agora.ktv.bean.MusicModel;
+import io.agora.ktv.bean.MemberMusicModel;
 import io.agora.ktv.databinding.KtvItemChoosedSongListBinding;
 
 /**
@@ -17,9 +17,9 @@ import io.agora.ktv.databinding.KtvItemChoosedSongListBinding;
  *
  * @author chenhengfei@agora.io
  */
-public class SongOrdersAdapter extends BaseRecyclerViewAdapter<MusicModel, SongOrdersAdapter.ViewHolder> {
+public class SongOrdersAdapter extends BaseRecyclerViewAdapter<MemberMusicModel, SongOrdersAdapter.ViewHolder> {
 
-    public SongOrdersAdapter(@Nullable List<MusicModel> datas, @Nullable Object listener) {
+    public SongOrdersAdapter(@Nullable List<MemberMusicModel> datas, @Nullable Object listener) {
         super(datas, listener);
     }
 
@@ -35,7 +35,7 @@ public class SongOrdersAdapter extends BaseRecyclerViewAdapter<MusicModel, SongO
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        MusicModel item = getItemData(position);
+        MemberMusicModel item = getItemData(position);
         if (item == null) {
             return;
         }

@@ -15,7 +15,7 @@ import com.elvishew.xlog.XLog;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.agora.ktv.bean.MusicModel;
+import io.agora.ktv.bean.MemberMusicModel;
 
 /**
  * 主要将房间内事件切换到主线程，然后丢给界面。
@@ -85,12 +85,12 @@ public class MainThreadDispatch implements RoomEventCallback {
                     callback.onRoomClosed(room, fromUser);
                 }
             } else if (msg.what == ON_MUSIC_ADD) {
-                MusicModel data = (MusicModel) msg.obj;
+                MemberMusicModel data = (MemberMusicModel) msg.obj;
                 for (RoomEventCallback callback : enevtCallbacks) {
                     callback.onMusicAdd(data);
                 }
             } else if (msg.what == ON_MUSIC_DELETE) {
-                MusicModel data = (MusicModel) msg.obj;
+                MemberMusicModel data = (MemberMusicModel) msg.obj;
                 for (RoomEventCallback callback : enevtCallbacks) {
                     callback.onMusicDelete(data);
                 }
@@ -99,7 +99,7 @@ public class MainThreadDispatch implements RoomEventCallback {
                     callback.onMusicEmpty();
                 }
             } else if (msg.what == ON_MUSIC_CHANGED) {
-                MusicModel data = (MusicModel) msg.obj;
+                MemberMusicModel data = (MemberMusicModel) msg.obj;
                 for (RoomEventCallback callback : enevtCallbacks) {
                     callback.onMusicChanged(data);
                 }
@@ -180,19 +180,19 @@ public class MainThreadDispatch implements RoomEventCallback {
     }
 
     @Override
-    public void onMusicAdd(@NonNull MusicModel music) {
+    public void onMusicAdd(@NonNull MemberMusicModel music) {
         mLogger.d("onMusicAdd() called with: music = [%s]", music);
         mHandler.obtainMessage(ON_MUSIC_ADD, music).sendToTarget();
     }
 
     @Override
-    public void onMusicDelete(@NonNull MusicModel music) {
+    public void onMusicDelete(@NonNull MemberMusicModel music) {
         mLogger.d("onMusicDelete() called with: music = [%s]", music);
         mHandler.obtainMessage(ON_MUSIC_DELETE, music).sendToTarget();
     }
 
     @Override
-    public void onMusicChanged(@NonNull MusicModel music) {
+    public void onMusicChanged(@NonNull MemberMusicModel music) {
         mLogger.d("onMusicChanged() called with: music = [%s]", music);
         mHandler.obtainMessage(ON_MUSIC_CHANGED, music).sendToTarget();
     }

@@ -6,7 +6,7 @@ import androidx.annotation.NonNull;
 import com.agora.data.model.AgoraMember;
 import com.agora.data.model.AgoraRoom;
 
-import io.agora.ktv.bean.MusicModel;
+import io.agora.ktv.bean.MemberMusicModel;
 
 @MainThread
 public class SimpleRoomEventCallback implements RoomEventCallback {
@@ -47,17 +47,17 @@ public class SimpleRoomEventCallback implements RoomEventCallback {
     }
 
     @Override
-    public void onMusicAdd(@NonNull MusicModel music) {
+    public void onMusicAdd(@NonNull MemberMusicModel music) {
 
     }
 
     @Override
-    public void onMusicDelete(@NonNull MusicModel music) {
+    public void onMusicDelete(@NonNull MemberMusicModel music) {
 
     }
 
     @Override
-    public void onMusicChanged(@NonNull MusicModel music) {
+    public void onMusicChanged(@NonNull MemberMusicModel music) {
 
     }
 

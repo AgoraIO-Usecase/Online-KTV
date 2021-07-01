@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import io.agora.ktv.bean.MusicModel;
+import io.agora.ktv.bean.MemberMusicModel;
 import io.agora.mediaplayer.IMediaPlayer;
 import io.agora.rtc2.Constants;
 import io.agora.rtc2.IRtcEngineEventHandler;
@@ -66,7 +66,7 @@ public final class RoomManager {
     private volatile static AgoraMember owner;
     private volatile static AgoraMember mMine;
 
-    private volatile MusicModel mMusicModel;
+    private volatile MemberMusicModel mMusicModel;
 
     private IMediaPlayer mPlayer;
     private RtcEngine mRtcEngine;
@@ -264,7 +264,7 @@ public final class RoomManager {
         mMainThreadDispatch.onAudioStatusChanged(isMine, member);
     }
 
-    private void onMusicAdd(MusicModel model) {
+    private void onMusicAdd(MemberMusicModel model) {
         mLogger.i("onMusicAdd() called with: model = [%s]", model);
         synchronized (musicObject) {
             if (musics.contains(model)) {
@@ -281,7 +281,7 @@ public final class RoomManager {
         }
     }
 
-    private void onMusicDelete(MusicModel model) {
+    private void onMusicDelete(MemberMusicModel model) {
         mLogger.i("onMusicDelete() called with: model = [%s]", model);
         musics.remove(model);
         mMainThreadDispatch.onMusicDelete(model);
@@ -299,7 +299,7 @@ public final class RoomManager {
         mMainThreadDispatch.onMusicEmpty();
     }
 
-    public void onMusicChanged(MusicModel model) {
+    public void onMusicChanged(MemberMusicModel model) {
         mLogger.i("onMusicChanged() called with: model = [%s]", model);
         mMusicModel = model;
         mMainThreadDispatch.onMusicChanged(model);
@@ -409,7 +409,7 @@ public final class RoomManager {
     private SyncManager.EventListener mMusicEvent = new SyncManager.EventListener() {
         @Override
         public void onCreated(AgoraObject item) {
-            MusicModel data = item.toObject(MusicModel.class);
+            MemberMusicModel data = item.toObject(MemberMusicModel.class);
             data.setId(item.getId());
             onMusicAdd(data);
         }
@@ -422,8 +422,8 @@ public final class RoomManager {
         @Override
         public void onDeleted(String objectId) {
             synchronized (musicObject) {
-                MusicModel musicLocal = null;
-                for (MusicModel music : musics) {
+                MemberMusicModel musicLocal = null;
+                for (MemberMusicModel music : musics) {
                     if (ObjectsCompat.equals(objectId, music.getId())) {
                         musicLocal = music;
                         break;
@@ -456,34 +456,34 @@ public final class RoomManager {
 
         SyncManager.Instance()
                 .getRoom(mRoom.getId())
-                .collection(MusicModel.TABLE_NAME)
+                .collection(MemberMusicModel.TABLE_NAME)
                 .query(new Query().whereEqualTo(AgoraMember.COLUMN_ROOMID, drRoom))
                 .subcribe(mMusicEvent);
     }
 
     private final static Object musicObject = new Object();
-    private volatile List<MusicModel> musics = new ArrayList<>();
+    private volatile List<MemberMusicModel> musics = new ArrayList<>();
 
-    public Single<List<MusicModel>> getMusicsFromRemote() {
-        return Single.create(new SingleOnSubscribe<List<MusicModel>>() {
+    public Single<List<MemberMusicModel>> getMusicOrderList() {
+        return Single.create(new SingleOnSubscribe<List<MemberMusicModel>>() {
             @Override
-            public void subscribe(@NonNull SingleEmitter<List<MusicModel>> emitter) throws Exception {
+            public void subscribe(@NonNull SingleEmitter<List<MemberMusicModel>> emitter) throws Exception {
                 DocumentReference drRoom = SyncManager.Instance()
                         .collection(AgoraRoom.TABLE_NAME)
                         .document(mRoom.getId());
 
                 SyncManager.Instance()
                         .getRoom(mRoom.getId())
-                        .collection(MusicModel.TABLE_NAME)
+                        .collection(MemberMusicModel.TABLE_NAME)
                         .query(new Query()
-                                .orderBy(OrderBy.getInstance(OrderBy.Direction.ASCENDING, MusicModel.COLUMN_CREATE))
-                                .whereEqualTo(MusicModel.COLUMN_ROOMID, drRoom))
+                                .orderBy(OrderBy.getInstance(OrderBy.Direction.ASCENDING, MemberMusicModel.COLUMN_CREATE))
+                                .whereEqualTo(MemberMusicModel.COLUMN_ROOMID, drRoom))
                         .get(new SyncManager.DataListCallback() {
                             @Override
                             public void onSuccess(List<AgoraObject> results) {
-                                List<MusicModel> items = new ArrayList<>();
+                                List<MemberMusicModel> items = new ArrayList<>();
                                 for (AgoraObject result : results) {
-                                    MusicModel item = result.toObject(MusicModel.class);
+                                    MemberMusicModel item = result.toObject(MemberMusicModel.class);
                                     item.setRoomId(mRoom);
                                     item.setId(result.getId());
                                     items.add(item);
@@ -497,9 +497,9 @@ public final class RoomManager {
                             }
                         });
             }
-        }).doOnSuccess(new Consumer<List<MusicModel>>() {
+        }).doOnSuccess(new Consumer<List<MemberMusicModel>>() {
             @Override
-            public void accept(List<MusicModel> musicModels) throws Exception {
+            public void accept(List<MemberMusicModel> musicModels) throws Exception {
                 synchronized (musicObject) {
                     musics = musicModels;
                 }
@@ -508,15 +508,15 @@ public final class RoomManager {
     }
 
     @Nullable
-    public MusicModel getMusicModel() {
+    public MemberMusicModel getMusicModel() {
         return mMusicModel;
     }
 
-    public List<MusicModel> getMusics() {
+    public List<MemberMusicModel> getMusics() {
         return musics;
     }
 
-    public boolean isInMusicOrderList(MusicModel item) {
+    public boolean isInMusicOrderList(MemberMusicModel item) {
         return musics.contains(item);
     }
 

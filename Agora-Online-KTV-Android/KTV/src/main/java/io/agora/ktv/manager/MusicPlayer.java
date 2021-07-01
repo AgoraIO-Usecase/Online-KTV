@@ -7,7 +7,6 @@ import android.os.Message;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
-import androidx.core.util.ObjectsCompat;
 
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
@@ -16,14 +15,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import io.agora.ktv.bean.MusicModel;
+import io.agora.ktv.bean.MemberMusicModel;
 import io.agora.lrcview.LrcView;
 import io.agora.mediaplayer.IMediaPlayer;
 import io.agora.mediaplayer.IMediaPlayerObserver;
@@ -60,12 +55,10 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
     private int mAudioTracksCount = 0;
     private int[] mAudioTrackIndices = null;
 
-    private static volatile MusicModel mMusicModelOpen;
-    private static volatile MusicModel mMusicModel;
+    private static volatile MemberMusicModel mMusicModelOpen;
+    private static volatile MemberMusicModel mMusicModel;
 
     private Callback mCallback;
-
-    private String resourceRoot;
 
     private static final int ACTION_UPDATE_TIME = 102;
 
@@ -127,13 +120,6 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
         mPlayer.registerPlayerObserver(this);
 
         mRtcEngine.addHandler(this);
-
-        //copy local music to SDCard
-        resourceRoot = mContext.getExternalCacheDir().getPath();
-        List<MusicModel> musics = MusicModel.getMusicList();
-        for (MusicModel music : musics) {
-            extractAsset(mContext, music.getMusicFile());
-        }
     }
 
     private void reset() {
@@ -146,29 +132,6 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
         mMusicModelOpen = null;
         mMusicModel = null;
         mAudioTrackIndex = 1;
-    }
-
-    private void extractAsset(Context mContext, String f) {
-        String filePath = resourceRoot + "/" + f;
-        File tmpf = new File(filePath);
-        if (tmpf.exists()) {
-            return;
-        }
-
-        try {
-            InputStream is = mContext.getAssets().open(f);
-            FileOutputStream fileOutputStream = new FileOutputStream(filePath);
-            byte[] buffer = new byte[1024];
-            int byteRead;
-            while ((byteRead = is.read(buffer)) > 0) {
-                fileOutputStream.write(buffer, 0, byteRead);
-            }
-            fileOutputStream.flush();
-            fileOutputStream.close();
-            is.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     public void registerPlayerObserver(Callback mCallback) {
@@ -205,7 +168,7 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
         mRtcEngine.updateChannelMediaOptions(options);
     }
 
-    public int play(MusicModel mMusicModel) {
+    public int play(MemberMusicModel mMusicModel) {
         if (mRole != Constants.CLIENT_ROLE_BROADCASTER) {
             mLogger.e("play: current role is not broadcaster, abort playing");
             return -1;
@@ -221,10 +184,16 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
             return -3;
         }
 
-        File file = new File(resourceRoot, mMusicModel.getMusicFile());
-        if (file.exists() == false) {
-            mLogger.e("play: file is not exists");
+        File fileMusic = mMusicModel.getFileMusic();
+        if (fileMusic.exists() == false) {
+            mLogger.e("play: fileMusic is not exists");
             return -4;
+        }
+
+        File fileLrc = mMusicModel.getFileLrc();
+        if (fileLrc.exists() == false) {
+            mLogger.e("play: fileLrc is not exists");
+            return -5;
         }
 
         ChannelMediaOptions options = new ChannelMediaOptions();
@@ -246,7 +215,7 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
         mAudioTrackIndices = null;
         MusicPlayer.mMusicModelOpen = mMusicModel;
         mLogger.i("play() called with: mMusicModel = [%s]", mMusicModel);
-        mPlayer.open(file.getAbsolutePath(), 0);
+        mPlayer.open(fileMusic.getAbsolutePath(), 0);
         return 0;
     }
 
@@ -318,9 +287,9 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
         mRtcEngine.adjustRecordingSignalVolume(v);
     }
 
-    private void startDisplayLrc(MusicModel mMusicModel, long totalDuration) {
+    private void startDisplayLrc(MemberMusicModel mMusicModel, long totalDuration) {
         MusicPlayer.mMusicModel = mMusicModel;
-        String lrcs = getLrcText(mMusicModel.getMusicLrcFile());
+        File lrcs = mMusicModel.getFileLrc();
         mLrcView.post(new Runnable() {
             @Override
             public void run() {
@@ -374,21 +343,6 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
             }
         });
         mMusicModel = null;
-    }
-
-    private String getLrcText(String fileName) {
-        String lrcText = null;
-        try {
-            InputStream is = mContext.getAssets().open(fileName);
-            int size = is.available();
-            byte[] buffer = new byte[size];
-            is.read(buffer);
-            is.close();
-            lrcText = new String(buffer);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return lrcText;
     }
 
     private void startSyncLrc(String lrcId, long duration) {
@@ -501,19 +455,19 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
                     stopDisplayLrc();
                     // 加载歌词文本
                     String mLrcId = jsonMsg.getString("lrcId");
-                    List<MusicModel> musics = MusicModel.getMusicList();
-
-                    MusicModel musicModel = null;
-                    for (MusicModel music : musics) {
-                        if (ObjectsCompat.equals(music.getMusicId(), mLrcId)) {
-                            musicModel = music;
-                            break;
-                        }
-                    }
-
-                    if (musicModel != null) {
-                        startDisplayLrc(musicModel, jsonMsg.getLong("duration"));
-                    }
+//                    List<MemberMusicModel> musics = MemberMusicModel.getMusicList();
+//
+//                    MemberMusicModel musicModel = null;
+//                    for (MemberMusicModel music : musics) {
+//                        if (ObjectsCompat.equals(music.getMusicId(), mLrcId)) {
+//                            musicModel = music;
+//                            break;
+//                        }
+//                    }
+//
+//                    if (musicModel != null) {
+//                        startDisplayLrc(musicModel, jsonMsg.getLong("duration"));
+//                    }
                 }
                 // update time
                 // mLrcView.updateTime();

@@ -14,10 +14,13 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import com.agora.data.manager.UserManager;
 import com.agora.data.model.AgoraMember;
 import com.agora.data.model.AgoraRoom;
+import com.agora.data.model.MusicModel;
 import com.agora.data.model.User;
+import com.agora.data.provider.DataRepositroy;
 import com.agora.data.sync.AgoraException;
 import com.agora.data.sync.SyncManager;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,7 +29,7 @@ import io.agora.baselibrary.base.OnItemClickListener;
 import io.agora.baselibrary.util.ToastUtile;
 import io.agora.ktv.R;
 import io.agora.ktv.adapter.RoomSpeakerAdapter;
-import io.agora.ktv.bean.MusicModel;
+import io.agora.ktv.bean.MemberMusicModel;
 import io.agora.ktv.databinding.KtvActivityRoomBinding;
 import io.agora.ktv.manager.MusicPlayer;
 import io.agora.ktv.manager.RoomManager;
@@ -36,10 +39,14 @@ import io.agora.ktv.view.dialog.RoomChooseSongDialog;
 import io.agora.ktv.view.dialog.RoomMVDialog;
 import io.agora.ktv.view.dialog.UserSeatMenuDialog;
 import io.agora.rtc2.Constants;
+import io.reactivex.Completable;
 import io.reactivex.CompletableObserver;
+import io.reactivex.ObservableSource;
+import io.reactivex.Observer;
 import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Function;
 
 /**
  * 房间界面
@@ -54,6 +61,8 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
         intent.putExtra(TAG_ROOM, mRoom);
         return intent;
     }
+
+    private String resourceRoot;
 
     private RoomSpeakerAdapter mRoomSpeakerAdapter;
     private MusicPlayer mMusicPlayer;
@@ -121,7 +130,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
             mRoomSpeakerAdapter.deleteItem(member);
 
             if (RoomManager.Instance(RoomActivity.this).isOwner()) {
-                MusicModel musicModel = RoomManager.Instance(RoomActivity.this).getMusicModel();
+                MemberMusicModel musicModel = RoomManager.Instance(RoomActivity.this).getMusicModel();
                 if (musicModel != null && ObjectsCompat.equals(member.getUserId(), musicModel.getUserId())) {
                     changeMusic();
                 }
@@ -162,7 +171,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
         }
 
         @Override
-        public void onMusicChanged(@NonNull MusicModel music) {
+        public void onMusicChanged(@NonNull MemberMusicModel music) {
             RoomActivity.this.onMusicChanged(music);
         }
 
@@ -210,6 +219,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
             return;
         }
 
+        resourceRoot = this.getExternalCacheDir().getPath();
 
         showNotOnSeatStatus();
 
@@ -261,19 +271,64 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
         syncMusics();
     }
 
-    private void syncMusics() {
-        RoomManager.Instance(this)
-                .getMusicsFromRemote()
+    private void preperMusic(MemberMusicModel musicModel) {
+        DataRepositroy.Instance(this)
+                .getMusic(musicModel.getMusicId())
+                .flatMap(new Function<MusicModel, ObservableSource<MemberMusicModel>>() {
+                    @Override
+                    public ObservableSource<MemberMusicModel> apply(@NonNull MusicModel model) throws Exception {
+                        musicModel.setSong(model.getSong());
+                        musicModel.setLrc(model.getLrc());
+
+                        File fileMusic = new File(resourceRoot, musicModel.getMusicId());
+                        File fileLrc = new File(resourceRoot, musicModel.getMusicId() + ".lrc");
+                        musicModel.setFileMusic(fileMusic);
+                        musicModel.setFileLrc(fileLrc);
+
+                        return Completable.concatArray(
+                                DataRepositroy.Instance(RoomActivity.this).download(fileMusic, musicModel.getSong()),
+                                DataRepositroy.Instance(RoomActivity.this).download(fileLrc, musicModel.getLrc())
+                        ).toObservable();
+                    }
+                })
                 .observeOn(AndroidSchedulers.mainThread())
                 .compose(mLifecycleProvider.bindToLifecycle())
-                .subscribe(new SingleObserver<List<MusicModel>>() {
+                .subscribe(new Observer<MemberMusicModel>() {
                     @Override
                     public void onSubscribe(@NonNull Disposable d) {
 
                     }
 
                     @Override
-                    public void onSuccess(@NonNull List<MusicModel> musicModels) {
+                    public void onNext(@NonNull MemberMusicModel musicModel) {
+                        mMusicPlayer.play(musicModel);
+                    }
+
+                    @Override
+                    public void onError(@NonNull Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+    }
+
+    private void syncMusics() {
+        RoomManager.Instance(this)
+                .getMusicOrderList()
+                .observeOn(AndroidSchedulers.mainThread())
+                .compose(mLifecycleProvider.bindToLifecycle())
+                .subscribe(new SingleObserver<List<MemberMusicModel>>() {
+                    @Override
+                    public void onSubscribe(@NonNull Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onSuccess(@NonNull List<MemberMusicModel> musicModels) {
                         if (musicModels.isEmpty()) {
                             RoomManager.Instance(RoomActivity.this).onMusicEmpty();
                         } else {
@@ -441,7 +496,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
             return;
         }
 
-        MusicModel musicModel = RoomManager.Instance(this).getMusicModel();
+        MemberMusicModel musicModel = RoomManager.Instance(this).getMusicModel();
         if (musicModel == null) {
             return;
         }
@@ -462,7 +517,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
                     public void onComplete() {
                         SyncManager.Instance()
                                 .getRoom(mRoom.getId())
-                                .collection(MusicModel.TABLE_NAME)
+                                .collection(MemberMusicModel.TABLE_NAME)
                                 .document(musicModel.getId())
                                 .delete(new SyncManager.Callback() {
                                     @Override
@@ -573,10 +628,9 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
                 });
     }
 
-    private void onMusicChanged(@NonNull MusicModel music) {
+    private void onMusicChanged(@NonNull MemberMusicModel music) {
         mDataBinding.llNoSing.setVisibility(View.GONE);
         mDataBinding.rlSing.setVisibility(View.VISIBLE);
-
         mDataBinding.tvMusicName.setText(music.getName());
 
         User mUser = UserManager.Instance(this).getUserLiveData().getValue();
@@ -587,7 +641,8 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
         if (ObjectsCompat.equals(music.getUserId(), mUser.getObjectId())) {
             mDataBinding.rlMusicMenu.setVisibility(View.VISIBLE);
             mDataBinding.switchOriginal.setChecked(true);
-            mMusicPlayer.play(music);
+
+            preperMusic(music);
         } else {
             mDataBinding.rlMusicMenu.setVisibility(View.GONE);
         }
