@@ -3,6 +3,7 @@ package com.agora.data.provider;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.agora.data.model.MusicModel;
 import com.agora.data.model.User;
@@ -52,8 +53,8 @@ public class DataRepositroy implements IDataRepositroy {
     }
 
     @Override
-    public Observable<List<MusicModel>> getMusics() {
-        return mIDataRepositroy.getMusics();
+    public Observable<List<MusicModel>> getMusics(@Nullable String searchKey) {
+        return mIDataRepositroy.getMusics(searchKey);
     }
 
     @Override

@@ -29,6 +29,7 @@
     <string name="ktv_room_no_sing_2">点击\"点歌\"一展歌喉</string>
     <string name="ktv_dialog_migu_tip">歌曲来自咪咕音乐</string>
     <string name="ktv_dialog_music_list_empty">未找到相关搜索结果</string>
+    <string name="ktv_dialog_music_list_search_hint">搜索歌曲或歌手</string>
     <string name="ktv_music_waiting_ready">歌曲准备中</string>
     <string name="ktv_music_chorus_count_down">抢麦倒计时%s:%s</string>
     <string name="ktv_music_chorus_waiting_count_down">等待加入合唱%s:%s</string>

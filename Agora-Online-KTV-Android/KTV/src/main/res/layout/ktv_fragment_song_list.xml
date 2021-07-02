@@ -21,18 +21,26 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <EditText
+                android:id="@+id/etSearchKey"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:background="@android:color/transparent"
                 android:drawableStart="@mipmap/ktv_dialog_search"
                 android:drawablePadding="4dp"
                 android:gravity="center_vertical"
+                android:hint="@string/ktv_dialog_music_list_search_hint"
                 android:lines="1"
                 android:maxLength="50"
                 android:maxLines="1"
-                android:singleLine="true" />
+                android:padding="4dp"
+                android:singleLine="true"
+                android:textColor="@android:color/white"
+                android:textColorHint="#7E7E7E"
+                android:textSize="16sp" />
 
             <ImageView
+                android:id="@+id/ivClear"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="4dp"

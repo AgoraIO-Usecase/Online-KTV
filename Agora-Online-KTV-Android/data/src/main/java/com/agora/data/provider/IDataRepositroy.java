@@ -1,6 +1,7 @@
 package com.agora.data.provider;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.agora.data.model.MusicModel;
 import com.agora.data.model.User;
@@ -23,7 +24,7 @@ public interface IDataRepositroy {
 
     Observable<User> getUser(@NonNull String userId);
 
-    Observable<List<MusicModel>> getMusics();
+    Observable<List<MusicModel>> getMusics(@Nullable String searchKey);
 
     Observable<MusicModel> getMusic(@NonNull String musicId);
 

@@ -1,8 +1,10 @@
 package com.agora.data.provider;
 
 import android.text.TextUtils;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.agora.data.Config;
 import com.agora.data.model.MusicModel;
@@ -108,16 +110,20 @@ public class DataRepositroyImpl implements IDataRepositroy {
     }
 
     @Override
-    public Observable<List<MusicModel>> getMusics() {
-        return LCQuery.getQuery(MusicModel.TABLE_NAME)
-                .findInBackground()
+    public Observable<List<MusicModel>> getMusics(@Nullable String searchKey) {
+        LCQuery<LCObject> mLCQuery = LCQuery.getQuery(MusicModel.TABLE_NAME)
+                .limit(500);
+        if (TextUtils.isEmpty(searchKey) == false) {
+            mLCQuery.whereContains(MusicModel.COLUMN_NAME, searchKey);
+        }
+        return mLCQuery.findInBackground()
                 .subscribeOn(Schedulers.io())
                 .flatMap(new Function<List<LCObject>, ObservableSource<List<MusicModel>>>() {
                     @Override
                     public ObservableSource<List<MusicModel>> apply(@NonNull List<LCObject> LCObjects) throws Exception {
                         List<MusicModel> list = new ArrayList<>();
-                        for (LCObject LCObject : LCObjects) {
-                            MusicModel item = mGson.fromJson(LCObject.toJSONString(), MusicModel.class);
+                        for (LCObject object : LCObjects) {
+                            MusicModel item = mGson.fromJson(object.toJSONObject().toJSONString(), MusicModel.class);
                             list.add(item);
                         }
                         return Observable.just(list);
@@ -150,13 +156,14 @@ public class DataRepositroyImpl implements IDataRepositroy {
         return Completable.create(new CompletableOnSubscribe() {
             @Override
             public void subscribe(@NonNull CompletableEmitter emitter) throws Exception {
+                Log.d("down", file.getName() + ", url: " + url);
+
                 if (file.isDirectory()) {
                     emitter.onError(new Throwable("file is a Directory"));
                     return;
                 }
 
                 Request request = new Request.Builder().url(url).build();
-
                 okHttpClient.newCall(request).enqueue(new Callback() {
                     @Override
                     public void onFailure(@NonNull Call call, @NonNull IOException e) {
@@ -171,22 +178,30 @@ public class DataRepositroyImpl implements IDataRepositroy {
                             return;
                         }
 
+                        long total = body.contentLength();
+
+                        if (file.exists() && file.length() == total) {
+                            emitter.onComplete();
+                            return;
+                        }
+
                         InputStream is = null;
                         byte[] buf = new byte[2048];
                         int len = 0;
                         FileOutputStream fos = null;
                         try {
                             is = body.byteStream();
-                            long total = body.contentLength();
                             fos = new FileOutputStream(file);
                             long sum = 0;
                             while ((len = is.read(buf)) != -1) {
                                 fos.write(buf, 0, len);
                                 sum += len;
                                 int progress = (int) (sum * 1.0f / total * 100);
+                                Log.d("down", file.getName() + ", progress: " + progress);
                             }
                             fos.flush();
                             // 下载完成
+                            Log.d("down", file.getName() + " onComplete");
                             emitter.onComplete();
                         } catch (Exception e) {
                             emitter.onError(e);

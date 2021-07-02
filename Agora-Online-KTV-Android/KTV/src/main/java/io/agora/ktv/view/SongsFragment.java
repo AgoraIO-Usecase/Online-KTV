@@ -37,7 +37,7 @@ import io.reactivex.disposables.Disposable;
  * @author chenhengfei(Aslanchen)
  * @date 2021/6/15
  */
-public class SongsFragment extends DataBindBaseFragment<KtvFragmentSongListBinding> implements OnItemClickListener<MusicModel> {
+public class SongsFragment extends DataBindBaseFragment<KtvFragmentSongListBinding> implements View.OnClickListener, OnItemClickListener<MusicModel> {
 
     public static SongsFragment newInstance() {
         SongsFragment mFragment = new SongsFragment();
@@ -63,7 +63,8 @@ public class SongsFragment extends DataBindBaseFragment<KtvFragmentSongListBindi
 
     @Override
     public void iniListener() {
-
+        mDataBinding.ivClear.setOnClickListener(this);
+        mDataBinding.tvSearch.setOnClickListener(this);
     }
 
     @Override
@@ -77,12 +78,12 @@ public class SongsFragment extends DataBindBaseFragment<KtvFragmentSongListBindi
 
         mDataBinding.llEmpty.setVisibility(View.GONE);
 
-        loadMusics();
+        loadMusics(null);
     }
 
-    private void loadMusics() {
+    private void loadMusics(String searchKey) {
         DataRepositroy.Instance(requireContext())
-                .getMusics()
+                .getMusics(searchKey)
                 .observeOn(AndroidSchedulers.mainThread())
                 .compose(mLifecycleProvider.bindToLifecycle())
                 .subscribe(new Observer<List<MusicModel>>() {
@@ -109,6 +110,11 @@ public class SongsFragment extends DataBindBaseFragment<KtvFragmentSongListBindi
     }
 
     private void onLoadMusics(List<MusicModel> list) {
+        if (list.isEmpty()) {
+            mDataBinding.llEmpty.setVisibility(View.VISIBLE);
+        } else {
+            mDataBinding.llEmpty.setVisibility(View.GONE);
+        }
         mAdapter.setDatas(list);
     }
 
@@ -148,5 +154,19 @@ public class SongsFragment extends DataBindBaseFragment<KtvFragmentSongListBindi
                         ToastUtile.toastShort(requireContext(), exception.getMessage());
                     }
                 });
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (v == mDataBinding.ivClear) {
+            mDataBinding.etSearchKey.setText("");
+        } else if (v == mDataBinding.tvSearch) {
+            doSearch();
+        }
+    }
+
+    private void doSearch() {
+        String key = mDataBinding.etSearchKey.getText().toString().trim();
+        loadMusics(key);
     }
 }
