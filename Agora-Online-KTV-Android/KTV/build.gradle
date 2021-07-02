@@ -74,4 +74,5 @@ dependencies {
 
     api project(':data')
     api project(':lrcview')
+    api project(':raw_data')
 }
