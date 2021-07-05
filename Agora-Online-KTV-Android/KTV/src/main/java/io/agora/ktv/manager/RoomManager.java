@@ -34,7 +34,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import io.agora.ktv.bean.MemberMusicModel;
-import io.agora.mediaplayer.IMediaPlayer;
 import io.agora.rtc2.Constants;
 import io.agora.rtc2.IRtcEngineEventHandler;
 import io.agora.rtc2.RtcEngine;
@@ -68,7 +67,6 @@ public final class RoomManager {
 
     private volatile MemberMusicModel mMusicModel;
 
-    private IMediaPlayer mPlayer;
     private RtcEngine mRtcEngine;
 
     private IRtcEngineEventHandler mIRtcEngineEventHandler = new IRtcEngineEventHandler() {
@@ -173,13 +171,6 @@ public final class RoomManager {
 
     public RtcEngine getRtcEngine() {
         return mRtcEngine;
-    }
-
-    public IMediaPlayer getPlayer() {
-        if (mPlayer == null) {
-            mPlayer = mRtcEngine.createMediaPlayer();
-        }
-        return mPlayer;
     }
 
     public static RoomManager Instance(Context mContext) {

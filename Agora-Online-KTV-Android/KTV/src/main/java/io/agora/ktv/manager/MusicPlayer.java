@@ -18,6 +18,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.agora.MusicPlayProcessing;
 import io.agora.ktv.bean.MemberMusicModel;
 import io.agora.lrcview.LrcView;
 import io.agora.mediaplayer.IMediaPlayer;
@@ -118,6 +119,7 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
         // init mpk
         mPlayer = mRtcEngine.createMediaPlayer();
         mPlayer.registerPlayerObserver(this);
+        MusicPlayProcessing.start(mPlayer.getMediaPlayerId());
 
         mRtcEngine.addHandler(this);
     }
@@ -603,6 +605,7 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
         mRtcEngine.removeHandler(this);
         mCallback = null;
         mPlayer.destroy();
+        MusicPlayProcessing.stop();
     }
 
     @MainThread

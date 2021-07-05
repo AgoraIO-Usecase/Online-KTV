@@ -6,11 +6,13 @@
 extern "C" {
 #endif
 
-JNIEXPORT void JNICALL Java_io_agora_MusicPlayProcessing_start(JNIEnv *, jclass);
+JNIEXPORT void JNICALL
+Java_io_agora_MusicPlayProcessing_start(JNIEnv *, jclass, jint mediaPlayerId);
 
 JNIEXPORT void JNICALL Java_io_agora_MusicPlayProcessing_stop(JNIEnv *, jclass);
 
-JNIEXPORT void JNICALL Java_io_agora_MusicPlayProcessing_change(JNIEnv *, jclass, jint index);
+JNIEXPORT void JNICALL
+Java_io_agora_MusicPlayProcessing_change(JNIEnv *, jclass, jint channelIndex);
 
 #ifdef __cplusplus
 }
