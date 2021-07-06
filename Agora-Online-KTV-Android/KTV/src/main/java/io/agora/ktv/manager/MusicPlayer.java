@@ -649,6 +649,7 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
 
     private void onMusicCompleted() {
         mLogger.i("onMusicCompleted() called");
+        mPlayer.stop();
         stopDisplayLrc();
         stopPublish();
         reset();
