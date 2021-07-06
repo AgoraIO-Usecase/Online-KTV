@@ -24,6 +24,10 @@ public class MemberMusicModel implements Parcelable {
     public static final String COLUMN_MUSICID = "musicId";
     public static final String COLUMN_CREATE = "createdAt";
 
+    public enum Type {
+        Default, MiGu;
+    }
+
     private String id;
     private String name;
     private String userId;
@@ -36,11 +40,16 @@ public class MemberMusicModel implements Parcelable {
     private File fileMusic;
     private File fileLrc;
 
+    private Type type = Type.MiGu;
+
+    public MemberMusicModel(String musicId) {
+        this.musicId = musicId;
+    }
+
     public MemberMusicModel(MusicModel data) {
         this.name = data.getName();
         this.musicId = data.getMusicId();
     }
-
 
     protected MemberMusicModel(Parcel in) {
         id = in.readString();
@@ -52,6 +61,7 @@ public class MemberMusicModel implements Parcelable {
         lrc = in.readString();
         fileMusic = (File) in.readSerializable();
         fileLrc = (File) in.readSerializable();
+        type = (Type) in.readSerializable();
     }
 
     @Override
@@ -65,6 +75,7 @@ public class MemberMusicModel implements Parcelable {
         dest.writeString(lrc);
         dest.writeSerializable(fileMusic);
         dest.writeSerializable(fileLrc);
+        dest.writeSerializable(type);
     }
 
     @Override
@@ -172,6 +183,14 @@ public class MemberMusicModel implements Parcelable {
 
     public void setFileLrc(File fileLrc) {
         this.fileLrc = fileLrc;
+    }
+
+    public Type getType() {
+        return type;
+    }
+
+    public void setType(Type type) {
+        this.type = type;
     }
 
     @Override

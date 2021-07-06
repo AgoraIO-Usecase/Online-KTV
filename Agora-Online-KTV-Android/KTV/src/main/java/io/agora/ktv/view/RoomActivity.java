@@ -14,16 +14,12 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import com.agora.data.manager.UserManager;
 import com.agora.data.model.AgoraMember;
 import com.agora.data.model.AgoraRoom;
-import com.agora.data.model.MusicModel;
 import com.agora.data.model.User;
-import com.agora.data.provider.DataRepositroy;
 import com.agora.data.sync.AgoraException;
 import com.agora.data.sync.SyncManager;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 import io.agora.baselibrary.base.DataBindBaseActivity;
 import io.agora.baselibrary.base.OnItemClickListener;
@@ -33,6 +29,7 @@ import io.agora.ktv.adapter.RoomSpeakerAdapter;
 import io.agora.ktv.bean.MemberMusicModel;
 import io.agora.ktv.databinding.KtvActivityRoomBinding;
 import io.agora.ktv.manager.MusicPlayer;
+import io.agora.ktv.manager.MusicResourceManager;
 import io.agora.ktv.manager.RoomManager;
 import io.agora.ktv.manager.SimpleRoomEventCallback;
 import io.agora.ktv.view.dialog.MusicSettingDialog;
@@ -40,13 +37,10 @@ import io.agora.ktv.view.dialog.RoomChooseSongDialog;
 import io.agora.ktv.view.dialog.RoomMVDialog;
 import io.agora.ktv.view.dialog.UserSeatMenuDialog;
 import io.agora.rtc2.Constants;
-import io.reactivex.Completable;
 import io.reactivex.CompletableObserver;
 import io.reactivex.SingleObserver;
-import io.reactivex.SingleSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Function;
 
 /**
  * 房间界面
@@ -61,8 +55,6 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
         intent.putExtra(TAG_ROOM, mRoom);
         return intent;
     }
-
-    private String resourceRoot;
 
     private RoomSpeakerAdapter mRoomSpeakerAdapter;
     private MusicPlayer mMusicPlayer;
@@ -220,8 +212,6 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
             return;
         }
 
-        resourceRoot = this.getExternalCacheDir().getPath();
-
         showNotOnSeatStatus();
 
         AgoraRoom mRoom = getIntent().getExtras().getParcelable(TAG_ROOM);
@@ -273,31 +263,8 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
     }
 
     private void preperMusic(final MemberMusicModel musicModel) {
-        DataRepositroy.Instance(this)
-                .getMusic(musicModel.getMusicId())
-                .firstOrError()
-                .flatMap(new Function<MusicModel, SingleSource<MemberMusicModel>>() {
-                    @Override
-                    public SingleSource<MemberMusicModel> apply(@NonNull MusicModel model) throws Exception {
-                        musicModel.setSong(model.getSong());
-                        musicModel.setLrc(model.getLrc());
-
-                        File fileMusic = new File(resourceRoot, musicModel.getMusicId());
-                        File fileLrc = new File(resourceRoot, musicModel.getMusicId() + ".lrc");
-                        musicModel.setFileMusic(fileMusic);
-                        musicModel.setFileLrc(fileLrc);
-
-                        return Completable.mergeArray(
-                                DataRepositroy.Instance(RoomActivity.this).download(fileMusic, musicModel.getSong()),
-                                DataRepositroy.Instance(RoomActivity.this).download(fileLrc, musicModel.getLrc()))
-                                .toSingle(new Callable<MemberMusicModel>() {
-                                    @Override
-                                    public MemberMusicModel call() throws Exception {
-                                        return musicModel;
-                                    }
-                                });
-                    }
-                })
+        MusicResourceManager.Instance(this)
+                .prepareMusic(musicModel)
                 .observeOn(AndroidSchedulers.mainThread())
                 .compose(mLifecycleProvider.bindToLifecycle())
                 .subscribe(new SingleObserver<MemberMusicModel>() {
@@ -450,12 +417,8 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
             return;
         }
 
-        if (mMusicPlayer.getAudioTracksCount() >= 2) {
-            if (mMusicPlayer.getAudioTrackIndex() == 0) {
-                mMusicPlayer.selectAudioTrack(1);
-            } else {
-                mMusicPlayer.selectAudioTrack(0);
-            }
+        if (mMusicPlayer.hasAccompaniment()) {
+            mMusicPlayer.toggleOrigle();
         } else {
             mDataBinding.switchOriginal.setChecked(true);
             ToastUtile.toastShort(this, "该歌曲无法进行人声切换");
