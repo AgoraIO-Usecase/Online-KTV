@@ -75,6 +75,7 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
     private static final int ACTION_ON_MUSIC_COMPLETED = 206;
     private static final int ACTION_ON_MUSIC_PREPARING = 207;
     private static final int ACTION_ON_MUSIC_PREPARED = 208;
+    private static final int ACTION_ON_MUSIC_PREPARE_FAIL = 209;
 
     private final Handler mHandler = new Handler(Looper.getMainLooper()) {
         @Override
@@ -117,6 +118,10 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
             } else if (msg.what == ACTION_ON_MUSIC_PREPARED) {
                 if (mCallback != null) {
                     mCallback.onMusicPrepared();
+                }
+            } else if (msg.what == ACTION_ON_MUSIC_PREPARE_FAIL) {
+                if (mCallback != null) {
+                    mCallback.onMusicPrepareError();
                 }
             }
         }
@@ -536,6 +541,7 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
 
                                 @Override
                                 public void onError(@NonNull Throwable e) {
+                                    onMusicPrepareError();
                                 }
                             });
                 }
@@ -677,6 +683,11 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
         mHandler.obtainMessage(ACTION_ON_MUSIC_PREPARED).sendToTarget();
     }
 
+    private void onMusicPrepareError() {
+        mLogger.i("onMusicPrepareError() called");
+        mHandler.obtainMessage(ACTION_ON_MUSIC_PREPARE_FAIL).sendToTarget();
+    }
+
     public void destory() {
         mLogger.i("destory() called");
         mRtcEngine.removeHandler(this);
@@ -706,5 +717,7 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
         void onMusicPreparing();
 
         void onMusicPrepared();
+
+        void onMusicPrepareError();
     }
 }

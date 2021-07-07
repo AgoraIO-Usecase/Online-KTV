@@ -36,6 +36,7 @@ import io.agora.ktv.view.dialog.MusicSettingDialog;
 import io.agora.ktv.view.dialog.RoomChooseSongDialog;
 import io.agora.ktv.view.dialog.RoomMVDialog;
 import io.agora.ktv.view.dialog.UserSeatMenuDialog;
+import io.agora.ktv.view.dialog.WaitingDialog;
 import io.agora.rtc2.Constants;
 import io.reactivex.CompletableObserver;
 import io.reactivex.SingleObserver;
@@ -98,13 +99,17 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
 
         @Override
         public void onMusicPreparing() {
-            mDataBinding.tvLoad.setVisibility(View.VISIBLE);
-            mDataBinding.tvLoad.setText(R.string.ktv_lrc_loading);
+            showPreparingDialog();
         }
 
         @Override
         public void onMusicPrepared() {
-            mDataBinding.tvLoad.setVisibility(View.GONE);
+            closePreparingDialog();
+        }
+
+        @Override
+        public void onMusicPrepareError() {
+            closePreparingDialog();
         }
     };
 
@@ -318,7 +323,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
 
                     @Override
                     public void onError(@NonNull Throwable e) {
-                        mDataBinding.tvLoad.setText(R.string.ktv_lrc_load_fail);
+                        mMusicCallback.onMusicPrepareError();
                         ToastUtile.toastShort(RoomActivity.this, R.string.ktv_lrc_load_fail);
                     }
                 });
@@ -389,7 +394,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
         } else if (v == mDataBinding.ivMusicStart) {
             toggleStart();
         } else if (v == mDataBinding.ivChangeSong) {
-            changeMusic();
+            showChangeMusicDialog();
         }
     }
 
@@ -494,6 +499,20 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
             }
         });
         mDataBinding.ivMusicMenu.setEnabled(true);
+    }
+
+    private void showChangeMusicDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.ktv_room_change_music_title)
+                .setMessage(R.string.ktv_room_change_music_msg)
+                .setNegativeButton(R.string.ktv_cancel, null)
+                .setPositiveButton(R.string.ktv_confirm, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        changeMusic();
+                    }
+                })
+                .show();
     }
 
     private void changeMusic() {
@@ -667,6 +686,30 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
 
     private void onMusicEmpty() {
         showNoSingerStatus();
+    }
+
+    private WaitingDialog mPreparingDialog;
+
+    private void showPreparingDialog() {
+        if (mPreparingDialog != null && mPreparingDialog.isShowing()) {
+            return;
+        }
+
+        mPreparingDialog = new WaitingDialog();
+        mPreparingDialog.show(getSupportFragmentManager(), getString(R.string.ktv_lrc_loading), new WaitingDialog.Callback() {
+            @Override
+            public void onTimeout() {
+
+            }
+        });
+    }
+
+    private void closePreparingDialog() {
+        if (mPreparingDialog == null || mPreparingDialog.isShowing() == false) {
+            return;
+        }
+
+        mPreparingDialog.dismiss();
     }
 
     @Override
