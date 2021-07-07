@@ -94,10 +94,6 @@ public class LrcEntry {
         }
     }
 
-    void setDuration(long d) {
-        duration = d;
-    }
-
     int getHeight() {
         if (fgLayout1 == null) {
             return 0;

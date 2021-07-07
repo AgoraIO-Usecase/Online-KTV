@@ -46,7 +46,7 @@ class LrcLoadMiguUtils {
     }
 
     public static class SongMidi {
-        public Paragraph paragraph;
+        public List<Paragraph> paragraphs;
     }
 
     public static class Paragraph {
@@ -67,12 +67,16 @@ class LrcLoadMiguUtils {
             parser.setInput(in, null);
             parser.nextTag();
             Song mSong = readLrc(parser);
-            if (mSong == null || mSong.midi == null || mSong.midi.paragraph == null) {
+            if (mSong == null || mSong.midi == null || mSong.midi.paragraphs == null) {
                 return null;
             }
 
             LrcData mLrcData = new LrcData(IEntry.Type.Migu);
-            mLrcData.setEntrys(mSong.midi.paragraph.sentences);
+            List<IEntry> entrys = new ArrayList<>();
+            for (Paragraph paragraph : mSong.midi.paragraphs) {
+                entrys.addAll(paragraph.sentences);
+            }
+            mLrcData.setEntrys(entrys);
             return mLrcData;
         } catch (Exception e) {
             e.printStackTrace();
@@ -129,14 +133,17 @@ class LrcLoadMiguUtils {
     private static void readMidiLrc(XmlPullParser parser, SongMidi midi) throws XmlPullParserException, IOException {
         parser.require(XmlPullParser.START_TAG, null, "midi_lrc");
 
+        midi.paragraphs = new ArrayList<>();
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) {
                 continue;
             }
+
             String name = parser.getName();
             if (name.equals("paragraph")) {
-                midi.paragraph = new Paragraph();
-                readParagraph(parser, midi.paragraph);
+                Paragraph mParagraph = new Paragraph();
+                midi.paragraphs.add(mParagraph);
+                readParagraph(parser, mParagraph);
             } else {
                 skip(parser);
             }
@@ -146,24 +153,26 @@ class LrcLoadMiguUtils {
     private static void readParagraph(XmlPullParser parser, Paragraph paragraph) throws XmlPullParserException, IOException {
         parser.require(XmlPullParser.START_TAG, null, "paragraph");
 
+        paragraph.sentences = new ArrayList<>();
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) {
                 continue;
             }
+
             String name = parser.getName();
             if (name.equals("sentence")) {
-                paragraph.sentences = new ArrayList<>();
-                readSentence(parser, paragraph.sentences);
+                LrcEntryMigu sentence = new LrcEntryMigu();
+                paragraph.sentences.add(sentence);
+                readSentence(parser, sentence);
             } else {
                 skip(parser);
             }
         }
     }
 
-    private static void readSentence(XmlPullParser parser, List<IEntry> sentences) throws XmlPullParserException, IOException {
+    private static void readSentence(XmlPullParser parser, LrcEntryMigu sentence) throws XmlPullParserException, IOException {
         parser.require(XmlPullParser.START_TAG, null, "sentence");
 
-        LrcEntryMigu sentence = new LrcEntryMigu();
         sentence.tones = new ArrayList<>();
         sentence.mode = LrcEntryMigu.Mode.Default;
         String m = parser.getAttributeValue(null, "mode");
@@ -179,21 +188,21 @@ class LrcLoadMiguUtils {
             if (parser.getEventType() != XmlPullParser.START_TAG) {
                 continue;
             }
+
             String name = parser.getName();
             if (name.equals("tone")) {
-                readTone(parser, sentence);
+                LrcEntryMigu.Tone tone = new LrcEntryMigu.Tone();
+                sentence.tones.add(tone);
+                readTone(parser, tone);
             } else {
                 skip(parser);
             }
         }
-
-        sentences.add(sentence);
     }
 
-    private static void readTone(XmlPullParser parser, LrcEntryMigu sentence) throws XmlPullParserException, IOException {
+    private static void readTone(XmlPullParser parser, LrcEntryMigu.Tone tone) throws XmlPullParserException, IOException {
         parser.require(XmlPullParser.START_TAG, null, "tone");
 
-        LrcEntryMigu.Tone tone = new LrcEntryMigu.Tone();
         // read tone attributes
         tone.begin = Float.parseFloat(parser.getAttributeValue(null, "begin"));
         tone.end = Float.parseFloat(parser.getAttributeValue(null, "end"));
@@ -216,8 +225,6 @@ class LrcLoadMiguUtils {
                 skip(parser);
             }
         }
-
-        sentence.tones.add(tone);
     }
 
     private static String readText(XmlPullParser parser) throws IOException, XmlPullParserException {
