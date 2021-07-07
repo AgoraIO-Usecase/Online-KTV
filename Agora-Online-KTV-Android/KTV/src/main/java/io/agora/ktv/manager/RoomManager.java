@@ -746,6 +746,8 @@ public final class RoomManager {
         mLoggerRTC.i("leaveChannel() called");
         getRtcEngine().leaveChannel();
 
+        memberHashMap.clear();
+
         if (ObjectsCompat.equals(mMine, owner)) {
             //房主退出
             return Completable.create(emitter ->

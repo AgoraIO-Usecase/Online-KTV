@@ -184,7 +184,7 @@ public class LrcView extends View {
             return;
         }
 
-        if (isLrcLoadDone == false) {
+        if (!isLrcLoadDone) {
             return;
         }
 
@@ -198,6 +198,7 @@ public class LrcView extends View {
         invalidate();
     }
 
+    @SuppressLint("DrawAllocation")
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
@@ -206,15 +207,19 @@ public class LrcView extends View {
             int w = right - left - getPaddingStart() - getPaddingEnd();
             int h = bottom - top - getPaddingTop() - getPaddingBottom();
 
-            if (mFgText1 == null) {
-                mFgText1 = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-                mFgTextCanvas1 = new Canvas(mFgText1);
+            if (mFgText1 != null && !mFgText1.isRecycled()) {
+                mFgText1.recycle();
             }
 
-            if (mBgText1 == null) {
-                mBgText1 = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-                mBgTextCanvas1 = new Canvas(mBgText1);
+            if (mBgText1 != null && !mBgText1.isRecycled()) {
+                mBgText1.recycle();
             }
+
+            mFgText1 = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+            mFgTextCanvas1 = new Canvas(mFgText1);
+
+            mBgText1 = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+            mBgTextCanvas1 = new Canvas(mBgText1);
         }
     }
 

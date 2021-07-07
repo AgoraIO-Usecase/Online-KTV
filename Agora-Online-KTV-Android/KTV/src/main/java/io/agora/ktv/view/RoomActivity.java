@@ -157,6 +157,13 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
             } else if (member.getRole() == AgoraMember.Role.Listener) {
                 mRoomSpeakerAdapter.deleteItem(member);
 
+                if (RoomManager.Instance(RoomActivity.this).isOwner()) {
+                    MemberMusicModel musicModel = RoomManager.Instance(RoomActivity.this).getMusicModel();
+                    if (musicModel != null && ObjectsCompat.equals(member.getUserId(), musicModel.getUserId())) {
+                        changeMusic();
+                    }
+                }
+
                 AgoraMember mMine = RoomManager.Instance(RoomActivity.this).getMine();
                 if (ObjectsCompat.equals(member, mMine)) {
                     showNotOnSeatStatus();
