@@ -18,6 +18,7 @@ import com.agora.data.model.User;
 import com.agora.data.sync.AgoraException;
 import com.agora.data.sync.SyncManager;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -171,6 +172,15 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
         @Override
         public void onAudioStatusChanged(boolean isMine, @NonNull AgoraMember member) {
             super.onAudioStatusChanged(isMine, member);
+
+            AgoraMember mMine = RoomManager.Instance(RoomActivity.this).getMine();
+            if (ObjectsCompat.equals(member, mMine)) {
+                if (member.getIsSelfMuted() == 1) {
+                    mDataBinding.ivMic.setImageResource(R.mipmap.ktv_room_unmic);
+                } else {
+                    mDataBinding.ivMic.setImageResource(R.mipmap.ktv_room_mic);
+                }
+            }
         }
 
         @Override
@@ -288,6 +298,10 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
                     @Override
                     public void onSuccess(@NonNull MemberMusicModel musicModel) {
                         mMusicCallback.onMusicPrepared();
+
+//                        File root = getExternalCacheDir();
+//                        musicModel.setFileLrc(new File(root, "突然好想你.xml"));
+//                        musicModel.setFileMusic(new File(root, "突然好想你.mp3"));
                         mMusicPlayer.play(musicModel);
                     }
 

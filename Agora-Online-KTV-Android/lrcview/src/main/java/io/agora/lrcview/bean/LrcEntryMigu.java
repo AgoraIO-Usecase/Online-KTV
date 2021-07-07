@@ -16,9 +16,6 @@ package io.agora.lrcview.bean;
 
 import java.util.List;
 
-/**
- * 一行歌词实体
- */
 public class LrcEntryMigu implements IEntry {
     @Override
     public Type getType() {

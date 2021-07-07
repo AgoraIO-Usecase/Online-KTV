@@ -14,9 +14,6 @@
 
 package io.agora.lrcview.bean;
 
-/**
- * 一行歌词实体
- */
 public class LrcEntryDefault implements IEntry {
     public long time;
     public String text;

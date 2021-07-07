@@ -1,6 +1,5 @@
 package io.agora.lrcview;
 
-import android.annotation.SuppressLint;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.text.Layout;
@@ -113,7 +112,6 @@ public class LrcEntry {
         canvas.restore();
     }
 
-    @SuppressLint("DefaultLocale")
     Rect[] getDrawRectByTime(long time) {
         float pct = ((float) (time - mIEntry.getTime())) / ((float) this.duration);
         if (pct < 0)
