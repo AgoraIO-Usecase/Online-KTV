@@ -447,8 +447,8 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
                     @Override
                     public void onComplete() {
                         mDataBinding.ivMic.setEnabled(true);
-                        RoomManager.Instance(RoomActivity.this).getRtcEngine().muteLocalAudioStream(!newValue);
-                        mDataBinding.ivMic.setImageResource(newValue ? R.mipmap.ktv_room_mic : R.mipmap.ktv_room_unmic);
+                        RoomManager.Instance(RoomActivity.this).getRtcEngine().muteLocalAudioStream(newValue);
+                        mDataBinding.ivMic.setImageResource(newValue ? R.mipmap.ktv_room_unmic : R.mipmap.ktv_room_mic);
                     }
 
                     @Override
