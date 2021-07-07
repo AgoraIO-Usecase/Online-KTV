@@ -35,6 +35,8 @@
     <string name="ktv_music_chorus_waiting_count_down">等待加入合唱%s:%s</string>
     <string name="ktv_music_join_chorus">加入合唱</string>
     <string name="ktv_music_chorus_start_now">不等了，独唱</string>
+    <string name="ktv_lrc_loading">歌曲加载中...</string>
+    <string name="ktv_lrc_load_fail">加载失败</string>
 
     <string name="ktv_music_menu_dialog_title">参数设置</string>
     <string name="ktv_music_menu_dialog_ear">耳返</string>

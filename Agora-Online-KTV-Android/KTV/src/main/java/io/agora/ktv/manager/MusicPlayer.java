@@ -73,6 +73,8 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
     private static final int ACTION_ON_MUSIC_PAUSE = 204;
     private static final int ACTION_ON_MUSIC_STOP = 205;
     private static final int ACTION_ON_MUSIC_COMPLETED = 206;
+    private static final int ACTION_ON_MUSIC_PREPARING = 207;
+    private static final int ACTION_ON_MUSIC_PREPARED = 208;
 
     private final Handler mHandler = new Handler(Looper.getMainLooper()) {
         @Override
@@ -107,6 +109,14 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
             } else if (msg.what == ACTION_ON_MUSIC_COMPLETED) {
                 if (mCallback != null) {
                     mCallback.onMusicCompleted();
+                }
+            } else if (msg.what == ACTION_ON_MUSIC_PREPARING) {
+                if (mCallback != null) {
+                    mCallback.onMusicPlaing();
+                }
+            } else if (msg.what == ACTION_ON_MUSIC_PREPARED) {
+                if (mCallback != null) {
+                    mCallback.onMusicPrepared();
                 }
             }
         }
@@ -506,7 +516,7 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
                     String musicId = jsonMsg.getString("lrcId");
                     long duration = jsonMsg.getLong("duration");
 
-                    isPreparing = true;
+                    onMusicPreparing();
                     MemberMusicModel musicModel = new MemberMusicModel(musicId);
                     MusicResourceManager.Instance(mContext)
                             .prepareMusic(musicModel)
@@ -518,7 +528,8 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
 
                                 @Override
                                 public void onSuccess(@NonNull MemberMusicModel musicModel) {
-                                    isPreparing = false;
+                                    onMusicPrepared();
+
                                     MusicPlayer.mMusicModel = musicModel;
                                     startDisplayLrc(duration);
                                 }
@@ -657,6 +668,18 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
         mHandler.obtainMessage(ACTION_ON_MUSIC_COMPLETED).sendToTarget();
     }
 
+    private void onMusicPreparing() {
+        mLogger.i("onMusicPreparing() called");
+        isPreparing = true;
+        mHandler.obtainMessage(ACTION_ON_MUSIC_COMPLETED).sendToTarget();
+    }
+
+    private void onMusicPrepared() {
+        mLogger.i("onMusicPrepared() called");
+        isPreparing = false;
+        mHandler.obtainMessage(ACTION_ON_MUSIC_COMPLETED).sendToTarget();
+    }
+
     public void destory() {
         mLogger.i("destory() called");
         mRtcEngine.removeHandler(this);
@@ -682,5 +705,9 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
         void onMusicStop();
 
         void onMusicCompleted();
+
+        void onMusicPreparing();
+
+        void onMusicPrepared();
     }
 }

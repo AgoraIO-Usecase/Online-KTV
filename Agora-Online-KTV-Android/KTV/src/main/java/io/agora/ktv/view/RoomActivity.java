@@ -95,6 +95,17 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
         public void onMusicCompleted() {
             changeMusic();
         }
+
+        @Override
+        public void onMusicPreparing() {
+            mDataBinding.tvLoad.setVisibility(View.VISIBLE);
+            mDataBinding.tvLoad.setText(R.string.ktv_lrc_loading);
+        }
+
+        @Override
+        public void onMusicPrepared() {
+            mDataBinding.tvLoad.setVisibility(View.GONE);
+        }
     };
 
     private SimpleRoomEventCallback mRoomEventCallback = new SimpleRoomEventCallback() {
@@ -263,6 +274,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
     }
 
     private void preperMusic(final MemberMusicModel musicModel) {
+        mMusicCallback.onMusicPreparing();
         MusicResourceManager.Instance(this)
                 .prepareMusic(musicModel)
                 .observeOn(AndroidSchedulers.mainThread())
@@ -275,12 +287,14 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
 
                     @Override
                     public void onSuccess(@NonNull MemberMusicModel musicModel) {
+                        mMusicCallback.onMusicPrepared();
                         mMusicPlayer.play(musicModel);
                     }
 
                     @Override
                     public void onError(@NonNull Throwable e) {
-                        ToastUtile.toastShort(RoomActivity.this, "歌曲加载失败");
+                        mDataBinding.tvLoad.setText(R.string.ktv_lrc_load_fail);
+                        ToastUtile.toastShort(RoomActivity.this, R.string.ktv_lrc_load_fail);
                     }
                 });
     }

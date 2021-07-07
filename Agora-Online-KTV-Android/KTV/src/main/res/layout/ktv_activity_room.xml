@@ -105,10 +105,23 @@
                     app:layout_constraintTop_toTopOf="parent"
                     app:lrcCurrentTextColor="#FFFFFF"
                     app:lrcDividerHeight="20dp"
+                    app:lrcLabel=" "
                     app:lrcNormalTextColor="#99FFFFFF"
                     app:lrcNormalTextSize="16sp"
                     app:lrcTextGravity="center"
                     app:lrcTextSize="26sp" />
+
+                <TextView
+                    android:id="@+id/tvLoad"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/ktv_lrc_loading"
+                    android:textColor="@android:color/white"
+                    android:textSize="26sp"
+                    app:layout_constraintBottom_toBottomOf="@+id/lrcView"
+                    app:layout_constraintEnd_toEndOf="@+id/lrcView"
+                    app:layout_constraintStart_toStartOf="@+id/lrcView"
+                    app:layout_constraintTop_toTopOf="@+id/lrcView" />
 
                 <TextView
                     android:id="@+id/tvMusicName"
