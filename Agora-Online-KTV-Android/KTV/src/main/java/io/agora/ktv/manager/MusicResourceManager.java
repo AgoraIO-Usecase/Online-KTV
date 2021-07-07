@@ -16,6 +16,8 @@ import io.agora.ktv.bean.MemberMusicModel;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 
 /**
@@ -32,6 +34,8 @@ public final class MusicResourceManager {
 
     private String resourceRoot;
 
+    public static volatile boolean isPreparing = false;
+
     private MusicResourceManager(Context mContext) {
         this.mContext = mContext;
         resourceRoot = mContext.getExternalCacheDir().getPath();
@@ -47,7 +51,7 @@ public final class MusicResourceManager {
         return instance;
     }
 
-    public Single<MemberMusicModel> prepareMusic(final MemberMusicModel musicModel) {
+    public Single<MemberMusicModel> prepareMusic(final MemberMusicModel musicModel, boolean onlyLrc) {
         return DataRepositroy.Instance(mContext)
                 .getMusic(musicModel.getMusicId())
                 .firstOrError()
@@ -62,15 +66,40 @@ public final class MusicResourceManager {
                         musicModel.setFileMusic(fileMusic);
                         musicModel.setFileLrc(fileLrc);
 
-                        return Completable.mergeArray(
-                                DataRepositroy.Instance(mContext).download(fileMusic, musicModel.getSong()),
-                                DataRepositroy.Instance(mContext).download(fileLrc, musicModel.getLrc()))
-                                .toSingle(new Callable<MemberMusicModel>() {
-                                    @Override
-                                    public MemberMusicModel call() throws Exception {
-                                        return musicModel;
-                                    }
-                                });
+                        if (onlyLrc) {
+                            return DataRepositroy.Instance(mContext).download(fileLrc, musicModel.getLrc())
+                                    .toSingle(new Callable<MemberMusicModel>() {
+                                        @Override
+                                        public MemberMusicModel call() throws Exception {
+                                            return musicModel;
+                                        }
+                                    });
+                        } else {
+                            return Completable.mergeArray(
+                                    DataRepositroy.Instance(mContext).download(fileMusic, musicModel.getSong()),
+                                    DataRepositroy.Instance(mContext).download(fileLrc, musicModel.getLrc()))
+                                    .toSingle(new Callable<MemberMusicModel>() {
+                                        @Override
+                                        public MemberMusicModel call() throws Exception {
+                                            return musicModel;
+                                        }
+                                    });
+                        }
+                    }
+                }).doOnSubscribe(new Consumer<Disposable>() {
+                    @Override
+                    public void accept(Disposable disposable) throws Exception {
+                        isPreparing = true;
+                    }
+                }).doOnSuccess(new Consumer<MemberMusicModel>() {
+                    @Override
+                    public void accept(MemberMusicModel musicModel) throws Exception {
+                        isPreparing = false;
+                    }
+                }).doOnError(new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+                        isPreparing = false;
                     }
                 });
     }

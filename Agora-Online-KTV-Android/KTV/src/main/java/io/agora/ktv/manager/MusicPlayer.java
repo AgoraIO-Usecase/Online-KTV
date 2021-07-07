@@ -209,6 +209,11 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
         mRtcEngine.updateChannelMediaOptions(options);
     }
 
+    public void playWithDisplay(MemberMusicModel mMusicModel) {
+        MusicPlayer.mMusicModel = mMusicModel;
+        startDisplayLrc();
+    }
+
     public int play(MemberMusicModel mMusicModel) {
         if (mRole != Constants.CLIENT_ROLE_BROADCASTER) {
             mLogger.e("play: current role is not broadcaster, abort playing");
@@ -336,12 +341,11 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
         mRtcEngine.adjustRecordingSignalVolume(v);
     }
 
-    private void startDisplayLrc(long totalDuration) {
+    private void startDisplayLrc() {
         File lrcs = mMusicModel.getFileLrc();
         mLrcView.post(new Runnable() {
             @Override
             public void run() {
-                mLrcView.setTotalDuration(totalDuration);
                 mLrcView.loadLrc(lrcs);
             }
         });
@@ -492,8 +496,6 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
         return mIsPaused;
     }
 
-    private static volatile boolean isPreparing = false;
-
     @Override
     public void onStreamMessage(int uid, int streamId, byte[] data) {
         JSONObject jsonMsg;
@@ -506,7 +508,7 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
 
             if (jsonMsg.getString("cmd").equals("setLrcTime")) {
                 if (mMusicModel == null || !jsonMsg.getString("lrcId").equals(mMusicModel.getMusicId())) {
-                    if (isPreparing) {
+                    if (MusicResourceManager.isPreparing) {
                         return;
                     }
 
@@ -519,7 +521,7 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
                     onMusicPreparing();
                     MemberMusicModel musicModel = new MemberMusicModel(musicId);
                     MusicResourceManager.Instance(mContext)
-                            .prepareMusic(musicModel)
+                            .prepareMusic(musicModel, true)
                             .subscribe(new SingleObserver<MemberMusicModel>() {
                                 @Override
                                 public void onSubscribe(@NonNull Disposable d) {
@@ -529,14 +531,11 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
                                 @Override
                                 public void onSuccess(@NonNull MemberMusicModel musicModel) {
                                     onMusicPrepared();
-
-                                    MusicPlayer.mMusicModel = musicModel;
-                                    startDisplayLrc(duration);
+                                    playWithDisplay(musicModel);
                                 }
 
                                 @Override
                                 public void onError(@NonNull Throwable e) {
-                                    isPreparing = false;
                                 }
                             });
                 }
@@ -618,7 +617,7 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
 
         mIsPlaying = true;
         mPlayer.play();
-        startDisplayLrc(mPlayer.getDuration() * 1000);
+        startDisplayLrc();
         mHandler.obtainMessage(ACTION_ON_MUSIC_OPENCOMPLETED).sendToTarget();
     }
 
@@ -670,14 +669,12 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
 
     private void onMusicPreparing() {
         mLogger.i("onMusicPreparing() called");
-        isPreparing = true;
-        mHandler.obtainMessage(ACTION_ON_MUSIC_COMPLETED).sendToTarget();
+        mHandler.obtainMessage(ACTION_ON_MUSIC_PREPARING).sendToTarget();
     }
 
     private void onMusicPrepared() {
         mLogger.i("onMusicPrepared() called");
-        isPreparing = false;
-        mHandler.obtainMessage(ACTION_ON_MUSIC_COMPLETED).sendToTarget();
+        mHandler.obtainMessage(ACTION_ON_MUSIC_PREPARED).sendToTarget();
     }
 
     public void destory() {

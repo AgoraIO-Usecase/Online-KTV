@@ -18,7 +18,6 @@ import com.agora.data.model.User;
 import com.agora.data.sync.AgoraException;
 import com.agora.data.sync.SyncManager;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -283,10 +282,10 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
         syncMusics();
     }
 
-    private void preperMusic(final MemberMusicModel musicModel) {
+    private void preperMusic(final MemberMusicModel musicModel, boolean isSinger) {
         mMusicCallback.onMusicPreparing();
         MusicResourceManager.Instance(this)
-                .prepareMusic(musicModel)
+                .prepareMusic(musicModel, !isSinger)
                 .observeOn(AndroidSchedulers.mainThread())
                 .compose(mLifecycleProvider.bindToLifecycle())
                 .subscribe(new SingleObserver<MemberMusicModel>() {
@@ -302,7 +301,11 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
 //                        File root = getExternalCacheDir();
 //                        musicModel.setFileLrc(new File(root, "突然好想你.xml"));
 //                        musicModel.setFileMusic(new File(root, "突然好想你.mp3"));
-                        mMusicPlayer.play(musicModel);
+                        if (isSinger) {
+                            mMusicPlayer.play(musicModel);
+                        } else {
+                            mMusicPlayer.playWithDisplay(musicModel);
+                        }
                     }
 
                     @Override
@@ -639,8 +642,9 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
             mDataBinding.rlMusicMenu.setVisibility(View.VISIBLE);
             mDataBinding.switchOriginal.setChecked(true);
 
-            preperMusic(music);
+            preperMusic(music, true);
         } else {
+            preperMusic(music, false);
             mDataBinding.rlMusicMenu.setVisibility(View.GONE);
         }
     }
