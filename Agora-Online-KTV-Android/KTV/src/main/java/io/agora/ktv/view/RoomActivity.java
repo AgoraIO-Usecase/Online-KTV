@@ -232,6 +232,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
             return;
         }
 
+        showNoSingerStatus();
         showNotOnSeatStatus();
 
         AgoraRoom mRoom = getIntent().getExtras().getParcelable(TAG_ROOM);
@@ -569,7 +570,16 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
         mDataBinding.llChooseSong.setVisibility(View.INVISIBLE);
         mDataBinding.ivChorus.setVisibility(View.INVISIBLE);
         mDataBinding.tvNoOnSeat.setVisibility(View.VISIBLE);
-        mDataBinding.rlSing.setVisibility(View.GONE);
+    }
+
+    private void showNoSingerStatus() {
+        mDataBinding.llNoSing.setVisibility(View.VISIBLE);
+        mDataBinding.rlSing.setVisibility(View.INVISIBLE);
+    }
+
+    private void showInSingStatus() {
+        mDataBinding.llNoSing.setVisibility(View.INVISIBLE);
+        mDataBinding.rlSing.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -629,8 +639,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
     }
 
     private void onMusicChanged(@NonNull MemberMusicModel music) {
-        mDataBinding.llNoSing.setVisibility(View.GONE);
-        mDataBinding.rlSing.setVisibility(View.VISIBLE);
+        showInSingStatus();
         mDataBinding.tvMusicName.setText(music.getName());
 
         User mUser = UserManager.Instance(this).getUserLiveData().getValue();
@@ -650,8 +659,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
     }
 
     private void onMusicEmpty() {
-        mDataBinding.llNoSing.setVisibility(View.VISIBLE);
-        mDataBinding.rlSing.setVisibility(View.GONE);
+        showNoSingerStatus();
     }
 
     @Override
