@@ -283,7 +283,7 @@ public class MusicPlayer extends IRtcEngineEventHandler {
     }
 
     public void setMusicVolume(int v) {
-        mRtcEngine.adjustAudioMixingPlayoutVolume(v);
+        mRtcEngine.adjustAudioMixingVolume(v);
     }
 
     public void setMicVolume(int v) {
@@ -303,14 +303,16 @@ public class MusicPlayer extends IRtcEngineEventHandler {
         mDisplayThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                long curTs;
+                long curTs = 0;
                 long curTime;
                 long offset;
                 while (!mStopDisplayLrc) {
                     if (mLastRecvPlayPosTime != null) {
                         curTime = System.currentTimeMillis();
                         offset = curTime - mLastRecvPlayPosTime;
-                        curTs = mRecvedPlayPosition + offset;
+                        if (offset <= 1000) {
+                            curTs = mRecvedPlayPosition + offset;
+                        }
 
                         mHandler.obtainMessage(ACTION_UPDATE_TIME, curTs).sendToTarget();
                     }
@@ -364,7 +366,7 @@ public class MusicPlayer extends IRtcEngineEventHandler {
                     sendSyncLrc(lrcId, duration, mRecvedPlayPosition);
 
                     try {
-                        Thread.sleep(200);
+                        Thread.sleep(999);
                     } catch (InterruptedException exp) {
                         break;
                     }
