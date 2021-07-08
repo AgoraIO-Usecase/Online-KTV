@@ -577,7 +577,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
         mDataBinding.ivMic.setVisibility(View.VISIBLE);
         mDataBinding.ivBackgroundPicture.setVisibility(View.VISIBLE);
         mDataBinding.llChooseSong.setVisibility(View.VISIBLE);
-        mDataBinding.ivChorus.setVisibility(View.VISIBLE);
+        mDataBinding.ivChorus.setVisibility(View.INVISIBLE);
         mDataBinding.tvNoOnSeat.setVisibility(View.GONE);
     }
 
