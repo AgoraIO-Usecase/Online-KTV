@@ -118,8 +118,16 @@ public class LrcEntry {
         canvas.restore();
     }
 
+    private float prePct = 0;
+
     Rect[] getDrawRectByTime(long time) {
         float pct = mIEntry.getOffset(time);
+        if (pct < prePct) {
+            pct = prePct;
+        } else {
+            prePct = pct;
+        }
+
         int showLen1 = (int) (text1Len * pct);
 
         for (int i = 0; i < fgLayout1.getLineCount(); i++) {
