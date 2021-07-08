@@ -419,6 +419,10 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
 
                 mStopSyncLrc = false;
                 while (!mStopSyncLrc && mIsPlaying) {
+                    if (mPlayer == null) {
+                        break;
+                    }
+
                     if (!mIsPaused)
                         sendSyncLrc(lrcId, lrcDuration, mPlayer.getPlayPosition());
 
