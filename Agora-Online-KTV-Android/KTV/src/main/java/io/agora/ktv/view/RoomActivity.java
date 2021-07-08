@@ -37,6 +37,7 @@ import io.agora.ktv.view.dialog.RoomChooseSongDialog;
 import io.agora.ktv.view.dialog.RoomMVDialog;
 import io.agora.ktv.view.dialog.UserSeatMenuDialog;
 import io.agora.ktv.view.dialog.WaitingDialog;
+import io.agora.rtc2.ChannelMediaOptions;
 import io.agora.rtc2.Constants;
 import io.reactivex.CompletableObserver;
 import io.reactivex.SingleObserver;
@@ -444,7 +445,11 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
                     @Override
                     public void onComplete() {
                         mDataBinding.ivMic.setEnabled(true);
-                        RoomManager.Instance(RoomActivity.this).getRtcEngine().muteLocalAudioStream(newValue);
+
+                        ChannelMediaOptions options = new ChannelMediaOptions();
+                        options.publishAudioTrack = !newValue;
+                        RoomManager.Instance(RoomActivity.this).getRtcEngine().updateChannelMediaOptions(options);
+
                         mDataBinding.ivMic.setImageResource(newValue ? R.mipmap.ktv_room_unmic : R.mipmap.ktv_room_mic);
                     }
 
