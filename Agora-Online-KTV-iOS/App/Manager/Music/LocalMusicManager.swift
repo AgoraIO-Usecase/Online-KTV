@@ -29,39 +29,31 @@ class LocalMusicManager {
             path: Bundle.main.path(forResource: "send_it", ofType: "m4a")!,
             lrcPath: Bundle.main.path(forResource: Utils.getCurrentLanguage() == "cn" ? "send_it_cn" : "send_it_en", ofType: "lrc")!
         ),
-//        LocalMusic(
-//            id: "music2",
-//            name: "七里香",
-//            path: Bundle.main.path(forResource: "七里香", ofType: "mp3")!,
-//            lrcPath: Bundle.main.path(forResource: "七里香", ofType: "lrc")!
-//        ),
-//        LocalMusic(
-//            id: "music3",
-//            name: "十年",
-//            path: Bundle.main.path(forResource: "十年", ofType: "mp3")!,
-//            lrcPath: Bundle.main.path(forResource: "十年", ofType: "lrc")!
-//        ),
-//        LocalMusic(
-//            id: "music4",
-//            name: "后来",
-//            path: Bundle.main.path(forResource: "后来", ofType: "mp3")!,
-//            lrcPath: Bundle.main.path(forResource: "后来", ofType: "lrc")!
-//        ),
-//        LocalMusic(
-//            id: "music5",
-//            name: "我怀念的",
-//            path: Bundle.main.path(forResource: "我怀念的", ofType: "mp3")!,
-//            lrcPath: Bundle.main.path(forResource: "我怀念的", ofType: "lrc")!
-//        ),
-//        LocalMusic(
-//            id: "music6",
-//            name: "突然好想你",
-//            path: Bundle.main.path(forResource: "突然好想你", ofType: "mp3")!,
-//            lrcPath: Bundle.main.path(forResource: "突然好想你", ofType: "lrc")!
-//        ),
     ]
 
-    static func parseLyric(music: LocalMusic) -> [LyricModel] {
-        return LyricParser.parseLyric(filePath: music.lrcPath)
+//    static func parseLyric(music: LocalMusic) -> [LyricModel] {
+//        return LyricParser.parseLyric(filePath: music.lrcPath)
+//    }
+
+    static func parseLyric(music: LocalMusic) -> [LrcSentence] {
+        Logger.log(self, message: "parseLyric \(music.lrcPath)", level: .info)
+        if music.lrcPath.hasSuffix(".lrc") {
+            let lyrics = LyricParser.parseLyric(filePath: music.lrcPath)
+            let count = lyrics.count
+            return lyrics.enumerated().map { item in
+                let mode = item.element
+                let index = item.offset
+                let next = (index + 1) < count ? lyrics[index + 1] : nil
+                return NormalLrc(model: mode, endMsTime: next?.msTime ?? 0)
+            }
+        } else if music.lrcPath.hasSuffix(".xml") {
+            let lyric = MiguSongLyric(lrcFile: music.lrcPath)
+            if let lyric = lyric {
+                return lyric.sentences.map { miguLrcSentence in
+                    MiguLrc(model: miguLrcSentence)
+                }
+            }
+        }
+        return []
     }
 }

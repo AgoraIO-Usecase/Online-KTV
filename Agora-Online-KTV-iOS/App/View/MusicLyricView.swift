@@ -121,7 +121,7 @@ class MusicLyricView: UIView, UITableViewDataSource, UITableViewDelegate {
     private(set) var isWillDraging: Bool = false
     private(set) var isScrolling: Bool = false
     private(set) var lyricIndex: Int = 0
-    var lyrics: [LyricModel]? {
+    var lyrics: [LrcSentence]? {
         didSet {
             DispatchQueue.main.async { [weak self] in
                 if let self = self {
@@ -228,7 +228,7 @@ class MusicLyricView: UIView, UITableViewDataSource, UITableViewDelegate {
             let totalTime = self.totalTime
             let curLyricsTimestamp = self.curLyricsTimestamp
 
-            if currentTime < currentLyric.msTime {
+            if currentTime < currentLyric.startMsTime() {
                 return
             }
 
@@ -239,20 +239,21 @@ class MusicLyricView: UIView, UITableViewDataSource, UITableViewDelegate {
                 offset = 0
             }
             if let nextLyric = nextLyric {
-                if currentTime > nextLyric.msTime {
+                if currentTime > nextLyric.startMsTime() {
                     return
                 }
             }
 
-            let _consume = (currentTime - currentLyric.msTime) + offset
-            let _totalTime = (nextLyric?.msTime ?? totalTime) - currentLyric.msTime
+            let _consume = (currentTime - currentLyric.startMsTime()) + offset
+            // let _totalTime = (nextLyric?.msTime ?? totalTime) - currentLyric.msTime
             let index = lyricIndex + Distance
-            let progress = CGFloat(_consume / _totalTime)
+            // let progress = CGFloat(_consume / _totalTime)
+            let progress = currentLyric.getProgress(consume: _consume, totalMsTime: totalTime)
 
             DispatchQueue.main.async { [weak self] in
                 if let self = self {
                     let cell: MusicLyricCell? = self.lyricTable.cellForRow(at: IndexPath(row: index, section: 0)) as? MusicLyricCell
-                    cell?.progress = progress
+                    cell?.progress = CGFloat(progress)
                 }
             }
         }
@@ -304,8 +305,8 @@ class MusicLyricView: UIView, UITableViewDataSource, UITableViewDelegate {
                 let currentLyric = item.element
                 let index = item.offset
                 let nexrLyric = index < lyrics.count - 1 ? lyrics[index + 1] : nil
-                return (self.currentTime >= currentLyric.msTime) &&
-                    ((nexrLyric != nil && self.currentTime < nexrLyric!.msTime) || (index == lyrics.count - 1))
+                return (self.currentTime >= currentLyric.startMsTime()) &&
+                    ((nexrLyric != nil && self.currentTime < nexrLyric!.startMsTime()) || (index == lyrics.count - 1))
             }?.offset ?? -1
 
             if curIndex != -1, curIndex != lyricIndex {
@@ -343,7 +344,7 @@ class MusicLyricView: UIView, UITableViewDataSource, UITableViewDelegate {
             cell.lyricLabel.textColor = .clear
             cell.lyricLabel.text = nil
         } else {
-            cell.lyricLabel.text = lyrics?[index].content.trimmingCharacters(in: .newlines)
+            cell.lyricLabel.text = lyrics?[index].getSentence().trimmingCharacters(in: .newlines)
             if indexPath.row == current {
                 cell.lyricLabel.font = UIFont.systemFont(ofSize: 20, weight: .medium)
             } else {
@@ -388,7 +389,7 @@ class MusicLyricView: UIView, UITableViewDataSource, UITableViewDelegate {
             index = index < 0 ? 0 : index
             let lyric = index > lyrics.count - 1 ? nil : lyrics[index]
             if let lyric = lyric {
-                timeLabel.text = lyric.timeString
+                timeLabel.text = lyric.timeString()
                 timeLabel.isHidden = false
                 return
             }

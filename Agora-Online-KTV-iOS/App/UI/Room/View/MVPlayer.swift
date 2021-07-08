@@ -209,7 +209,7 @@ class MVPlayer {
                     status = .pause
                 }
                 musicLyricView.paused = true
-            case .playBackCompleted, .playBackAllLoopsCompleted:
+            case .stopped:
                 if status != .stop {
                     status = .stop
                     originSettingView.setOn(true, animated: true)
@@ -226,7 +226,6 @@ class MVPlayer {
             default: break
             }
         }
-        if state.state == .openCompleted {}
     }
 
     @objc func onTapSettingsView() {
