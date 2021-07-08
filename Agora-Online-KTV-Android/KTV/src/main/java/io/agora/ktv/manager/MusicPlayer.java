@@ -386,15 +386,18 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
         mDisplayThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                long curTs;
+                long curTs = 0;
                 long curTime;
                 long offset;
                 while (!mStopDisplayLrc) {
-                    if (mLastRecvPlayPosTime != null && mStatus == Status.Started) {
+                    if (mLastRecvPlayPosTime != null) {
                         curTime = System.currentTimeMillis();
-                        offset = curTime - mLastRecvPlayPosTime;
-                        curTs = mRecvedPlayPosition + offset;
 
+                        offset = curTime - mLastRecvPlayPosTime;
+
+                        if (offset <= 1000) {
+                            curTs = mRecvedPlayPosition + offset;
+                        }
                         mHandler.obtainMessage(ACTION_UPDATE_TIME, curTs).sendToTarget();
                     }
 
@@ -446,11 +449,11 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
                     }
 
                     if (mLastRecvPlayPosTime != null && mStatus == Status.Started) {
-                        sendSyncLrc(lrcId, duration, mLastRecvPlayPosTime);
+                        sendSyncLrc(lrcId, duration, mRecvedPlayPosition);
                     }
 
                     try {
-                        Thread.sleep(200);
+                        Thread.sleep(1000);
                     } catch (InterruptedException exp) {
                         break;
                     }
