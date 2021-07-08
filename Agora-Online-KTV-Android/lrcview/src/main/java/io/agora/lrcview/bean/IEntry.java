@@ -13,6 +13,8 @@ public interface IEntry {
 
     Type getType();
 
+    void setDuration(long d);
+
     long getTime();
 
     String getText();
