@@ -22,9 +22,9 @@ class RtcMusicState {
     let streamId: Int
     let position: Int
     let duration: Int
-    let state: AgoraMediaPlayerState?
+    let state: AgoraAudioMixingStateCode?
 
-    init(uid: UInt, streamId: Int, position: Int, duration: Int, state: AgoraMediaPlayerState?) {
+    init(uid: UInt, streamId: Int, position: Int, duration: Int, state: AgoraAudioMixingStateCode?) {
         self.uid = uid
         self.streamId = streamId
         self.position = position
@@ -42,122 +42,76 @@ private struct RtcMusicLrcMessage: Encodable, Decodable {
     let time: Int
 }
 
-private class RtcMusicPlayer: NSObject, AgoraRtcMediaPlayerAudioFrameDelegate {
+private class RtcMusicPlayer: NSObject {
     static var msgId: Int = 0
     private weak var rtcServer: RtcServer!
-    var player: AgoraRtcMediaPlayerProtocol!
+    private var timer: Timer?
     var streamId: Int = -1
     var uid: UInt = 0
     var music: LocalMusic?
     var position: Int = 0
     var duration: Int = 0
     var isPlaying: Bool = false
-    var state: AgoraMediaPlayerState?
+    var state: AgoraAudioMixingStateCode?
     var isPause: Bool = false
-    var monoChannel: Bool = false
 
     init(rtcServer: RtcServer) {
         self.rtcServer = rtcServer
         super.init()
-        player = self.rtcServer.rtcEngine!.createMediaPlayer(with: rtcServer)!
-        player.setAudioFrameDelegate(self, mode: .readWrite)
-    }
-
-    func agoraMediaPlayer(_: AgoraRtcMediaPlayerProtocol, audioFrame: AgoraAudioPcmFrame) -> AgoraAudioPcmFrame {
-        if monoChannel, audioFrame.channelNumbers == 2 {
-            let cpBytes = audioFrame.bytesPerSample.rawValue
-            for index in 0 ..< audioFrame.samplesPerChannel {
-                let tempBuf = audioFrame.pcmBuffer.subdata(in: index * 2 * audioFrame.bytesPerSample.rawValue ..< index * 2 * audioFrame.bytesPerSample.rawValue + cpBytes)
-                audioFrame.pcmBuffer.replaceSubrange(index * 2 * audioFrame.bytesPerSample.rawValue + cpBytes ..< index * 2 * audioFrame.bytesPerSample.rawValue + cpBytes + cpBytes, with: tempBuf)
-            }
-        }
-        return audioFrame
     }
 
     func play(music: LocalMusic) -> Bool {
-        if let player = player, let rtc = rtcServer.rtcEngine {
+        if let rtc = rtcServer.rtcEngine {
             self.music = music
-            if player.getPlayerState() == .playing {
-                player.stop()
+            if state == .playing {
+                rtc.stopAudioMixing()
             }
-            let option = AgoraRtcChannelMediaOptions()
-            option.publishMediaPlayerId = AgoraRtcIntOptional.of(player.getMediaPlayerId())
-            option.clientRoleType = AgoraRtcIntOptional.of(Int32(AgoraClientRole.broadcaster.rawValue))
-            option.publishCameraTrack = AgoraRtcBoolOptional.of(false)
-            option.autoSubscribeVideo = AgoraRtcBoolOptional.of(false)
-            option.autoSubscribeAudio = AgoraRtcBoolOptional.of(true)
-            option.publishMediaPlayerVideoTrack = AgoraRtcBoolOptional.of(false)
-            option.publishCustomAudioTrack = AgoraRtcBoolOptional.of(false)
-            option.publishAudioTrack = AgoraRtcBoolOptional.of(true)
-            option.enableAudioRecordingOrPlayout = AgoraRtcBoolOptional.of(true)
-            option.publishMediaPlayerAudioTrack = AgoraRtcBoolOptional.of(true)
-            rtc.updateChannel(with: option)
-            Logger.log(self, message: "open \(music.path)", level: .info)
-            return player.open(music.path, startPos: 0) == 0
+            if let timer = timer {
+                timer.invalidate()
+            }
+            let success = rtc.startAudioMixing(music.path, loopback: false, replace: false, cycle: 1) == 0
+            if success {
+                originMusic(enable: false)
+                timer = Timer.scheduledTimer(withTimeInterval: 0.8, repeats: true, block: { [weak self] _ in
+                    if let self = self, let server = self.rtcServer, let rtc = server.rtcEngine {
+                        if self.state == .playing {
+                            server.agoraRtcMediaPlayer(rtc, didChangedToPosition: Int(rtc.getAudioMixingCurrentPosition()))
+                        }
+                    }
+                })
+            }
+            return success
         } else {
             return false
         }
     }
 
     func getAudioTrackCount() -> Int {
-        if let player = player {
-            let all = player.getStreamCount()
-            Logger.log(self, message: "getStreamCount \(all)", level: .info)
-
-            if all <= 0 {
-                return 0
-            }
-            var count = 0
-            for index in 0 ..< all {
-                if player.getStreamBy(Int32(index))?.streamType == .audio {
-                    count += 1
-                }
-            }
-            return count
-        } else {
-            return 0
-        }
+        return Int(rtcServer.rtcEngine?.getAudioTrackCount() ?? 0)
     }
 
     func originMusic(enable: Bool) {
-        monoChannel = enable
-//        if let player = player {
-//            let all = player.getStreamCount()
-//            if all <= 0 {
-//                return
-//            }
-//            var count = 0
-//            for index in 0 ..< all {
-//                let id = Int32(index)
-//                if player.getStreamBy(id)?.streamType == .audio {
-//                    count += 1
-//                    if enable, count == 2 {
-//                        player.selectAudioTrack(id)
-//                        break
-//                    } else if !enable, count == 1 {
-//                        player.selectAudioTrack(id)
-//                        break
-//                    }
-//                }
-//            }
-//        }
+        // monoChannel = enable
+        rtcServer.rtcEngine?.setAudioMixingDualMonoMode(enable ? .duraMonoL : .duraMonoMix)
     }
 
     func pause() {
-        if let player = player {
-            player.pause()
+        if let rtc = rtcServer.rtcEngine {
+            rtc.pauseAudioMixing()
         }
     }
 
     func resume() {
-        if let player = player {
-            player.resume()
+        if let rtc = rtcServer.rtcEngine {
+            rtc.resumeAudioMixing()
         }
     }
 
     func stop() {
-        if let player = player {
-            player.stop()
+        timer?.invalidate()
+        timer = nil
+        if let rtc = rtcServer.rtcEngine {
+            rtc.stopAudioMixing()
         }
         music = nil
     }
@@ -165,9 +119,6 @@ private class RtcMusicPlayer: NSObject, AgoraRtcMediaPlayerAudioFrameDelegate {
     func release() {
         stop()
         uid = 0
-        if let player = player, let rtc = rtcServer.rtcEngine {
-            rtc.destroyMediaPlayer(player)
-        }
     }
 
     func sendRtcMusicState(state: RtcMusicState) {
@@ -272,11 +223,7 @@ class RtcServer: NSObject {
         rtc.enable(inEarMonitoring: isEnableEarloop)
         setRecordingSignalVolume(value: recordingSignalVolume)
         return Single.create { single in
-            let option = AgoraRtcChannelMediaOptions()
-            option.autoSubscribeAudio = AgoraRtcBoolOptional.of(true)
-            option.autoSubscribeVideo = AgoraRtcBoolOptional.of(false)
-            let code = rtc.joinChannel(byToken: BuildConfig.Token, channelId: channel, uid: 0, mediaOptions: option)
-            // rtc.joinChannel(byToken: BuildConfig.Token, channelId: channel, info: nil, uid: 0)
+            let code = rtc.joinChannel(byToken: BuildConfig.Token, channelId: channel, info: nil, uid: 0)
             single(.success(code))
             return Disposables.create()
         }.asObservable().subscribe(on: MainScheduler.instance)
@@ -349,7 +296,13 @@ class RtcServer: NSObject {
 
     func muteLocalMicrophone(mute: Bool) {
         muted = mute
-        rtcEngine?.muteRecordingSignal(mute)
+        // rtcEngine?.muteRecordingSignal(mute)
+        if muted {
+            recordingSignalVolume = getRecordingSignalVolume()
+            rtcEngine?.adjustRecordingSignalVolume(0)
+        } else {
+            rtcEngine?.adjustRecordingSignalVolume(Int(recordingSignalVolume * 400))
+        }
     }
 
     func onRtcMusicStateChanged() -> Observable<Result<RtcMusicState>> {
@@ -400,21 +353,23 @@ class RtcServer: NSObject {
     }
 
     func setRecordingSignalVolume(value: Float) {
+        if muted {
+            return
+        }
         recordingSignalVolume = value
         rtcEngine?.adjustRecordingSignalVolume(Int(recordingSignalVolume * 400))
     }
 
     func getPlayoutVolume() -> Float {
-        return Float(rtcMusicPlayer?.player.getPlayoutVolume() ?? 0) / 400
+        return Float(rtcEngine?.getAudioMixingPlayoutVolume() ?? 0) / 400
     }
 
     func setPlayoutVolume(value: Float) {
-        rtcMusicPlayer?.player.adjustPlayoutVolume(Int32(value * 400))
+        rtcEngine?.adjustAudioMixingPlayoutVolume(Int(value * 400))
     }
 
     func isSupportSwitchOriginMusic() -> Bool {
         return true
-//        return (rtcMusicPlayer?.getAudioTrackCount() ?? 0) > 1
     }
 
     func originMusic(enable: Bool) {
@@ -430,53 +385,9 @@ class RtcServer: NSObject {
     }
 }
 
-extension RtcServer: AgoraRtcMediaPlayerDelegate {
-    func agoraRtcMediaPlayer(_ playerKit: AgoraRtcMediaPlayerProtocol, didChangedToPosition position: Int) {
-        Logger.log(self, message: "didChangedToPosition \(position)", level: .info)
-        if let player = rtcMusicPlayer {
-            player.position = position
-            player.duration = playerKit.getDuration()
-            let state = RtcMusicState(uid: uid, streamId: 0, position: player.position, duration: player.duration, state: player.state)
-            player.sendRtcMusicState(state: state)
-            rtcMusicStatePublisher.accept(Result(success: true, data: state))
-        }
-    }
-
-    func agoraRtcMediaPlayer(_ playerKit: AgoraRtcMediaPlayerProtocol, didChangedTo state: AgoraMediaPlayerState, error _: AgoraMediaPlayerError) {
-        Logger.log(self, message: "didChangedTo \(state.rawValue)", level: .info)
-        if let player = rtcMusicPlayer {
-            var sync = false
-            player.state = state
-            switch state {
-            case .openCompleted:
-                player.isPlaying = true
-                player.position = 0
-                player.duration = playerKit.getDuration()
-                player.player.play()
-                sync = true
-            case .paused:
-                player.isPause = true
-                sync = true
-            case .stopped, .playBackCompleted, .playBackAllLoopsCompleted:
-                player.isPlaying = false
-                sync = true
-            case .playing:
-                player.isPlaying = true
-                sync = true
-            default:
-                Logger.log(self, message: "status: \(state)", level: .info)
-            }
-            if sync {
-                let state = RtcMusicState(uid: player.uid, streamId: 0, position: player.position, duration: player.duration, state: player.state)
-                rtcMusicStatePublisher.accept(Result(success: true, data: state))
-            }
-        }
-    }
-}
-
 extension RtcServer: AgoraRtcEngineDelegate {
     func rtcEngine(_: AgoraRtcEngineKit, didOccurError errorCode: AgoraErrorCode) {
-        Logger.log(message: "didOccurError \(AgoraRtcEngineKit.getErrorDescription(errorCode.rawValue))", level: .info)
+        Logger.log(message: "didOccurError \(AgoraRtcEngineKit.getErrorDescription(errorCode.rawValue) ?? "")", level: .info)
         statePublisher.accept(Result(success: false, data: RtcServerStateType.error, message: AgoraRtcEngineKit.getErrorDescription(errorCode.rawValue)))
     }
 
@@ -513,6 +424,50 @@ extension RtcServer: AgoraRtcEngineDelegate {
         }
         speakers[uid] = false
         statePublisher.accept(Result(success: true, data: RtcServerStateType.members))
+    }
+
+    func agoraRtcMediaPlayer(_ engine: AgoraRtcEngineKit, didChangedToPosition position: Int) {
+        Logger.log(self, message: "didChangedToPosition \(position)", level: .info)
+        if let player = rtcMusicPlayer {
+            player.position = position
+            player.duration = Int(engine.getAudioMixingDuration())
+            let state = RtcMusicState(uid: uid, streamId: 0, position: player.position, duration: player.duration, state: player.state)
+            player.sendRtcMusicState(state: state)
+            rtcMusicStatePublisher.accept(Result(success: true, data: state))
+        }
+    }
+
+    func rtcEngine(_ engine: AgoraRtcEngineKit, localAudioMixingStateDidChanged state: AgoraAudioMixingStateCode, errorCode: AgoraAudioMixingErrorCode) {
+        Logger.log(self, message: "localAudioMixingStateDidChanged \(state.rawValue)", level: .info)
+        if let player = rtcMusicPlayer {
+            var sync = false
+            if player.state == state {
+                return
+            }
+            player.state = state
+            switch state {
+            case .playing:
+                if !player.isPlaying {
+                    player.isPlaying = true
+                    player.position = 0
+                    player.duration = Int(engine.getAudioMixingDuration())
+                }
+                sync = true
+            case .paused:
+                player.isPause = true
+                sync = true
+            case .stopped:
+                player.isPlaying = false
+                sync = true
+            case .failed:
+                Logger.log(self, message: "status: \(state), code: \(errorCode)", level: .info)
+            default: break
+            }
+            if sync {
+                let state = RtcMusicState(uid: player.uid, streamId: 0, position: player.position, duration: player.duration, state: player.state)
+                rtcMusicStatePublisher.accept(Result(success: true, data: state))
+            }
+        }
     }
 
     func rtcEngine(_: AgoraRtcEngineKit, receiveStreamMessageFromUid uid: UInt, streamId: Int, data: Data) {
