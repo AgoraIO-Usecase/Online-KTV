@@ -68,8 +68,8 @@ public class RoomChooseSongDialog extends DataBindBaseDialog<KtvDialogChooseSong
         mDataBinding.pager.addOnPageChangeListener(this);
     }
 
-    private SongsFragment mSongsFragment = new SongsFragment();
-    private SongOrdersFragment mSongOrdersFragment = new SongOrdersFragment();
+    private SongsFragment mSongsFragment = SongsFragment.newInstance();
+    private SongOrdersFragment mSongOrdersFragment = SongOrdersFragment.newInstance();
 
     @Override
     public void iniData() {

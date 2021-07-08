@@ -2,8 +2,9 @@
 <resources>
     <color name="ktv_colorPrimary">#161D27</color>
     <color name="ktv_colorPrimaryDark">#0C121B</color>
-    <color name="ktv_colorAccent">#005DFF</color>
+    <color name="ktv_colorAccent">#0088EB</color>
 
     <color name="ktv_title">#B3FFFFFF</color>
     <color name="ktv_list_empty">#4D5D73</color>
+    <color name="ktv_dialog_music_list_empty">#7E7E7E</color>
 </resources>

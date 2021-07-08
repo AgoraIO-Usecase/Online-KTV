@@ -5,12 +5,75 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/ktv_colorPrimaryDark">
+        android:background="@color/ktv_colorPrimaryDark"
+        android:padding="20dp">
+
+        <LinearLayout
+            android:id="@+id/llSearch"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ktv_shape_dialog_search_input_background"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:padding="4dp"
+            app:layout_constraintEnd_toStartOf="@+id/tvSearch"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <EditText
+                android:id="@+id/etSearchKey"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:drawableStart="@mipmap/ktv_dialog_search"
+                android:drawablePadding="4dp"
+                android:gravity="center_vertical"
+                android:hint="@string/ktv_dialog_music_list_search_hint"
+                android:lines="1"
+                android:maxLength="50"
+                android:maxLines="1"
+                android:padding="4dp"
+                android:singleLine="true"
+                android:textColor="@android:color/white"
+                android:textColorHint="#7E7E7E"
+                android:textSize="16sp" />
+
+            <ImageView
+                android:id="@+id/ivClear"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="4dp"
+                android:src="@mipmap/ktv_dialog_search_clear" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvSearch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:background="@drawable/ktv_shape_dialog_search_background"
+            android:paddingStart="15dp"
+            android:paddingTop="6dp"
+            android:paddingEnd="15dp"
+            android:paddingBottom="6dp"
+            android:text="@string/ktv_search"
+            android:textColor="#b3ffffff"
+            app:layout_constraintBottom_toBottomOf="@+id/llSearch"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/llSearch"
+            app:layout_constraintTop_toTopOf="@+id/llSearch" />
 
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
             android:id="@+id/swipeRefreshLayout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="0dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            app:layout_constraintBottom_toTopOf="@+id/tvTip"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/llSearch">
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/list"
@@ -28,17 +91,22 @@
             android:gravity="center"
             android:orientation="vertical">
 
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@mipmap/ktv_room_list_empty" />
-
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/ktv_room_list_empty"
-                android:textColor="@color/ktv_list_empty"
+                android:text="@string/ktv_dialog_music_list_empty"
+                android:textColor="@color/ktv_dialog_music_list_empty"
                 android:textSize="@dimen/ktv_list_empty_size" />
         </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvTip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/ktv_dialog_migu_tip"
+            android:textColor="#66FFFFFF"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

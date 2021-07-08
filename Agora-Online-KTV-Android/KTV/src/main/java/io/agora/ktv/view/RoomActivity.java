@@ -26,16 +26,18 @@ import io.agora.baselibrary.base.OnItemClickListener;
 import io.agora.baselibrary.util.ToastUtile;
 import io.agora.ktv.R;
 import io.agora.ktv.adapter.RoomSpeakerAdapter;
-import io.agora.ktv.bean.MusicModel;
+import io.agora.ktv.bean.MemberMusicModel;
 import io.agora.ktv.databinding.KtvActivityRoomBinding;
 import io.agora.ktv.manager.MusicPlayer;
+import io.agora.ktv.manager.MusicResourceManager;
 import io.agora.ktv.manager.RoomManager;
 import io.agora.ktv.manager.SimpleRoomEventCallback;
 import io.agora.ktv.view.dialog.MusicSettingDialog;
 import io.agora.ktv.view.dialog.RoomChooseSongDialog;
 import io.agora.ktv.view.dialog.RoomMVDialog;
 import io.agora.ktv.view.dialog.UserSeatMenuDialog;
-import io.agora.rtc2.Constants;
+import io.agora.ktv.view.dialog.WaitingDialog;
+import io.agora.rtc.Constants;
 import io.reactivex.CompletableObserver;
 import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -94,6 +96,21 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
         public void onMusicCompleted() {
             changeMusic();
         }
+
+        @Override
+        public void onMusicPreparing() {
+            showPreparingDialog();
+        }
+
+        @Override
+        public void onMusicPrepared() {
+            closePreparingDialog();
+        }
+
+        @Override
+        public void onMusicPrepareError() {
+            closePreparingDialog();
+        }
     };
 
     private SimpleRoomEventCallback mRoomEventCallback = new SimpleRoomEventCallback() {
@@ -121,7 +138,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
             mRoomSpeakerAdapter.deleteItem(member);
 
             if (RoomManager.Instance(RoomActivity.this).isOwner()) {
-                MusicModel musicModel = RoomManager.Instance(RoomActivity.this).getMusicModel();
+                MemberMusicModel musicModel = RoomManager.Instance(RoomActivity.this).getMusicModel();
                 if (musicModel != null && ObjectsCompat.equals(member.getUserId(), musicModel.getUserId())) {
                     changeMusic();
                 }
@@ -145,6 +162,13 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
             } else if (member.getRole() == AgoraMember.Role.Listener) {
                 mRoomSpeakerAdapter.deleteItem(member);
 
+                if (RoomManager.Instance(RoomActivity.this).isOwner()) {
+                    MemberMusicModel musicModel = RoomManager.Instance(RoomActivity.this).getMusicModel();
+                    if (musicModel != null && ObjectsCompat.equals(member.getUserId(), musicModel.getUserId())) {
+                        changeMusic();
+                    }
+                }
+
                 AgoraMember mMine = RoomManager.Instance(RoomActivity.this).getMine();
                 if (ObjectsCompat.equals(member, mMine)) {
                     showNotOnSeatStatus();
@@ -159,10 +183,19 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
         @Override
         public void onAudioStatusChanged(boolean isMine, @NonNull AgoraMember member) {
             super.onAudioStatusChanged(isMine, member);
+
+            AgoraMember mMine = RoomManager.Instance(RoomActivity.this).getMine();
+            if (ObjectsCompat.equals(member, mMine)) {
+                if (member.getIsSelfMuted() == 1) {
+                    mDataBinding.ivMic.setImageResource(R.mipmap.ktv_room_unmic);
+                } else {
+                    mDataBinding.ivMic.setImageResource(R.mipmap.ktv_room_mic);
+                }
+            }
         }
 
         @Override
-        public void onMusicChanged(@NonNull MusicModel music) {
+        public void onMusicChanged(@NonNull MemberMusicModel music) {
             RoomActivity.this.onMusicChanged(music);
         }
 
@@ -195,6 +228,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
         mDataBinding.ivMic.setOnClickListener(this);
         mDataBinding.ivBackgroundPicture.setOnClickListener(this);
         mDataBinding.llChooseSong.setOnClickListener(this);
+        mDataBinding.ivChorus.setOnClickListener(this);
         mDataBinding.switchOriginal.setOnClickListener(this);
         mDataBinding.ivMusicMenu.setOnClickListener(this);
         mDataBinding.ivMusicStart.setOnClickListener(this);
@@ -210,7 +244,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
             return;
         }
 
-
+        showNoSingerStatus();
         showNotOnSeatStatus();
 
         AgoraRoom mRoom = getIntent().getExtras().getParcelable(TAG_ROOM);
@@ -261,19 +295,50 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
         syncMusics();
     }
 
-    private void syncMusics() {
-        RoomManager.Instance(this)
-                .getMusicsFromRemote()
+    private void preperMusic(final MemberMusicModel musicModel, boolean isSinger) {
+        mMusicCallback.onMusicPreparing();
+        MusicResourceManager.Instance(this)
+                .prepareMusic(musicModel, !isSinger)
                 .observeOn(AndroidSchedulers.mainThread())
                 .compose(mLifecycleProvider.bindToLifecycle())
-                .subscribe(new SingleObserver<List<MusicModel>>() {
+                .subscribe(new SingleObserver<MemberMusicModel>() {
                     @Override
                     public void onSubscribe(@NonNull Disposable d) {
 
                     }
 
                     @Override
-                    public void onSuccess(@NonNull List<MusicModel> musicModels) {
+                    public void onSuccess(@NonNull MemberMusicModel musicModel) {
+                        mMusicCallback.onMusicPrepared();
+
+                        if (isSinger) {
+                            mMusicPlayer.play(musicModel);
+                        } else {
+                            mMusicPlayer.playWithDisplay(musicModel);
+                        }
+                    }
+
+                    @Override
+                    public void onError(@NonNull Throwable e) {
+                        mMusicCallback.onMusicPrepareError();
+                        ToastUtile.toastShort(RoomActivity.this, R.string.ktv_lrc_load_fail);
+                    }
+                });
+    }
+
+    private void syncMusics() {
+        RoomManager.Instance(this)
+                .getMusicOrderList()
+                .observeOn(AndroidSchedulers.mainThread())
+                .compose(mLifecycleProvider.bindToLifecycle())
+                .subscribe(new SingleObserver<List<MemberMusicModel>>() {
+                    @Override
+                    public void onSubscribe(@NonNull Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onSuccess(@NonNull List<MemberMusicModel> musicModels) {
                         if (musicModels.isEmpty()) {
                             RoomManager.Instance(RoomActivity.this).onMusicEmpty();
                         } else {
@@ -298,7 +363,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
 
         mAlertDialogRoomError = new AlertDialog.Builder(this)
                 .setMessage(msg)
-                .setNegativeButton(R.string.done, new DialogInterface.OnClickListener() {
+                .setNegativeButton(R.string.ktv_done, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         doLeave();
@@ -317,6 +382,8 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
             showBackgroundPicDialog();
         } else if (v == mDataBinding.llChooseSong) {
             showChooseSongDialog();
+        } else if (v == mDataBinding.ivChorus) {
+
         } else if (v == mDataBinding.switchOriginal) {
             toggleOriginal();
         } else if (v == mDataBinding.ivMusicMenu) {
@@ -324,7 +391,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
         } else if (v == mDataBinding.ivMusicStart) {
             toggleStart();
         } else if (v == mDataBinding.ivChangeSong) {
-            changeMusic();
+            showChangeMusicDialog();
         }
     }
 
@@ -377,6 +444,8 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
                     @Override
                     public void onComplete() {
                         mDataBinding.ivMic.setEnabled(true);
+                        RoomManager.Instance(RoomActivity.this).getRtcEngine().muteLocalAudioStream(newValue);
+                        mDataBinding.ivMic.setImageResource(newValue ? R.mipmap.ktv_room_unmic : R.mipmap.ktv_room_mic);
                     }
 
                     @Override
@@ -391,12 +460,8 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
             return;
         }
 
-        if (mMusicPlayer.getAudioTracksCount() >= 2) {
-            if (mMusicPlayer.getAudioTrackIndex() == 0) {
-                mMusicPlayer.selectAudioTrack(1);
-            } else {
-                mMusicPlayer.selectAudioTrack(0);
-            }
+        if (mMusicPlayer.hasAccompaniment()) {
+            mMusicPlayer.toggleOrigle();
         } else {
             mDataBinding.switchOriginal.setChecked(true);
             ToastUtile.toastShort(this, "该歌曲无法进行人声切换");
@@ -435,13 +500,27 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
         mDataBinding.ivMusicMenu.setEnabled(true);
     }
 
+    private void showChangeMusicDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.ktv_room_change_music_title)
+                .setMessage(R.string.ktv_room_change_music_msg)
+                .setNegativeButton(R.string.ktv_cancel, null)
+                .setPositiveButton(R.string.ktv_confirm, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        changeMusic();
+                    }
+                })
+                .show();
+    }
+
     private void changeMusic() {
         AgoraRoom mRoom = RoomManager.Instance(this).getRoom();
         if (mRoom == null) {
             return;
         }
 
-        MusicModel musicModel = RoomManager.Instance(this).getMusicModel();
+        MemberMusicModel musicModel = RoomManager.Instance(this).getMusicModel();
         if (musicModel == null) {
             return;
         }
@@ -462,7 +541,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
                     public void onComplete() {
                         SyncManager.Instance()
                                 .getRoom(mRoom.getId())
-                                .collection(MusicModel.TABLE_NAME)
+                                .collection(MemberMusicModel.TABLE_NAME)
                                 .document(musicModel.getId())
                                 .delete(new SyncManager.Callback() {
                                     @Override
@@ -491,21 +570,14 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
             return;
         }
 
-        if (mMusicPlayer.isPlaying() == false) {
-            return;
-        }
-
-        if (mMusicPlayer.isPaused()) {
-            mMusicPlayer.resume();
-        } else {
-            mMusicPlayer.pause();
-        }
+        mMusicPlayer.toggleStart();
     }
 
     private void showOnSeatStatus() {
         mDataBinding.ivMic.setVisibility(View.VISIBLE);
         mDataBinding.ivBackgroundPicture.setVisibility(View.VISIBLE);
         mDataBinding.llChooseSong.setVisibility(View.VISIBLE);
+        mDataBinding.ivChorus.setVisibility(View.INVISIBLE);
         mDataBinding.tvNoOnSeat.setVisibility(View.GONE);
     }
 
@@ -513,8 +585,18 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
         mDataBinding.ivMic.setVisibility(View.INVISIBLE);
         mDataBinding.ivBackgroundPicture.setVisibility(View.INVISIBLE);
         mDataBinding.llChooseSong.setVisibility(View.INVISIBLE);
+        mDataBinding.ivChorus.setVisibility(View.INVISIBLE);
         mDataBinding.tvNoOnSeat.setVisibility(View.VISIBLE);
-        mDataBinding.rlSing.setVisibility(View.GONE);
+    }
+
+    private void showNoSingerStatus() {
+        mDataBinding.llNoSing.setVisibility(View.VISIBLE);
+        mDataBinding.rlSing.setVisibility(View.INVISIBLE);
+    }
+
+    private void showInSingStatus() {
+        mDataBinding.llNoSing.setVisibility(View.INVISIBLE);
+        mDataBinding.rlSing.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -573,10 +655,8 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
                 });
     }
 
-    private void onMusicChanged(@NonNull MusicModel music) {
-        mDataBinding.llNoSing.setVisibility(View.GONE);
-        mDataBinding.rlSing.setVisibility(View.VISIBLE);
-
+    private void onMusicChanged(@NonNull MemberMusicModel music) {
+        showInSingStatus();
         mDataBinding.tvMusicName.setText(music.getName());
 
         User mUser = UserManager.Instance(this).getUserLiveData().getValue();
@@ -587,15 +667,40 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
         if (ObjectsCompat.equals(music.getUserId(), mUser.getObjectId())) {
             mDataBinding.rlMusicMenu.setVisibility(View.VISIBLE);
             mDataBinding.switchOriginal.setChecked(true);
-            mMusicPlayer.play(music);
+
+            preperMusic(music, true);
         } else {
+            preperMusic(music, false);
             mDataBinding.rlMusicMenu.setVisibility(View.GONE);
         }
     }
 
     private void onMusicEmpty() {
-        mDataBinding.llNoSing.setVisibility(View.VISIBLE);
-        mDataBinding.rlSing.setVisibility(View.GONE);
+        showNoSingerStatus();
+    }
+
+    private WaitingDialog mPreparingDialog;
+
+    private void showPreparingDialog() {
+        if (mPreparingDialog != null && mPreparingDialog.isShowing()) {
+            return;
+        }
+
+        mPreparingDialog = new WaitingDialog();
+        mPreparingDialog.show(getSupportFragmentManager(), getString(R.string.ktv_lrc_loading), new WaitingDialog.Callback() {
+            @Override
+            public void onTimeout() {
+
+            }
+        });
+    }
+
+    private void closePreparingDialog() {
+        if (mPreparingDialog == null || mPreparingDialog.isShowing() == false) {
+            return;
+        }
+
+        mPreparingDialog.dismiss();
     }
 
     @Override
