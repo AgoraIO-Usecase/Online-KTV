@@ -1,20 +1,8 @@
-/*
- * Copyright (C) 2017 wangchenyan
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
- * except in compliance with the License. You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the
- * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
- */
-
 package io.agora.lrcview.bean;
 
 import java.util.List;
+
+import io.agora.lrcview.LrcEntry;
 
 public class LrcEntryMigu implements IEntry {
     @Override
@@ -28,28 +16,59 @@ public class LrcEntryMigu implements IEntry {
         return (long) (first.begin * 1000L);
     }
 
-    @Override
-    public long getDuration() {
-        Tone first = tones.get(0);
-        Tone last = tones.get(tones.size() - 1);
-        return (long) ((last.end - first.begin) * 1000L);
-    }
-
     private String text;
+    private String[] texts;
+
+    @Override
+    public String[] getTexts() {
+        return texts;
+    }
 
     @Override
     public String getText() {
-        if (text == null) {
-            StringBuilder sb = new StringBuilder();
-            for (Tone tone : tones) {
-                sb.append(tone.word);
-                if (!"1".equals(tone.lang)) {
-                    sb.append(" ");
-                }
-            }
-            text = sb.toString();
-        }
         return text;
+    }
+
+    @Override
+    public LrcEntry createLRCEntry() {
+        StringBuilder sb = new StringBuilder();
+        texts = new String[tones.size()];
+        for (int i = 0; i < tones.size(); i++) {
+            Tone tone = tones.get(i);
+            texts[i] = tone.word;
+            sb.append(tone.word);
+
+            if (!"1".equals(tone.lang)) {
+                //英文模式下，词之间增加空格
+                texts[i] = texts[i] + " ";
+                sb.append(" ");
+            }
+        }
+        text = sb.toString();
+        return new LrcEntry(this);
+    }
+
+    @Override
+    public float getOffset(long time) {
+//        int done = 0;
+//        float percent2 = 0;
+//        for (Tone tone : tones) {
+//            if (time >= (tone.end * 1000)) {
+//                done++;
+//            } else {
+//                percent2 = (time / 1000F - tone.begin) / (tone.end - tone.begin);
+//                break;
+//            }
+//        }
+//
+//        float percent1 = done / (float) tones.size();
+//        float pct = percent1 + percent2;
+//        if (pct < 0)
+//            pct = 0;
+//        if (pct > 1)
+//            pct = 1;
+//        return pct;
+        return 1;
     }
 
     public enum Mode {

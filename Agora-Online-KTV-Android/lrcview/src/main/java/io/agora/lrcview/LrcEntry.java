@@ -5,7 +5,6 @@ import android.graphics.Rect;
 import android.text.Layout;
 import android.text.StaticLayout;
 import android.text.TextPaint;
-import android.util.Log;
 
 import io.agora.lrcview.bean.IEntry;
 
@@ -15,12 +14,12 @@ import io.agora.lrcview.bean.IEntry;
  */
 public class LrcEntry {
     private static final String TAG = "LrcEntry";
-    private long duration = 5000;
     private StaticLayout fgLayout1;
     private StaticLayout bgLayout1;
 
     private Rect[] textRects1;
     private Rect[] drawRects;
+    private Rect[] textRects;
 
     private int text1Len = 0;
 
@@ -50,7 +49,6 @@ public class LrcEntry {
 
     public LrcEntry(IEntry mIEntry) {
         this.mIEntry = mIEntry;
-        this.duration = mIEntry.getDuration();
     }
 
     void init(TextPaint fgPaint, TextPaint bgPaint, int width, Gravity gravity) {
@@ -69,6 +67,15 @@ public class LrcEntry {
                 break;
         }
 
+        String[] texts = mIEntry.getTexts();
+        textRects = new Rect[texts.length];
+        for (int i = 0; i < texts.length; i++) {
+            Rect rect = new Rect();
+            textRects[i] = rect;
+            String s = texts[i];
+            fgPaint.getTextBounds(s, 0, s.length(), rect);
+        }
+
         String text = mIEntry.getText();
         fgLayout1 = new StaticLayout(text, fgPaint, width, align, 1f, 0f, false);
         bgLayout1 = new StaticLayout(text, bgPaint, width, align, 1f, 0f, false);
@@ -83,7 +90,6 @@ public class LrcEntry {
             newLine.left = (int) fgLayout1.getLineLeft(i);
             newLine.right = (int) fgLayout1.getLineRight(i);
             text1Len += newLine.right - newLine.left;
-            Log.i(TAG, String.format("init: line bounds: (%d, %d, %d, %d)", newLine.left, newLine.top, newLine.right, newLine.bottom));
         }
 
         drawRects = new Rect[totalLine];
@@ -113,11 +119,7 @@ public class LrcEntry {
     }
 
     Rect[] getDrawRectByTime(long time) {
-        float pct = ((float) (time - mIEntry.getTime())) / ((float) this.duration);
-        if (pct < 0)
-            pct = 0;
-        if (pct > 1)
-            pct = 1;
+        float pct = mIEntry.getOffset(time);
         int showLen1 = (int) (text1Len * pct);
 
         for (int i = 0; i < fgLayout1.getLineCount(); i++) {

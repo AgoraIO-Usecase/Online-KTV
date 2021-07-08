@@ -66,6 +66,7 @@ public final class MusicResourceManager {
                         musicModel.setFileMusic(fileMusic);
                         musicModel.setFileLrc(fileLrc);
 
+                        mLogger.i("prepareMusic down %s", musicModel);
                         if (onlyLrc) {
                             return DataRepositroy.Instance(mContext).download(fileLrc, musicModel.getLrc())
                                     .toSingle(new Callable<MemberMusicModel>() {
@@ -100,6 +101,7 @@ public final class MusicResourceManager {
                     @Override
                     public void accept(Throwable throwable) throws Exception {
                         isPreparing = false;
+                        mLogger.e("prepareMusic error", throwable);
                     }
                 });
     }

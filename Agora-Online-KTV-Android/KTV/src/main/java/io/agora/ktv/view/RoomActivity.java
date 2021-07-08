@@ -311,9 +311,6 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
                     public void onSuccess(@NonNull MemberMusicModel musicModel) {
                         mMusicCallback.onMusicPrepared();
 
-//                        File root = getExternalCacheDir();
-//                        musicModel.setFileLrc(new File(root, "突然好想你.xml"));
-//                        musicModel.setFileMusic(new File(root, "突然好想你.mp3"));
                         if (isSinger) {
                             mMusicPlayer.play(musicModel);
                         } else {

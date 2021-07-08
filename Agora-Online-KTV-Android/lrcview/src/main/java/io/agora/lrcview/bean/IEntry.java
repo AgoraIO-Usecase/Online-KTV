@@ -15,9 +15,11 @@ public interface IEntry {
 
     long getTime();
 
-    long getDuration();
-
     String getText();
+
+    String[] getTexts();
+
+    float getOffset(long time);
 
     default LrcEntry createLRCEntry() {
         return new LrcEntry(this);
