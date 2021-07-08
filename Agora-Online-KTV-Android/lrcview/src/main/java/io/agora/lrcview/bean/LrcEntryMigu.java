@@ -50,6 +50,15 @@ public class LrcEntryMigu implements IEntry {
 
     @Override
     public float getOffset(long time) {
+        float curTime = tones.get(0).begin;
+        float dur = tones.get(tones.size() - 1).end - tones.get(0).begin;
+        float pct = ((time / 1000F - curTime)) / dur;
+        if (pct < 0)
+            pct = 0;
+        if (pct > 1)
+            pct = 1;
+        return pct;
+
 //        int done = 0;
 //        float percent2 = 0;
 //        for (Tone tone : tones) {
@@ -68,7 +77,6 @@ public class LrcEntryMigu implements IEntry {
 //        if (pct > 1)
 //            pct = 1;
 //        return pct;
-        return 1;
     }
 
     public enum Mode {
