@@ -21,4 +21,9 @@
         <item name="ct_showback">true</item>
         <item name="android:background">@color/ktv_colorPrimary</item>
     </style>
+
+    <style name="ktv_Dialog.Waiting" parent="Theme.AppCompat.Dialog">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:backgroundDimEnabled">false</item>
+    </style>
 </resources>

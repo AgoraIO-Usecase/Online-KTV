@@ -8,8 +8,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.agora.data.manager.UserManager;
 import com.agora.data.model.AgoraRoom;
+import com.agora.data.model.MusicModel;
 import com.agora.data.model.User;
 import com.agora.data.provider.AgoraObject;
+import com.agora.data.provider.DataRepositroy;
 import com.agora.data.sync.AgoraException;
 import com.agora.data.sync.SyncManager;
 
@@ -21,9 +23,13 @@ import io.agora.baselibrary.base.OnItemClickListener;
 import io.agora.baselibrary.util.ToastUtile;
 import io.agora.ktv.R;
 import io.agora.ktv.adapter.SongsAdapter;
-import io.agora.ktv.bean.MusicModel;
+import io.agora.ktv.bean.MemberMusicModel;
 import io.agora.ktv.databinding.KtvFragmentSongListBinding;
 import io.agora.ktv.manager.RoomManager;
+import io.agora.ktv.widget.SpaceItemDecoration;
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 
 /**
  * 歌单列表
@@ -31,7 +37,7 @@ import io.agora.ktv.manager.RoomManager;
  * @author chenhengfei(Aslanchen)
  * @date 2021/6/15
  */
-public class SongsFragment extends DataBindBaseFragment<KtvFragmentSongListBinding> implements OnItemClickListener<MusicModel> {
+public class SongsFragment extends DataBindBaseFragment<KtvFragmentSongListBinding> implements View.OnClickListener, OnItemClickListener<MusicModel> {
 
     public static SongsFragment newInstance() {
         SongsFragment mFragment = new SongsFragment();
@@ -57,28 +63,58 @@ public class SongsFragment extends DataBindBaseFragment<KtvFragmentSongListBindi
 
     @Override
     public void iniListener() {
-
+        mDataBinding.ivClear.setOnClickListener(this);
+        mDataBinding.tvSearch.setOnClickListener(this);
     }
 
     @Override
     public void iniData() {
         mAdapter = new SongsAdapter(new ArrayList<>(), this);
         mDataBinding.list.setLayoutManager(new LinearLayoutManager(requireContext()));
+        mDataBinding.list.addItemDecoration(new SpaceItemDecoration(requireContext()));
         mDataBinding.list.setAdapter(mAdapter);
 
         mDataBinding.swipeRefreshLayout.setEnabled(false);
 
         mDataBinding.llEmpty.setVisibility(View.GONE);
 
-        loadMusics();
+        loadMusics(null);
     }
 
-    private void loadMusics() {
-        List<MusicModel> list = MusicModel.getMusicList();
-        onLoadMusics(list);
+    private void loadMusics(String searchKey) {
+        DataRepositroy.Instance(requireContext())
+                .getMusics(searchKey)
+                .observeOn(AndroidSchedulers.mainThread())
+                .compose(mLifecycleProvider.bindToLifecycle())
+                .subscribe(new Observer<List<MusicModel>>() {
+                    @Override
+                    public void onSubscribe(@NonNull Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(@NonNull List<MusicModel> musicModels) {
+                        onLoadMusics(musicModels);
+                    }
+
+                    @Override
+                    public void onError(@NonNull Throwable e) {
+                        ToastUtile.toastShort(requireContext(), e.getMessage());
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
     }
 
     private void onLoadMusics(List<MusicModel> list) {
+        if (list.isEmpty()) {
+            mDataBinding.llEmpty.setVisibility(View.VISIBLE);
+        } else {
+            mDataBinding.llEmpty.setVisibility(View.GONE);
+        }
         mAdapter.setDatas(list);
     }
 
@@ -99,15 +135,16 @@ public class SongsFragment extends DataBindBaseFragment<KtvFragmentSongListBindi
 //            return;
 //        }
 
-        data.setRoomId(mRoom);
-        data.setUserId(mUser.getObjectId());
+        MemberMusicModel model = new MemberMusicModel(data);
+        model.setRoomId(mRoom);
+        model.setUserId(mUser.getObjectId());
         SyncManager.Instance()
                 .getRoom(mRoom.getId())
-                .collection(MusicModel.TABLE_NAME)
-                .add(data.toHashMap(), new SyncManager.DataItemCallback() {
+                .collection(MemberMusicModel.TABLE_NAME)
+                .add(model.toHashMap(), new SyncManager.DataItemCallback() {
                     @Override
                     public void onSuccess(AgoraObject result) {
-                        MusicModel musicModel = result.toObject(MusicModel.class);
+                        MemberMusicModel musicModel = result.toObject(MemberMusicModel.class);
                         musicModel.setId(result.getId());
                         mAdapter.notifyItemChanged(position);
                     }
@@ -117,5 +154,19 @@ public class SongsFragment extends DataBindBaseFragment<KtvFragmentSongListBindi
                         ToastUtile.toastShort(requireContext(), exception.getMessage());
                     }
                 });
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (v == mDataBinding.ivClear) {
+            mDataBinding.etSearchKey.setText("");
+        } else if (v == mDataBinding.tvSearch) {
+            doSearch();
+        }
+    }
+
+    private void doSearch() {
+        String key = mDataBinding.etSearchKey.getText().toString().trim();
+        loadMusics(key);
     }
 }

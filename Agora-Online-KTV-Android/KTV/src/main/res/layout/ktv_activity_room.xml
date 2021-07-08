@@ -105,6 +105,7 @@
                     app:layout_constraintTop_toTopOf="parent"
                     app:lrcCurrentTextColor="#FFFFFF"
                     app:lrcDividerHeight="20dp"
+                    app:lrcLabel=" "
                     app:lrcNormalTextColor="#99FFFFFF"
                     app:lrcNormalTextSize="16sp"
                     app:lrcTextGravity="center"
@@ -149,7 +150,8 @@
                         android:layout_centerVertical="true"
                         android:layout_marginStart="10dp"
                         android:layout_toRightOf="@+id/tvOriginalLabel"
-                        android:checked="true" />
+                        android:checked="true"
+                        android:track="@drawable/ktv_selector_switch_background" />
 
                     <ImageView
                         android:id="@+id/ivMusicMenu"
@@ -210,6 +212,15 @@
             android:src="@mipmap/ktv_room_mv"
             app:layout_constraintBottom_toBottomOf="@+id/ivMic"
             app:layout_constraintStart_toEndOf="@+id/ivMic" />
+
+        <ImageView
+            android:id="@+id/ivChorus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:src="@mipmap/ktv_chorus"
+            app:layout_constraintEnd_toStartOf="@+id/llChooseSong"
+            app:layout_constraintTop_toTopOf="@+id/llChooseSong" />
 
         <LinearLayout
             android:id="@+id/llChooseSong"

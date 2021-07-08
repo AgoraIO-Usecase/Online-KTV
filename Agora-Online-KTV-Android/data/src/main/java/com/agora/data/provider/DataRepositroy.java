@@ -3,12 +3,15 @@ package com.agora.data.provider;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.agora.data.model.MusicModel;
 import com.agora.data.model.User;
 
+import java.io.File;
 import java.util.List;
 
+import io.reactivex.Completable;
 import io.reactivex.Observable;
 
 public class DataRepositroy implements IDataRepositroy {
@@ -50,7 +53,17 @@ public class DataRepositroy implements IDataRepositroy {
     }
 
     @Override
-    public Observable<List<MusicModel>> getMusics() {
-        return mIDataRepositroy.getMusics();
+    public Observable<List<MusicModel>> getMusics(@Nullable String searchKey) {
+        return mIDataRepositroy.getMusics(searchKey);
+    }
+
+    @Override
+    public Observable<MusicModel> getMusic(@NonNull String musicId) {
+        return mIDataRepositroy.getMusic(musicId);
+    }
+
+    @Override
+    public Completable download(@NonNull File file, @NonNull String url) {
+        return mIDataRepositroy.download(file, url);
     }
 }

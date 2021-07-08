@@ -13,24 +13,24 @@ import cn.leancloud.LCObject;
  */
 public class AgoraObject implements IAgoraObject {
 
-    private final LCObject LCObject;
+    private final LCObject mLCObject;
 
     public AgoraObject(LCObject LCObject) {
-        this.LCObject = LCObject;
+        this.mLCObject = LCObject;
     }
 
     @Override
     public <T> T toObject(@NonNull Class<T> valueType) {
-        return SyncManager.getConverter().toObject(LCObject.toJSONObject().toJSONString(), valueType);
+        return SyncManager.getConverter().toObject(mLCObject.toJSONObject().toJSONString(), valueType);
     }
 
     @Override
     public String getId() {
-        return LCObject.getObjectId();
+        return mLCObject.getObjectId();
     }
 
     public Object get(String key) {
-        Object object = LCObject.get(key);
+        Object object = mLCObject.get(key);
         if (object instanceof LCObject) {
             object = new AgoraObject((LCObject) object);
         }

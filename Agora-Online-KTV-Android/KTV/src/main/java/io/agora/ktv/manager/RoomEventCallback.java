@@ -6,7 +6,7 @@ import androidx.annotation.NonNull;
 import com.agora.data.model.AgoraMember;
 import com.agora.data.model.AgoraRoom;
 
-import io.agora.ktv.bean.MusicModel;
+import io.agora.ktv.bean.MemberMusicModel;
 
 @MainThread
 public interface RoomEventCallback {
@@ -48,11 +48,11 @@ public interface RoomEventCallback {
 
     void onRoomError(int error, String msg);
 
-    void onMusicAdd(@NonNull MusicModel music);
+    void onMusicAdd(@NonNull MemberMusicModel music);
 
-    void onMusicDelete(@NonNull MusicModel music);
+    void onMusicDelete(@NonNull MemberMusicModel music);
 
-    void onMusicChanged(@NonNull MusicModel music);
+    void onMusicChanged(@NonNull MemberMusicModel music);
 
     void onMusicEmpty();
 

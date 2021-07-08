@@ -7,7 +7,6 @@ import android.os.Message;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
-import androidx.core.util.ObjectsCompat;
 
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
@@ -16,17 +15,15 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import io.agora.ktv.bean.MusicModel;
+import io.agora.ktv.bean.MemberMusicModel;
 import io.agora.lrcview.LrcView;
+import io.agora.mediaplayer.AudioFrameObserver;
 import io.agora.mediaplayer.IMediaPlayer;
 import io.agora.mediaplayer.IMediaPlayerObserver;
+import io.agora.mediaplayer.data.AudioFrame;
 import io.agora.mediaplayer.data.MediaStreamInfo;
 import io.agora.rtc2.ChannelMediaOptions;
 import io.agora.rtc2.Constants;
@@ -35,6 +32,8 @@ import io.agora.rtc2.IRtcEngineEventHandler;
 import io.agora.rtc2.RtcEngine;
 import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
+import io.reactivex.SingleObserver;
+import io.reactivex.disposables.Disposable;
 
 public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerObserver {
     private Logger.Builder mLogger = XLog.tag("MusicPlayer");
@@ -57,15 +56,13 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
     private static volatile long mRecvedPlayPosition = 0;
     private static volatile Long mLastRecvPlayPosTime = null;
 
-    private int mAudioTracksCount = 0;
+    private static volatile int mAudioTracksCount = 0;
     private int[] mAudioTrackIndices = null;
 
-    private static volatile MusicModel mMusicModelOpen;
-    private static volatile MusicModel mMusicModel;
+    private static volatile MemberMusicModel mMusicModelOpen;
+    private static volatile MemberMusicModel mMusicModel;
 
     private Callback mCallback;
-
-    private String resourceRoot;
 
     private static final int ACTION_UPDATE_TIME = 102;
 
@@ -76,6 +73,9 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
     private static final int ACTION_ON_MUSIC_PAUSE = 204;
     private static final int ACTION_ON_MUSIC_STOP = 205;
     private static final int ACTION_ON_MUSIC_COMPLETED = 206;
+    private static final int ACTION_ON_MUSIC_PREPARING = 207;
+    private static final int ACTION_ON_MUSIC_PREPARED = 208;
+    private static final int ACTION_ON_MUSIC_PREPARE_FAIL = 209;
 
     private final Handler mHandler = new Handler(Looper.getMainLooper()) {
         @Override
@@ -111,7 +111,45 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
                 if (mCallback != null) {
                     mCallback.onMusicCompleted();
                 }
+            } else if (msg.what == ACTION_ON_MUSIC_PREPARING) {
+                if (mCallback != null) {
+                    mCallback.onMusicPlaing();
+                }
+            } else if (msg.what == ACTION_ON_MUSIC_PREPARED) {
+                if (mCallback != null) {
+                    mCallback.onMusicPrepared();
+                }
+            } else if (msg.what == ACTION_ON_MUSIC_PREPARE_FAIL) {
+                if (mCallback != null) {
+                    mCallback.onMusicPrepareError();
+                }
             }
+        }
+    };
+
+    private final AudioFrameObserver mAudioFrameObserver = new AudioFrameObserver() {
+        @Override
+        public AudioFrame onFrame(AudioFrame audioFrame) {
+            if (mMusicModel == null || mMusicModel.getType() == MemberMusicModel.Type.Default) {
+                return audioFrame;
+            }
+
+            int channelNums = audioFrame.channelNums;
+            mAudioTracksCount = channelNums;
+
+            if (mAudioTrackIndex == 0 && channelNums == 2) {
+                int bytesPerSample = audioFrame.bytesPerSample;
+                int samplesPerChannel = audioFrame.samplesPerChannel;
+
+                byte[] tempBuf = new byte[audioFrame.bytes.length];
+                int cpBytes = bytesPerSample / channelNums;
+                for (int i = 0; i < samplesPerChannel; i++) {
+                    System.arraycopy(audioFrame.bytes, i * bytesPerSample, tempBuf, 0, cpBytes);
+                    System.arraycopy(audioFrame.bytes, i * bytesPerSample + cpBytes, audioFrame.bytes, i * bytesPerSample + cpBytes, cpBytes);
+                    System.arraycopy(tempBuf, 0, audioFrame.bytes, i * bytesPerSample + cpBytes, cpBytes);
+                }
+            }
+            return audioFrame;
         }
     };
 
@@ -125,15 +163,9 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
         // init mpk
         mPlayer = mRtcEngine.createMediaPlayer();
         mPlayer.registerPlayerObserver(this);
+        mPlayer.registerAudioFrameObserver(mAudioFrameObserver, Constants.RAW_AUDIO_FRAME_OP_MODE_READ_WRITE);
 
         mRtcEngine.addHandler(this);
-
-        //copy local music to SDCard
-        resourceRoot = mContext.getExternalCacheDir().getPath();
-        List<MusicModel> musics = MusicModel.getMusicList();
-        for (MusicModel music : musics) {
-            extractAsset(mContext, music.getMusicFile());
-        }
     }
 
     private void reset() {
@@ -146,29 +178,6 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
         mMusicModelOpen = null;
         mMusicModel = null;
         mAudioTrackIndex = 1;
-    }
-
-    private void extractAsset(Context mContext, String f) {
-        String filePath = resourceRoot + "/" + f;
-        File tmpf = new File(filePath);
-        if (tmpf.exists()) {
-            return;
-        }
-
-        try {
-            InputStream is = mContext.getAssets().open(f);
-            FileOutputStream fileOutputStream = new FileOutputStream(filePath);
-            byte[] buffer = new byte[1024];
-            int byteRead;
-            while ((byteRead = is.read(buffer)) > 0) {
-                fileOutputStream.write(buffer, 0, byteRead);
-            }
-            fileOutputStream.flush();
-            fileOutputStream.close();
-            is.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     public void registerPlayerObserver(Callback mCallback) {
@@ -205,7 +214,12 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
         mRtcEngine.updateChannelMediaOptions(options);
     }
 
-    public int play(MusicModel mMusicModel) {
+    public void playWithDisplay(MemberMusicModel mMusicModel) {
+        MusicPlayer.mMusicModel = mMusicModel;
+        startDisplayLrc();
+    }
+
+    public int play(MemberMusicModel mMusicModel) {
         if (mRole != Constants.CLIENT_ROLE_BROADCASTER) {
             mLogger.e("play: current role is not broadcaster, abort playing");
             return -1;
@@ -221,10 +235,16 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
             return -3;
         }
 
-        File file = new File(resourceRoot, mMusicModel.getMusicFile());
-        if (file.exists() == false) {
-            mLogger.e("play: file is not exists");
+        File fileMusic = mMusicModel.getFileMusic();
+        if (fileMusic.exists() == false) {
+            mLogger.e("play: fileMusic is not exists");
             return -4;
+        }
+
+        File fileLrc = mMusicModel.getFileLrc();
+        if (fileLrc.exists() == false) {
+            mLogger.e("play: fileLrc is not exists");
+            return -5;
         }
 
         ChannelMediaOptions options = new ChannelMediaOptions();
@@ -240,13 +260,14 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
         options.publishMediaPlayerAudioTrack = true;
         mRtcEngine.updateChannelMediaOptions(options);
 
+        stopDisplayLrc();
         // mpk open file
         mAudioTracksCount = 0;
-        mAudioTrackIndex = 0;
+        mAudioTrackIndex = 1;
         mAudioTrackIndices = null;
         MusicPlayer.mMusicModelOpen = mMusicModel;
         mLogger.i("play() called with: mMusicModel = [%s]", mMusicModel);
-        mPlayer.open(file.getAbsolutePath(), 0);
+        mPlayer.open(fileMusic.getAbsolutePath(), 0);
         return 0;
     }
 
@@ -292,22 +313,29 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
         mPlayer.resume();
     }
 
-    public int getAudioTracksCount() {
-        return mAudioTracksCount;
-    }
-
     private int mAudioTrackIndex = 1;
-
-    public int getAudioTrackIndex() {
-        return mAudioTrackIndex;
-    }
 
     public void selectAudioTrack(int i) {
         if (i < 0 || mAudioTracksCount == 0 || i >= mAudioTracksCount)
             return;
 
         mAudioTrackIndex = i;
-        mPlayer.selectAudioTrack(mAudioTrackIndices[i]);
+
+        if (mMusicModel.getType() == MemberMusicModel.Type.Default) {
+            mPlayer.selectAudioTrack(mAudioTrackIndices[i]);
+        }
+    }
+
+    public boolean hasAccompaniment() {
+        return mAudioTracksCount >= 2;
+    }
+
+    public void toggleOrigle() {
+        if (mAudioTrackIndex == 0) {
+            selectAudioTrack(1);
+        } else {
+            selectAudioTrack(0);
+        }
     }
 
     public void setMusicVolume(int v) {
@@ -318,13 +346,11 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
         mRtcEngine.adjustRecordingSignalVolume(v);
     }
 
-    private void startDisplayLrc(MusicModel mMusicModel, long totalDuration) {
-        MusicPlayer.mMusicModel = mMusicModel;
-        String lrcs = getLrcText(mMusicModel.getMusicLrcFile());
+    private void startDisplayLrc() {
+        File lrcs = mMusicModel.getFileLrc();
         mLrcView.post(new Runnable() {
             @Override
             public void run() {
-                mLrcView.setTotalDuration(totalDuration);
                 mLrcView.loadLrc(lrcs);
             }
         });
@@ -376,21 +402,6 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
         mMusicModel = null;
     }
 
-    private String getLrcText(String fileName) {
-        String lrcText = null;
-        try {
-            InputStream is = mContext.getAssets().open(fileName);
-            int size = is.available();
-            byte[] buffer = new byte[size];
-            is.read(buffer);
-            is.close();
-            lrcText = new String(buffer);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return lrcText;
-    }
-
     private void startSyncLrc(String lrcId, long duration) {
         mSyncLrcThread = new Thread(new Runnable() {
             int mStreamId = -1;
@@ -408,6 +419,10 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
 
                 mStopSyncLrc = false;
                 while (!mStopSyncLrc && mIsPlaying) {
+                    if (mPlayer == null) {
+                        break;
+                    }
+
                     if (!mIsPaused)
                         sendSyncLrc(lrcId, lrcDuration, mPlayer.getPlayPosition());
 
@@ -463,6 +478,10 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
     }
 
     private void initAudioTracks() {
+        if (mMusicModel.getType() != MemberMusicModel.Type.Default) {
+            return;
+        }
+
         int nt = mPlayer.getStreamCount();
         int nat = 0;
         mAudioTrackIndices = new int[nt];
@@ -498,25 +517,38 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
 
             if (jsonMsg.getString("cmd").equals("setLrcTime")) {
                 if (mMusicModel == null || !jsonMsg.getString("lrcId").equals(mMusicModel.getMusicId())) {
+                    if (MusicResourceManager.isPreparing) {
+                        return;
+                    }
+
                     stopDisplayLrc();
+
                     // 加载歌词文本
-                    String mLrcId = jsonMsg.getString("lrcId");
-                    List<MusicModel> musics = MusicModel.getMusicList();
+                    String musicId = jsonMsg.getString("lrcId");
+                    long duration = jsonMsg.getLong("duration");
 
-                    MusicModel musicModel = null;
-                    for (MusicModel music : musics) {
-                        if (ObjectsCompat.equals(music.getMusicId(), mLrcId)) {
-                            musicModel = music;
-                            break;
-                        }
-                    }
+                    onMusicPreparing();
+                    MemberMusicModel musicModel = new MemberMusicModel(musicId);
+                    MusicResourceManager.Instance(mContext)
+                            .prepareMusic(musicModel, true)
+                            .subscribe(new SingleObserver<MemberMusicModel>() {
+                                @Override
+                                public void onSubscribe(@NonNull Disposable d) {
 
-                    if (musicModel != null) {
-                        startDisplayLrc(musicModel, jsonMsg.getLong("duration"));
-                    }
+                                }
+
+                                @Override
+                                public void onSuccess(@NonNull MemberMusicModel musicModel) {
+                                    onMusicPrepared();
+                                    playWithDisplay(musicModel);
+                                }
+
+                                @Override
+                                public void onError(@NonNull Throwable e) {
+                                    onMusicPrepareError();
+                                }
+                            });
                 }
-                // update time
-                // mLrcView.updateTime();
                 mRecvedPlayPosition = jsonMsg.getLong("time");
                 mLastRecvPlayPosTime = System.currentTimeMillis();
             } else if (jsonMsg.getString("cmd").equals("musicStopped")) {
@@ -588,14 +620,14 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
 
     private void onMusicOpenCompleted() {
         mLogger.i("onMusicOpenCompleted() called");
-        stopDisplayLrc();
+        MusicPlayer.mMusicModel = mMusicModelOpen;
+        mMusicModelOpen = null;
+
         initAudioTracks();
 
         mIsPlaying = true;
         mPlayer.play();
-        startDisplayLrc(mMusicModelOpen, mPlayer.getDuration() * 1000);
-        mMusicModelOpen = null;
-
+        startDisplayLrc();
         mHandler.obtainMessage(ACTION_ON_MUSIC_OPENCOMPLETED).sendToTarget();
     }
 
@@ -637,6 +669,7 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
 
     private void onMusicCompleted() {
         mLogger.i("onMusicCompleted() called");
+        mPlayer.stop();
         stopDisplayLrc();
         stopPublish();
         reset();
@@ -644,11 +677,29 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
         mHandler.obtainMessage(ACTION_ON_MUSIC_COMPLETED).sendToTarget();
     }
 
+    private void onMusicPreparing() {
+        mLogger.i("onMusicPreparing() called");
+        mHandler.obtainMessage(ACTION_ON_MUSIC_PREPARING).sendToTarget();
+    }
+
+    private void onMusicPrepared() {
+        mLogger.i("onMusicPrepared() called");
+        mHandler.obtainMessage(ACTION_ON_MUSIC_PREPARED).sendToTarget();
+    }
+
+    private void onMusicPrepareError() {
+        mLogger.i("onMusicPrepareError() called");
+        mHandler.obtainMessage(ACTION_ON_MUSIC_PREPARE_FAIL).sendToTarget();
+    }
+
     public void destory() {
         mLogger.i("destory() called");
         mRtcEngine.removeHandler(this);
         mCallback = null;
+
+        mPlayer.registerAudioFrameObserver(mAudioFrameObserver, Constants.RAW_AUDIO_FRAME_OP_MODE_READ_WRITE);
         mPlayer.destroy();
+        mPlayer = null;
     }
 
     @MainThread
@@ -666,5 +717,11 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
         void onMusicStop();
 
         void onMusicCompleted();
+
+        void onMusicPreparing();
+
+        void onMusicPrepared();
+
+        void onMusicPrepareError();
     }
 }
