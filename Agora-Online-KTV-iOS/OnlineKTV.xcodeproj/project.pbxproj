@@ -21,7 +21,6 @@
 		574C9CBC266A0B7E00822A95 /* app.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 574C9CB0266A0B4200822A95 /* app.framework */; };
 		574C9CBD266A0B7E00822A95 /* app.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 574C9CB0266A0B4200822A95 /* app.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		574C9CC0266A0BDB00822A95 /* Core.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5757D048262D834700B4A785 /* Core.framework */; };
-		574C9CC1266A0BDB00822A95 /* Core.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 5757D048262D834700B4A785 /* Core.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		574C9CCA266A0C4300822A95 /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = 574C9CC9266A0C4300822A95 /* Model.swift */; };
 		574C9CCC266A1E7E00822A95 /* Media.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 574C9CCB266A1E7E00822A95 /* Media.xcassets */; };
 		574C9CCE266A24C600822A95 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 574C9CCD266A24C600822A95 /* Main.storyboard */; };
@@ -162,7 +161,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				574C9CC1266A0BDB00822A95 /* Core.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1397,13 +1395,15 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = Y695MMFA83;
+				CURRENT_PROJECT_VERSION = 0703;
+				DEVELOPMENT_TEAM = JDPG69R49Z;
 				INFOPLIST_FILE = "$(SRCROOT)/OnlineKTV/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MARKETING_VERSION = 3.4.200;
 				OTHER_SWIFT_FLAGS = "$(inherited) -D COCOAPODS -DLEANCLOUD";
 				PRODUCT_BUNDLE_IDENTIFIER = io.agora.OnlineKTV;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1429,6 +1429,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MARKETING_VERSION = 3.4.200;
 				OTHER_SWIFT_FLAGS = "$(inherited) -D COCOAPODS -DLEANCLOUD";
 				PRODUCT_BUNDLE_IDENTIFIER = io.agora.OnlineKTV;
 				PRODUCT_NAME = "$(TARGET_NAME)";

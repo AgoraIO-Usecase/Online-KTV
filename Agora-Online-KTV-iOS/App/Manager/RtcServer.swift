@@ -42,7 +42,7 @@ private struct RtcMusicLrcMessage: Encodable, Decodable {
     let time: Int
 }
 
-private class RtcMusicPlayer: NSObject {
+private class RtcMusicPlayer: NSObject, AgoraRtcMediaPlayerAudioFrameDelegate {
     static var msgId: Int = 0
     private weak var rtcServer: RtcServer!
     var player: AgoraRtcMediaPlayerProtocol!
@@ -54,11 +54,24 @@ private class RtcMusicPlayer: NSObject {
     var isPlaying: Bool = false
     var state: AgoraMediaPlayerState?
     var isPause: Bool = false
+    var monoChannel: Bool = false
 
     init(rtcServer: RtcServer) {
         self.rtcServer = rtcServer
         super.init()
         player = self.rtcServer.rtcEngine!.createMediaPlayer(with: rtcServer)!
+        player.setAudioFrameDelegate(self, mode: .readWrite)
+    }
+
+    func agoraMediaPlayer(_: AgoraRtcMediaPlayerProtocol, audioFrame: AgoraAudioPcmFrame) -> AgoraAudioPcmFrame {
+        if monoChannel, audioFrame.channelNumbers == 2 {
+            let cpBytes = audioFrame.bytesPerSample.rawValue
+            for index in 0 ..< audioFrame.samplesPerChannel {
+                let tempBuf = audioFrame.pcmBuffer.subdata(in: index * 2 * audioFrame.bytesPerSample.rawValue ..< index * 2 * audioFrame.bytesPerSample.rawValue + cpBytes)
+                audioFrame.pcmBuffer.replaceSubrange(index * 2 * audioFrame.bytesPerSample.rawValue + cpBytes ..< index * 2 * audioFrame.bytesPerSample.rawValue + cpBytes + cpBytes, with: tempBuf)
+            }
+        }
+        return audioFrame
     }
 
     func play(music: LocalMusic) -> Bool {
@@ -107,26 +120,27 @@ private class RtcMusicPlayer: NSObject {
     }
 
     func originMusic(enable: Bool) {
-        if let player = player {
-            let all = player.getStreamCount()
-            if all <= 0 {
-                return
-            }
-            var count = 0
-            for index in 0 ..< all {
-                let id = Int32(index)
-                if player.getStreamBy(id)?.streamType == .audio {
-                    count += 1
-                    if enable, count == 2 {
-                        player.selectAudioTrack(id)
-                        break
-                    } else if !enable, count == 1 {
-                        player.selectAudioTrack(id)
-                        break
-                    }
-                }
-            }
-        }
+        monoChannel = enable
+//        if let player = player {
+//            let all = player.getStreamCount()
+//            if all <= 0 {
+//                return
+//            }
+//            var count = 0
+//            for index in 0 ..< all {
+//                let id = Int32(index)
+//                if player.getStreamBy(id)?.streamType == .audio {
+//                    count += 1
+//                    if enable, count == 2 {
+//                        player.selectAudioTrack(id)
+//                        break
+//                    } else if !enable, count == 1 {
+//                        player.selectAudioTrack(id)
+//                        break
+//                    }
+//                }
+//            }
+//        }
     }
 
     func pause() {
@@ -399,7 +413,8 @@ class RtcServer: NSObject {
     }
 
     func isSupportSwitchOriginMusic() -> Bool {
-        return (rtcMusicPlayer?.getAudioTrackCount() ?? 0) > 1
+        return true
+//        return (rtcMusicPlayer?.getAudioTrackCount() ?? 0) > 1
     }
 
     func originMusic(enable: Bool) {
