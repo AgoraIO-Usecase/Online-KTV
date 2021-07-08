@@ -358,15 +358,13 @@ public class MusicPlayer extends IRtcEngineEventHandler {
 
                 mStopSyncLrc = false;
                 while (!mStopSyncLrc && mStatus.isAtLeast(Status.Started)) {
-                    if (mStatus == Status.Started) {
-                        mRecvedPlayPosition = mRtcEngine.getAudioMixingCurrentPosition();
-                        mLastRecvPlayPosTime = System.currentTimeMillis();
+                    mRecvedPlayPosition = mRtcEngine.getAudioMixingCurrentPosition();
+                    mLastRecvPlayPosTime = System.currentTimeMillis();
 
-                        sendSyncLrc(lrcId, duration, mRecvedPlayPosition);
-                    }
+                    sendSyncLrc(lrcId, duration, mRecvedPlayPosition);
 
                     try {
-                        Thread.sleep(100);
+                        Thread.sleep(200);
                     } catch (InterruptedException exp) {
                         break;
                     }
