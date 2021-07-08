@@ -84,6 +84,10 @@
 		5764BBE12673512F00293B73 /* LocalMusicManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5764BBE02673512F00293B73 /* LocalMusicManager.swift */; };
 		5764BBE426735D9900293B73 /* Lyric.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5764BBE326735D9900293B73 /* Lyric.swift */; };
 		5764BBE62673AE1F00293B73 /* MusicLyricView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5764BBE52673AE1F00293B73 /* MusicLyricView.swift */; };
+		5782AC8A2695597500B4162A /* MiguLyric.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5782AC892695597500B4162A /* MiguLyric.swift */; };
+		5782AC8C26958EED00B4162A /* 004.xml in Resources */ = {isa = PBXBuildFile; fileRef = 5782AC8B26958EED00B4162A /* 004.xml */; };
+		5782AC8D2695A76300B4162A /* 004.xml in Resources */ = {isa = PBXBuildFile; fileRef = 5782AC8B26958EED00B4162A /* 004.xml */; };
+		5782AC8F2695CA7D00B4162A /* LrcSentence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5782AC8E2695CA7D00B4162A /* LrcSentence.swift */; };
 		5783FE942664B571000B39F3 /* SyncManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5783FE932664B571000B39F3 /* SyncManager.swift */; };
 		5783FEA62666250B000B39F3 /* SyncManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5783FEA52666250B000B39F3 /* SyncManager.swift */; };
 		5783FEA926662555000B39F3 /* SyncManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5783FEA72666253D000B39F3 /* SyncManager.swift */; };
@@ -280,6 +284,9 @@
 		5764BBE02673512F00293B73 /* LocalMusicManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalMusicManager.swift; sourceTree = "<group>"; };
 		5764BBE326735D9900293B73 /* Lyric.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lyric.swift; sourceTree = "<group>"; };
 		5764BBE52673AE1F00293B73 /* MusicLyricView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicLyricView.swift; sourceTree = "<group>"; };
+		5782AC892695597500B4162A /* MiguLyric.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiguLyric.swift; sourceTree = "<group>"; };
+		5782AC8B26958EED00B4162A /* 004.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = 004.xml; sourceTree = "<group>"; };
+		5782AC8E2695CA7D00B4162A /* LrcSentence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LrcSentence.swift; sourceTree = "<group>"; };
 		5783FE932664B571000B39F3 /* SyncManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncManager.swift; sourceTree = "<group>"; };
 		5783FEA52666250B000B39F3 /* SyncManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncManager.swift; sourceTree = "<group>"; };
 		5783FEA72666253D000B39F3 /* SyncManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncManager.swift; sourceTree = "<group>"; };
@@ -622,6 +629,7 @@
 		5764BBD52673505100293B73 /* Res */ = {
 			isa = PBXGroup;
 			children = (
+				5782AC8B26958EED00B4162A /* 004.xml */,
 				5764BBD62673505100293B73 /* send_it_cn.lrc */,
 				5764BBD72673505100293B73 /* qinghuaci.m4a */,
 				5764BBD82673505100293B73 /* send_it_en.lrc */,
@@ -636,6 +644,8 @@
 			children = (
 				5764BBE02673512F00293B73 /* LocalMusicManager.swift */,
 				5764BBE326735D9900293B73 /* Lyric.swift */,
+				5782AC892695597500B4162A /* MiguLyric.swift */,
+				5782AC8E2695CA7D00B4162A /* LrcSentence.swift */,
 			);
 			path = Music;
 			sourceTree = "<group>";
@@ -886,6 +896,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5782AC8D2695A76300B4162A /* 004.xml in Resources */,
 				57E8D62A264A7306007001BC /* Localizable.strings in Resources */,
 				5764BBDD2673505100293B73 /* send_it_en.lrc in Resources */,
 				571AA47D2629862800B82B35 /* LaunchScreen.storyboard in Resources */,
@@ -904,6 +915,7 @@
 			files = (
 				574C9CCC266A1E7E00822A95 /* Media.xcassets in Resources */,
 				574C9CD9266A2B1900822A95 /* Localizable.strings in Resources */,
+				5782AC8C26958EED00B4162A /* 004.xml in Resources */,
 				574C9CCE266A24C600822A95 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1133,6 +1145,8 @@
 				574C9CD4266A26BE00822A95 /* Colors.swift in Sources */,
 				5764BBE426735D9900293B73 /* Lyric.swift in Sources */,
 				574C9CCA266A0C4300822A95 /* Model.swift in Sources */,
+				5782AC8F2695CA7D00B4162A /* LrcSentence.swift in Sources */,
+				5782AC8A2695597500B4162A /* MiguLyric.swift in Sources */,
 				5764BBA6266E53D800293B73 /* MVPlayer.swift in Sources */,
 				574C9CDD266A41AE00822A95 /* HomeViewModel.swift in Sources */,
 				5764BBC626723F1200293B73 /* LiveKtvMusic.swift in Sources */,
