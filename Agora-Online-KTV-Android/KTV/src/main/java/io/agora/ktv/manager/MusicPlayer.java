@@ -390,7 +390,7 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
                 long curTime;
                 long offset;
                 while (!mStopDisplayLrc) {
-                    if (mLastRecvPlayPosTime != null) {
+                    if (mLastRecvPlayPosTime != null && mStatus == Status.Started) {
                         curTime = System.currentTimeMillis();
                         offset = curTime - mLastRecvPlayPosTime;
                         curTs = mRecvedPlayPosition + offset;
@@ -445,8 +445,8 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
                         break;
                     }
 
-                    if (mStatus == Status.Started) {
-                        sendSyncLrc(lrcId, duration, mPlayer.getPlayPosition());
+                    if (mLastRecvPlayPosTime != null && mStatus == Status.Started) {
+                        sendSyncLrc(lrcId, duration, mLastRecvPlayPosTime);
                     }
 
                     try {
