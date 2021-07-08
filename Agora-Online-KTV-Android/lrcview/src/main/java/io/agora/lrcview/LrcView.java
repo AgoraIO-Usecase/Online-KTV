@@ -242,6 +242,12 @@ public class LrcView extends View {
 
         IEntry cur = entrys.get(mCurrentLine);
         if (mNewLine) {
+            if (mCurrentLine >= entrys.size() - 1) {
+                cur.setDuration(mTotalDuration - cur.getTime());
+            } else {
+                cur.setDuration(entrys.get(mCurrentLine + 1).getTime() - cur.getTime());
+            }
+
             curLrcEntry = cur.createLRCEntry();
 
             mLrcPaint.setTextSize(mCurrentTextSize);
@@ -327,21 +333,17 @@ public class LrcView extends View {
 
         canvas.drawBitmap(mBgText1, mTextBmpRect, mTextRenderRect, null);
 
-        if (cur.getType() == IEntry.Type.Default) {
+        //TODO: get fg text draw rect by current timestamp
+        Rect[] drawRects = curLrcEntry.getDrawRectByTime(mCurrentTime);
+
+        //TODO: draw fg text to the canvas
+        for (Rect dr : drawRects) {
+            if (dr.left == dr.right)
+                continue;
+
+            mTextBmpRect.right = dr.right;
+            mTextRenderRect.right = getPaddingStart() + dr.right;
             canvas.drawBitmap(mFgText1, mTextBmpRect, mTextRenderRect, null);
-        } else {
-            //TODO: get fg text draw rect by current timestamp
-            Rect[] drawRects = curLrcEntry.getDrawRectByTime(mCurrentTime);
-
-            //TODO: draw fg text to the canvas
-            for (Rect dr : drawRects) {
-                if (dr.left == dr.right)
-                    continue;
-
-                mTextBmpRect.right = dr.right;
-                mTextRenderRect.right = getPaddingStart() + dr.right;
-                canvas.drawBitmap(mFgText1, mTextBmpRect, mTextRenderRect, null);
-            }
         }
     }
 

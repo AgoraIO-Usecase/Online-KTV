@@ -37,7 +37,7 @@ import io.agora.ktv.view.dialog.RoomChooseSongDialog;
 import io.agora.ktv.view.dialog.RoomMVDialog;
 import io.agora.ktv.view.dialog.UserSeatMenuDialog;
 import io.agora.ktv.view.dialog.WaitingDialog;
-import io.agora.rtc2.Constants;
+import io.agora.rtc.Constants;
 import io.reactivex.CompletableObserver;
 import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -570,15 +570,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
             return;
         }
 
-        if (mMusicPlayer.isPlaying() == false) {
-            return;
-        }
-
-        if (mMusicPlayer.isPaused()) {
-            mMusicPlayer.resume();
-        } else {
-            mMusicPlayer.pause();
-        }
+        mMusicPlayer.toggleStart();
     }
 
     private void showOnSeatStatus() {

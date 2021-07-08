@@ -218,9 +218,13 @@ public class MemberMusicModel implements Parcelable {
                 "id='" + id + '\'' +
                 ", name='" + name + '\'' +
                 ", userId='" + userId + '\'' +
-                ", roomId='" + roomId + '\'' +
+                ", roomId=" + roomId +
                 ", musicId='" + musicId + '\'' +
+                ", song='" + song + '\'' +
+                ", lrc='" + lrc + '\'' +
+                ", fileMusic=" + fileMusic +
+                ", fileLrc=" + fileLrc +
+                ", type=" + type +
                 '}';
     }
-
 }

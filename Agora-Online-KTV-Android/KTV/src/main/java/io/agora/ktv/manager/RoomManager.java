@@ -34,10 +34,10 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import io.agora.ktv.bean.MemberMusicModel;
-import io.agora.rtc2.Constants;
-import io.agora.rtc2.IRtcEngineEventHandler;
-import io.agora.rtc2.RtcEngine;
-import io.agora.rtc2.RtcEngineConfig;
+import io.agora.rtc.Constants;
+import io.agora.rtc.IRtcEngineEventHandler;
+import io.agora.rtc.RtcEngine;
+import io.agora.rtc.RtcEngineConfig;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
@@ -72,6 +72,12 @@ public final class RoomManager {
     private IRtcEngineEventHandler mIRtcEngineEventHandler = new IRtcEngineEventHandler() {
 
         @Override
+        public void onError(int err) {
+            super.onError(err);
+            mLogger.e("onError() called with: err = [%s]", err);
+        }
+
+        @Override
         public void onConnectionStateChanged(int state, int reason) {
             super.onConnectionStateChanged(state, reason);
             mLoggerRTC.d("onConnectionStateChanged() called with: state = [%s], reason = [%s]", state, reason);
@@ -99,18 +105,6 @@ public final class RoomManager {
         public void onLeaveChannel(RtcStats stats) {
             super.onLeaveChannel(stats);
             mLoggerRTC.i("onLeaveChannel() called with: stats = [%s]", stats);
-        }
-
-        @Override
-        public void onRemoteAudioStateChanged(int uid, REMOTE_AUDIO_STATE state, REMOTE_AUDIO_STATE_REASON reason, int elapsed) {
-            super.onRemoteAudioStateChanged(uid, state, reason, elapsed);
-            mLoggerRTC.i("onRemoteAudioStateChanged() called with: uid = [%s], state = [%s], reason = [%s], elapsed = [%s]", uid, state, reason, elapsed);
-        }
-
-        @Override
-        public void onLocalAudioStateChanged(LOCAL_AUDIO_STREAM_STATE state, LOCAL_AUDIO_STREAM_ERROR error) {
-            super.onLocalAudioStateChanged(state, error);
-            mLoggerRTC.i("onLocalAudioStateChanged() called with: state = [%s], error = [%s]", state, error);
         }
 
         @Override
@@ -154,7 +148,7 @@ public final class RoomManager {
         config.mContext = mContext;
         config.mAppId = appid;
         config.mEventHandler = mIRtcEngineEventHandler;
-        config.mChannelProfile = Constants.CHANNEL_PROFILE_LIVE_BROADCASTING;
+//        config.mChannelProfile = Constants.CHANNEL_PROFILE_LIVE_BROADCASTING;
 //        if (Config.isLeanCloud()) {
 //            config.mAreaCode = RtcEngineConfig.AreaCode.AREA_CODE_CN;
 //        } else {
@@ -163,6 +157,7 @@ public final class RoomManager {
 
         try {
             mRtcEngine = RtcEngine.create(config);
+            mRtcEngine.setChannelProfile(Constants.CHANNEL_PROFILE_LIVE_BROADCASTING);
         } catch (Exception e) {
             e.printStackTrace();
             mLoggerRTC.e("init error", e);

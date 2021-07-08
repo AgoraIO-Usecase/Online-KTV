@@ -4,6 +4,7 @@ import io.agora.lrcview.LrcEntry;
 
 public class LrcEntryDefault implements IEntry {
     public long time;
+    public long duration;
     public String text;
 
     public String[] texts;
@@ -25,6 +26,11 @@ public class LrcEntryDefault implements IEntry {
     }
 
     @Override
+    public void setDuration(long d) {
+        this.duration = d;
+    }
+
+    @Override
     public long getTime() {
         return time;
     }
@@ -41,6 +47,11 @@ public class LrcEntryDefault implements IEntry {
 
     @Override
     public float getOffset(long time) {
-        return 1;
+        float pct = (time - this.time) / (float) duration;
+        if (pct < 0)
+            pct = 0;
+        if (pct > 1)
+            pct = 1;
+        return pct;
     }
 }
