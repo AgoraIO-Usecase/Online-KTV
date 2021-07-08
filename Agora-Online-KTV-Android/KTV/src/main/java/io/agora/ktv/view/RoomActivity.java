@@ -570,15 +570,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
             return;
         }
 
-        if (mMusicPlayer.isPlaying() == false) {
-            return;
-        }
-
-        if (mMusicPlayer.isPaused()) {
-            mMusicPlayer.resume();
-        } else {
-            mMusicPlayer.pause();
-        }
+        mMusicPlayer.toggleStart();
     }
 
     private void showOnSeatStatus() {
