@@ -14,8 +14,7 @@ import io.agora.lrcview.bean.IEntry;
  */
 public class LrcEntry {
     private static final String TAG = "LrcEntry";
-    private StaticLayout fgLayout1;
-    private StaticLayout bgLayout1;
+    private StaticLayout mLayout;
 
     private Rect[] textRects1;
     private Rect[] drawRects;
@@ -51,7 +50,7 @@ public class LrcEntry {
         this.mIEntry = mIEntry;
     }
 
-    void init(TextPaint fgPaint, TextPaint bgPaint, int width, Gravity gravity) {
+    void init(TextPaint mTextPaint, int width, Gravity gravity) {
         Layout.Alignment align;
         switch (gravity) {
             case LEFT:
@@ -73,48 +72,41 @@ public class LrcEntry {
             Rect rect = new Rect();
             textRects[i] = rect;
             String s = texts[i];
-            fgPaint.getTextBounds(s, 0, s.length(), rect);
+            mTextPaint.getTextBounds(s, 0, s.length(), rect);
         }
 
         String text = mIEntry.getText();
-        fgLayout1 = new StaticLayout(text, fgPaint, width, align, 1f, 0f, false);
-        bgLayout1 = new StaticLayout(text, bgPaint, width, align, 1f, 0f, false);
+        mLayout = new StaticLayout(text, mTextPaint, width, align, 1f, 0f, false);
 
-        int totalLine = fgLayout1.getLineCount();
+        int totalLine = mLayout.getLineCount();
         text1Len = 0;
-        textRects1 = new Rect[fgLayout1.getLineCount()];
-        for (int i = 0; i < fgLayout1.getLineCount(); i++) {
+        textRects1 = new Rect[mLayout.getLineCount()];
+        for (int i = 0; i < mLayout.getLineCount(); i++) {
             Rect newLine = new Rect();
             textRects1[i] = newLine;
-            fgLayout1.getLineBounds(i, textRects1[i]);
-            newLine.left = (int) fgLayout1.getLineLeft(i);
-            newLine.right = (int) fgLayout1.getLineRight(i);
+            mLayout.getLineBounds(i, textRects1[i]);
+            newLine.left = (int) mLayout.getLineLeft(i);
+            newLine.right = (int) mLayout.getLineRight(i);
             text1Len += newLine.right - newLine.left;
         }
 
         drawRects = new Rect[totalLine];
 
-        for (int i = 0; i < fgLayout1.getLineCount(); i++) {
+        for (int i = 0; i < mLayout.getLineCount(); i++) {
             drawRects[i] = new Rect(textRects1[i]);
         }
     }
 
     int getHeight() {
-        if (fgLayout1 == null) {
+        if (mLayout == null) {
             return 0;
         }
-        return fgLayout1.getHeight();
+        return mLayout.getHeight();
     }
 
-    void drawFg(Canvas canvas) {
+    void draw(Canvas canvas) {
         canvas.save();
-        fgLayout1.draw(canvas);
-        canvas.restore();
-    }
-
-    void drawBg(Canvas canvas) {
-        canvas.save();
-        bgLayout1.draw(canvas);
+        mLayout.draw(canvas);
         canvas.restore();
     }
 
@@ -130,7 +122,7 @@ public class LrcEntry {
 
         int showLen1 = (int) (text1Len * pct);
 
-        for (int i = 0; i < fgLayout1.getLineCount(); i++) {
+        for (int i = 0; i < mLayout.getLineCount(); i++) {
             int curLineWidth = textRects1[i].right - textRects1[i].left;
             drawRects[i].left = textRects1[i].left;
             drawRects[i].right = textRects1[i].right;
