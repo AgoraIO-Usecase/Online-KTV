@@ -144,7 +144,7 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
     private final AudioFrameObserver mAudioFrameObserver = new AudioFrameObserver() {
         @Override
         public AudioFrame onFrame(AudioFrame audioFrame) {
-            if (mMusicModel == null || mMusicModel.getType() == MemberMusicModel.Type.Default) {
+            if (mMusicModel == null) {
                 return audioFrame;
             }
 
@@ -156,11 +156,11 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
                 int samplesPerChannel = audioFrame.samplesPerChannel;
 
                 byte[] tempBuf = new byte[audioFrame.bytes.length];
-                int cpBytes = bytesPerSample / channelNums;
+                int cpBytes = bytesPerSample;
                 for (int i = 0; i < samplesPerChannel; i++) {
-                    System.arraycopy(audioFrame.bytes, i * bytesPerSample, tempBuf, 0, cpBytes);
-                    System.arraycopy(audioFrame.bytes, i * bytesPerSample + cpBytes, audioFrame.bytes, i * bytesPerSample + cpBytes, cpBytes);
-                    System.arraycopy(tempBuf, 0, audioFrame.bytes, i * bytesPerSample + cpBytes, cpBytes);
+                    System.arraycopy(audioFrame.bytes, i * 2 * bytesPerSample, tempBuf, 0, cpBytes);
+                    System.arraycopy(audioFrame.bytes, i * 2 * bytesPerSample + cpBytes, audioFrame.bytes, i * 2 * bytesPerSample + cpBytes, cpBytes);
+                    System.arraycopy(tempBuf, 0, audioFrame.bytes, i * 2 * bytesPerSample + cpBytes, cpBytes);
                 }
             }
             return audioFrame;
@@ -718,7 +718,7 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
         mRtcEngine.removeHandler(this);
         mCallback = null;
 
-        mPlayer.registerAudioFrameObserver(mAudioFrameObserver, Constants.RAW_AUDIO_FRAME_OP_MODE_READ_WRITE);
+        mPlayer.registerAudioFrameObserver(null, Constants.RAW_AUDIO_FRAME_OP_MODE_READ_WRITE);
         mPlayer.destroy();
         mPlayer = null;
     }
