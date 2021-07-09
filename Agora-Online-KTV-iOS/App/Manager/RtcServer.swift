@@ -80,6 +80,7 @@ private class RtcMusicPlayer: NSObject, AgoraRtcMediaPlayerAudioFrameDelegate {
             if player.getPlayerState() == .playing {
                 player.stop()
             }
+            originMusic(enable: false)
             let option = AgoraRtcChannelMediaOptions()
             option.publishMediaPlayerId = AgoraRtcIntOptional.of(player.getMediaPlayerId())
             option.clientRoleType = AgoraRtcIntOptional.of(Int32(AgoraClientRole.broadcaster.rawValue))
