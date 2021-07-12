@@ -67,8 +67,38 @@ private class RtcMusicPlayer: NSObject, AgoraRtcMediaPlayerAudioFrameDelegate {
         if monoChannel, audioFrame.channelNumbers == 2 {
             let cpBytes = audioFrame.bytesPerSample.rawValue
             for index in 0 ..< audioFrame.samplesPerChannel {
-                let tempBuf = audioFrame.pcmBuffer.subdata(in: index * 2 * audioFrame.bytesPerSample.rawValue ..< index * 2 * audioFrame.bytesPerSample.rawValue + cpBytes)
-                audioFrame.pcmBuffer.replaceSubrange(index * 2 * audioFrame.bytesPerSample.rawValue + cpBytes ..< index * 2 * audioFrame.bytesPerSample.rawValue + cpBytes + cpBytes, with: tempBuf)
+                let leftStart = index * 2 * cpBytes
+                let rightStart = leftStart + cpBytes
+                let tempBuf = audioFrame.pcmBuffer.subdata(in: leftStart ..< leftStart + cpBytes)
+                audioFrame.pcmBuffer.replaceSubrange(rightStart ..< rightStart + cpBytes, with: tempBuf)
+            }
+        } else if audioFrame.channelNumbers == 2 {
+//            let cpBytes = audioFrame.bytesPerSample.rawValue
+//            for index in 0 ..< audioFrame.samplesPerChannel {
+//                let leftStart = index * 2 * cpBytes
+//                let rightStart = leftStart + cpBytes
+//                var leftBuf = audioFrame.pcmBuffer.subdata(in: leftStart ..< leftStart + cpBytes)
+//                let rightBuf = audioFrame.pcmBuffer.subdata(in: rightStart ..< rightStart + cpBytes)
+//                for bufIndex in 0 ..< cpBytes / 2 {
+//                    var left = UInt16(leftBuf[bufIndex * 2] << 8) + UInt16(leftBuf[bufIndex * 2 + 1])
+//                    let right = UInt16(rightBuf[bufIndex * 2] << 8) + UInt16(rightBuf[bufIndex * 2 + 1])
+//                    if left > UInt16.max - right {
+//                        left = UInt16.max
+//                    } else {
+//                        left = left + right
+//                    }
+//                    leftBuf[bufIndex * 2] = UInt8(left >> 8)
+//                    leftBuf[bufIndex * 2 + 1] = UInt8(left & 0x00FF)
+//                }
+//                audioFrame.pcmBuffer.replaceSubrange(leftStart ..< leftStart + cpBytes, with: leftBuf)
+//                audioFrame.pcmBuffer.replaceSubrange(rightStart ..< rightStart + cpBytes, with: leftBuf)
+//            }
+            let cpBytes = audioFrame.bytesPerSample.rawValue
+            for index in 0 ..< audioFrame.samplesPerChannel {
+                let leftStart = index * 2 * cpBytes
+                let rightStart = leftStart + cpBytes
+                let tempBuf = audioFrame.pcmBuffer.subdata(in: rightStart ..< rightStart + cpBytes)
+                audioFrame.pcmBuffer.replaceSubrange(leftStart ..< leftStart + cpBytes, with: tempBuf)
             }
         }
         return audioFrame
@@ -122,26 +152,6 @@ private class RtcMusicPlayer: NSObject, AgoraRtcMediaPlayerAudioFrameDelegate {
 
     func originMusic(enable: Bool) {
         monoChannel = enable
-//        if let player = player {
-//            let all = player.getStreamCount()
-//            if all <= 0 {
-//                return
-//            }
-//            var count = 0
-//            for index in 0 ..< all {
-//                let id = Int32(index)
-//                if player.getStreamBy(id)?.streamType == .audio {
-//                    count += 1
-//                    if enable, count == 2 {
-//                        player.selectAudioTrack(id)
-//                        break
-//                    } else if !enable, count == 1 {
-//                        player.selectAudioTrack(id)
-//                        break
-//                    }
-//                }
-//            }
-//        }
     }
 
     func pause() {
@@ -351,6 +361,9 @@ class RtcServer: NSObject {
     func muteLocalMicrophone(mute: Bool) {
         muted = mute
         rtcEngine?.muteRecordingSignal(mute)
+//        let option = AgoraRtcChannelMediaOptions()
+//        option.publishAudioTrack = AgoraRtcBoolOptional.of(!mute)
+//        rtcEngine?.updateChannel(with: option)
     }
 
     func onRtcMusicStateChanged() -> Observable<Result<RtcMusicState>> {
@@ -433,7 +446,7 @@ class RtcServer: NSObject {
 
 extension RtcServer: AgoraRtcMediaPlayerDelegate {
     func agoraRtcMediaPlayer(_ playerKit: AgoraRtcMediaPlayerProtocol, didChangedToPosition position: Int) {
-        Logger.log(self, message: "didChangedToPosition \(position)", level: .info)
+        // Logger.log(self, message: "didChangedToPosition \(position)", level: .info)
         if let player = rtcMusicPlayer {
             player.position = position
             player.duration = playerKit.getDuration()
@@ -517,7 +530,7 @@ extension RtcServer: AgoraRtcEngineDelegate {
     }
 
     func rtcEngine(_: AgoraRtcEngineKit, receiveStreamMessageFromUid uid: UInt, streamId: Int, data: Data) {
-        Logger.log(self, message: "receiveStreamMessageFromUid \(uid) \(streamId)", level: .info)
+        // Logger.log(self, message: "receiveStreamMessageFromUid \(uid) \(streamId)", level: .info)
         if rtcMusicPlayer?.state == .playing || rtcMusicPlayer?.uid == uid {
             return
         }
