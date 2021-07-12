@@ -75,11 +75,6 @@
 		5764BBC22671F79500293B73 /* PlayerSettingDialog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5764BBC12671F79500293B73 /* PlayerSettingDialog.swift */; };
 		5764BBC42672034900293B73 /* SelectMVDialog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5764BBC32672034900293B73 /* SelectMVDialog.swift */; };
 		5764BBC626723F1200293B73 /* LiveKtvMusic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5764BBC526723F1200293B73 /* LiveKtvMusic.swift */; };
-		5764BBDB2673505100293B73 /* send_it_cn.lrc in Resources */ = {isa = PBXBuildFile; fileRef = 5764BBD62673505100293B73 /* send_it_cn.lrc */; };
-		5764BBDC2673505100293B73 /* qinghuaci.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 5764BBD72673505100293B73 /* qinghuaci.m4a */; };
-		5764BBDD2673505100293B73 /* send_it_en.lrc in Resources */ = {isa = PBXBuildFile; fileRef = 5764BBD82673505100293B73 /* send_it_en.lrc */; };
-		5764BBDE2673505100293B73 /* qinghuaci.lrc in Resources */ = {isa = PBXBuildFile; fileRef = 5764BBD92673505100293B73 /* qinghuaci.lrc */; };
-		5764BBDF2673505100293B73 /* send_it.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 5764BBDA2673505100293B73 /* send_it.m4a */; };
 		5764BBE12673512F00293B73 /* LocalMusicManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5764BBE02673512F00293B73 /* LocalMusicManager.swift */; };
 		5764BBE426735D9900293B73 /* Lyric.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5764BBE326735D9900293B73 /* Lyric.swift */; };
 		5764BBE62673AE1F00293B73 /* MusicLyricView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5764BBE52673AE1F00293B73 /* MusicLyricView.swift */; };
@@ -87,6 +82,9 @@
 		5782AC8C26958EED00B4162A /* 004.xml in Resources */ = {isa = PBXBuildFile; fileRef = 5782AC8B26958EED00B4162A /* 004.xml */; };
 		5782AC8D2695A76300B4162A /* 004.xml in Resources */ = {isa = PBXBuildFile; fileRef = 5782AC8B26958EED00B4162A /* 004.xml */; };
 		5782AC8F2695CA7D00B4162A /* LrcSentence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5782AC8E2695CA7D00B4162A /* LrcSentence.swift */; };
+		5782AC91269C144200B4162A /* 005.xml in Resources */ = {isa = PBXBuildFile; fileRef = 5782AC90269C144200B4162A /* 005.xml */; };
+		5782AC93269C145100B4162A /* 001.xml in Resources */ = {isa = PBXBuildFile; fileRef = 5782AC92269C145100B4162A /* 001.xml */; };
+		5782AC95269C4B0200B4162A /* 003.xml in Resources */ = {isa = PBXBuildFile; fileRef = 5782AC94269C4B0200B4162A /* 003.xml */; };
 		5783FE942664B571000B39F3 /* SyncManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5783FE932664B571000B39F3 /* SyncManager.swift */; };
 		5783FEA62666250B000B39F3 /* SyncManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5783FEA52666250B000B39F3 /* SyncManager.swift */; };
 		5783FEA926662555000B39F3 /* SyncManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5783FEA72666253D000B39F3 /* SyncManager.swift */; };
@@ -274,17 +272,15 @@
 		5764BBC12671F79500293B73 /* PlayerSettingDialog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerSettingDialog.swift; sourceTree = "<group>"; };
 		5764BBC32672034900293B73 /* SelectMVDialog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectMVDialog.swift; sourceTree = "<group>"; };
 		5764BBC526723F1200293B73 /* LiveKtvMusic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveKtvMusic.swift; sourceTree = "<group>"; };
-		5764BBD62673505100293B73 /* send_it_cn.lrc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = send_it_cn.lrc; sourceTree = "<group>"; };
-		5764BBD72673505100293B73 /* qinghuaci.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = qinghuaci.m4a; sourceTree = "<group>"; };
-		5764BBD82673505100293B73 /* send_it_en.lrc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = send_it_en.lrc; sourceTree = "<group>"; };
-		5764BBD92673505100293B73 /* qinghuaci.lrc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = qinghuaci.lrc; sourceTree = "<group>"; };
-		5764BBDA2673505100293B73 /* send_it.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = send_it.m4a; sourceTree = "<group>"; };
 		5764BBE02673512F00293B73 /* LocalMusicManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalMusicManager.swift; sourceTree = "<group>"; };
 		5764BBE326735D9900293B73 /* Lyric.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lyric.swift; sourceTree = "<group>"; };
 		5764BBE52673AE1F00293B73 /* MusicLyricView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicLyricView.swift; sourceTree = "<group>"; };
 		5782AC892695597500B4162A /* MiguLyric.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiguLyric.swift; sourceTree = "<group>"; };
 		5782AC8B26958EED00B4162A /* 004.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = 004.xml; sourceTree = "<group>"; };
 		5782AC8E2695CA7D00B4162A /* LrcSentence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LrcSentence.swift; sourceTree = "<group>"; };
+		5782AC90269C144200B4162A /* 005.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = 005.xml; sourceTree = "<group>"; };
+		5782AC92269C145100B4162A /* 001.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = 001.xml; sourceTree = "<group>"; };
+		5782AC94269C4B0200B4162A /* 003.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = 003.xml; sourceTree = "<group>"; };
 		5783FE932664B571000B39F3 /* SyncManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncManager.swift; sourceTree = "<group>"; };
 		5783FEA52666250B000B39F3 /* SyncManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncManager.swift; sourceTree = "<group>"; };
 		5783FEA72666253D000B39F3 /* SyncManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncManager.swift; sourceTree = "<group>"; };
@@ -627,12 +623,10 @@
 		5764BBD52673505100293B73 /* Res */ = {
 			isa = PBXGroup;
 			children = (
+				5782AC92269C145100B4162A /* 001.xml */,
+				5782AC90269C144200B4162A /* 005.xml */,
 				5782AC8B26958EED00B4162A /* 004.xml */,
-				5764BBD62673505100293B73 /* send_it_cn.lrc */,
-				5764BBD72673505100293B73 /* qinghuaci.m4a */,
-				5764BBD82673505100293B73 /* send_it_en.lrc */,
-				5764BBD92673505100293B73 /* qinghuaci.lrc */,
-				5764BBDA2673505100293B73 /* send_it.m4a */,
+				5782AC94269C4B0200B4162A /* 003.xml */,
 			);
 			path = Res;
 			sourceTree = SOURCE_ROOT;
@@ -895,15 +889,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				5782AC8D2695A76300B4162A /* 004.xml in Resources */,
+				5782AC95269C4B0200B4162A /* 003.xml in Resources */,
 				57E8D62A264A7306007001BC /* Localizable.strings in Resources */,
-				5764BBDD2673505100293B73 /* send_it_en.lrc in Resources */,
+				5782AC93269C145100B4162A /* 001.xml in Resources */,
 				571AA47D2629862800B82B35 /* LaunchScreen.storyboard in Resources */,
 				571AA47A2629862800B82B35 /* Assets.xcassets in Resources */,
-				5764BBDB2673505100293B73 /* send_it_cn.lrc in Resources */,
-				5764BBDF2673505100293B73 /* send_it.m4a in Resources */,
+				5782AC91269C144200B4162A /* 005.xml in Resources */,
 				5791A95E267AF2FB00A02B30 /* Main.storyboard in Resources */,
-				5764BBDE2673505100293B73 /* qinghuaci.lrc in Resources */,
-				5764BBDC2673505100293B73 /* qinghuaci.m4a in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1396,7 +1388,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 0703;
-				DEVELOPMENT_TEAM = JDPG69R49Z;
+				DEVELOPMENT_TEAM = Y695MMFA83;
 				INFOPLIST_FILE = "$(SRCROOT)/OnlineKTV/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
