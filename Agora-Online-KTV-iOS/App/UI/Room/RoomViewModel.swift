@@ -497,7 +497,7 @@ class RoomViewModel {
             .disposed(by: disposeBag)
     }
 
-    func _musicDataSource(music: String) -> Observable<Result<[LocalMusic]>> {
-        return Observable.just(Result(success: true, data: music.isEmpty ? localMusicManager.localMusicList : [])).delay(DispatchTimeInterval.seconds(5), scheduler: scheduler)
-    }
+//    func _musicDataSource(music: String) -> Observable<Result<[LocalMusic]>> {
+//        return Observable.just(Result(success: true, data: music.isEmpty ? localMusicManager.localMusicList : [])).delay(DispatchTimeInterval.seconds(5), scheduler: scheduler)
+//    }
 }

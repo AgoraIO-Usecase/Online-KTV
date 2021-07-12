@@ -33,10 +33,6 @@ class MiguLrcSentence {
         self.tones = tones
     }
 
-    private func add(tone: MiguLrcTone) {
-        tones.append(tone)
-    }
-
     func startTime() -> TimeInterval {
         return tones.first?.begin ?? 0
     }
@@ -46,18 +42,20 @@ class MiguLrcSentence {
     }
 
     func toSentence() -> String {
-        return tones.enumerated().map { item in
+        return tones.map { $0.word }.joined()
+    }
+
+    fileprivate func processBlank() {
+        tones.enumerated().forEach { item in
             let tone = item.element
             let index = item.offset
-            if tone.lang == "1" {
-                return tone.word
-            } else {
-                let count = self.tones.count
-                let lead = (index >= 1 && self.tones[index - 1].lang == "1") ? " " : ""
+            if tone.lang == "2", tone.word != "" {
+                let count = tones.count
+                let lead = (index >= 1 && tones[index - 1].lang != "2" && tones[index - 1].word != "") ? " " : ""
                 let trail = index == count - 1 ? "" : " "
-                return "\(lead)\(tone.word)\(trail)"
+                tone.word = "\(lead)\(tone.word)\(trail)"
             }
-        }.joined()
+        }
     }
 }
 
@@ -76,6 +74,7 @@ private enum ParserType {
     case sentence
     case tone
     case word
+    case overlap
 }
 
 private class MiguSongLyricXmlParser: NSObject, XMLParserDelegate {
@@ -90,8 +89,13 @@ private class MiguSongLyricXmlParser: NSObject, XMLParserDelegate {
             return nil
         } else {
             parser.delegate = self
-            let value = parser.parse()
-            Logger.log(self, message: "parse \(value) \(parser.parserError?.localizedDescription ?? "")", level: .info)
+            let success = parser.parse()
+            Logger.log(self, message: "parse \(success) \(parser.parserError?.localizedDescription ?? "")", level: .info)
+            if success, let song = song {
+                song.sentences.forEach { sentence in
+                    sentence.processBlank()
+                }
+            }
         }
     }
 
@@ -131,6 +135,15 @@ private class MiguSongLyricXmlParser: NSObject, XMLParserDelegate {
             }
         case "word":
             push(.word)
+        case "overlap":
+            push(.overlap)
+            let begin: TimeInterval = attributeDict["begin"]!.doubleValue * 1000
+            let end: TimeInterval = attributeDict["end"]!.doubleValue * 1000
+            let pitch = 0
+            let pronounce = ""
+            let lang = attributeDict["lang"]!
+            let tone = MiguLrcTone(begin: begin, end: end, pitch: pitch, pronounce: pronounce, lang: lang, word: "")
+            song?.sentences.append(MiguLrcSentence(tones: [tone]))
         default:
             break
         }
@@ -145,7 +158,7 @@ private class MiguSongLyricXmlParser: NSObject, XMLParserDelegate {
                 song?.singer = string
             case .type:
                 song?.type = string
-            case .word:
+            case .word, .overlap:
                 if let tone = song?.sentences.last?.tones.last {
                     tone.word = string
                 }
@@ -171,6 +184,8 @@ private class MiguSongLyricXmlParser: NSObject, XMLParserDelegate {
             pop(equal: .tone)
         case "word":
             pop(equal: .word)
+        case "overlap":
+            pop(equal: .overlap)
         default:
             break
         }
