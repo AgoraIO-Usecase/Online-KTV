@@ -13,7 +13,9 @@ private class MusicLyricLabel: UILabel {
     var hightColor = UIColor.white
     var progress: CGFloat = 0 {
         didSet {
-            setNeedsDisplay()
+            if oldValue != progress {
+                setNeedsDisplay()
+            }
         }
     }
 
