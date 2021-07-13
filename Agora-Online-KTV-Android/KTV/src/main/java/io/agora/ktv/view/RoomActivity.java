@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -276,14 +277,26 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
     private void onJoinRoom() {
         AgoraRoom mRoom = RoomManager.Instance(this).getRoom();
         assert mRoom != null;
-        mDataBinding.rlSing.setBackgroundResource(mRoom.getMVRes());
-
-        mMusicPlayer = new MusicPlayer(getApplicationContext(), RoomManager.Instance(this).getRtcEngine(), mDataBinding.lrcView);
-        mMusicPlayer.registerPlayerObserver(mMusicCallback);
 
         AgoraMember owner = RoomManager.Instance(this).getOwner();
         assert owner != null;
         mRoomSpeakerAdapter.addItem(owner);
+
+        if (RoomManager.Instance(this).isOwner()) {
+            long liveTimeLeft = mRoom.getCreatedAt().getTime() - (20 * 60 * 1000);
+            if (liveTimeLeft <= 0) {
+                ToastUtile.toastShort(RoomActivity.this, "试用时间已到");
+                doLeave();
+                return;
+            }
+
+            startStopTimer(liveTimeLeft);
+        }
+
+        mDataBinding.rlSing.setBackgroundResource(mRoom.getMVRes());
+
+        mMusicPlayer = new MusicPlayer(getApplicationContext(), RoomManager.Instance(this).getRtcEngine(), mDataBinding.lrcView);
+        mMusicPlayer.registerPlayerObserver(mMusicCallback);
 
         if (RoomManager.Instance(this).isOwner()) {
             showOnSeatStatus();
@@ -293,6 +306,27 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
 
         RoomManager.Instance(this).loadMemberStatus();
         syncMusics();
+    }
+
+    private CountDownTimer timerStop;
+
+    private void startStopTimer(long liveTimeLeft) {
+        timerStop = new CountDownTimer(liveTimeLeft, 999) {
+            public void onTick(long millisUntilFinished) {
+            }
+
+            public void onFinish() {
+                ToastUtile.toastShort(RoomActivity.this, "试用时间已到");
+                doLeave();
+            }
+        }.start();
+    }
+
+    private void stopStopTimer() {
+        if (timerStop != null) {
+            timerStop.cancel();
+            timerStop = null;
+        }
     }
 
     private void preperMusic(final MemberMusicModel musicModel, boolean isSinger) {
@@ -710,6 +744,8 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
 
     @Override
     protected void onDestroy() {
+        stopStopTimer();
+
         RoomManager.Instance(this).removeRoomEventCallback(mRoomEventCallback);
         if (mMusicPlayer != null) {
             mMusicPlayer.unregisterPlayerObserver();
