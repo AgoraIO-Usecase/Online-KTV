@@ -283,7 +283,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
         mRoomSpeakerAdapter.addItem(owner);
 
         if (RoomManager.Instance(this).isOwner()) {
-            long liveTimeLeft = mRoom.getCreatedAt().getTime() - (20 * 60 * 1000);
+            long liveTimeLeft = System.currentTimeMillis() - mRoom.getCreatedAt().getTime() - (20 * 60 * 1000);
             if (liveTimeLeft <= 0) {
                 ToastUtile.toastShort(RoomActivity.this, "试用时间已到");
                 doLeave();
