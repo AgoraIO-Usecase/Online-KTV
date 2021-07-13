@@ -8,15 +8,36 @@
 import Core
 import Foundation
 
+enum MiguLang: String {
+    case zh = "1"
+    case en = "2"
+    case unknown = "-1"
+
+    static func toLang(_ lang: String?) -> MiguLang {
+        if let lang = lang {
+            switch lang {
+            case "1":
+                return .zh
+            case "2":
+                return .en
+            default:
+                return .unknown
+            }
+        } else {
+            return .unknown
+        }
+    }
+}
+
 class MiguLrcTone {
     let begin: TimeInterval
     let end: TimeInterval
     let pitch: Int
     let pronounce: String
-    let lang: String
+    fileprivate(set) var lang: MiguLang
     fileprivate(set) var word: String
 
-    init(begin: TimeInterval, end: TimeInterval, pitch: Int, pronounce: String, lang: String, word: String) {
+    init(begin: TimeInterval, end: TimeInterval, pitch: Int, pronounce: String, lang: MiguLang, word: String) {
         self.begin = begin
         self.end = end
         self.pitch = pitch
@@ -49,9 +70,9 @@ class MiguLrcSentence {
         tones.enumerated().forEach { item in
             let tone = item.element
             let index = item.offset
-            if tone.lang == "2", tone.word != "" {
+            if tone.lang == .en, tone.word != "" {
                 let count = tones.count
-                let lead = (index >= 1 && tones[index - 1].lang != "2" && tones[index - 1].word != "") ? " " : ""
+                let lead = (index >= 1 && tones[index - 1].lang != .en && tones[index - 1].word != "") ? " " : ""
                 let trail = index == count - 1 ? "" : " "
                 tone.word = "\(lead)\(tone.word)\(trail)"
             }
@@ -90,7 +111,12 @@ private class MiguSongLyricXmlParser: NSObject, XMLParserDelegate {
         } else {
             parser.delegate = self
             let success = parser.parse()
-            Logger.log(self, message: "parse \(success) \(parser.parserError?.localizedDescription ?? "")", level: .info)
+            if !success {
+                let error = parser.parserError
+                let line = parser.lineNumber
+                let col = parser.columnNumber
+                Logger.log(self, message: "xml parsing Error(\(error?.localizedDescription ?? "")) at \(line):\(col)", level: .info)
+            }
             if success, let song = song {
                 song.sentences.forEach { sentence in
                     sentence.processBlank()
@@ -105,6 +131,14 @@ private class MiguSongLyricXmlParser: NSObject, XMLParserDelegate {
 
     func parserDidEndDocument(_: XMLParser) {
         Logger.log(self, message: "parserDidEndDocument", level: .info)
+    }
+
+    func parser(_: XMLParser, parseErrorOccurred parseError: Error) {
+        Logger.log(self, message: "parseErrorOccurred: \(parseError.localizedDescription)", level: .info)
+    }
+
+    func parser(_: XMLParser, validationErrorOccurred validationError: Error) {
+        Logger.log(self, message: "validationErrorOccurred: \(validationError.localizedDescription)", level: .info)
     }
 
     func parser(_: XMLParser, didStartElement elementName: String, namespaceURI _: String?, qualifiedName _: String?, attributes attributeDict: [String: String] = [:]) {
@@ -127,10 +161,10 @@ private class MiguSongLyricXmlParser: NSObject, XMLParserDelegate {
             if let sentence = song?.sentences.last {
                 let begin: TimeInterval = attributeDict["begin"]!.doubleValue * 1000
                 let end: TimeInterval = attributeDict["end"]!.doubleValue * 1000
-                let pitch = Int(attributeDict["pitch"]!.floatValue)
-                let pronounce = attributeDict["pronounce"]!
-                let lang = attributeDict["lang"]!
-                let tone = MiguLrcTone(begin: begin, end: end, pitch: pitch, pronounce: pronounce, lang: lang, word: "")
+                let pitch = Int(attributeDict["pitch"]?.floatValue ?? 0)
+                let pronounce = attributeDict["pronounce"] ?? ""
+                let lang = attributeDict["lang"]
+                let tone = MiguLrcTone(begin: begin, end: end, pitch: pitch, pronounce: pronounce, lang: MiguLang.toLang(lang), word: "")
                 sentence.tones.append(tone)
             }
         case "word":
@@ -141,8 +175,8 @@ private class MiguSongLyricXmlParser: NSObject, XMLParserDelegate {
             let end: TimeInterval = attributeDict["end"]!.doubleValue * 1000
             let pitch = 0
             let pronounce = ""
-            let lang = attributeDict["lang"]!
-            let tone = MiguLrcTone(begin: begin, end: end, pitch: pitch, pronounce: pronounce, lang: lang, word: "")
+            let lang = attributeDict["lang"]
+            let tone = MiguLrcTone(begin: begin, end: end, pitch: pitch, pronounce: pronounce, lang: MiguLang.toLang(lang), word: "")
             song?.sentences.append(MiguLrcSentence(tones: [tone]))
         default:
             break
@@ -161,6 +195,19 @@ private class MiguSongLyricXmlParser: NSObject, XMLParserDelegate {
             case .word, .overlap:
                 if let tone = song?.sentences.last?.tones.last {
                     tone.word = string
+                    if tone.lang == .unknown {
+                        do {
+                            let regular = try NSRegularExpression(pattern: "[a-zA-Z]", options: .caseInsensitive)
+                            let count = regular.numberOfMatches(in: tone.word, options: .anchored, range: NSRange(location: 0, length: tone.word.count))
+                            if count > 0 {
+                                tone.lang = .en
+                            } else {
+                                tone.lang = .zh
+                            }
+                        } catch {
+                            tone.lang = .en
+                        }
+                    }
                 }
             default:
                 break
