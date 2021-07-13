@@ -10,13 +10,18 @@ import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.util.concurrent.Callable;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import io.agora.ktv.bean.MemberMusicModel;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 
@@ -62,13 +67,14 @@ public final class MusicResourceManager {
                         musicModel.setLrc(model.getLrc());
 
                         File fileMusic = new File(resourceRoot, musicModel.getMusicId());
-                        File fileLrc = new File(resourceRoot, musicModel.getMusicId() + ".lrc");
+                        File fileLrcZip = new File(resourceRoot, musicModel.getMusicId() + ".zip");
+                        File fileLrcXML = new File(resourceRoot, musicModel.getMusicId() + ".xml");
                         musicModel.setFileMusic(fileMusic);
-                        musicModel.setFileLrc(fileLrc);
+                        musicModel.setFileLrc(fileLrcXML);
 
                         mLogger.i("prepareMusic down %s", musicModel);
                         if (onlyLrc) {
-                            return DataRepositroy.Instance(mContext).download(fileLrc, musicModel.getLrc())
+                            return DataRepositroy.Instance(mContext).download(fileLrcZip, musicModel.getLrc())
                                     .toSingle(new Callable<MemberMusicModel>() {
                                         @Override
                                         public MemberMusicModel call() throws Exception {
@@ -78,7 +84,12 @@ public final class MusicResourceManager {
                         } else {
                             return Completable.mergeArray(
                                     DataRepositroy.Instance(mContext).download(fileMusic, musicModel.getSong()),
-                                    DataRepositroy.Instance(mContext).download(fileLrc, musicModel.getLrc()))
+                                    DataRepositroy.Instance(mContext).download(fileLrcZip, musicModel.getLrc()).doOnComplete(new Action() {
+                                        @Override
+                                        public void run() throws Exception {
+                                            unzipLrc(fileLrcZip, fileLrcXML);
+                                        }
+                                    }))
                                     .toSingle(new Callable<MemberMusicModel>() {
                                         @Override
                                         public MemberMusicModel call() throws Exception {
@@ -104,5 +115,29 @@ public final class MusicResourceManager {
                         mLogger.e("prepareMusic error", throwable);
                     }
                 });
+    }
+
+    private void unzipLrc(File src, File des) throws Exception {
+        ZipInputStream inZip = new ZipInputStream(new FileInputStream(src));
+        ZipEntry zipEntry;
+        String szName = null;
+
+        while ((zipEntry = inZip.getNextEntry()) != null) {
+            szName = zipEntry.getName();
+            if (zipEntry.isDirectory()) {
+                continue;
+            } else {
+                des.createNewFile();
+                FileOutputStream out = new FileOutputStream(des);
+                int len;
+                byte[] buffer = new byte[1024];
+                while ((len = inZip.read(buffer)) != -1) {
+                    out.write(buffer, 0, len);
+                    out.flush();
+                }
+                out.close();
+            }
+        }
+        inZip.close();
     }
 }
