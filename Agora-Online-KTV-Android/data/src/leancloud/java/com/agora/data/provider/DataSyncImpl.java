@@ -19,6 +19,7 @@ import com.agora.data.sync.SyncManager;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -92,8 +93,11 @@ public class DataSyncImpl implements ISyncManager {
 
     @Override
     public Observable<List<AgoraRoom>> getRooms() {
+        Date date = new Date();
+        date.setTime(System.currentTimeMillis() - (24 * 60 * 60 * 1000));
+
         LCQuery<LCObject> mLCQuery = LCQuery.getQuery(AgoraRoom.TABLE_NAME);
-        mLCQuery.limit(30);
+        mLCQuery.whereGreaterThanOrEqualTo(AgoraRoom.COLUMN_CREATEDAT, date);
         mLCQuery.orderByDescending(AgoraRoom.COLUMN_CREATEDAT);
         return mLCQuery.findInBackground()
                 .subscribeOn(Schedulers.io())
