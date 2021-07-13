@@ -46,6 +46,8 @@ private class RtcMusicPlayer: NSObject {
     static var msgId: Int = 0
     private weak var rtcServer: RtcServer!
     private var timer: Timer?
+    private var timerPausedDate: Date?
+
     var streamId: Int = -1
     var uid: UInt = 0
     var music: LocalMusic?
@@ -72,7 +74,7 @@ private class RtcMusicPlayer: NSObject {
             let success = rtc.startAudioMixing(music.path, loopback: false, replace: false, cycle: 1) == 0
             if success {
                 originMusic(enable: false)
-                timer = Timer.scheduledTimer(withTimeInterval: 0.8, repeats: true, block: { [weak self] _ in
+                timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: { [weak self] _ in
                     if let self = self, let server = self.rtcServer, let rtc = server.rtcEngine {
                         if self.state == .playing {
                             server.agoraRtcMediaPlayer(rtc, didChangedToPosition: Int(rtc.getAudioMixingCurrentPosition()))
@@ -91,7 +93,6 @@ private class RtcMusicPlayer: NSObject {
     }
 
     func originMusic(enable: Bool) {
-        // monoChannel = enable
         rtcServer.rtcEngine?.setAudioMixingDualMonoMode(enable ? .duraMonoL : .duraMonoMix)
     }
 
@@ -99,17 +100,26 @@ private class RtcMusicPlayer: NSObject {
         if let rtc = rtcServer.rtcEngine {
             rtc.pauseAudioMixing()
         }
+        if let timer = timer {
+            timerPausedDate = timer.fireDate
+            timer.fireDate = Date.distantFuture
+        }
     }
 
     func resume() {
         if let rtc = rtcServer.rtcEngine {
             rtc.resumeAudioMixing()
         }
+        if let timer = timer, let timerPausedDate = timerPausedDate {
+            timer.fireDate = timerPausedDate
+        }
+        timerPausedDate = nil
     }
 
     func stop() {
         timer?.invalidate()
         timer = nil
+        timerPausedDate = nil
         if let rtc = rtcServer.rtcEngine {
             rtc.stopAudioMixing()
         }
@@ -296,7 +306,6 @@ class RtcServer: NSObject {
 
     func muteLocalMicrophone(mute: Bool) {
         muted = mute
-        // rtcEngine?.muteRecordingSignal(mute)
         if muted {
             recordingSignalVolume = getRecordingSignalVolume()
             rtcEngine?.adjustRecordingSignalVolume(0)
