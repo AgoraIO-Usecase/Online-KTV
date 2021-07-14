@@ -9,7 +9,7 @@ import Core
 import Foundation
 import UIKit
 
-class MVPlayer {
+class MVPlayer: NSObject {
     enum Status {
         case stop
         case play
@@ -193,6 +193,7 @@ class MVPlayer {
         playerControlView.addTarget(self, action: #selector(onTapPlayerControlView), for: .touchUpInside)
         switchMusicView.addTarget(self, action: #selector(onSwitchMusic), for: .touchUpInside)
         hookSwitchView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(onSwitchOrigin)))
+        musicLyricView.delegate = self
     }
 
     func onMusic(state: RtcMusicState) {
@@ -279,5 +280,12 @@ class MVPlayer {
 
     deinit {
         Logger.log(self, message: "deinit", level: .info)
+    }
+}
+
+extension MVPlayer: MusicLyricViewDelegate {
+    func userEndSeeking(time: TimeInterval) {
+        Logger.log(self, message: "userEndSeeking \(time)", level: .info)
+        delegate.viewModel.seekMusic(position: time)
     }
 }

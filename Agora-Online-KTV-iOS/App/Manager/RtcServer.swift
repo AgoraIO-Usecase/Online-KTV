@@ -96,6 +96,12 @@ private class RtcMusicPlayer: NSObject {
         rtcServer.rtcEngine?.setAudioMixingDualMonoMode(enable ? .duraMonoL : .duraMonoMix)
     }
 
+    func seek(position: Int) {
+        if let rtc = rtcServer.rtcEngine {
+            rtc.setAudioMixingPosition(position)
+        }
+    }
+
     func pause() {
         if let rtc = rtcServer.rtcEngine {
             rtc.pauseAudioMixing()
@@ -335,6 +341,12 @@ class RtcServer: NSObject {
             }.asObservable()
         } else {
             return Observable.just(Result(success: false, message: "rtcMusicPlayer is nil"))
+        }
+    }
+
+    func seekMusic(position: TimeInterval) {
+        if let play = rtcMusicPlayer {
+            play.seek(position: Int(position))
         }
     }
 
