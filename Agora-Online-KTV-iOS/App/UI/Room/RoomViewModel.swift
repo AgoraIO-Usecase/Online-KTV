@@ -271,6 +271,10 @@ class RoomViewModel {
         return music.id == manager.playingMusic?.id
     }
 
+    func seekMusic(position: TimeInterval) {
+        manager.seekMusic(position: position)
+    }
+
     func pauseMusic() {
         manager.pauseMusic()
     }

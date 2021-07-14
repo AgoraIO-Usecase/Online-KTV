@@ -117,8 +117,15 @@ private class MusicLyricCell: UITableViewCell {
     }
 }
 
+protocol MusicLyricViewDelegate: NSObject {
+    func userEndSeeking(time: TimeInterval) -> Void
+}
+
 class MusicLyricView: UIView, UITableViewDataSource, UITableViewDelegate {
-    var Distance = 3
+    weak var delegate: MusicLyricViewDelegate?
+    // ms
+    private var seekTime: TimeInterval = 0
+    private var Distance = 3
     private let normalLyricTextColor = UIColor.white.withAlphaComponent(0.59)
     private(set) var isWillDraging: Bool = false
     private(set) var isScrolling: Bool = false
@@ -292,6 +299,7 @@ class MusicLyricView: UIView, UITableViewDataSource, UITableViewDelegate {
         if self.currentTime == currentTime && self.totalTime == totalTime {
             return
         }
+        Logger.log(self, message: "scrollLyric current:\(currentTime) total:\(totalTime)", level: .info)
         curLyricsTimestamp = Date().timeIntervalSince1970 * 1000
         self.currentTime = currentTime
         self.totalTime = totalTime
@@ -364,12 +372,18 @@ class MusicLyricView: UIView, UITableViewDataSource, UITableViewDelegate {
         isScrolling = true
         timelineView.isHidden = false
         timeLabel.isHidden = false
+        seekTime = -1
     }
 
     func scrollViewDidEndDragging(_: UIScrollView, willDecelerate decelerate: Bool) {
         if !decelerate {
             isWillDraging = false
             perform(#selector(endScroll), with: nil, afterDelay: 1)
+        }
+        if let delegate = delegate, seekTime >= 0 {
+            delegate.userEndSeeking(time: seekTime)
+            seekTime = -1
+            isScrolling = false
         }
     }
 
@@ -387,18 +401,26 @@ class MusicLyricView: UIView, UITableViewDataSource, UITableViewDelegate {
             return
         }
         if let lyrics = lyrics {
-            let offsetY = scrollView.contentOffset.y
-            var index = Int((offsetY + lyricTable.frame.size.height * 0.5) / 44) - Distance + 1
-            index = index < 0 ? 0 : index
-            let lyric = index > lyrics.count - 1 ? nil : lyrics[index]
-            if let lyric = lyric {
-                timeLabel.text = lyric.timeString()
-                timeLabel.isHidden = false
-                return
+            let indexPath = lyricTable.indexPathForRow(at: CGPoint(x: 0, y: scrollView.contentOffset.y + lyricTable.frame.size.height / 2))
+            if let indexPath = indexPath {
+                let index = indexPath.item - Distance
+                if index >= 0, index <= lyrics.count - 1 {
+                    let lyric = lyrics[index]
+                    seekTime = lyric.startMsTime()
+                    timeLabel.text = lyric.timeString()
+                    timeLabel.isHidden = false
+                    return
+                } else if index < 0 {
+                    timeLabel.text = nil
+                    timeLabel.isHidden = true
+                    seekTime = 0
+                    return
+                }
             }
         }
-        timeLabel.text = ""
+        timeLabel.text = nil
         timeLabel.isHidden = true
+        seekTime = -1
     }
 
     @objc private func endScroll() {
@@ -408,7 +430,7 @@ class MusicLyricView: UIView, UITableViewDataSource, UITableViewDelegate {
         timelineView.isHidden = true
         timeLabel.isHidden = true
 
-        perform(#selector(endScrolling), with: nil, afterDelay: 4)
+        perform(#selector(endScrolling), with: nil, afterDelay: 1)
     }
 
     @objc private func endScrolling() {

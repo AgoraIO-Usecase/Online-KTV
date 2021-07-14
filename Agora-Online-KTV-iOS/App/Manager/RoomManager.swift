@@ -263,6 +263,12 @@ extension RoomManager: IRoomManager {
         }
     }
 
+    func seekMusic(position: TimeInterval) {
+        if rtcServer.isJoinChannel {
+            rtcServer.seekMusic(position: position)
+        }
+    }
+
     func pauseMusic() {
         if rtcServer.isJoinChannel {
             rtcServer.pauseMusic()
