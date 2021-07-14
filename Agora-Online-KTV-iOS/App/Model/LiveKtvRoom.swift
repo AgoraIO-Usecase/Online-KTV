@@ -98,7 +98,7 @@ extension LiveKtvRoom {
         if check, CHECK_TIME_UP {
             if let createdAt = createdAt {
                 let passTime = Date().timeIntervalSince1970 - createdAt.timeIntervalSince1970
-                if passTime >= TIME_UP || passTime <= 0 {
+                if passTime >= TIME_UP {
                     throw AgoraError(message: "当前房间直播时间超时！")
                 }
             }
@@ -309,13 +309,13 @@ extension LiveKtvRoom {
     }
 
     func timeUp() -> Observable<Result<LiveKtvRoom>> {
-        if let createdAt = createdAt {
+        if LiveKtvRoom.CHECK_TIME_UP, let createdAt = createdAt {
             let leftTime = Int(LiveKtvRoom.TIME_UP - Date().timeIntervalSince1970 + createdAt.timeIntervalSince1970)
             Logger.log(self, message: "leftTime: \(leftTime) date: \(createdAt)", level: .info)
             if leftTime >= Int(LiveKtvRoom.TIME_UP) || leftTime <= 0 {
-                return Observable.just(Result(success: true, data: nil))
+                return Observable.just(Result(success: true, data: nil, message: "试用时间已到！"))
             } else {
-                return Observable.just(Result(success: true, data: nil))
+                return Observable.just(Result(success: true, data: nil, message: "试用时间已到！"))
                     .delay(RxTimeInterval.seconds(leftTime), scheduler: MainScheduler.instance)
             }
         } else {

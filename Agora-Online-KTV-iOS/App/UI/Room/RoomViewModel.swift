@@ -78,6 +78,9 @@ class RoomViewModel {
                 if !result.success {
                     self.delegate?.onError(message: result.message)
                 } else if result.data == nil {
+                    if let message = result.message {
+                        self.delegate?.onError(message: message)
+                    }
                     self.delegate?.onRoomClosed()
                 } else {
                     self.delegate?.onRoomUpdate()
