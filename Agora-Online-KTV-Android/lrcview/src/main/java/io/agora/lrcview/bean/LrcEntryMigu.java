@@ -16,7 +16,7 @@ public class LrcEntryMigu implements IEntry {
     }
 
     @Override
-    public long getTime() {
+    public long getStartTime() {
         Tone first = tones.get(0);
         return (long) (first.begin * 1000L);
     }

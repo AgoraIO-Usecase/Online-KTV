@@ -273,9 +273,9 @@ public class LrcView extends View {
             mPaintBG.setTextSize(mCurrentTextSize);
 
             if (mCurrentLine >= entrys.size() - 1) {
-                cur.setDuration(mTotalDuration - cur.getTime());
+                cur.setDuration(mTotalDuration - cur.getStartTime());
             } else {
-                cur.setDuration(entrys.get(mCurrentLine + 1).getTime() - cur.getTime());
+                cur.setDuration(entrys.get(mCurrentLine + 1).getStartTime() - cur.getStartTime());
             }
 
             curLrcEntry = cur.createLRCEntry();
@@ -432,12 +432,12 @@ public class LrcView extends View {
         int right = entrys.size();
         while (left <= right) {
             int middle = (left + right) / 2;
-            long middleTime = entrys.get(middle).getTime();
+            long middleTime = entrys.get(middle).getStartTime();
 
             if (time < middleTime) {
                 right = middle - 1;
             } else {
-                if (middle + 1 >= entrys.size() || time < entrys.get(middle + 1).getTime()) {
+                if (middle + 1 >= entrys.size() || time < entrys.get(middle + 1).getStartTime()) {
                     return middle;
                 }
 

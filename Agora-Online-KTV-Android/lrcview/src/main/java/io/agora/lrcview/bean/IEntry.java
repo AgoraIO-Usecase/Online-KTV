@@ -20,7 +20,7 @@ public interface IEntry {
      *
      * @return
      */
-    long getTime();
+    long getStartTime();
 
     Tone[] getTones();
 

@@ -28,7 +28,7 @@ public class LrcEntryDefault implements IEntry {
     }
 
     @Override
-    public long getTime() {
+    public long getStartTime() {
         return tones[0].begin;
     }
 
