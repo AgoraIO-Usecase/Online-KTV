@@ -220,6 +220,23 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
         mRoomSpeakerAdapter = new RoomSpeakerAdapter(new ArrayList<>(), this);
         mDataBinding.rvSpeakers.setLayoutManager(new GridLayoutManager(this, 4));
         mDataBinding.rvSpeakers.setAdapter(mRoomSpeakerAdapter);
+
+        mDataBinding.lrcView.OnSeekBarChangeListener(new LrcView.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(long time) {
+                mMusicPlayer.seek(time);
+            }
+
+            @Override
+            public void onStartTrackingTouch() {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch() {
+
+            }
+        });
     }
 
     @Override
