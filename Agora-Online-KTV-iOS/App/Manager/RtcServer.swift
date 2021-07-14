@@ -154,6 +154,12 @@ private class RtcMusicPlayer: NSObject, AgoraRtcMediaPlayerAudioFrameDelegate {
         monoChannel = enable
     }
 
+    func seek(position: Int) {
+        if let player = player, state == .paused || state == .playing {
+            player.seek(toPosition: position)
+        }
+    }
+
     func pause() {
         if let player = player {
             player.pause()
@@ -387,6 +393,12 @@ class RtcServer: NSObject {
             }.asObservable()
         } else {
             return Observable.just(Result(success: false, message: "rtcMusicPlayer is nil"))
+        }
+    }
+
+    func seekMusic(position: TimeInterval) {
+        if let player = rtcMusicPlayer {
+            player.seek(position: Int(position))
         }
     }
 
