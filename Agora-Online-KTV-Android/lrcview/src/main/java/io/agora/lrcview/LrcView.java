@@ -21,13 +21,19 @@ import java.util.List;
 import io.agora.lrcview.bean.IEntry;
 import io.agora.lrcview.bean.LrcData;
 
+/**
+ * 歌词View
+ *
+ * @author chenhengfei(Aslanchen)
+ * @date 2021/7/6
+ */
 @SuppressLint("StaticFieldLeak")
 public class LrcView extends View {
     private static final String TAG = "LrcView";
 
     private final List<IEntry> entrys = new ArrayList<>();
-    private final TextPaint mLrcPaint = new TextPaint();
-    private final TextPaint mBgLrcPaint = new TextPaint();
+    private final TextPaint mPaintFG = new TextPaint(Paint.ANTI_ALIAS_FLAG);
+    private final TextPaint mPaintBG = new TextPaint(Paint.ANTI_ALIAS_FLAG);
     private int mNormalTextColor;
     private float mNormalTextSize;
     private int mCurrentTextColor;
@@ -41,15 +47,19 @@ public class LrcView extends View {
     private LrcEntry.Gravity mTextGravity;
 
     private boolean mNewLine = true;
-    private Bitmap mFgText1 = null;
-    private Bitmap mBgText1 = null;
-    private Canvas mFgTextCanvas1 = null;
-    private Canvas mBgTextCanvas1 = null;
-    private final Rect mTextBmpRect = new Rect();
-    private final Rect mTextRenderRect = new Rect();
+
+    private final Rect mRectClip = new Rect();
+    private final Rect mRectSrc = new Rect();
+    private final Rect mRectDst = new Rect();
 
     private long mCurrentTime = 0;
     private long mTotalDuration = 0;
+
+    private Bitmap mBitmapBG;
+    private Canvas mCanvasBG;
+
+    private Bitmap mBitmapFG;
+    private Canvas mCanvasFG;
 
     public LrcView(Context context) {
         this(context, null);
@@ -82,14 +92,15 @@ public class LrcView extends View {
 
         ta.recycle();
 
-        mLrcPaint.setTextSize(mCurrentTextSize);
-        mLrcPaint.setColor(mCurrentTextColor);
-        mLrcPaint.setAntiAlias(true);
-        mLrcPaint.setTextAlign(Paint.Align.LEFT);
+        mPaintFG.setTextSize(mCurrentTextSize);
+        mPaintFG.setColor(mCurrentTextColor);
+        mPaintFG.setAntiAlias(true);
+        mPaintFG.setTextAlign(Paint.Align.LEFT);
 
-        mBgLrcPaint.setColor(mNormalTextColor);
-        mBgLrcPaint.setAntiAlias(true);
-        mBgLrcPaint.setTextAlign(Paint.Align.LEFT);
+        mPaintBG.setTextSize(mNormalTextSize);
+        mPaintBG.setColor(mNormalTextColor);
+        mPaintBG.setAntiAlias(true);
+        mPaintBG.setTextAlign(Paint.Align.LEFT);
     }
 
     public void setTotalDuration(long d) {
@@ -184,29 +195,55 @@ public class LrcView extends View {
         invalidate();
     }
 
-    @SuppressLint("DrawAllocation")
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
         if (changed) {
-            //TODO: new bitmap and cavas
             int w = right - left - getPaddingStart() - getPaddingEnd();
             int h = bottom - top - getPaddingTop() - getPaddingBottom();
 
-            if (mFgText1 != null && !mFgText1.isRecycled()) {
-                mFgText1.recycle();
+            if (mBitmapFG == null) {
+                createBitmapFG(w, h);
+            } else if (mBitmapFG.getWidth() != w || mBitmapFG.getHeight() != h) {
+                if (!mBitmapFG.isRecycled()) {
+                    mBitmapFG.recycle();
+                }
+
+                createBitmapFG(w, h);
             }
 
-            if (mBgText1 != null && !mBgText1.isRecycled()) {
-                mBgText1.recycle();
+            if (mBitmapBG == null) {
+                createBitmapBG(w, h);
+            } else if (mBitmapBG.getWidth() != w || mBitmapBG.getHeight() != h) {
+                if (!mBitmapBG.isRecycled()) {
+                    mBitmapBG.recycle();
+                }
+
+                createBitmapBG(w, h);
             }
 
-            mFgText1 = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-            mFgTextCanvas1 = new Canvas(mFgText1);
+            mRectSrc.left = 0;
+            mRectSrc.top = 0;
+            mRectSrc.right = getLrcWidth();
+            mRectSrc.bottom = getLrcHeight();
 
-            mBgText1 = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-            mBgTextCanvas1 = new Canvas(mBgText1);
+            mRectDst.left = getPaddingStart();
+            mRectDst.top = getPaddingTop();
+            mRectDst.right = getPaddingStart() + getLrcWidth();
+            mRectDst.bottom = getPaddingTop() + getLrcHeight();
+
+            invalidate();
         }
+    }
+
+    private void createBitmapBG(int w, int h) {
+        mBitmapBG = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+        mCanvasBG = new Canvas(mBitmapBG);
+    }
+
+    private void createBitmapFG(int w, int h) {
+        mBitmapFG = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+        mCanvasFG = new Canvas(mBitmapFG);
     }
 
     private LrcEntry curLrcEntry;
@@ -214,18 +251,14 @@ public class LrcView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-
         // 无歌词文件
         if (!hasLrc()) {
-            mLrcPaint.setTextSize(mCurrentTextSize);
-            mLrcPaint.setColor(mCurrentTextColor);
-
             int width = getLrcWidth();
             int height = getLrcHeight();
             @SuppressLint("DrawAllocation")
             StaticLayout staticLayout = new StaticLayout(
                     mDefaultLabel,
-                    mLrcPaint,
+                    mPaintFG,
                     width,
                     Layout.Alignment.ALIGN_CENTER,
                     1f,
@@ -242,108 +275,135 @@ public class LrcView extends View {
 
         IEntry cur = entrys.get(mCurrentLine);
         if (mNewLine) {
+            mPaintBG.setColor(mNormalTextColor);
+            mPaintBG.setTextSize(mCurrentTextSize);
+
             if (mCurrentLine >= entrys.size() - 1) {
-                cur.setDuration(mTotalDuration - cur.getTime());
+                cur.setDuration(mTotalDuration - cur.getStartTime());
             } else {
-                cur.setDuration(entrys.get(mCurrentLine + 1).getTime() - cur.getTime());
+                cur.setDuration(entrys.get(mCurrentLine + 1).getStartTime() - cur.getStartTime());
             }
 
             curLrcEntry = cur.createLRCEntry();
-
-            mLrcPaint.setTextSize(mCurrentTextSize);
-            mBgLrcPaint.setTextSize(mCurrentTextSize);
-            curLrcEntry.init(mLrcPaint, mBgLrcPaint, getLrcWidth(), mTextGravity);
+            curLrcEntry.init(mPaintFG, mPaintBG, getLrcWidth(), mTextGravity);
 
             // clear bitmap
-            mFgText1.eraseColor(0);
-            mBgText1.eraseColor(0);
+            mBitmapBG.eraseColor(0);
 
-            //TODO: draw text on the bitmap
             if (mCurrentLine < 0 || mCurrentLine >= entrys.size()) {
+                mNewLine = false;
                 return;
             }
 
-            mFgTextCanvas1.save();
-            mBgTextCanvas1.save();
-
-            float curPointY = 0;
-
-            //draw current
-            float y = (getLrcHeight() - curLrcEntry.getHeight()) / 2F;
-            mFgTextCanvas1.translate(0, y);
-            curLrcEntry.drawFg(mFgTextCanvas1);
-
-            mBgTextCanvas1.translate(0, y);
-            curLrcEntry.drawBg(mBgTextCanvas1);
-            curPointY = y;
-
-            IEntry line = null;
-            LrcEntry mLrcEntry = null;
-            //draw top
-            mLrcPaint.setTextSize(mNormalTextSize);
-            mBgLrcPaint.setTextSize(mNormalTextSize);
-            for (int i = mCurrentLine - 1; i >= 0; i--) {
-                line = entrys.get(i);
-                mLrcEntry = line.createLRCEntry();
-                mLrcEntry.init(mLrcPaint, mBgLrcPaint, getLrcWidth(), mTextGravity);
-
-                if (curPointY - mDividerHeight - mLrcEntry.getHeight() < 0)
-                    break;
-
-                y = mDividerHeight + mLrcEntry.getHeight();
-                mBgTextCanvas1.translate(0, -y);
-                mLrcEntry.drawBg(mBgTextCanvas1);
-                curPointY = curPointY - y;
-            }
-
-            //draw bottom
-            y = (getLrcHeight() + curLrcEntry.getHeight()) / 2F - curPointY + mDividerHeight;
-            mBgTextCanvas1.translate(0, y);
-            curPointY = curPointY + y;
-
-            for (int i = mCurrentLine + 1; i < entrys.size(); i++) {
-                line = entrys.get(i);
-                mLrcEntry = line.createLRCEntry();
-                mLrcEntry.init(mLrcPaint, mBgLrcPaint, getLrcWidth(), mTextGravity);
-
-                if (curPointY + mLrcEntry.getHeight() > getLrcHeight())
-                    break;
-
-                mLrcEntry.drawBg(mBgTextCanvas1);
-                y = mLrcEntry.getHeight() + mDividerHeight;
-                mBgTextCanvas1.translate(0, y);
-                curPointY = curPointY + y;
-            }
-            mFgTextCanvas1.restore();
-            mBgTextCanvas1.restore();
+            drawCurrent();
+            drawTop();
+            drawBottom();
 
             mNewLine = false;
         }
 
-        //TODO: draw bg text to the canvas
-        mTextBmpRect.left = 0;
-        mTextBmpRect.top = 0;
-        mTextBmpRect.right = getLrcWidth();
-        mTextBmpRect.bottom = getLrcHeight();
+        canvas.drawBitmap(mBitmapBG, mRectSrc, mRectDst, null);
 
-        mTextRenderRect.left = getPaddingStart();
-        mTextRenderRect.top = getPaddingTop();
-        mTextRenderRect.right = getPaddingStart() + getLrcWidth();
-        mTextRenderRect.bottom = getPaddingTop() + getLrcHeight();
+        drawHighLight();
+        canvas.drawBitmap(mBitmapFG, mRectSrc, mRectDst, null);
+    }
 
-        canvas.drawBitmap(mBgText1, mTextBmpRect, mTextRenderRect, null);
+    private void drawTop() {
+        if (curLrcEntry == null) {
+            return;
+        }
 
-        //TODO: get fg text draw rect by current timestamp
+        float curPointY = (getLrcHeight() - curLrcEntry.getHeight()) / 2F;
+        float y = 0;
+        IEntry line = null;
+        LrcEntry mLrcEntry = null;
+        mPaintBG.setTextSize(mNormalTextSize);
+
+        mCanvasBG.save();
+        mCanvasBG.translate(0, curPointY);
+
+        for (int i = mCurrentLine - 1; i >= 0; i--) {
+            line = entrys.get(i);
+            mLrcEntry = line.createLRCEntry();
+            mLrcEntry.init(mPaintBG, getLrcWidth(), mTextGravity);
+
+            if (curPointY - mDividerHeight - mLrcEntry.getHeight() < 0)
+                break;
+
+            y = mDividerHeight + mLrcEntry.getHeight();
+            mCanvasBG.translate(0, -y);
+            mLrcEntry.draw(mCanvasBG);
+            curPointY = curPointY - y;
+        }
+        mCanvasBG.restore();
+    }
+
+    private void drawCurrent() {
+        if (curLrcEntry == null) {
+            return;
+        }
+
+        float y = (getLrcHeight() - curLrcEntry.getHeight()) / 2F;
+        mCanvasBG.save();
+        mCanvasBG.translate(0, y);
+        curLrcEntry.draw(mCanvasBG);
+        mCanvasBG.restore();
+    }
+
+    private void drawBottom() {
+        if (curLrcEntry == null) {
+            return;
+        }
+
+        float curPointY = (getLrcHeight() + curLrcEntry.getHeight()) / 2F + mDividerHeight;
+        float y = 0;
+        IEntry line = null;
+        LrcEntry mLrcEntry = null;
+        mPaintBG.setTextSize(mNormalTextSize);
+
+        mCanvasBG.save();
+        mCanvasBG.translate(0, curPointY);
+
+        for (int i = mCurrentLine + 1; i < entrys.size(); i++) {
+            line = entrys.get(i);
+            mLrcEntry = line.createLRCEntry();
+            mLrcEntry.init(mPaintBG, getLrcWidth(), mTextGravity);
+
+            if (curPointY + mLrcEntry.getHeight() > getLrcHeight())
+                break;
+
+            mLrcEntry.draw(mCanvasBG);
+            y = mLrcEntry.getHeight() + mDividerHeight;
+            mCanvasBG.translate(0, y);
+            curPointY = curPointY + y;
+        }
+        mCanvasBG.restore();
+    }
+
+    private void drawHighLight() {
+        if (curLrcEntry == null) {
+            return;
+        }
+
+        mBitmapFG.eraseColor(0);
+
         Rect[] drawRects = curLrcEntry.getDrawRectByTime(mCurrentTime);
+        float y = (getLrcHeight() - curLrcEntry.getHeight()) / 2F;
 
-        //TODO: draw fg text to the canvas
         for (Rect dr : drawRects) {
             if (dr.left == dr.right)
                 continue;
 
-            mTextBmpRect.right = dr.right;
-            mTextRenderRect.right = getPaddingStart() + dr.right;
-            canvas.drawBitmap(mFgText1, mTextBmpRect, mTextRenderRect, null);
+            mRectClip.left = dr.left;
+            mRectClip.top = (int) (dr.top + y);
+            mRectClip.right = dr.right;
+            mRectClip.bottom = (int) (dr.bottom + y);
+
+            mCanvasFG.save();
+            mCanvasFG.clipRect(mRectClip);
+            mCanvasFG.translate(0, y);
+            curLrcEntry.drawFG(mCanvasFG);
+            mCanvasFG.restore();
         }
     }
 
@@ -378,12 +438,12 @@ public class LrcView extends View {
         int right = entrys.size();
         while (left <= right) {
             int middle = (left + right) / 2;
-            long middleTime = entrys.get(middle).getTime();
+            long middleTime = entrys.get(middle).getStartTime();
 
             if (time < middleTime) {
                 right = middle - 1;
             } else {
-                if (middle + 1 >= entrys.size() || time < entrys.get(middle + 1).getTime()) {
+                if (middle + 1 >= entrys.size() || time < entrys.get(middle + 1).getStartTime()) {
                     return middle;
                 }
 

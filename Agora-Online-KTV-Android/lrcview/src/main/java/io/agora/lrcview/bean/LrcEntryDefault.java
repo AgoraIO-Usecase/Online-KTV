@@ -2,6 +2,12 @@ package io.agora.lrcview.bean;
 
 import io.agora.lrcview.LrcEntry;
 
+/**
+ * 歌词数据-通用歌词
+ *
+ * @author chenhengfei(Aslanchen)
+ * @date 2021/7/6
+ */
 public class LrcEntryDefault implements IEntry {
     public long time;
     public long duration;

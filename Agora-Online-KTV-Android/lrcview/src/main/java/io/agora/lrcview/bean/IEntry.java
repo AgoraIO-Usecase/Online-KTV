@@ -3,6 +3,8 @@ package io.agora.lrcview.bean;
 import io.agora.lrcview.LrcEntry;
 
 /**
+ * 数据源
+ *
  * @author chenhengfei(Aslanchen)
  * @date 2021/7/6
  */
