@@ -373,6 +373,10 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
         mRtcEngine.adjustRecordingSignalVolume(v);
     }
 
+    public void seek(long d) {
+        mPlayer.seek(d);
+    }
+
     private void startDisplayLrc() {
         File lrcs = mMusicModel.getFileLrc();
         mLrcView.post(new Runnable() {
@@ -397,8 +401,8 @@ public class MusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerO
 
                         if (offset <= 1000) {
                             curTs = mRecvedPlayPosition + offset;
+                            mHandler.obtainMessage(ACTION_UPDATE_TIME, curTs).sendToTarget();
                         }
-                        mHandler.obtainMessage(ACTION_UPDATE_TIME, curTs).sendToTarget();
                     }
 
                     try {
