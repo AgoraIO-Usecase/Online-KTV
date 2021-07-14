@@ -21,6 +21,9 @@
         }
 
         func getValue(key: String, type: Any.Type) throws -> Any? {
+            if key == "createdAt" {
+                return object.get(key)?.dateValue
+            }
             if type == String.self {
                 return object.get(key)?.stringValue
             } else if type == Int.self {
@@ -98,6 +101,8 @@
             let query = LCQuery(className: AgoraRoom.TABLE)
             do {
                 try query.where("createdAt", .descending)
+                let time = Date(timeIntervalSinceNow: -24 * 60 * 60)
+                try query.where("createdAt", .greaterThanOrEqualTo(time))
                 query.find(completionQueue: Database.completionQueue, completion: { result in
                     switch result {
                     case let .success(objects: list):
