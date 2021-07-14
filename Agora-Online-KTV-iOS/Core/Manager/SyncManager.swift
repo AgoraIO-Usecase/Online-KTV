@@ -7,6 +7,22 @@
 
 import Foundation
 
+public class AgoraError: NSObject, LocalizedError {
+    private let message: String
+
+    override public var description: String {
+        return message
+    }
+
+    public var errorDescription: String? {
+        return message
+    }
+
+    public init(message: String) {
+        self.message = message
+    }
+}
+
 open class AgoraRoom: Codable {
     public static let TABLE: String = "AGORA_ROOM"
 
