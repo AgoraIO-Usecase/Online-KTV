@@ -15,6 +15,12 @@ import java.util.concurrent.Executors;
 import io.agora.lrcview.bean.IEntry;
 import io.agora.lrcview.bean.LrcData;
 
+/**
+ * 加载歌词
+ *
+ * @author chenhengfei(Aslanchen)
+ * @date 2021/7/6
+ */
 class LrcLoadUtils {
 
     private static final Executor mExecutor = Executors.newSingleThreadExecutor();

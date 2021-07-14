@@ -16,7 +16,10 @@ import io.agora.lrcview.bean.LrcData;
 import io.agora.lrcview.bean.LrcEntryMigu;
 
 /**
- * 工具类
+ * 咪咕加载xml歌词
+ *
+ * @author chenhengfei(Aslanchen)
+ * @date 2021/7/6
  */
 class LrcLoadMiguUtils {
     public static class Song {
@@ -199,6 +202,9 @@ class LrcLoadMiguUtils {
         }
         tone.pronounce = parser.getAttributeValue(null, "pronounce");
         tone.lang = parser.getAttributeValue(null, "lang");
+        if (tone.lang == null) {
+            tone.lang = "1";
+        }
 
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) {
