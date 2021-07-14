@@ -12,6 +12,8 @@ import android.text.StaticLayout;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 
 import java.io.File;
@@ -61,6 +63,30 @@ public class LrcView extends View {
     private Bitmap mBitmapFG;
     private Canvas mCanvasFG;
 
+    private OnSeekBarChangeListener mOnSeekBarChangeListener;
+    private boolean isInDrag = false;
+    private GestureDetector mGestureDetector;
+    private float mOffset;
+    private GestureDetector.SimpleOnGestureListener mSimpleOnGestureListener = new GestureDetector.SimpleOnGestureListener() {
+
+        @Override
+        public boolean onDown(MotionEvent e) {
+            isInDrag = true;
+
+            if (mOnSeekBarChangeListener != null) {
+                mOnSeekBarChangeListener.onStartTrackingTouch();
+            }
+            return true;
+        }
+
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            mOffset += -distanceY;
+            invalidate();
+            return true;
+        }
+    };
+
     public LrcView(Context context) {
         this(context, null);
     }
@@ -101,6 +127,31 @@ public class LrcView extends View {
         mPaintBG.setColor(mNormalTextColor);
         mPaintBG.setAntiAlias(true);
         mPaintBG.setTextAlign(Paint.Align.LEFT);
+
+        mGestureDetector = new GestureDetector(getContext(), mSimpleOnGestureListener);
+        mGestureDetector.setIsLongpressEnabled(false);
+    }
+
+    public void OnSeekBarChangeListener(OnSeekBarChangeListener mOnSeekBarChangeListener) {
+        this.mOnSeekBarChangeListener = mOnSeekBarChangeListener;
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL) {
+            isInDrag = false;
+            mNewLine = true;
+            mRectClip.setEmpty();
+
+            IEntry mIEntry = entrys.get(targetIndex);
+            updateTime(mIEntry.getStartTime());
+
+            if (mOnSeekBarChangeListener != null) {
+                mOnSeekBarChangeListener.onProgressChanged(mIEntry.getStartTime());
+                mOnSeekBarChangeListener.onStopTrackingTouch();
+            }
+        }
+        return mGestureDetector.onTouchEvent(event);
     }
 
     public void setTotalDuration(long d) {
@@ -120,6 +171,7 @@ public class LrcView extends View {
      */
     public void setNormalTextSize(float size) {
         mNormalTextSize = size;
+        invalidate();
     }
 
     /**
@@ -127,6 +179,7 @@ public class LrcView extends View {
      */
     public void setCurrentTextSize(float size) {
         mCurrentTextSize = size;
+        invalidate();
     }
 
     /**
@@ -247,6 +300,7 @@ public class LrcView extends View {
     }
 
     private LrcEntry curLrcEntry;
+    private int targetIndex = 0;
 
     @Override
     protected void onDraw(Canvas canvas) {
@@ -273,39 +327,113 @@ public class LrcView extends View {
             return;
         }
 
-        IEntry cur = entrys.get(mCurrentLine);
-        if (mNewLine) {
-            mPaintBG.setColor(mNormalTextColor);
-            mPaintBG.setTextSize(mCurrentTextSize);
-
-            if (mCurrentLine >= entrys.size() - 1) {
-                cur.setDuration(mTotalDuration - cur.getStartTime());
-            } else {
-                cur.setDuration(entrys.get(mCurrentLine + 1).getStartTime() - cur.getStartTime());
-            }
-
-            curLrcEntry = cur.createLRCEntry();
-            curLrcEntry.init(mPaintFG, mPaintBG, getLrcWidth(), mTextGravity);
-
-            // clear bitmap
+        float centerY = getLrcHeight() / 2F + getPaddingTop();
+        if (isInDrag) {
             mBitmapBG.eraseColor(0);
+            mBitmapFG.eraseColor(0);
+            mPaintBG.setColor(mNormalTextColor);
 
-            if (mCurrentLine < 0 || mCurrentLine >= entrys.size()) {
-                mNewLine = false;
-                return;
+            LrcEntry mLrcEntry = null;
+            float y = 0;
+            float yReal = 0;
+            for (int i = 0; i < entrys.size(); i++) {
+                if (i == mCurrentLine) {
+                    mPaintBG.setTextSize(mCurrentTextSize);
+                } else {
+                    mPaintBG.setTextSize(mNormalTextSize);
+                }
+
+                IEntry mIEntry = entrys.get(i);
+                mLrcEntry = mIEntry.createLRCEntry();
+                mLrcEntry.init(mPaintFG, mPaintBG, getLrcWidth(), mTextGravity);
+
+                yReal = y + mOffset;
+                if (yReal + mLrcEntry.getHeight() < 0) {
+                    y = y + mLrcEntry.getHeight() + mDividerHeight;
+                    continue;
+                }
+
+                if (i >= entrys.size() - 1) {
+                    mIEntry.setDuration(mTotalDuration - mIEntry.getStartTime());
+                } else {
+                    mIEntry.setDuration(entrys.get(i + 1).getStartTime() - mIEntry.getStartTime());
+                }
+
+                mCanvasBG.save();
+                mCanvasBG.translate(0, yReal);
+                mLrcEntry.draw(mCanvasBG);
+                mCanvasBG.restore();
+
+                if (i == mCurrentLine) {
+                    Rect[] drawRects = mLrcEntry.getDrawRectByTime(mCurrentTime);
+
+                    for (Rect dr : drawRects) {
+                        if (dr.left == dr.right)
+                            continue;
+
+                        mRectClip.left = dr.left;
+                        mRectClip.top = (int) (dr.top + yReal);
+                        mRectClip.right = dr.right;
+                        mRectClip.bottom = (int) (dr.bottom + yReal);
+
+                        mCanvasFG.save();
+                        mCanvasFG.clipRect(mRectClip);
+                        mCanvasFG.translate(0, yReal);
+                        mLrcEntry.drawFG(mCanvasFG);
+                        mCanvasFG.restore();
+                    }
+                }
+
+                if ((y - mDividerHeight + getPaddingTop() + mOffset) <= centerY
+                        && centerY <= (y + mLrcEntry.getHeight() + getPaddingTop() + mOffset)) {
+                    targetIndex = i;
+                }
+
+                y = y + mLrcEntry.getHeight() + mDividerHeight;
+                if (y + mOffset > getLrcHeight()) {
+                    break;
+                }
             }
 
-            drawCurrent();
-            drawTop();
-            drawBottom();
+            canvas.drawBitmap(mBitmapBG, mRectSrc, mRectDst, null);
+            canvas.drawBitmap(mBitmapFG, mRectSrc, mRectDst, null);
 
-            mNewLine = false;
+            canvas.drawLine(0, centerY, getWidth(), centerY + 1, mPaintFG);
+        } else {
+            IEntry cur = entrys.get(mCurrentLine);
+            if (mNewLine) {
+                mPaintBG.setColor(mNormalTextColor);
+                mPaintBG.setTextSize(mCurrentTextSize);
+
+                if (mCurrentLine >= entrys.size() - 1) {
+                    cur.setDuration(mTotalDuration - cur.getStartTime());
+                } else {
+                    cur.setDuration(entrys.get(mCurrentLine + 1).getStartTime() - cur.getStartTime());
+                }
+
+                curLrcEntry = cur.createLRCEntry();
+                curLrcEntry.init(mPaintFG, mPaintBG, getLrcWidth(), mTextGravity);
+
+                // clear bitmap
+                mBitmapBG.eraseColor(0);
+
+                if (mCurrentLine < 0 || mCurrentLine >= entrys.size()) {
+                    mNewLine = false;
+                    return;
+                }
+
+                drawCurrent();
+                drawTop();
+                drawBottom();
+
+                mNewLine = false;
+            }
+
+            canvas.drawBitmap(mBitmapBG, mRectSrc, mRectDst, null);
+
+            drawHighLight();
+            canvas.drawBitmap(mBitmapFG, mRectSrc, mRectDst, null);
         }
-
-        canvas.drawBitmap(mBitmapBG, mRectSrc, mRectDst, null);
-
-        drawHighLight();
-        canvas.drawBitmap(mBitmapFG, mRectSrc, mRectDst, null);
     }
 
     private void drawTop() {
@@ -427,6 +555,8 @@ public class LrcView extends View {
         mNewLine = true;
         mCurrentTime = 0;
         isLrcLoadDone = false;
+        mOffset = 0;
+        targetIndex = 0;
         invalidate();
     }
 
@@ -460,5 +590,13 @@ public class LrcView extends View {
 
     private int getLrcHeight() {
         return getHeight() - getPaddingTop() - getPaddingBottom();
+    }
+
+    public interface OnSeekBarChangeListener {
+        void onProgressChanged(long time);
+
+        void onStartTrackingTouch();
+
+        void onStopTrackingTouch();
     }
 }
