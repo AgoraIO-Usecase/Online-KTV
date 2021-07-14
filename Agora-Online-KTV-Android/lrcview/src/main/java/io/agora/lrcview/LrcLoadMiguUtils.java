@@ -199,6 +199,9 @@ class LrcLoadMiguUtils {
         }
         tone.pronounce = parser.getAttributeValue(null, "pronounce");
         tone.lang = parser.getAttributeValue(null, "lang");
+        if (tone.lang == null) {
+            tone.lang = "1";
+        }
 
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) {
