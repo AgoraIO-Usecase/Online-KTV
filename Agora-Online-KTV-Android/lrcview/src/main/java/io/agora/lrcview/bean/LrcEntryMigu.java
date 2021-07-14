@@ -16,72 +16,36 @@ public class LrcEntryMigu implements IEntry {
     }
 
     @Override
-    public long getTime() {
+    public long getStartTime() {
         Tone first = tones.get(0);
         return (long) (first.begin * 1000L);
     }
 
-    private String text;
-    private String[] texts;
+    private IEntry.Tone[] LocalTones;
 
     @Override
-    public String[] getTexts() {
-        return texts;
-    }
-
-    @Override
-    public String getText() {
-        return text;
+    public IEntry.Tone[] getTones() {
+        return LocalTones;
     }
 
     @Override
     public LrcEntry createLRCEntry() {
-        StringBuilder sb = new StringBuilder();
-        texts = new String[tones.size()];
+        LocalTones = new IEntry.Tone[tones.size()];
         for (int i = 0; i < tones.size(); i++) {
             Tone tone = tones.get(i);
-            texts[i] = tone.word;
-            sb.append(tone.word);
 
-            if (!"1".equals(tone.lang)) {
-                //英文模式下，词之间增加空格
-                texts[i] = texts[i] + " ";
-                sb.append(" ");
+            IEntry.Tone localTone = new IEntry.Tone();
+            localTone.begin = (long) (tone.begin * 1000);
+            localTone.end = (long) (tone.end * 1000);
+            localTone.word = tone.word;
+
+            if ("1".equals(tone.lang)) {
+                localTone.lang = Lang.Chinese;
+            } else {
+                localTone.lang = Lang.English;
             }
         }
-        text = sb.toString();
         return new LrcEntry(this);
-    }
-
-    @Override
-    public float getOffset(long time) {
-        float curTime = tones.get(0).begin;
-        float dur = tones.get(tones.size() - 1).end - tones.get(0).begin;
-        float pct = ((time / 1000F - curTime)) / dur;
-        if (pct < 0)
-            pct = 0;
-        if (pct > 1)
-            pct = 1;
-        return pct;
-
-//        int done = 0;
-//        float percent2 = 0;
-//        for (Tone tone : tones) {
-//            if (time >= (tone.end * 1000)) {
-//                done++;
-//            } else {
-//                percent2 = (time / 1000F - tone.begin) / (tone.end - tone.begin);
-//                break;
-//            }
-//        }
-//
-//        float percent1 = done / (float) tones.size();
-//        float pct = percent1 + percent2;
-//        if (pct < 0)
-//            pct = 0;
-//        if (pct > 1)
-//            pct = 1;
-//        return pct;
     }
 
     public enum Mode {
@@ -96,7 +60,7 @@ public class LrcEntryMigu implements IEntry {
         public float end;
         public int pitch;
         public String pronounce;
-        public String lang;
+        public String lang = "1";
         public String word;
     }
 }
