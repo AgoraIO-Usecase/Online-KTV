@@ -21,6 +21,12 @@ import java.util.List;
 import io.agora.lrcview.bean.IEntry;
 import io.agora.lrcview.bean.LrcData;
 
+/**
+ * 歌词View
+ *
+ * @author chenhengfei(Aslanchen)
+ * @date 2021/7/6
+ */
 @SuppressLint("StaticFieldLeak")
 public class LrcView extends View {
     private static final String TAG = "LrcView";
@@ -319,7 +325,7 @@ public class LrcView extends View {
         for (int i = mCurrentLine - 1; i >= 0; i--) {
             line = entrys.get(i);
             mLrcEntry = line.createLRCEntry();
-            mLrcEntry.init( mPaintBG, getLrcWidth(), mTextGravity);
+            mLrcEntry.init(mPaintBG, getLrcWidth(), mTextGravity);
 
             if (curPointY - mDividerHeight - mLrcEntry.getHeight() < 0)
                 break;
@@ -361,7 +367,7 @@ public class LrcView extends View {
         for (int i = mCurrentLine + 1; i < entrys.size(); i++) {
             line = entrys.get(i);
             mLrcEntry = line.createLRCEntry();
-            mLrcEntry.init( mPaintBG, getLrcWidth(), mTextGravity);
+            mLrcEntry.init(mPaintBG, getLrcWidth(), mTextGravity);
 
             if (curPointY + mLrcEntry.getHeight() > getLrcHeight())
                 break;

@@ -12,6 +12,8 @@ import androidx.annotation.Nullable;
 import io.agora.lrcview.bean.IEntry;
 
 /**
+ * 处理每一行歌词
+ *
  * @author chenhengfei(Aslanchen)
  * @date 2021/7/6
  */

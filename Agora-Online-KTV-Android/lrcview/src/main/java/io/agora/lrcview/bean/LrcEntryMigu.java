@@ -4,6 +4,12 @@ import java.util.List;
 
 import io.agora.lrcview.LrcEntry;
 
+/**
+ * 歌词数据-咪咕歌词
+ *
+ * @author chenhengfei(Aslanchen)
+ * @date 2021/7/6
+ */
 public class LrcEntryMigu implements IEntry {
     @Override
     public Type getType() {

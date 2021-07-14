@@ -18,7 +18,11 @@ import io.agora.lrcview.bean.LrcData;
 import io.agora.lrcview.bean.LrcEntryDefault;
 
 /**
- * 工具类
+ * 通用歌词加载。
+ * 样式：[00:08.15]一盏黄黄旧旧的灯
+ *
+ * @author chenhengfei(Aslanchen)
+ * @date 2021/7/6
  */
 class LrcLoadDefaultUtils {
     private static final Pattern PATTERN_LINE = Pattern.compile("((\\[\\d{2}:\\d{2}\\.\\d{2,3}\\])+)(.+)");
