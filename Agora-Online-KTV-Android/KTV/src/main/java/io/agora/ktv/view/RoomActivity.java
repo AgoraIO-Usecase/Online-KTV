@@ -38,6 +38,7 @@ import io.agora.ktv.view.dialog.RoomChooseSongDialog;
 import io.agora.ktv.view.dialog.RoomMVDialog;
 import io.agora.ktv.view.dialog.UserSeatMenuDialog;
 import io.agora.ktv.view.dialog.WaitingDialog;
+import io.agora.lrcview.LrcView;
 import io.agora.rtc.Constants;
 import io.reactivex.CompletableObserver;
 import io.reactivex.SingleObserver;

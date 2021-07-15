@@ -6,6 +6,9 @@ import android.text.Layout;
 import android.text.StaticLayout;
 import android.text.TextPaint;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import io.agora.lrcview.bean.IEntry;
 
 /**
@@ -16,16 +19,15 @@ import io.agora.lrcview.bean.IEntry;
  */
 public class LrcEntry {
     private static final String TAG = "LrcEntry";
-    private StaticLayout fgLayout1;
-    private StaticLayout bgLayout1;
+    private StaticLayout mLayoutBG;//背景文字
+    private StaticLayout mLayoutFG;//前排高亮文字
 
-    private Rect[] textRects1;
-    private Rect[] drawRects;
-    private Rect[] textRects;
+    private Rect[] drawRects;//控制进度
 
-    private int text1Len = 0;
+    private Rect[] textRectWords;//歌词每个字信息
+    private Rect[] textRectDisplayLines;//每一行显示的歌词
 
-    private IEntry mIEntry;
+    private IEntry mIEntry;//数据源
 
     public enum Gravity {
         CENTER(0), LEFT(1), RIGHT(2);
@@ -53,7 +55,11 @@ public class LrcEntry {
         this.mIEntry = mIEntry;
     }
 
-    void init(TextPaint fgPaint, TextPaint bgPaint, int width, Gravity gravity) {
+    void init(@NonNull TextPaint mTextPaintBG, int width, Gravity gravity) {
+        this.init(null, mTextPaintBG, width, gravity);
+    }
+
+    void init(@Nullable TextPaint mTextPaintFG, @NonNull TextPaint mTextPaintBG, int width, Gravity gravity) {
         Layout.Alignment align;
         switch (gravity) {
             case LEFT:
@@ -69,80 +75,89 @@ public class LrcEntry {
                 break;
         }
 
-        String[] texts = mIEntry.getTexts();
-        textRects = new Rect[texts.length];
-        for (int i = 0; i < texts.length; i++) {
+        StringBuilder sb = new StringBuilder();
+        IEntry.Tone[] tones = mIEntry.getTones();
+        textRectWords = new Rect[tones.length];
+        for (int i = 0; i < tones.length; i++) {
+            IEntry.Tone tone = tones[i];
             Rect rect = new Rect();
-            textRects[i] = rect;
-            String s = texts[i];
-            fgPaint.getTextBounds(s, 0, s.length(), rect);
+            textRectWords[i] = rect;
+            String s = tone.word;
+            if (tone.lang != IEntry.Lang.Chinese) {
+                s = s + " ";
+            }
+            sb.append(s);
+            mTextPaintBG.getTextBounds(s, 0, s.length(), rect);
         }
 
-        String text = mIEntry.getText();
-        fgLayout1 = new StaticLayout(text, fgPaint, width, align, 1f, 0f, false);
-        bgLayout1 = new StaticLayout(text, bgPaint, width, align, 1f, 0f, false);
-
-        int totalLine = fgLayout1.getLineCount();
-        text1Len = 0;
-        textRects1 = new Rect[fgLayout1.getLineCount()];
-        for (int i = 0; i < fgLayout1.getLineCount(); i++) {
-            Rect newLine = new Rect();
-            textRects1[i] = newLine;
-            fgLayout1.getLineBounds(i, textRects1[i]);
-            newLine.left = (int) fgLayout1.getLineLeft(i);
-            newLine.right = (int) fgLayout1.getLineRight(i);
-            text1Len += newLine.right - newLine.left;
+        String text = sb.toString();
+        if (mTextPaintFG != null) {
+            mLayoutFG = new StaticLayout(text, mTextPaintFG, width, align, 1f, 0f, false);
         }
+        mLayoutBG = new StaticLayout(text, mTextPaintBG, width, align, 1f, 0f, false);
 
+        int totalLine = mLayoutBG.getLineCount();
+        textRectDisplayLines = new Rect[totalLine];
         drawRects = new Rect[totalLine];
+        for (int i = 0; i < totalLine; i++) {
+            Rect mRect = new Rect();
+            mLayoutBG.getLineBounds(i, mRect);
+            mRect.left = (int) mLayoutBG.getLineLeft(i);
+            mRect.right = (int) mLayoutBG.getLineRight(i);
 
-        for (int i = 0; i < fgLayout1.getLineCount(); i++) {
-            drawRects[i] = new Rect(textRects1[i]);
+            textRectDisplayLines[i] = mRect;
+            drawRects[i] = new Rect(mRect);
         }
     }
 
     int getHeight() {
-        if (fgLayout1 == null) {
+        if (mLayoutBG == null) {
             return 0;
         }
-        return fgLayout1.getHeight();
+        return mLayoutBG.getHeight();
     }
 
-    void drawFg(Canvas canvas) {
-        canvas.save();
-        fgLayout1.draw(canvas);
-        canvas.restore();
+    void draw(Canvas canvas) {
+        mLayoutBG.draw(canvas);
     }
 
-    void drawBg(Canvas canvas) {
-        canvas.save();
-        bgLayout1.draw(canvas);
-        canvas.restore();
+    void drawFG(Canvas canvas) {
+        mLayoutFG.draw(canvas);
     }
-
-    private float prePct = 0;
 
     Rect[] getDrawRectByTime(long time) {
-        float pct = mIEntry.getOffset(time);
-        if (pct < prePct) {
-            pct = prePct;
-        } else {
-            prePct = pct;
-        }
+        int doneLen = 0;
+        float curLen = 0f;
 
-        int showLen1 = (int) (text1Len * pct);
+        int index = 0;
+        IEntry.Tone[] tones = mIEntry.getTones();
+        for (IEntry.Tone tone : tones) {
+            int wordLen = textRectWords[index].right - textRectWords[index].left;
 
-        for (int i = 0; i < fgLayout1.getLineCount(); i++) {
-            int curLineWidth = textRects1[i].right - textRects1[i].left;
-            drawRects[i].left = textRects1[i].left;
-            drawRects[i].right = textRects1[i].right;
-            if (curLineWidth > showLen1) {
-                drawRects[i].right = drawRects[i].left + showLen1;
-                showLen1 = 0;
+            if (time > tone.end) {
+                doneLen = doneLen + wordLen;
+
+                index++;
             } else {
-                showLen1 -= curLineWidth;
+                float percent = (time - tone.begin) / (float) (tone.end - tone.begin);
+                curLen = wordLen * percent;
+                break;
             }
         }
+
+        int showLen = (int) (doneLen + curLen);
+        for (int i = 0; i < mLayoutFG.getLineCount(); i++) {
+            int curLineWidth = textRectDisplayLines[i].right - textRectDisplayLines[i].left;
+            drawRects[i].left = textRectDisplayLines[i].left;
+            drawRects[i].right = textRectDisplayLines[i].right;
+            if (curLineWidth > showLen) {
+                drawRects[i].right = drawRects[i].left + showLen;
+                showLen = 0;
+            } else {
+                showLen -= curLineWidth;
+            }
+        }
+
         return drawRects;
     }
 }
