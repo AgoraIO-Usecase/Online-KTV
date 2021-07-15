@@ -219,6 +219,8 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
 
     @Override
     protected void iniView() {
+        mDataBinding.lrcView.setEnableDrag(false);
+
         mRoomSpeakerAdapter = new RoomSpeakerAdapter(new ArrayList<>(), this);
         mDataBinding.rvSpeakers.setLayoutManager(new GridLayoutManager(this, 4));
         mDataBinding.rvSpeakers.setAdapter(mRoomSpeakerAdapter);
@@ -725,8 +727,10 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
             mDataBinding.rlMusicMenu.setVisibility(View.VISIBLE);
             mDataBinding.switchOriginal.setChecked(true);
 
+            mDataBinding.lrcView.setEnableDrag(true);
             preperMusic(music, true);
         } else {
+            mDataBinding.lrcView.setEnableDrag(false);
             preperMusic(music, false);
             mDataBinding.rlMusicMenu.setVisibility(View.GONE);
         }

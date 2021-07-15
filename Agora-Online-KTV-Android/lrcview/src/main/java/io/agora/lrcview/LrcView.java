@@ -64,6 +64,7 @@ public class LrcView extends View {
     private Canvas mCanvasFG;
 
     private OnSeekBarChangeListener mOnSeekBarChangeListener;
+    private boolean enableDrag = true;
     private boolean isInDrag = false;
     private GestureDetector mGestureDetector;
     private float mOffset;
@@ -138,6 +139,10 @@ public class LrcView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        if (!enableDrag) {
+            return super.onTouchEvent(event);
+        }
+
         if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL) {
             isInDrag = false;
             mNewLine = true;
@@ -152,6 +157,10 @@ public class LrcView extends View {
             }
         }
         return mGestureDetector.onTouchEvent(event);
+    }
+
+    public void setEnableDrag(boolean enableDrag) {
+        this.enableDrag = enableDrag;
     }
 
     public void setTotalDuration(long d) {
