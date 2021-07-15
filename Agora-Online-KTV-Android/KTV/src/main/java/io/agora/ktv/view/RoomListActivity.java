@@ -79,10 +79,17 @@ public class RoomListActivity extends DataBindBaseActivity<KtvActivityRoomListBi
         UserManager.Instance(this).setupDataRepositroy(DataRepositroy.Instance(this));
 
         showEmptyStatus();
-        login();
+
+        mDataBinding.swipeRefreshLayout.post(new Runnable() {
+            @Override
+            public void run() {
+                login();
+            }
+        });
     }
 
     private void login() {
+        mDataBinding.swipeRefreshLayout.setRefreshing(true);
         UserManager.Instance(this)
                 .loginIn()
                 .observeOn(AndroidSchedulers.mainThread())
@@ -95,13 +102,7 @@ public class RoomListActivity extends DataBindBaseActivity<KtvActivityRoomListBi
 
                     @Override
                     public void handleSuccess(@NonNull User user) {
-                        mDataBinding.swipeRefreshLayout.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                mDataBinding.swipeRefreshLayout.setRefreshing(true);
-                                loadRooms();
-                            }
-                        });
+                        loadRooms();
                     }
                 });
     }
