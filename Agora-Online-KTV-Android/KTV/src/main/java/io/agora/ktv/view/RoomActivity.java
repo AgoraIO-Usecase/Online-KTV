@@ -4,12 +4,17 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.view.View;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.core.util.ObjectsCompat;
+import androidx.palette.graphics.Palette;
 import androidx.recyclerview.widget.GridLayoutManager;
 
 import com.agora.data.manager.UserManager;
@@ -127,7 +132,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
         @Override
         public void onRoomInfoChanged(@NonNull AgoraRoom room) {
             super.onRoomInfoChanged(room);
-            mDataBinding.rlSing.setBackgroundResource(room.getMVRes());
+            setLrcViewBackground(room.getMVRes());
         }
 
         @Override
@@ -314,7 +319,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
             startStopTimer(liveTimeLeft);
         }
 
-        mDataBinding.rlSing.setBackgroundResource(mRoom.getMVRes());
+        setLrcViewBackground(mRoom.getMVRes());
 
         mMusicPlayer = new MusicPlayer(getApplicationContext(), RoomManager.Instance(this).getRtcEngine(), mDataBinding.lrcView);
         mMusicPlayer.registerPlayerObserver(mMusicCallback);
@@ -327,6 +332,25 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
 
         RoomManager.Instance(this).loadMemberStatus();
         syncMusics();
+    }
+
+    private void setLrcViewBackground(int resId) {
+        Bitmap mBitmap = BitmapFactory.decodeResource(getResources(), resId);
+        Palette.from(mBitmap).generate(new Palette.PaletteAsyncListener() {
+            @Override
+            public void onGenerated(@Nullable Palette palette) {
+                if (palette == null) {
+                    return;
+                }
+
+                int defaultColor = ContextCompat.getColor(RoomActivity.this, R.color.ktv_lrc_highligh);
+                mDataBinding.lrcView.setCurrentColor(palette.getLightVibrantColor(defaultColor));
+
+                defaultColor = ContextCompat.getColor(RoomActivity.this, R.color.ktv_lrc_nomal);
+                mDataBinding.lrcView.setNormalColor(palette.getLightMutedColor(defaultColor));
+            }
+        });
+        mDataBinding.rlSing.setBackgroundResource(resId);
     }
 
     private CountDownTimer timerStop;

@@ -7,4 +7,7 @@
     <color name="ktv_title">#B3FFFFFF</color>
     <color name="ktv_list_empty">#4D5D73</color>
     <color name="ktv_dialog_music_list_empty">#7E7E7E</color>
+
+    <color name="ktv_lrc_highligh">#FFFFFFFF</color>
+    <color name="ktv_lrc_nomal">#99FFFFFF</color>
 </resources>

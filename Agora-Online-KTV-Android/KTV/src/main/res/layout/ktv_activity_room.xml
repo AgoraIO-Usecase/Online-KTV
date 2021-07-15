@@ -103,10 +103,10 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:lrcCurrentTextColor="#FFFFFFFF"
+                    app:lrcCurrentTextColor="@color/ktv_lrc_highligh"
                     app:lrcDividerHeight="20dp"
                     app:lrcLabel=" "
-                    app:lrcNormalTextColor="#99FFFFFF"
+                    app:lrcNormalTextColor="@color/ktv_lrc_nomal"
                     app:lrcNormalTextSize="16sp"
                     app:lrcTextGravity="center"
                     app:lrcTextSize="26sp" />

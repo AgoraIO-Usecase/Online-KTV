@@ -172,6 +172,8 @@ public class LrcView extends View {
      */
     public void setNormalColor(int normalColor) {
         mNormalTextColor = normalColor;
+        mPaintBG.setColor(mNormalTextColor);
+        mNewLine = true;
         invalidate();
     }
 
@@ -180,6 +182,7 @@ public class LrcView extends View {
      */
     public void setNormalTextSize(float size) {
         mNormalTextSize = size;
+        mNewLine = true;
         invalidate();
     }
 
@@ -188,6 +191,7 @@ public class LrcView extends View {
      */
     public void setCurrentTextSize(float size) {
         mCurrentTextSize = size;
+        mNewLine = true;
         invalidate();
     }
 
@@ -196,6 +200,8 @@ public class LrcView extends View {
      */
     public void setCurrentColor(int currentColor) {
         mCurrentTextColor = currentColor;
+        mPaintFG.setColor(mCurrentTextColor);
+        mNewLine = true;
         invalidate();
     }
 
