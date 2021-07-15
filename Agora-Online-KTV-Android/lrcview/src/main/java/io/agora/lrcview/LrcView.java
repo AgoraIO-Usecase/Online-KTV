@@ -16,6 +16,8 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 
+import androidx.annotation.ColorInt;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -170,8 +172,9 @@ public class LrcView extends View {
     /**
      * 设置非当前行歌词字体颜色
      */
-    public void setNormalColor(int normalColor) {
+    public void setNormalColor(@ColorInt int normalColor) {
         mNormalTextColor = normalColor;
+        mPaintBG.setColor(mNormalTextColor);
         invalidate();
     }
 
@@ -194,8 +197,9 @@ public class LrcView extends View {
     /**
      * 设置当前行歌词的字体颜色
      */
-    public void setCurrentColor(int currentColor) {
+    public void setCurrentColor(@ColorInt int currentColor) {
         mCurrentTextColor = currentColor;
+        mPaintFG.setColor(mCurrentTextColor);
         invalidate();
     }
 
