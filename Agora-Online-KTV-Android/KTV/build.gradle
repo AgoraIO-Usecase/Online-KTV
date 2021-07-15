@@ -57,7 +57,7 @@ android {
     if (isModule.toBoolean()) {
         applicationVariants.all { variant ->
             variant.outputs.all {
-                outputFileName = "KTV-${versionName}-${variant.buildType.name}.apk"
+                outputFileName = "KTV-${versionName}-${variant.buildType.name}-大重构.apk"
             }
         }
     }
