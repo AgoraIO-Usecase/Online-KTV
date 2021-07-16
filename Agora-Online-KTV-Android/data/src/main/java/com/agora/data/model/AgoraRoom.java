@@ -3,6 +3,8 @@ package com.agora.data.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.annotation.DrawableRes;
+
 import com.agora.data.R;
 
 import java.util.Date;
@@ -132,6 +134,7 @@ public class AgoraRoom implements Parcelable {
         mv = String.valueOf(value);
     }
 
+    @DrawableRes
     public int getCoverRes() {
         if ("1".equals(cover)) {
             return R.mipmap.icon_room_cover1;
@@ -155,6 +158,7 @@ public class AgoraRoom implements Parcelable {
         return R.mipmap.icon_room_cover1;
     }
 
+    @DrawableRes
     public int getMVRes() {
         if ("1".equals(mv)) {
             return R.mipmap.ktv_music_background1;

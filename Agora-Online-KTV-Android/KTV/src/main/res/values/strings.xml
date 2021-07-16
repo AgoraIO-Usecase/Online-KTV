@@ -7,7 +7,7 @@
     <string name="ktv_search">搜索</string>
     <string name="ktv_confirm">确定</string>
     <string name="ktv_cancel">取消</string>
-    ¬
+
     <string name="ktv_error_permisstion">需要相应权限，请打开</string>
 
     <string name="ktv_room_list_title">歌房</string>
@@ -28,19 +28,19 @@
     <string name="ktv_room_choosed_song">已点</string>
     <string name="ktv_room_sing2">正在演唱</string>
     <string name="ktv_room_no_sing_1">当前无人演唱</string>
-    <string name="ktv_room_no_sing_2">点击\"点歌\"一展歌喉</string>
+    <string name="ktv_room_no_sing_2">点击“点歌”一展歌喉</string>
     <string name="ktv_dialog_migu_tip">歌曲来自咪咕音乐</string>
     <string name="ktv_dialog_music_list_empty">未找到相关搜索结果</string>
     <string name="ktv_dialog_music_list_search_hint">搜索歌曲或歌手</string>
     <string name="ktv_music_waiting_ready">歌曲准备中</string>
-    <string name="ktv_music_chorus_count_down">抢麦倒计时%s:%s</string>
-    <string name="ktv_music_chorus_waiting_count_down">等待加入合唱%s:%s</string>
-    <string name="ktv_music_join_chorus">加入合唱</string>
-    <string name="ktv_music_chorus_start_now">不等了，独唱</string>
     <string name="ktv_lrc_loading">歌曲准备中</string>
     <string name="ktv_lrc_load_fail">加载失败</string>
     <string name="ktv_room_change_music_title">切歌</string>
     <string name="ktv_room_change_music_msg">终止当前歌曲的演唱？</string>
+    <string name="ktv_room_time_wait_join_chorus">等待加入合唱 %s</string>
+    <string name="ktv_room_time_join_chorus_">抢麦倒计时 %s</string>
+    <string name="ktv_music_join_chorus">加入合唱</string>
+    <string name="ktv_music_chorus_start_now">不等了，独唱</string>
 
     <string name="ktv_music_menu_dialog_title">参数设置</string>
     <string name="ktv_music_menu_dialog_ear">耳返</string>

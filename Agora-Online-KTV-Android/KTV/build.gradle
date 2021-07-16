@@ -49,9 +49,9 @@ android {
     productFlavors {
         leancloud {
         }
-
-        firebase {
-        }
+//
+//        firebase {
+//        }
     }
 
     if (isModule.toBoolean()) {
