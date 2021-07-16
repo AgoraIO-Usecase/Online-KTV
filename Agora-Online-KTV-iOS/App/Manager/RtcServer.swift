@@ -60,7 +60,7 @@ private class RtcMusicPlayer: NSObject, AgoraRtcMediaPlayerAudioFrameDelegate {
         self.rtcServer = rtcServer
         super.init()
         player = self.rtcServer.rtcEngine!.createMediaPlayer(with: rtcServer)!
-        player.setAudioFrameDelegate(self, mode: .readWrite)
+        // player.setAudioFrameDelegate(self, mode: .readWrite)
     }
 
     func agoraMediaPlayer(_: AgoraRtcMediaPlayerProtocol, audioFrame: AgoraAudioPcmFrame) -> AgoraAudioPcmFrame {
@@ -152,6 +152,9 @@ private class RtcMusicPlayer: NSObject, AgoraRtcMediaPlayerAudioFrameDelegate {
 
     func originMusic(enable: Bool) {
         monoChannel = enable
+        if let player = player {
+            player.setAudioDualMonoMode(enable ? .mixingDuraMonoL : .mixingDuraMonoMix)
+        }
     }
 
     func seek(position: Int) {
