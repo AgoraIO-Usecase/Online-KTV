@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 
 private class MusicLyricLabel: UILabel {
-    var hightColor = UIColor.white
+    private static let STYLE = false
     var progress: CGFloat = 0 {
         didSet {
             if oldValue != progress {
@@ -24,7 +24,7 @@ private class MusicLyricLabel: UILabel {
             if progress <= 0 {
                 textColor = UIColor.white.withAlphaComponent(0.59)
             } else if progress >= 1 {
-                textColor = hightColor
+                textColor = MusicLyricView.hightColor
             } else {
                 let fill = Int(progress * CGFloat(text.count))
                 let fillText = String(text[Range(NSRange(location: 0, length: fill), in: text)!])
@@ -33,7 +33,7 @@ private class MusicLyricLabel: UILabel {
                 let renderText = NSMutableAttributedString(
                     attributedString: NSAttributedString(
                         string: fillText,
-                        attributes: [NSAttributedString.Key.foregroundColor: hightColor]
+                        attributes: [NSAttributedString.Key.foregroundColor: MusicLyricView.hightColor]
                     )
                 )
                 renderText.append(
@@ -78,8 +78,25 @@ private class MusicLyricLabel: UILabel {
         if let context = UIGraphicsGetCurrentContext(), !path.isEmpty {
             context.addPath(path)
             context.clip()
-            hightColor.set()
-            super.draw(rect)
+            let _textColor = textColor
+            textColor = UIColor.white
+            if MusicLyricLabel.STYLE {
+                let _shadowOffset = shadowOffset
+                let _shadowColor = shadowColor
+                //            super.draw(rect)
+                //            context.setLineWidth(1)
+                //            context.setLineJoin(.round)
+                //            context.setTextDrawingMode(.stroke)
+                //            textColor = MusicLyricView.hightColor
+                shadowOffset = CGSize(width: 0, height: 2)
+                shadowColor = MusicLyricView.hightColor
+                super.draw(rect)
+                shadowOffset = _shadowOffset
+                shadowColor = _shadowColor
+            } else {
+                super.draw(rect)
+            }
+            textColor = _textColor
         }
     }
 }
@@ -122,6 +139,7 @@ protocol MusicLyricViewDelegate: NSObject {
 }
 
 class MusicLyricView: UIView, UITableViewDataSource, UITableViewDelegate {
+    static var hightColor = UIColor.white
     weak var delegate: MusicLyricViewDelegate?
     // ms
     private var seekTime: TimeInterval = 0
