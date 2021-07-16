@@ -19,8 +19,8 @@ android {
         }
         minSdkVersion MINSDKVERSION
         targetSdkVersion TARGETSDKVERSION
-        versionCode 5
-        versionName "1.0.4"
+        versionCode 7
+        versionName "1.0.6"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -57,7 +57,7 @@ android {
     if (isModule.toBoolean()) {
         applicationVariants.all { variant ->
             variant.outputs.all {
-                outputFileName = "KTV-${versionName}-${variant.buildType.name}.apk"
+                outputFileName = "KTV-${versionName}-${variant.buildType.name}-主版.apk"
             }
         }
     }
@@ -72,6 +72,7 @@ dependencies {
     //Arogra SDK
 //    implementation 'io.agora.rtc:full-sdk:3.3.0'
 
+    implementation 'androidx.palette:palette:1.0.0'
     api project(':data')
     api project(':lrcview')
 }

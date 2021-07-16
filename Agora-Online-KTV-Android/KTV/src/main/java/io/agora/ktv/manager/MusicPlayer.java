@@ -270,6 +270,10 @@ public class MusicPlayer extends IRtcEngineEventHandler {
         }
     }
 
+    public void seek(long time) {
+        mRtcEngine.setAudioMixingPosition((int) time);
+    }
+
     public boolean hasAccompaniment() {
         return mAudioTracksCount >= 2;
     }
@@ -312,9 +316,8 @@ public class MusicPlayer extends IRtcEngineEventHandler {
                         offset = curTime - mLastRecvPlayPosTime;
                         if (offset <= 1000) {
                             curTs = mRecvedPlayPosition + offset;
+                            mHandler.obtainMessage(ACTION_UPDATE_TIME, curTs).sendToTarget();
                         }
-
-                        mHandler.obtainMessage(ACTION_UPDATE_TIME, curTs).sendToTarget();
                     }
 
                     try {
@@ -360,10 +363,12 @@ public class MusicPlayer extends IRtcEngineEventHandler {
 
                 mStopSyncLrc = false;
                 while (!mStopSyncLrc && mStatus.isAtLeast(Status.Started)) {
-                    mRecvedPlayPosition = mRtcEngine.getAudioMixingCurrentPosition();
-                    mLastRecvPlayPosTime = System.currentTimeMillis();
+                    if (mStatus == Status.Started) {
+                        mRecvedPlayPosition = mRtcEngine.getAudioMixingCurrentPosition();
+                        mLastRecvPlayPosTime = System.currentTimeMillis();
 
-                    sendSyncLrc(lrcId, duration, mRecvedPlayPosition);
+                        sendSyncLrc(lrcId, duration, mRecvedPlayPosition);
+                    }
 
                     try {
                         Thread.sleep(999);

@@ -3,6 +3,8 @@ package io.agora.lrcview.bean;
 import java.util.List;
 
 /**
+ * 歌曲信息
+ *
  * @author chenhengfei(Aslanchen)
  * @date 2021/7/6
  */
