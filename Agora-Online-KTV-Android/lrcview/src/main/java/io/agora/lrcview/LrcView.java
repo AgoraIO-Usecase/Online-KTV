@@ -133,7 +133,7 @@ public class LrcView extends View {
         mGestureDetector.setIsLongpressEnabled(false);
     }
 
-    public void OnSeekBarChangeListener(OnSeekBarChangeListener mOnSeekBarChangeListener) {
+    public void setOnSeekBarChangeListener(OnSeekBarChangeListener mOnSeekBarChangeListener) {
         this.mOnSeekBarChangeListener = mOnSeekBarChangeListener;
     }
 
