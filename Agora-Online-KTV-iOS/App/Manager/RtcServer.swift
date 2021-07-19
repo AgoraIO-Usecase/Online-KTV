@@ -142,7 +142,10 @@ private class RtcMusicPlayer: NSObject {
             return
         }
         if streamId == -1 {
-            rtcEngine.createDataStream(&streamId, reliable: true, ordered: true)
+            let config = AgoraDataStreamConfig()
+            config.ordered = true
+            config.syncWithAudio = true
+            rtcEngine.createDataStream(&streamId, config: config)
             if streamId == -1 {
                 Logger.log(self, message: "error streamId == -1", level: .error)
                 return
