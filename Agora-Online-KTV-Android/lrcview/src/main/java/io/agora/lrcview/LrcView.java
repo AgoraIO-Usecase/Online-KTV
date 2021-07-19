@@ -344,6 +344,7 @@ public class LrcView extends View {
 
         float centerY = getLrcHeight() / 2F + getPaddingTop();
         if (isInDrag) {
+            //拖动状态下
             mBitmapBG.eraseColor(0);
             mBitmapFG.eraseColor(0);
             mPaintBG.setColor(mNormalTextColor);
@@ -363,6 +364,12 @@ public class LrcView extends View {
                 mLrcEntry.init(mPaintFG, mPaintBG, getLrcWidth(), mTextGravity);
 
                 yReal = y + mOffset;
+                if (i == 0 && yReal > (centerY - getPaddingTop() - (mLrcEntry.getHeight() / 2F))) {
+                    //顶部限制
+                    mOffset = centerY - getPaddingTop() - (mLrcEntry.getHeight() / 2F);
+                    yReal = y + mOffset;
+                }
+
                 if (yReal + mLrcEntry.getHeight() < 0) {
                     y = y + mLrcEntry.getHeight() + mDividerHeight;
                     continue;
@@ -470,8 +477,10 @@ public class LrcView extends View {
             mLrcEntry = line.createLRCEntry();
             mLrcEntry.init(mPaintBG, getLrcWidth(), mTextGravity);
 
+            mOffset = mOffset - mLrcEntry.getHeight() - mDividerHeight;
+
             if (curPointY - mDividerHeight - mLrcEntry.getHeight() < 0)
-                break;
+                continue;
 
             y = mDividerHeight + mLrcEntry.getHeight();
             mCanvasBG.translate(0, -y);
@@ -491,6 +500,8 @@ public class LrcView extends View {
         mCanvasBG.translate(0, y);
         curLrcEntry.draw(mCanvasBG);
         mCanvasBG.restore();
+
+        mOffset = y;
     }
 
     private void drawBottom() {
