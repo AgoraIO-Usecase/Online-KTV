@@ -24,7 +24,8 @@ public class LrcEntry {
 
     private Rect[] drawRects;//控制进度
 
-    private Rect[] textRectWords;//歌词每个字信息
+    private Rect[] textRectWords;//每一个字
+    private Rect[] textRectTotalWords;//每一段歌词
     private Rect[] textRectDisplayLines;//每一行显示的歌词
 
     private IEntry mIEntry;//数据源
@@ -78,19 +79,26 @@ public class LrcEntry {
         StringBuilder sb = new StringBuilder();
         IEntry.Tone[] tones = mIEntry.getTones();
         textRectWords = new Rect[tones.length];
+        textRectTotalWords = new Rect[tones.length];
+        String text;
         for (int i = 0; i < tones.length; i++) {
             IEntry.Tone tone = tones[i];
             Rect rect = new Rect();
+            Rect rectTotal = new Rect();
             textRectWords[i] = rect;
+            textRectTotalWords[i] = rectTotal;
             String s = tone.word;
             if (tone.lang != IEntry.Lang.Chinese) {
                 s = s + " ";
             }
             sb.append(s);
             mTextPaintBG.getTextBounds(s, 0, s.length(), rect);
+
+            text = sb.toString();
+            mTextPaintBG.getTextBounds(text, 0, text.length(), rectTotal);
         }
 
-        String text = sb.toString();
+        text = sb.toString();
         if (mTextPaintFG != null) {
             mLayoutFG = new StaticLayout(text, mTextPaintFG, width, align, 1f, 0f, false);
         }
@@ -132,10 +140,10 @@ public class LrcEntry {
         IEntry.Tone[] tones = mIEntry.getTones();
         for (int i = 0; i < tones.length; i++) {
             IEntry.Tone tone = tones[i];
-            int wordLen = textRectWords[i].right - textRectWords[i].left;
+            int wordLen = textRectWords[i].width();
 
-            if (time > tone.end) {
-                doneLen = doneLen + wordLen;
+            if (time >= tone.end) {
+                doneLen = textRectTotalWords[i].width();
             } else {
                 float percent = (time - tone.begin) / (float) (tone.end - tone.begin);
                 curLen = wordLen * percent;
@@ -145,7 +153,7 @@ public class LrcEntry {
 
         int showLen = (int) (doneLen + curLen);
         for (int i = 0; i < mLayoutFG.getLineCount(); i++) {
-            int curLineWidth = textRectDisplayLines[i].right - textRectDisplayLines[i].left;
+            int curLineWidth = textRectDisplayLines[i].width();
             drawRects[i].left = textRectDisplayLines[i].left;
             drawRects[i].right = textRectDisplayLines[i].right;
             if (curLineWidth > showLen) {
