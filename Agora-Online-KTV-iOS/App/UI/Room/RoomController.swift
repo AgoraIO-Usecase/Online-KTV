@@ -255,6 +255,12 @@ class RoomController: BaseViewContoller, DialogDelegate {
         }
     }
 
+    @IBOutlet var orderChorusMusicView: UIButton! {
+        didSet {
+            speakerToolbar.orderChorusMusicView = orderChorusMusicView
+        }
+    }
+
     @IBOutlet var listenerViewRoot: UILabel! {
         didSet {
             listenerToolbar.root = listenerViewRoot

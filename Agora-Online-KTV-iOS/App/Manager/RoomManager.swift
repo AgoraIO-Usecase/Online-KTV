@@ -255,9 +255,17 @@ extension RoomManager: IRoomManager {
             .throttle(RxTimeInterval.milliseconds(20), latest: true, scheduler: scheduler)
     }
 
-    func play(music: LocalMusic) -> Observable<Result<Void>> {
+    func initChorusMusicPlayer() -> Observable<Result<UInt>> {
         if rtcServer.isJoinChannel {
-            return rtcServer.play(music: music)
+            return rtcServer.initChorusMusicPlayer()
+        } else {
+            return Observable.just(Result(success: false, message: "join room first!"))
+        }
+    }
+
+    func play(music: LocalMusic, option: LocalMusicOption?) -> Observable<Result<Void>> {
+        if rtcServer.isJoinChannel {
+            return rtcServer.play(music: music, option: option)
         } else {
             return Observable.just(Result(success: true))
         }
@@ -266,6 +274,12 @@ extension RoomManager: IRoomManager {
     func seekMusic(position: TimeInterval) {
         if rtcServer.isJoinChannel {
             rtcServer.seekMusic(position: position)
+        }
+    }
+
+    func countdown(time: Int) {
+        if rtcServer.isJoinChannel {
+            rtcServer.countdown(time: time)
         }
     }
 
@@ -306,9 +320,12 @@ extension RoomManager: IRoomManager {
     }
 
     func stop(music: LiveKtvMusic) -> Observable<Result<Void>> {
-        if rtcServer.isJoinChannel /* , playingMusic?.id == music.musicId */ {
+        if rtcServer.isJoinChannel, let member = member /* , playingMusic?.id == music.musicId */ {
             rtcServer.stopMusic()
-            return music.delete()
+            if music.isOrderBy(member: member) {
+                return music.delete()
+            }
+            return Observable.just(Result(success: true))
         } else {
             return Observable.just(Result(success: true))
         }

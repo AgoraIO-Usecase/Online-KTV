@@ -46,7 +46,7 @@ class CenterNotification: UIView {
             icon.marginLeading(anchor: leadingAnchor, constant: 15)
                 .centerY(anchor: centerYAnchor)
                 .active()
-            message.marginLeading(anchor: icon.trailingAnchor, constant: 2)
+            message.marginLeading(anchor: icon.trailingAnchor, constant: 5)
                 .marginTrailing(anchor: trailingAnchor, constant: 15)
                 .marginTop(anchor: topAnchor, constant: 12)
                 .centerY(anchor: centerYAnchor)

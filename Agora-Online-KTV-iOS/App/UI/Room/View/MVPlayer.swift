@@ -9,11 +9,171 @@ import Core
 import Foundation
 import UIKit
 
+private class ChorusMasterView: UIView {
+    weak var delegate: MVPlayer?
+    var music: LiveKtvMusic? {
+        didSet {
+            titleView.text = music?.name
+            time = 20
+        }
+    }
+
+    // sec
+    var time: TimeInterval? {
+        didSet {
+            let time = time ?? 0
+            tipsView.text = "等待加入合唱 \(Utils.format(time: time))"
+        }
+    }
+
+    private let titleView: UILabel = {
+        let view = UILabel()
+        view.textColor = UIColor.white
+        view.font = UIFont.systemFont(ofSize: 18, weight: .medium)
+        view.textAlignment = .center
+        return view
+    }()
+
+    private let tipsView: UILabel = {
+        let view = UILabel()
+        view.textColor = UIColor.white.withAlphaComponent(0.8)
+        view.font = UIFont.systemFont(ofSize: 16)
+        view.textAlignment = .center
+        return view
+    }()
+
+    private let button: RoundButton = {
+        let view = RoundButton()
+        view.backgroundColor = UIColor.clear
+        view.borderColor = Colors.Text
+        view.borderWidth = 1
+        view.setTitle("不等了，独唱", for: .normal)
+        view.setTitleColor(UIColor.white, for: .normal)
+        view.titleLabel?.font = UIFont.systemFont(ofSize: 15)
+        return view
+    }()
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        addSubview(titleView)
+        addSubview(tipsView)
+        addSubview(button)
+
+        titleView.marginTop(anchor: topAnchor)
+            .marginLeading(anchor: leadingAnchor)
+            .marginTrailing(anchor: trailingAnchor)
+            .active()
+        tipsView.marginTop(anchor: titleView.bottomAnchor, constant: 12)
+            .marginLeading(anchor: leadingAnchor)
+            .marginTrailing(anchor: trailingAnchor)
+            .active()
+        button.marginTop(anchor: tipsView.bottomAnchor, constant: 17)
+            .width(constant: 138)
+            .height(constant: 34)
+            .centerX(anchor: centerXAnchor)
+            .marginBottom(anchor: bottomAnchor)
+            .active()
+        button.addTarget(self, action: #selector(onTapButton), for: .touchUpInside)
+    }
+
+    @objc private func onTapButton() {
+        delegate?.onTapChorusMasterButton()
+    }
+
+    @available(*, unavailable)
+    required init?(coder _: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+}
+
+private class ChorusFollowerView: UIView {
+    weak var delegate: MVPlayer?
+    var music: LiveKtvMusic? {
+        didSet {
+            titleView.text = music?.name
+            time = 20
+        }
+    }
+
+    // sec
+    var time: TimeInterval? {
+        didSet {
+            let time = time ?? 0
+            tipsView.text = "抢麦倒计时 \(Utils.format(time: time))"
+        }
+    }
+
+    private let titleView: UILabel = {
+        let view = UILabel()
+        view.textColor = UIColor.white
+        view.font = UIFont.systemFont(ofSize: 18, weight: .medium)
+        view.textAlignment = .center
+        return view
+    }()
+
+    private let tipsView: UILabel = {
+        let view = UILabel()
+        view.textColor = UIColor.white.withAlphaComponent(0.8)
+        view.font = UIFont.systemFont(ofSize: 16)
+        view.textAlignment = .center
+        return view
+    }()
+
+    private let button: RoundButton = {
+        let view = RoundButton()
+        view.backgroundColor = UIColor(hex: Colors.Blue)
+        view.setTitle("加入合唱", for: .normal)
+        view.setTitleColor(UIColor.white, for: .normal)
+        view.borderWidth = 0
+        view.titleLabel?.font = UIFont.systemFont(ofSize: 15)
+        return view
+    }()
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        addSubview(titleView)
+        addSubview(tipsView)
+        addSubview(button)
+
+        titleView.marginTop(anchor: topAnchor)
+            .marginLeading(anchor: leadingAnchor)
+            .marginTrailing(anchor: trailingAnchor)
+            .active()
+        tipsView.marginTop(anchor: titleView.bottomAnchor, constant: 12)
+            .marginLeading(anchor: leadingAnchor)
+            .marginTrailing(anchor: trailingAnchor)
+            .active()
+        button.marginTop(anchor: tipsView.bottomAnchor, constant: 16)
+            .width(constant: 136)
+            .height(constant: 37)
+            .centerX(anchor: centerXAnchor)
+            .marginBottom(anchor: bottomAnchor)
+            .active()
+        button.addTarget(self, action: #selector(onTapButton), for: .touchUpInside)
+    }
+
+    @available(*, unavailable)
+    required init?(coder _: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    @objc private func onTapButton() {
+        delegate?.onTapChorusFollowerButton()
+    }
+}
+
 class MVPlayer: NSObject {
+    private static let COUNTDOWN_SECOND = 20
     enum Status {
         case stop
         case play
         case pause
+
+        case waitChorusApply
+        case processChorusApply
+        case downloadChorusMusic
+        case syncChorusMusicReady
+        case startChorus
     }
 
     weak var delegate: RoomController!
@@ -43,9 +203,15 @@ class MVPlayer: NSObject {
 
     let musicLyricView = MusicLyricView()
 
+    private var lastRole: Int?
     var member: LiveKtvMember? {
         didSet {
+            Logger.log(self, message: "didSet member", level: .info)
             onChanged()
+            if let music = music, music.isChorus(), member?.role != lastRole {
+                onRoleChange()
+            }
+            lastRole = member?.role
         }
     }
 
@@ -95,19 +261,82 @@ class MVPlayer: NSObject {
         return view
     }()
 
+    private var timer: Timer?
+    private var countdown: Int = 0
+    private lazy var chorusMasterView: ChorusMasterView = {
+        let view = ChorusMasterView()
+        view.delegate = self
+        return view
+    }()
+
+    private lazy var chorusFollowerView: ChorusFollowerView = {
+        let view = ChorusFollowerView()
+        view.delegate = self
+        return view
+    }()
+
+    private var _localMusic: LocalMusic?
+    private var _isMyOrdedMusic: Bool {
+        if let music = music, let member = member {
+            return music.isOrderBy(member: member)
+        } else {
+            return false
+        }
+    }
+
     var music: LiveKtvMusic? {
         didSet {
             if music?.id == oldValue?.id {
-                if music?.type == 1 {
-                    onChorusStateChange(old: oldValue)
+                if music?.type != oldValue?.type {
+                    onMusicTypeChange(old: oldValue)
+                } else {
+                    if let music = music, let member = member, music.isChorus() {
+                        if !music.isChorusReady() {
+                            if _isMyOrdedMusic {
+                                if status == .waitChorusApply, music.user1Id == nil,
+                                   oldValue?.applyUser1Id == nil, music.applyUser1Id != nil
+                                {
+                                    status = .processChorusApply
+                                } else if music.user1Id != nil, oldValue?.user1Id == nil {
+                                    // wait sync users status (master)
+                                    timer?.invalidate()
+                                    status = .downloadChorusMusic
+                                }
+                            } else if music.user1Id != nil, oldValue?.user1Id == nil {
+                                if music.user1Id != member.userId {
+                                    // listener
+                                    listenerOnPlayMusicChange()
+                                } else {
+                                    // wait sync users status (follower)
+                                    status = .downloadChorusMusic
+                                }
+                            }
+                        } else if oldValue?.isChorusReady() != true {
+                            if _isMyOrdedMusic || music.user1Id == member.userId {
+                                status = .startChorus
+                            }
+                        }
+                    }
                 }
                 return
+            }
+            if let old = oldValue, old.isChorus() {
+                if old.user1Id == member?.userId {
+                    delegate.viewModel.end(music: old) { _ in
+
+                    } onSuccess: { [weak self] in
+                        self?.status = .stop
+                    } onError: { [weak self] message in
+                        self?.onError(message: message)
+                    }
+                }
             }
             onPlayMusicChange()
         }
     }
 
     private func onChanged() {
+        Logger.log(self, message: "onChanged status:\(String(describing: status))", level: .info)
         switch status {
         case .stop, .none:
             settingsView.superview?.isHidden = true
@@ -119,6 +348,8 @@ class MVPlayer: NSObject {
             stopView.isHidden = false
             mv.isHidden = true
             musicLyricView.isHidden = true
+            chorusMasterView.isHidden = true
+            chorusFollowerView.isHidden = true
         case .play, .pause:
             stopView.isHidden = true
             mv.isHidden = false
@@ -127,17 +358,92 @@ class MVPlayer: NSObject {
             if settingsView.superview?.isHidden == false {
                 playerControlView.setImage(UIImage(named: status == .play ? "iconPause" : "iconPlay", in: Utils.bundle, with: nil), for: .normal)
             }
+
+        case .waitChorusApply:
+            settingsView.superview?.isHidden = true
+            stopView.isHidden = true
+            mv.isHidden = false
+            musicLyricView.isHidden = true
+            chorusMasterView.isHidden = false
+            chorusFollowerView.isHidden = false
+        case .processChorusApply:
+            guard let music = music else {
+                return
+            }
+            delegate.viewModel.acceptAsFollower(music: music) { [weak self] waiting in
+                self?.show(processing: waiting)
+            } onSuccess: {} onError: { [weak self] message in
+                self?.onError(message: message)
+            }
+        case .downloadChorusMusic:
+            guard let music = music else {
+                return
+            }
+            delegate.viewModel.fetchMusic(music: music) { [weak self] waiting in
+                self?.delegate.onFetchMusic(finish: !waiting)
+            } onSuccess: { [weak self] localMusic in
+                self?._localMusic = localMusic
+                self?.status = .syncChorusMusicReady
+            } onError: { [weak self] message in
+                self?.onError(message: message)
+            }
+        case .syncChorusMusicReady:
+            guard let music = music else {
+                return
+            }
+            delegate.viewModel.setPlayMusicReady(music: music) { [weak self] waiting in
+                self?.show(processing: waiting)
+            } onSuccess: { [weak self] in
+                self?.listenerOnPlayMusicChange()
+                // self?.show(processing: true)
+            } onError: { [weak self] message in
+                self?.onError(message: message)
+            }
+        case .startChorus:
+            if let masterId = music?.userId, let followerId = music?.user1Id, let localMusic = _localMusic {
+                if localMusic.id == delegate.viewModel.playingMusic?.musicId,
+                   delegate.viewModel.isLocalMusicPlaying(music: localMusic) == false
+                {
+                    let masterUid = delegate.viewModel.memberList.first { member in
+                        member.userId == masterId
+                    }?.streamId
+                    let followerUid = delegate.viewModel.memberList.first { member in
+                        member.userId == followerId
+                    }?.streamId
+
+                    if let masterUid = masterUid, let masterMusicUid = music?.userbgId,
+                       let followerUid = followerUid, let folowerMusicUid = music?.user1bgId
+                    {
+                        Logger.log(self, message: "masterUid:\(masterUid) followerUid:\(followerUid)", level: .info)
+                        delegate.viewModel.play(music: localMusic, option: LocalMusicOption(masterUid: masterUid, masterMusicUid: masterMusicUid, followerUid: followerUid, followerMusicUid: folowerMusicUid)) { [weak self] waiting in
+                            self?.show(processing: waiting)
+                        } onSuccess: {} onError: { [weak self] message in
+                            self?.onError(message: message)
+                        }
+                    }
+                }
+            } else {
+                show(processing: false)
+            }
         }
     }
 
+    private func show(processing: Bool) {
+        delegate.show(processing: processing)
+    }
+
+    private func onError(message: String) {
+        delegate.onError(message: message)
+    }
+
     private func updateMusicLyricViewLayout() {
+        var showSettingBar = false
         if let member = member, let music = music {
-            settingsView.superview?.isHidden = !music.isOrderBy(member: member)
-        } else {
-            settingsView.superview?.isHidden = true
+            showSettingBar = music.isOrderBy(member: member)
         }
-        if let settingRoot = settingsView.superview, let root = player.superview {
-            if settingRoot.isHidden {
+        settingsView.superview?.isHidden = !showSettingBar
+        if let root = player.superview {
+            if !showSettingBar {
                 if musicLyricView.superview != root {
                     musicLyricView.removeFromSuperview()
                     root.addSubview(musicLyricView)
@@ -156,22 +462,95 @@ class MVPlayer: NSObject {
         }
     }
 
-    private func onPlayMusicChange() {
-        if let music = music {
-            originSettingView.setOn(true, animated: true)
-            status = .play
-            updateMusicLyricViewLayout()
-            delegate.viewModel.fetchMusicLrc(music: music) { [weak self] waiting in
-                if waiting {
-                    self?.musicLyricView.lyrics = nil
-                }
-            } onSuccess: { [weak self] localMusic in
-                if localMusic.id == self?.music?.musicId {
-                    self?.musicLyricView.lyrics = LocalMusicManager.parseLyric(music: localMusic)
-                }
+    private func onRoleChange() {
+        onPlayMusicChange()
+        if let music = music, music.user1Id == member?.userId, lastRole == LiveKtvRoomRole.speaker.rawValue {
+            delegate.viewModel.end(music: music) { _ in
+
+            } onSuccess: { [weak self] in
+                self?.status = .stop
             } onError: { [weak self] message in
-                self?.delegate.show(message: message, type: .error)
+                self?.onError(message: message)
             }
+        }
+    }
+
+    private func onPlayMusicChange() {
+        if let timer = timer {
+            timer.invalidate()
+        }
+        if let member = member, let music = music {
+            switch music.type {
+            case LiveKtvMusic.NORMAL:
+                listenerOnPlayMusicChange()
+                if music.isOrderBy(member: member) {
+                    delegate.viewModel.fetchMusic(music: music) { [weak self] waiting in
+                        self?.delegate.onFetchMusic(finish: !waiting)
+                    } onSuccess: { [weak self] localMusic in
+                        guard let self = self else { return }
+                        if localMusic.id == self.delegate.viewModel.playingMusic?.musicId,
+                           !self.delegate.viewModel.isLocalMusicPlaying(music: localMusic)
+                        {
+                            self.delegate.viewModel.play(music: localMusic) { [unowned self] waiting in
+                                self.delegate.show(processing: waiting)
+                            } onSuccess: {} onError: { [unowned self] message in
+                                self.delegate.onError(message: message)
+                            }
+                        }
+                    } onError: { [weak self] message in
+                        self?.delegate.show(message: message, type: .error)
+                    }
+                }
+            case LiveKtvMusic.CHORUS:
+                if member.isSpeaker(), !music.isChorusReady() {
+                    status = .waitChorusApply
+                    if music.isOrderBy(member: member) {
+                        chorusMasterView.music = music
+                        if chorusFollowerView.superview != nil {
+                            chorusFollowerView.removeFromSuperview()
+                        }
+                        if chorusMasterView.superview == nil {
+                            if let root = player.superview {
+                                root.addSubview(chorusMasterView)
+                                chorusMasterView.marginLeading(anchor: root.leadingAnchor)
+                                    .marginTrailing(anchor: root.trailingAnchor)
+                                    .centerY(anchor: root.centerYAnchor)
+                                    .active()
+                            }
+                        }
+                        countdown = MVPlayer.COUNTDOWN_SECOND
+                        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: { [weak self] _ in
+                            if let self = self {
+                                self.countdown -= 1
+                                if self.countdown <= 0 {
+                                    self.onTapChorusMasterButton()
+                                } else {
+                                    self.delegate.viewModel.countdown(time: self.countdown)
+                                }
+                            }
+                        })
+                    } else {
+                        chorusFollowerView.music = music
+                        if chorusMasterView.superview != nil {
+                            chorusMasterView.removeFromSuperview()
+                        }
+                        if chorusFollowerView.superview == nil {
+                            if let root = player.superview {
+                                root.addSubview(chorusFollowerView)
+                                chorusFollowerView.marginLeading(anchor: root.leadingAnchor)
+                                    .marginTrailing(anchor: root.trailingAnchor)
+                                    .centerY(anchor: root.centerYAnchor)
+                                    .active()
+                            }
+                        }
+                    }
+                } else {
+                    listenerOnPlayMusicChange()
+                }
+            default:
+                break
+            }
+
         } else {
             status = .none
         }
@@ -186,7 +565,11 @@ class MVPlayer: NSObject {
         }
     }
 
-    private func onChorusStateChange(old _: LiveKtvMusic?) {}
+    private func onMusicTypeChange(old: LiveKtvMusic?) {
+        if old?.isChorus() == true {
+            onPlayMusicChange()
+        }
+    }
 
     func subcribeUIEvent() {
         settingsView.addTarget(self, action: #selector(onTapSettingsView), for: .touchUpInside)
@@ -197,37 +580,59 @@ class MVPlayer: NSObject {
     }
 
     func onMusic(state: RtcMusicState) {
-        musicLyricView.scrollLyric(currentTime: TimeInterval(state.position), totalTime: TimeInterval(state.duration))
-        if let playerState = state.state {
-            switch playerState {
-            case .playing:
-                if status != .play {
-                    status = .play
-                }
-                musicLyricView.paused = false
-            case .paused:
-                if status != .pause {
-                    status = .pause
-                }
-                musicLyricView.paused = true
-            case .playBackCompleted, .playBackAllLoopsCompleted:
-                if status != .stop {
-                    status = .stop
-                    originSettingView.setOn(true, animated: true)
-                }
-                if let music = music {
-                    delegate.viewModel.end(music: music) { [unowned self] waiting in
-                        delegate.show(processing: waiting)
-                    } onSuccess: { [unowned self] in
-                        self.music = nil
-                    } onError: { [unowned self] message in
-                        delegate.show(message: message, type: .error)
+//        if let music = music {
+//            let orderMusicMember = delegate.viewModel.memberList.first { member in
+//                member.userId == music.userId
+//            }
+//            if orderMusicMember?.streamId != state.uid {
+//                Logger.log(self, message: "", level: .info)
+//                return
+//            }
+//        } else {
+//            return
+//        }
+        switch state.type {
+        case .position:
+            musicLyricView.scrollLyric(currentTime: TimeInterval(state.position), totalTime: TimeInterval(state.duration))
+            if let playerState = state.state {
+                switch playerState {
+                case .playing:
+                    if status != .play {
+                        status = .play
                     }
+                    musicLyricView.paused = false
+                case .paused:
+                    if status != .pause {
+                        status = .pause
+                    }
+                    musicLyricView.paused = true
+                case .playBackCompleted, .playBackAllLoopsCompleted:
+                    if status != .stop {
+                        status = .stop
+                        originSettingView.setOn(true, animated: true)
+                    }
+                    if let music = music {
+                        delegate.viewModel.end(music: music) { [unowned self] waiting in
+                            delegate.show(processing: waiting)
+                        } onSuccess: { [unowned self] in
+                            self.music = nil
+                        } onError: { [unowned self] message in
+                            delegate.show(message: message, type: .error)
+                        }
+                    }
+                default: break
                 }
-            default: break
+            }
+        case .countdown:
+            let time = state.position
+            if let member = member, let music = music, music.isChorus() {
+                if music.isOrderBy(member: member) {
+                    chorusMasterView.time = TimeInterval(time)
+                } else {
+                    chorusFollowerView.time = TimeInterval(time)
+                }
             }
         }
-        if state.state == .openCompleted {}
     }
 
     @objc func onTapSettingsView() {
@@ -276,6 +681,52 @@ class MVPlayer: NSObject {
                 originSettingView.setOn(true, animated: true)
                 delegate.viewModel.originMusic(enable: false)
             }
+        }
+    }
+
+    func onTapChorusMasterButton() {
+        if let music = music {
+            delegate.viewModel.toNormal(music: music) { [unowned self] waiting in
+                delegate.show(processing: waiting)
+            } onSuccess: {} onError: { [unowned self] message in
+                delegate.show(message: message, type: .error)
+            }
+        }
+    }
+
+    func onTapChorusFollowerButton() {
+        if let music = music {
+            delegate.viewModel.applyAsFollower(music: music) { [unowned self] waiting in
+                delegate.show(processing: waiting)
+            } onSuccess: {} onError: { [unowned self] message in
+                delegate.show(message: message, type: .error)
+            }
+        }
+    }
+
+    private func listenerOnPlayMusicChange() {
+        guard let music = music else {
+            return
+        }
+        if chorusMasterView.superview != nil {
+            chorusMasterView.removeFromSuperview()
+        }
+        if chorusFollowerView.superview != nil {
+            chorusFollowerView.removeFromSuperview()
+        }
+        originSettingView.setOn(true, animated: true)
+        status = .play
+        updateMusicLyricViewLayout()
+        delegate.viewModel.fetchMusicLrc(music: music) { [weak self] waiting in
+            if waiting {
+                self?.musicLyricView.lyrics = nil
+            }
+        } onSuccess: { [weak self] localMusic in
+            if localMusic.id == self?.music?.musicId {
+                self?.musicLyricView.lyrics = LocalMusicManager.parseLyric(music: localMusic)
+            }
+        } onError: { [weak self] message in
+            self?.delegate.show(message: message, type: .error)
         }
     }
 

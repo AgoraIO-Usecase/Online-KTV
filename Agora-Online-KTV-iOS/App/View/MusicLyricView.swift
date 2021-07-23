@@ -296,10 +296,9 @@ class MusicLyricView: UIView, UITableViewDataSource, UITableViewDelegate {
         if let lyrics = lyrics {
             tipsLabel.isHidden = lyrics.count > 0
             tipsLabel.text = lyrics.count > 0 ? nil : "纯音乐，无歌词"
-            lyricTable.reloadData { [weak self] in
-                if let self = self {
-                    self.lyricTable.selectRow(at: IndexPath(row: self.Distance, section: 0), animated: true, scrollPosition: .middle)
-                }
+            lyricTable.reloadData()
+            if lyrics.count > 0 {
+                lyricTable.selectRow(at: IndexPath(row: Distance, section: 0), animated: true, scrollPosition: .middle)
             }
         } else {
             tipsLabel.isHidden = false
@@ -345,6 +344,8 @@ class MusicLyricView: UIView, UITableViewDataSource, UITableViewDelegate {
                     if index < lyricTable.numberOfRows(inSection: 0) {
                         lyricIndex = curIndex
                         lyricTable.selectRow(at: IndexPath(row: index, section: 0), animated: true, scrollPosition: .middle)
+                        let lyric = lyrics[lyricIndex]
+                        Logger.log(self, message: "select [\(Utils.format(time: lyric.startMsTime() / 1000))]\(lyric.getSentence())", level: .info)
                     }
                 }
             }
