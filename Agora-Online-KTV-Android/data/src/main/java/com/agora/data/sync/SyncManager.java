@@ -44,6 +44,10 @@ public final class SyncManager implements ISyncManager {
         return mConverter;
     }
 
+    public static void setConverter(GsonConverter mConverter) {
+        SyncManager.mConverter = mConverter;
+    }
+
     public RoomReference getRoom(String id) {
         return new RoomReference(id);
     }

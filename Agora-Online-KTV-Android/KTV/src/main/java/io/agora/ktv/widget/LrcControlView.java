@@ -35,15 +35,10 @@ public class LrcControlView extends FrameLayout implements View.OnClickListener 
         return mDataBinding.ilActive.lrcView;
     }
 
-    public enum Status {
-        IDLE, WaitChorus, Prepare, Play, Pause
-    }
-
     public enum Role {
         Singer, Listener
     }
 
-    private Status mStatus = Status.IDLE;
     private Role mRole = Role.Listener;
     private MemberMusicModel mMusic;
     private OnLrcActionListener mOnLrcActionListener;
@@ -73,6 +68,7 @@ public class LrcControlView extends FrameLayout implements View.OnClickListener 
     }
 
     private void initListener() {
+        mDataBinding.ilChorus.btChorus.setOnClickListener(this);
         mDataBinding.ilActive.switchOriginal.setOnClickListener(this);
         mDataBinding.ilActive.ivMusicMenu.setOnClickListener(this);
         mDataBinding.ilActive.ivMusicStart.setOnClickListener(this);
@@ -92,13 +88,11 @@ public class LrcControlView extends FrameLayout implements View.OnClickListener 
             public void onTick(long millisUntilFinished) {
                 int second = (int) (millisUntilFinished / 1000);
 
-                if (mRole == Role.Singer) {
-                    mDataBinding.ilActive.tvWaitingTime.setText(
-                            getContext().getString(R.string.ktv_room_time_wait_join_chorus, "00:" + second));
-                } else if (mRole == Role.Listener) {
-                    mDataBinding.ilActive.tvWaitingTime.setText(
-                            getContext().getString(R.string.ktv_room_time_join_chorus_, "00:" + second));
+                if (mOnLrcActionListener != null) {
+                    mOnLrcActionListener.onCountTime(second);
                 }
+
+                setCountDown(second);
             }
 
             @Override
@@ -115,53 +109,89 @@ public class LrcControlView extends FrameLayout implements View.OnClickListener 
         }
     }
 
-    public void setStatus(@NonNull Status mStatus) {
-        this.mStatus = mStatus;
-        if (this.mStatus == Status.IDLE) {
-            mDataBinding.ilIDLE.getRoot().setVisibility(View.VISIBLE);
-            mDataBinding.ilActive.getRoot().setVisibility(View.GONE);
-        } else if (this.mStatus == Status.WaitChorus) {
-            mDataBinding.ilIDLE.getRoot().setVisibility(View.GONE);
-            mDataBinding.ilActive.getRoot().setVisibility(View.VISIBLE);
+    public void onWaitChorusStatus() {
+        mDataBinding.ilIDLE.getRoot().setVisibility(View.GONE);
+        mDataBinding.clActive.setVisibility(View.VISIBLE);
+        mDataBinding.ilChorus.getRoot().setVisibility(View.VISIBLE);
+        mDataBinding.ilPrepare.getRoot().setVisibility(View.GONE);
+        mDataBinding.ilActive.getRoot().setVisibility(View.GONE);
 
-            mDataBinding.ilActive.lrcView.setVisibility(View.GONE);
-            mDataBinding.ilActive.llJoinChorus.setVisibility(View.VISIBLE);
-            mDataBinding.ilActive.rlMusicControlMenu.setVisibility(View.GONE);
-
-            if (mRole == Role.Singer) {
-                mDataBinding.ilActive.tvWaitingTime.setText(
-                        getContext().getString(R.string.ktv_room_time_wait_join_chorus, "00:20"));
-                mDataBinding.ilActive.btStart.setBackgroundResource(R.drawable.ktv_shape_wait_chorus_button);
-            } else if (mRole == Role.Listener) {
-                mDataBinding.ilActive.tvWaitingTime.setText(
-                        getContext().getString(R.string.ktv_room_time_join_chorus_, "00:20"));
-                mDataBinding.ilActive.btStart.setBackgroundResource(R.drawable.ktv_shape_start_chorus_button);
-            }
-
-            startTimer();
-        } else if (this.mStatus == Status.Prepare) {
-            mDataBinding.ilIDLE.getRoot().setVisibility(View.GONE);
-            mDataBinding.ilActive.getRoot().setVisibility(View.VISIBLE);
-
-            mDataBinding.ilActive.lrcView.setVisibility(View.VISIBLE);
-            mDataBinding.ilActive.llJoinChorus.setVisibility(View.GONE);
-            mDataBinding.ilActive.rlMusicControlMenu.setVisibility(View.VISIBLE);
-
-            if (this.mRole == Role.Singer) {
-                mDataBinding.ilActive.lrcView.setEnableDrag(true);
-                mDataBinding.ilActive.rlMusicControlMenu.setVisibility(View.VISIBLE);
-                mDataBinding.ilActive.switchOriginal.setChecked(true);
-            } else if (this.mRole == Role.Listener) {
-                mDataBinding.ilActive.lrcView.setEnableDrag(false);
-                mDataBinding.ilActive.rlMusicControlMenu.setVisibility(View.GONE);
-            }
-
-            stopTimer();
-        } else if (this.mStatus == Status.Play) {
-            mDataBinding.ilActive.ivMusicStart.setImageResource(R.mipmap.ktv_room_music_pause);
-        } else if (this.mStatus == Status.Pause) {
-            mDataBinding.ilActive.ivMusicStart.setImageResource(R.mipmap.ktv_room_music_play);
+        if (mRole == Role.Singer) {
+            mDataBinding.ilChorus.tvWaitingTime.setText(
+                    getContext().getString(R.string.ktv_room_time_wait_join_chorus, 0, 20));
+            mDataBinding.ilChorus.btChorus.setText(R.string.ktv_music_chorus_start_now);
+            mDataBinding.ilChorus.btChorus.setBackgroundResource(R.drawable.ktv_shape_wait_chorus_button);
+        } else if (mRole == Role.Listener) {
+            mDataBinding.ilChorus.tvWaitingTime.setText(
+                    getContext().getString(R.string.ktv_room_time_join_chorus_, 0, 20));
+            mDataBinding.ilChorus.btChorus.setText(R.string.ktv_music_join_chorus);
+            mDataBinding.ilChorus.btChorus.setBackgroundResource(R.drawable.ktv_shape_start_chorus_button);
         }
+
+        if (mRole == Role.Singer) {
+            startTimer();
+        }
+    }
+
+    public void onMemberJoinedChorus() {
+        mDataBinding.ilIDLE.getRoot().setVisibility(View.GONE);
+        mDataBinding.clActive.setVisibility(View.VISIBLE);
+        mDataBinding.ilChorus.getRoot().setVisibility(View.GONE);
+        mDataBinding.ilPrepare.getRoot().setVisibility(View.VISIBLE);
+        mDataBinding.ilActive.getRoot().setVisibility(View.GONE);
+
+        stopTimer();
+    }
+
+    public void onPrepareStatus() {
+        mDataBinding.ilIDLE.getRoot().setVisibility(View.GONE);
+        mDataBinding.clActive.setVisibility(View.VISIBLE);
+        mDataBinding.ilChorus.getRoot().setVisibility(View.GONE);
+        mDataBinding.ilPrepare.getRoot().setVisibility(View.VISIBLE);
+        mDataBinding.ilActive.getRoot().setVisibility(View.GONE);
+
+        if (this.mRole == Role.Singer) {
+            mDataBinding.ilActive.lrcView.setEnableDrag(true);
+            mDataBinding.ilActive.rlMusicControlMenu.setVisibility(View.VISIBLE);
+            mDataBinding.ilActive.switchOriginal.setChecked(true);
+        } else if (this.mRole == Role.Listener) {
+            mDataBinding.ilActive.lrcView.setEnableDrag(false);
+            mDataBinding.ilActive.rlMusicControlMenu.setVisibility(View.GONE);
+        }
+
+        stopTimer();
+    }
+
+    public void onPlayStatus() {
+        stopTimer();
+
+        mDataBinding.ilIDLE.getRoot().setVisibility(View.GONE);
+        mDataBinding.clActive.setVisibility(View.VISIBLE);
+        mDataBinding.ilChorus.getRoot().setVisibility(View.GONE);
+        mDataBinding.ilPrepare.getRoot().setVisibility(View.GONE);
+        mDataBinding.ilActive.getRoot().setVisibility(View.VISIBLE);
+
+        mDataBinding.ilActive.ivMusicStart.setImageResource(R.mipmap.ktv_room_music_pause);
+    }
+
+    public void onPauseStatus() {
+        mDataBinding.ilIDLE.getRoot().setVisibility(View.GONE);
+        mDataBinding.clActive.setVisibility(View.VISIBLE);
+        mDataBinding.ilChorus.getRoot().setVisibility(View.GONE);
+        mDataBinding.ilPrepare.getRoot().setVisibility(View.GONE);
+        mDataBinding.ilActive.getRoot().setVisibility(View.VISIBLE);
+
+        mDataBinding.ilActive.ivMusicStart.setImageResource(R.mipmap.ktv_room_music_play);
+    }
+
+    public void onIdleStatus() {
+        mDataBinding.ilIDLE.getRoot().setVisibility(View.VISIBLE);
+        mDataBinding.clActive.setVisibility(View.GONE);
+        mDataBinding.ilChorus.getRoot().setVisibility(View.GONE);
+        mDataBinding.ilPrepare.getRoot().setVisibility(View.GONE);
+        mDataBinding.ilActive.getRoot().setVisibility(View.GONE);
+
+        stopTimer();
     }
 
     public void setRole(@NonNull Role mRole) {
@@ -179,7 +209,18 @@ public class LrcControlView extends FrameLayout implements View.OnClickListener 
 
     public void setMusic(@NonNull MemberMusicModel mMusic) {
         this.mMusic = mMusic;
-        mDataBinding.ilActive.tvMusicName.setText(this.mMusic.getName());
+        mDataBinding.tvMusicName.setText(this.mMusic.getName());
+        mDataBinding.ilChorus.tvMusicName2.setText(this.mMusic.getName());
+    }
+
+    public void setCountDown(int time) {
+        if (mRole == Role.Singer) {
+            mDataBinding.ilChorus.tvWaitingTime.setText(
+                    getContext().getString(R.string.ktv_room_time_wait_join_chorus, 0, time));
+        } else if (mRole == Role.Listener) {
+            mDataBinding.ilChorus.tvWaitingTime.setText(
+                    getContext().getString(R.string.ktv_room_time_join_chorus_, 0, time));
+        }
     }
 
     public void setLrcViewBackground(@DrawableRes int resId) {
@@ -198,7 +239,7 @@ public class LrcControlView extends FrameLayout implements View.OnClickListener 
                 mDataBinding.ilActive.lrcView.setNormalColor(palette.getLightMutedColor(defaultColor));
             }
         });
-        mDataBinding.ilActive.rlSing.setBackgroundResource(resId);
+        mDataBinding.clActive.setBackgroundResource(resId);
     }
 
     @Override
@@ -211,6 +252,12 @@ public class LrcControlView extends FrameLayout implements View.OnClickListener 
             mOnLrcActionListener.onPlayClick();
         } else if (v == mDataBinding.ilActive.ivChangeSong) {
             mOnLrcActionListener.onChangeMusicClick();
+        } else if (v == mDataBinding.ilChorus.btChorus) {
+            if (mRole == Role.Singer) {
+                mOnLrcActionListener.onStartSing();
+            } else if (mRole == Role.Listener) {
+                mOnLrcActionListener.onJoinChorus();
+            }
         }
     }
 
@@ -227,6 +274,12 @@ public class LrcControlView extends FrameLayout implements View.OnClickListener 
 
         void onChangeMusicClick();
 
+        void onStartSing();
+
+        void onJoinChorus();
+
         void onWaitTimeOut();
+
+        void onCountTime(int time);
     }
 }

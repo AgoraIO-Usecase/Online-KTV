@@ -56,6 +56,13 @@ public interface RoomEventCallback {
 
     void onMusicEmpty();
 
+    void onMemberApplyJoinChorus(@NonNull MemberMusicModel music);
+
+    void onMemberJoinedChorus(@NonNull MemberMusicModel music);
+
+    void onMemberChorusReady(@NonNull MemberMusicModel music);
+
     void onMusicProgress(long total, long cur);
 
+    void onCountDown(int time);
 }

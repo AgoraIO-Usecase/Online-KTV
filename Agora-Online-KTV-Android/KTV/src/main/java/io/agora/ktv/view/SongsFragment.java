@@ -26,6 +26,7 @@ import io.agora.ktv.adapter.SongsAdapter;
 import io.agora.ktv.bean.MemberMusicModel;
 import io.agora.ktv.databinding.KtvFragmentSongListBinding;
 import io.agora.ktv.manager.RoomManager;
+import io.agora.ktv.view.dialog.RoomChooseSongDialog;
 import io.agora.ktv.widget.SpaceItemDecoration;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -130,20 +131,18 @@ public class SongsFragment extends DataBindBaseFragment<KtvFragmentSongListBindi
             return;
         }
 
-//        if (RoomManager.Instance(requireContext()).isInMusicOrderList(data)) {
-//            mAdapter.notifyItemChanged(position);
-//            return;
-//        }
-
+        view.setEnabled(false);
         MemberMusicModel model = new MemberMusicModel(data);
         model.setRoomId(mRoom);
         model.setUserId(mUser.getObjectId());
+        model.setType(RoomChooseSongDialog.mSingType);
         SyncManager.Instance()
                 .getRoom(mRoom.getId())
                 .collection(MemberMusicModel.TABLE_NAME)
                 .add(model.toHashMap(), new SyncManager.DataItemCallback() {
                     @Override
                     public void onSuccess(AgoraObject result) {
+                        view.setEnabled(true);
                         MemberMusicModel musicModel = result.toObject(MemberMusicModel.class);
                         musicModel.setId(result.getId());
                         mAdapter.notifyItemChanged(position);
@@ -151,6 +150,7 @@ public class SongsFragment extends DataBindBaseFragment<KtvFragmentSongListBindi
 
                     @Override
                     public void onFail(AgoraException exception) {
+                        view.setEnabled(true);
                         ToastUtile.toastShort(requireContext(), exception.getMessage());
                     }
                 });

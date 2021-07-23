@@ -17,6 +17,7 @@ import androidx.viewpager.widget.ViewPager;
 
 import io.agora.baselibrary.base.DataBindBaseDialog;
 import io.agora.ktv.R;
+import io.agora.ktv.bean.MemberMusicModel;
 import io.agora.ktv.databinding.KtvDialogChooseSongBinding;
 import io.agora.ktv.view.SongOrdersFragment;
 import io.agora.ktv.view.SongsFragment;
@@ -29,6 +30,8 @@ import io.agora.ktv.view.SongsFragment;
 public class RoomChooseSongDialog extends DataBindBaseDialog<KtvDialogChooseSongBinding> implements ViewPager.OnPageChangeListener {
 
     private static final String TAG = RoomChooseSongDialog.class.getSimpleName();
+
+    public static MemberMusicModel.SingType mSingType = null;
 
     @Nullable
     @Override

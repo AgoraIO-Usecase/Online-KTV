@@ -32,35 +32,36 @@ import io.reactivex.functions.Function;
  * @author chenhengfei(Aslanchen)
  * @date 2021/06/01
  */
-public final class MusicResourceManager {
+public final class ResourceManager {
     private Logger.Builder mLogger = XLog.tag("MusicRes");
 
     private Context mContext;
-    private volatile static MusicResourceManager instance;
+    private volatile static ResourceManager instance;
 
     private String resourceRoot;
 
     public static volatile boolean isPreparing = false;
 
-    private MusicResourceManager(Context mContext) {
+    private ResourceManager(Context mContext) {
         this.mContext = mContext;
         resourceRoot = mContext.getExternalCacheDir().getPath();
     }
 
-    public static MusicResourceManager Instance(Context mContext) {
+    public static ResourceManager Instance(Context mContext) {
         if (instance == null) {
-            synchronized (MusicResourceManager.class) {
+            synchronized (ResourceManager.class) {
                 if (instance == null)
-                    instance = new MusicResourceManager(mContext.getApplicationContext());
+                    instance = new ResourceManager(mContext.getApplicationContext());
             }
         }
         return instance;
     }
 
-    public Single<MemberMusicModel> prepareMusic(final MemberMusicModel musicModel, boolean onlyLrc) {
+    public Single<MemberMusicModel> download(final MemberMusicModel musicModel, boolean onlyLrc) {
         return DataRepositroy.Instance(mContext)
                 .getMusic(musicModel.getMusicId())
                 .firstOrError()
+                .retry(3)
                 .flatMap(new Function<MusicModel, SingleSource<MemberMusicModel>>() {
                     @Override
                     public SingleSource<MemberMusicModel> apply(@NonNull MusicModel model) throws Exception {

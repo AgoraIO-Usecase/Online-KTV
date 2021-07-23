@@ -3,10 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/rlSing"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@mipmap/ktv_music_background1">
+        android:layout_height="match_parent">
 
         <io.agora.lrcview.LrcView
             android:id="@+id/lrcView"
@@ -28,69 +26,6 @@
             app:lrcNormalTextSize="16sp"
             app:lrcTextGravity="center"
             app:lrcTextSize="26sp" />
-
-        <TextView
-            android:id="@+id/tvMusicName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="20dp"
-            android:drawableStart="@mipmap/ktv_room_music_name"
-            android:drawablePadding="4dp"
-            android:gravity="center"
-            android:textColor="@android:color/white"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <LinearLayout
-            android:id="@+id/llJoinChorus"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="vertical"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <TextView
-                android:id="@+id/tvMusicName2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:textColor="@android:color/white"
-                android:textSize="20sp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/tvWaitingTime"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:gravity="center"
-                android:text="@string/ktv_room_time_wait_join_chorus"
-                android:textColor="#CCFFFFFF"
-                android:textSize="18sp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <Button
-                android:id="@+id/btStart"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:background="@drawable/ktv_shape_start_chorus_button"
-                android:gravity="center"
-                android:paddingStart="40dp"
-                android:paddingEnd="40dp"
-                android:text="@string/ktv_music_join_chorus"
-                android:textColor="@android:color/white"
-                android:textSize="20sp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-        </LinearLayout>
 
         <RelativeLayout
             android:id="@+id/rlMusicControlMenu"

@@ -23,6 +23,10 @@ public class LrcEntryMigu implements IEntry {
 
     @Override
     public long getStartTime() {
+        if (tones.size() <= 0) {
+            return 0;
+        }
+
         Tone first = tones.get(0);
         return (long) (first.begin * 1000L);
     }

@@ -9,6 +9,7 @@ import com.agora.data.sync.DocumentReference;
 import com.agora.data.sync.SyncManager;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.HashMap;
 
 /**
@@ -20,17 +21,62 @@ public class MemberMusicModel implements Parcelable {
 
     public static final String COLUMN_NAME = "name";
     public static final String COLUMN_USERID = "userId";
+    public static final String COLUMN_USERBGID = "userbgId";
     public static final String COLUMN_ROOMID = "roomId";
     public static final String COLUMN_MUSICID = "musicId";
     public static final String COLUMN_CREATE = "createdAt";
+    public static final String COLUMN_TYPE = "type";
+    public static final String COLUMN_USERSTATUS = "userStatus";
+    public static final String COLUMN_USER1ID = "user1Id";
+    public static final String COLUMN_USER1BGID = "user1bgId";
+    public static final String COLUMN_USER1STATUS = "user1Status";
+    public static final String COLUMN_APPLYUSERID = "applyUser1Id";
 
-    public enum Type {
+    public enum Type implements Serializable {
         Default, MiGu;
+    }
+
+    public enum SingType implements Serializable {
+        Single(0), Chorus(1);
+
+        public int value;
+
+        SingType(int value) {
+            this.value = value;
+        }
+
+        public static SingType parse(int value) {
+            if (value == 0) {
+                return SingType.Single;
+            } else if (value == 1) {
+                return SingType.Chorus;
+            }
+            return SingType.Single;
+        }
+    }
+
+    public enum UserStatus implements Serializable {
+        Idle(0), Ready(1);
+
+        public int value;
+
+        UserStatus(int value) {
+            this.value = value;
+        }
+
+        public static UserStatus parse(int value) {
+            if (value == 0) {
+                return UserStatus.Idle;
+            } else if (value == 1) {
+                return UserStatus.Ready;
+            }
+            return UserStatus.Idle;
+        }
     }
 
     private String id;
     private String name;
-    private String userId;
+
     private AgoraRoom roomId;
     private String musicId;
 
@@ -40,7 +86,19 @@ public class MemberMusicModel implements Parcelable {
     private File fileMusic;
     private File fileLrc;
 
-    private Type type = Type.MiGu;
+    private Type musicType = Type.MiGu;
+
+    private SingType type = SingType.Single;
+
+    private String userId;
+    private Long userbgId;
+    public UserStatus userStatus;
+
+    public String user1Id;
+    public Long user1bgId;
+    public UserStatus user1Status;
+
+    public String applyUser1Id;
 
     public MemberMusicModel(String musicId) {
         this.musicId = musicId;
@@ -54,28 +112,42 @@ public class MemberMusicModel implements Parcelable {
     protected MemberMusicModel(Parcel in) {
         id = in.readString();
         name = in.readString();
-        userId = in.readString();
         roomId = in.readParcelable(AgoraRoom.class.getClassLoader());
         musicId = in.readString();
         song = in.readString();
         lrc = in.readString();
         fileMusic = (File) in.readSerializable();
         fileLrc = (File) in.readSerializable();
-        type = (Type) in.readSerializable();
+        musicType = (Type) in.readSerializable();
+        type = (SingType) in.readSerializable();
+        userId = in.readString();
+        userbgId = in.readLong();
+        userStatus = (UserStatus) in.readSerializable();
+        user1Id = in.readString();
+        user1bgId = in.readLong();
+        user1Status = (UserStatus) in.readSerializable();
+        applyUser1Id = in.readString();
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(id);
         dest.writeString(name);
-        dest.writeString(userId);
         dest.writeParcelable(roomId, flags);
         dest.writeString(musicId);
         dest.writeString(song);
         dest.writeString(lrc);
         dest.writeSerializable(fileMusic);
         dest.writeSerializable(fileLrc);
+        dest.writeSerializable(musicType);
         dest.writeSerializable(type);
+        dest.writeString(userId);
+        dest.writeLong(userbgId);
+        dest.writeSerializable(userStatus);
+        dest.writeString(user1Id);
+        dest.writeLong(user1bgId);
+        dest.writeSerializable(user1Status);
+        dest.writeString(applyUser1Id);
     }
 
     @Override
@@ -95,11 +167,6 @@ public class MemberMusicModel implements Parcelable {
         }
     };
 
-    public void setLocalFile(File fileMusic, File fileLrc) {
-        this.fileMusic = fileMusic;
-        this.fileLrc = fileLrc;
-    }
-
     public HashMap<String, Object> toHashMap() {
         DocumentReference drRoom = SyncManager.Instance()
                 .collection(AgoraRoom.TABLE_NAME)
@@ -107,9 +174,14 @@ public class MemberMusicModel implements Parcelable {
 
         HashMap<String, Object> datas = new HashMap<>();
         datas.put(COLUMN_NAME, name);
-        datas.put(COLUMN_USERID, userId);
         datas.put(COLUMN_ROOMID, drRoom);
         datas.put(COLUMN_MUSICID, musicId);
+        datas.put(COLUMN_TYPE, type.value);
+        datas.put(COLUMN_USERID, userId);
+        datas.put(COLUMN_USERSTATUS, UserStatus.Idle.value);
+        datas.put(COLUMN_USER1ID, "");
+        datas.put(COLUMN_USER1STATUS, UserStatus.Idle.value);
+        datas.put(COLUMN_APPLYUSERID, "");
         return datas;
     }
 
@@ -185,12 +257,68 @@ public class MemberMusicModel implements Parcelable {
         this.fileLrc = fileLrc;
     }
 
-    public Type getType() {
+    public Type getMusicType() {
+        return musicType;
+    }
+
+    public void setMusicType(Type musicType) {
+        this.musicType = musicType;
+    }
+
+    public SingType getType() {
         return type;
     }
 
-    public void setType(Type type) {
+    public void setType(SingType type) {
         this.type = type;
+    }
+
+    public UserStatus getUserStatus() {
+        return userStatus;
+    }
+
+    public void setUserStatus(UserStatus userStatus) {
+        this.userStatus = userStatus;
+    }
+
+    public String getUser1Id() {
+        return user1Id;
+    }
+
+    public void setUser1Id(String user1Id) {
+        this.user1Id = user1Id;
+    }
+
+    public UserStatus getUser1Status() {
+        return user1Status;
+    }
+
+    public void setUser1Status(UserStatus user1Status) {
+        this.user1Status = user1Status;
+    }
+
+    public String getApplyUser1Id() {
+        return applyUser1Id;
+    }
+
+    public void setApplyUser1Id(String applyUser1Id) {
+        this.applyUser1Id = applyUser1Id;
+    }
+
+    public Long getUserbgId() {
+        return userbgId;
+    }
+
+    public void setUserbgId(Long userbgId) {
+        this.userbgId = userbgId;
+    }
+
+    public Long getUser1bgId() {
+        return user1bgId;
+    }
+
+    public void setUser1bgId(Long user1bgId) {
+        this.user1bgId = user1bgId;
     }
 
     @Override
@@ -217,10 +345,21 @@ public class MemberMusicModel implements Parcelable {
         return "MemberMusicModel{" +
                 "id='" + id + '\'' +
                 ", name='" + name + '\'' +
-                ", userId='" + userId + '\'' +
-                ", roomId='" + roomId + '\'' +
+                ", roomId=" + roomId +
                 ", musicId='" + musicId + '\'' +
+                ", song='" + song + '\'' +
+                ", lrc='" + lrc + '\'' +
+                ", fileMusic=" + fileMusic +
+                ", fileLrc=" + fileLrc +
+                ", musicType=" + musicType +
+                ", type=" + type +
+                ", userId='" + userId + '\'' +
+                ", userbgId='" + userbgId + '\'' +
+                ", userStatus=" + userStatus +
+                ", user1Id='" + user1Id + '\'' +
+                ", user1bgId='" + user1bgId + '\'' +
+                ", user1Status=" + user1Status +
+                ", applyUser1Id='" + applyUser1Id + '\'' +
                 '}';
     }
-
 }

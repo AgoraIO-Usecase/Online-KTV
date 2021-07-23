@@ -40,7 +40,6 @@ public class AgoraMember implements Parcelable {
             }
             return AgoraMember.Role.Listener;
         }
-
     }
 
     private String id;

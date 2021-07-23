@@ -38,6 +38,7 @@ import io.agora.rtc2.Constants;
 import io.agora.rtc2.IRtcEngineEventHandler;
 import io.agora.rtc2.RtcEngine;
 import io.agora.rtc2.RtcEngineConfig;
+import io.agora.rtc2.RtcEngineEx;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
@@ -67,7 +68,7 @@ public final class RoomManager {
 
     private volatile MemberMusicModel mMusicModel;
 
-    private RtcEngine mRtcEngine;
+    private RtcEngineEx mRtcEngine;
 
     private IRtcEngineEventHandler mIRtcEngineEventHandler = new IRtcEngineEventHandler() {
 
@@ -111,6 +112,12 @@ public final class RoomManager {
         public void onLocalAudioStateChanged(LOCAL_AUDIO_STREAM_STATE state, LOCAL_AUDIO_STREAM_ERROR error) {
             super.onLocalAudioStateChanged(state, error);
             mLoggerRTC.i("onLocalAudioStateChanged() called with: state = [%s], error = [%s]", state, error);
+        }
+
+        @Override
+        public void onStreamMessageError(int uid, int streamId, int error, int missed, int cached) {
+            super.onStreamMessageError(uid, streamId, error, missed, cached);
+            mLogger.d("onStreamMessageError() called with: uid = [%s], streamId = [%s], error = [%s], missed = [%s], cached = [%s]", uid, streamId, error, missed, cached);
         }
 
         @Override
@@ -162,14 +169,14 @@ public final class RoomManager {
 //        }
 
         try {
-            mRtcEngine = RtcEngine.create(config);
+            mRtcEngine = (RtcEngineEx) RtcEngine.create(config);
         } catch (Exception e) {
             e.printStackTrace();
             mLoggerRTC.e("init error", e);
         }
     }
 
-    public RtcEngine getRtcEngine() {
+    public RtcEngineEx getRtcEngine() {
         return mRtcEngine;
     }
 
@@ -257,18 +264,16 @@ public final class RoomManager {
 
     private void onMusicAdd(MemberMusicModel model) {
         mLogger.i("onMusicAdd() called with: model = [%s]", model);
-        synchronized (musicObject) {
-            if (musics.contains(model)) {
-                return;
-            }
+        if (musics.contains(model)) {
+            return;
+        }
 
-            musics.add(model);
+        musics.add(model);
 
-            mMainThreadDispatch.onMusicAdd(model);
+        mMainThreadDispatch.onMusicAdd(model);
 
-            if (mMusicModel == null) {
-                onMusicChanged(musics.get(0));
-            }
+        if (mMusicModel == null) {
+            onMusicChanged(musics.get(0));
         }
     }
 
@@ -292,8 +297,42 @@ public final class RoomManager {
 
     public void onMusicChanged(MemberMusicModel model) {
         mLogger.i("onMusicChanged() called with: model = [%s]", model);
+        int index = musics.indexOf(model);
+        if (index >= 0) {
+            musics.set(index, model);
+        }
         mMusicModel = model;
         mMainThreadDispatch.onMusicChanged(model);
+    }
+
+    public void onMemberApplyJoinChorus(MemberMusicModel model) {
+        mLogger.i("onMemberApplyJoinChorus() called with: model = [%s]", model);
+        int index = musics.indexOf(model);
+        if (index >= 0) {
+            musics.set(index, model);
+        }
+        mMusicModel = model;
+        mMainThreadDispatch.onMemberApplyJoinChorus(model);
+    }
+
+    public void onMemberJoinedChorus(MemberMusicModel model) {
+        mLogger.i("onMemberJoinedChorus() called with: model = [%s]", model);
+        int index = musics.indexOf(model);
+        if (index >= 0) {
+            musics.set(index, model);
+        }
+        mMusicModel = model;
+        mMainThreadDispatch.onMemberJoinedChorus(model);
+    }
+
+    public void onMemberChorusReady(MemberMusicModel model) {
+        mLogger.i("onMemberChorusReady() called with: model = [%s]", model);
+        int index = musics.indexOf(model);
+        if (index >= 0) {
+            musics.set(index, model);
+        }
+        mMusicModel = model;
+        mMainThreadDispatch.onMemberChorusReady(model);
     }
 
     private SyncManager.EventListener mRoomEvent = new SyncManager.EventListener() {
@@ -402,12 +441,46 @@ public final class RoomManager {
         public void onCreated(AgoraObject item) {
             MemberMusicModel data = item.toObject(MemberMusicModel.class);
             data.setId(item.getId());
-            onMusicAdd(data);
+
+            synchronized (musicObject) {
+                onMusicAdd(data);
+            }
         }
 
         @Override
         public void onUpdated(AgoraObject item) {
+            MemberMusicModel newData = item.toObject(MemberMusicModel.class);
+            newData.setId(item.getId());
 
+            synchronized (musicObject) {
+                if (ObjectsCompat.equals(newData.getId(), mMusicModel.getId())) {
+                    if (mMusicModel.getType() == MemberMusicModel.SingType.Chorus) {
+                        if (newData.getType() == MemberMusicModel.SingType.Single) {
+                            //合唱模式下，不等待，直接开始。
+                            onMusicChanged(newData);
+                            return;
+                        }
+
+                        if (!TextUtils.isEmpty(newData.getUserId()) && TextUtils.isEmpty(newData.getUser1Id())
+                                && !TextUtils.isEmpty(newData.getApplyUser1Id())) {
+                            onMemberApplyJoinChorus(newData);
+                            return;
+                        }
+
+                        if (!TextUtils.isEmpty(mMusicModel.getUserId()) && TextUtils.isEmpty(mMusicModel.getUser1Id())
+                                && !TextUtils.isEmpty(newData.getUser1Id())) {
+                            onMemberJoinedChorus(newData);
+                            return;
+                        }
+
+                        if (!TextUtils.isEmpty(newData.getUserId()) && newData.getUserStatus() == MemberMusicModel.UserStatus.Ready
+                                && !TextUtils.isEmpty(newData.getUser1Id()) && newData.getUser1Status() == MemberMusicModel.UserStatus.Ready) {
+                            onMemberChorusReady(newData);
+                            return;
+                        }
+                    }
+                }
+            }
         }
 
         @Override
@@ -752,6 +825,7 @@ public final class RoomManager {
             //房主退出
             return Completable.create(emitter ->
             {
+                //清理 Member 表
                 DocumentReference dcRoom = SyncManager.Instance()
                         .collection(AgoraRoom.TABLE_NAME)
                         .document(mRoom.getId());
@@ -761,28 +835,43 @@ public final class RoomManager {
                         .delete(new SyncManager.Callback() {
                             @Override
                             public void onSuccess() {
-                                emitter.onComplete();
+
                             }
 
                             @Override
                             public void onFail(AgoraException exception) {
-                                emitter.onError(exception);
                             }
                         });
 
+                //清理 Room 表
                 SyncManager.Instance()
                         .getRoom(mRoom.getId())
                         .delete(new SyncManager.Callback() {
                             @Override
                             public void onSuccess() {
-                                emitter.onComplete();
                             }
 
                             @Override
                             public void onFail(AgoraException exception) {
-                                emitter.onError(exception);
                             }
                         });
+
+                //清理 Music 表
+                SyncManager.Instance()
+                        .getRoom(mRoom.getId())
+                        .collection(MemberMusicModel.TABLE_NAME)
+                        .query(new Query().whereEqualTo(MemberMusicModel.COLUMN_ROOMID, dcRoom))
+                        .delete(new SyncManager.Callback() {
+                            @Override
+                            public void onSuccess() {
+                            }
+
+                            @Override
+                            public void onFail(AgoraException exception) {
+                            }
+                        });
+
+                emitter.onComplete();
             }).doOnComplete(() -> {
                 mRoom = null;
                 mMine = null;
@@ -791,21 +880,45 @@ public final class RoomManager {
         } else {
             //观众退出
             return Completable.create(emitter ->
+            {
+                //清理 Member 表
+                SyncManager.Instance()
+                        .getRoom(mRoom.getId())
+                        .collection(AgoraMember.TABLE_NAME)
+                        .document(mMine.getId())
+                        .delete(new SyncManager.Callback() {
+                            @Override
+                            public void onSuccess() {
+                            }
+
+                            @Override
+                            public void onFail(AgoraException exception) {
+                            }
+                        });
+
+                DocumentReference dcRoom = SyncManager.Instance()
+                        .collection(AgoraRoom.TABLE_NAME)
+                        .document(mRoom.getId());
+                User mUser = UserManager.Instance(mContext).getUserLiveData().getValue();
+                if (mUser != null) {
+                    //清理 Music 表
                     SyncManager.Instance()
                             .getRoom(mRoom.getId())
-                            .collection(AgoraMember.TABLE_NAME)
-                            .document(mMine.getId())
+                            .collection(MemberMusicModel.TABLE_NAME)
+                            .query(new Query().whereEqualTo(MemberMusicModel.COLUMN_ROOMID, dcRoom).whereEqualTo(MemberMusicModel.COLUMN_USERID, mUser.getObjectId()))
                             .delete(new SyncManager.Callback() {
                                 @Override
                                 public void onSuccess() {
-                                    emitter.onComplete();
                                 }
 
                                 @Override
                                 public void onFail(AgoraException exception) {
-                                    emitter.onError(exception);
                                 }
-                            }))
+                            });
+                }
+
+                emitter.onComplete();
+            })
                     .doOnComplete(() -> {
                         mRoom = null;
                         mMine = null;

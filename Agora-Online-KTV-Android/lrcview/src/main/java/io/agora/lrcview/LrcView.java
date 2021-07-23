@@ -143,6 +143,14 @@ public class LrcView extends View {
             return super.onTouchEvent(event);
         }
 
+        if (entrys.isEmpty()) {
+            return super.onTouchEvent(event);
+        }
+
+        if (targetIndex < 0 || entrys.size() <= targetIndex) {
+            return super.onTouchEvent(event);
+        }
+
         if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL) {
             isInDrag = false;
             mNewLine = true;

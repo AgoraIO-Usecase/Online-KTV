@@ -67,7 +67,27 @@ public class SimpleRoomEventCallback implements RoomEventCallback {
     }
 
     @Override
+    public void onMemberApplyJoinChorus(@NonNull MemberMusicModel music) {
+
+    }
+
+    @Override
+    public void onMemberJoinedChorus(@NonNull MemberMusicModel music) {
+
+    }
+
+    @Override
+    public void onMemberChorusReady(@NonNull MemberMusicModel music) {
+
+    }
+
+    @Override
     public void onMusicProgress(long total, long cur) {
+
+    }
+
+    @Override
+    public void onCountDown(int time) {
 
     }
 }

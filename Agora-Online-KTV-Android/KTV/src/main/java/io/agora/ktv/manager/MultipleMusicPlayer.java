@@ -1,0 +1,688 @@
+package io.agora.ktv.manager;
+
+import android.content.Context;
+import android.text.TextUtils;
+
+import androidx.annotation.NonNull;
+import androidx.core.util.ObjectsCompat;
+
+import com.agora.data.manager.UserManager;
+import com.agora.data.model.AgoraRoom;
+import com.agora.data.model.User;
+import com.agora.data.provider.AgoraObject;
+import com.agora.data.sync.AgoraException;
+import com.agora.data.sync.SyncManager;
+
+import org.json.JSONObject;
+
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
+
+import io.agora.baselibrary.util.ToastUtile;
+import io.agora.ktv.R;
+import io.agora.ktv.bean.MemberMusicModel;
+import io.agora.rtc2.ChannelMediaOptions;
+import io.agora.rtc2.Constants;
+import io.agora.rtc2.DataStreamConfig;
+import io.agora.rtc2.IRtcEngineEventHandler;
+import io.agora.rtc2.RtcConnection;
+import io.reactivex.SingleObserver;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+
+/**
+ * 1.起始函数{@link MultipleMusicPlayer#prepare}。
+ * 2.陪唱点击按钮"加入合唱"后，触发申请{@link io.agora.ktv.view.RoomActivity#joinChorus}，然后触发{@link MultipleMusicPlayer#onMemberApplyJoinChorus}，主唱把第一个人设置成陪唱。
+ * 3.有陪唱加入后，会收到回调{@link MultipleMusicPlayer#onMemberJoinedChorus}，开始下载资源。
+ * 4.{@link MultipleMusicPlayer#joinChannelEX}之后，修改状态成Ready，当所有唱歌的人都Ready后，会触发{@link MultipleMusicPlayer#onMemberChorusReady}
+ */
+public class MultipleMusicPlayer extends BaseMusicPlayer {
+
+    private static final long PLAY_WAIT = 1000L;
+
+    private final SimpleRoomEventCallback mRoomEventCallback = new SimpleRoomEventCallback() {
+        @Override
+        public void onMemberApplyJoinChorus(@NonNull MemberMusicModel music) {
+            super.onMemberApplyJoinChorus(music);
+            MultipleMusicPlayer.this.onMemberApplyJoinChorus(music);
+        }
+
+        @Override
+        public void onMemberJoinedChorus(@NonNull MemberMusicModel music) {
+            super.onMemberJoinedChorus(music);
+            MultipleMusicPlayer.this.onMemberJoinedChorus(music);
+        }
+
+        @Override
+        public void onMemberChorusReady(@NonNull MemberMusicModel music) {
+            super.onMemberChorusReady(music);
+            MultipleMusicPlayer.this.onMemberChorusReady(music);
+        }
+    };
+
+    public MultipleMusicPlayer(Context mContext) {
+        super(mContext);
+        RoomManager.Instance(mContext).addRoomEventCallback(mRoomEventCallback);
+    }
+
+    @Override
+    public void destory() {
+        super.destory();
+        stopNetTestTask();
+        RoomManager.Instance(mContext).removeRoomEventCallback(mRoomEventCallback);
+    }
+
+    private boolean mRunNetTask = false;
+    private Thread mDisplayThread;
+
+    @Override
+    public void onJoinChannelSuccess(String channel, int uid, int elapsed) {
+        super.onJoinChannelSuccess(channel, uid, elapsed);
+    }
+
+    private void startNetTestTask() {
+        mRunNetTask = true;
+        mDisplayThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (mRunNetTask) {
+                    sendTestDelay();
+
+                    try {
+                        Thread.sleep(2000L);
+                    } catch (InterruptedException exp) {
+                        break;
+                    }
+                }
+            }
+        });
+        mDisplayThread.start();
+    }
+
+    private void stopNetTestTask() {
+        mRunNetTask = false;
+        if (mDisplayThread != null) {
+            mDisplayThread.interrupt();
+            mDisplayThread = null;
+        }
+    }
+
+    private MemberMusicModel musicModelReady;
+
+    @Override
+    public void prepare(@NonNull MemberMusicModel music) {
+        User mUser = UserManager.Instance(mContext).getUserLiveData().getValue();
+        if (mUser == null) {
+            return;
+        }
+
+        AgoraRoom mRoom = RoomManager.Instance(mContext).getRoom();
+        if (mRoom == null) {
+            return;
+        }
+
+        if (ObjectsCompat.equals(music.getUserId(), mUser.getObjectId())) {
+
+        } else if (ObjectsCompat.equals(music.getUser1Id(), mUser.getObjectId())) {
+            onMemberJoinedChorus(music);
+        } else {
+            if (!TextUtils.isEmpty(music.getUserId()) && music.getUserStatus() == MemberMusicModel.UserStatus.Ready
+                    && !TextUtils.isEmpty(music.getUser1Id()) && music.getUser1Status() == MemberMusicModel.UserStatus.Ready) {
+                onMemberChorusReady(music);
+            } else if (!TextUtils.isEmpty(music.getUser1Id()) && music.getUser1Status() == MemberMusicModel.UserStatus.Idle) {
+                onMemberJoinedChorus(music);
+            } else if (!TextUtils.isEmpty(music.getApplyUser1Id())) {
+                onMemberApplyJoinChorus(music);
+            }
+        }
+    }
+
+    private void joinChannelEX() {
+        User mUser = UserManager.Instance(mContext).getUserLiveData().getValue();
+        if (mUser == null) {
+            return;
+        }
+
+        AgoraRoom mRoom = RoomManager.Instance(mContext).getRoom();
+        assert mRoom != null;
+
+        ChannelMediaOptions options = new ChannelMediaOptions();
+        if (ObjectsCompat.equals(musicModelReady.getUserId(), mUser.getObjectId())) {
+            options.publishAudioTrack = true;
+            options.publishMediaPlayerId = mPlayer.getMediaPlayerId();
+            options.publishMediaPlayerAudioTrack = true;
+        } else if (ObjectsCompat.equals(musicModelReady.getUser1Id(), mUser.getObjectId())) {
+            options.publishAudioTrack = true;
+            options.publishMediaPlayerId = mPlayer.getMediaPlayerId();
+            options.publishMediaPlayerAudioTrack = false;
+        }
+
+        RoomManager.Instance(mContext).getRtcEngine().joinChannelEx("", mRoom.getId(), 0, options, new IRtcEngineEventHandler() {
+            @Override
+            public void onJoinChannelSuccess(String channel, int uid, int elapsed) {
+                super.onJoinChannelSuccess(channel, uid, elapsed);
+                mLogger.d("onJoinChannelSuccess() called with: channel = [%s], uid = [%s], elapsed = [%s]", channel, uid, elapsed);
+                MultipleMusicPlayer.this.onJoinChannelSuccess(uid);
+            }
+
+            @Override
+            public void onLeaveChannel(RtcStats stats) {
+                super.onLeaveChannel(stats);
+                mLogger.d("onLeaveChannel() called with: stats = [%s]", stats);
+            }
+        }, new RtcConnection());
+    }
+
+    private int mUid;
+
+    private void onJoinChannelSuccess(int uid) {
+        User mUser = UserManager.Instance(mContext).getUserLiveData().getValue();
+        if (mUser == null) {
+            return;
+        }
+
+        AgoraRoom mRoom = RoomManager.Instance(mContext).getRoom();
+        if (mRoom == null) {
+            return;
+        }
+
+        this.mUid = uid;
+        Long streamId = uid & 0xffffffffL;
+        if (ObjectsCompat.equals(musicModelReady.getUserId(), mUser.getObjectId())) {
+            HashMap<String, Object> maps = new HashMap<>();
+            maps.put(MemberMusicModel.COLUMN_USERSTATUS, MemberMusicModel.UserStatus.Ready.value);
+            maps.put(MemberMusicModel.COLUMN_USERBGID, streamId);
+
+            SyncManager.Instance()
+                    .getRoom(mRoom.getId())
+                    .collection(MemberMusicModel.TABLE_NAME)
+                    .document(musicModelReady.getId())
+                    .update(maps, new SyncManager.DataItemCallback() {
+                        @Override
+                        public void onSuccess(AgoraObject result) {
+
+                        }
+
+                        @Override
+                        public void onFail(AgoraException exception) {
+
+                        }
+                    });
+        } else if (ObjectsCompat.equals(musicModelReady.getUser1Id(), mUser.getObjectId())) {
+            HashMap<String, Object> maps = new HashMap<>();
+            maps.put(MemberMusicModel.COLUMN_USER1STATUS, MemberMusicModel.UserStatus.Ready.value);
+            maps.put(MemberMusicModel.COLUMN_USER1BGID, streamId);
+
+            SyncManager.Instance()
+                    .getRoom(mRoom.getId())
+                    .collection(MemberMusicModel.TABLE_NAME)
+                    .document(musicModelReady.getId())
+                    .update(maps, new SyncManager.DataItemCallback() {
+                        @Override
+                        public void onSuccess(AgoraObject result) {
+
+                        }
+
+                        @Override
+                        public void onFail(AgoraException exception) {
+
+                        }
+                    });
+        }
+    }
+
+    @Override
+    protected void onMusicOpenCompleted() {
+        mLogger.i("onMusicOpenCompleted() called");
+        mStatus = Status.Opened;
+
+        BaseMusicPlayer.mMusicModel = mMusicModelOpen;
+        mMusicModelOpen = null;
+
+        startDisplayLrc();
+        mHandler.obtainMessage(ACTION_ON_MUSIC_OPENCOMPLETED, mPlayer.getDuration()).sendToTarget();
+    }
+
+    private volatile boolean isApplyJoinChorus = false;
+
+    private void onMemberApplyJoinChorus(@NonNull MemberMusicModel music) {
+        User mUser = UserManager.Instance(mContext).getUserLiveData().getValue();
+        if (mUser == null) {
+            return;
+        }
+
+        if (!ObjectsCompat.equals(mUser.getObjectId(), music.getUserId())) {
+            return;
+        }
+
+        AgoraRoom mRoom = RoomManager.Instance(mContext).getRoom();
+        if (mRoom == null) {
+            return;
+        }
+
+        if (isApplyJoinChorus) {
+            return;
+        }
+
+        isApplyJoinChorus = true;
+        HashMap<String, Object> maps = new HashMap<>();
+        maps.put(MemberMusicModel.COLUMN_USER1ID, music.getApplyUser1Id());
+        maps.put(MemberMusicModel.COLUMN_APPLYUSERID, "");
+
+        SyncManager.Instance()
+                .getRoom(mRoom.getId())
+                .collection(MemberMusicModel.TABLE_NAME)
+                .document(music.getId())
+                .update(maps, new SyncManager.DataItemCallback() {
+                    @Override
+                    public void onSuccess(AgoraObject result) {
+                        isApplyJoinChorus = false;
+                    }
+
+                    @Override
+                    public void onFail(AgoraException exception) {
+                        isApplyJoinChorus = false;
+                    }
+                });
+    }
+
+    private void onMemberJoinedChorus(@NonNull MemberMusicModel music) {
+        User mUser = UserManager.Instance(mContext).getUserLiveData().getValue();
+        if (mUser == null) {
+            return;
+        }
+
+        if (ObjectsCompat.equals(mUser.getObjectId(), music.getUserId())
+                || ObjectsCompat.equals(mUser.getObjectId(), music.getUser1Id())) {
+            onPrepareResource();
+            ResourceManager.Instance(mContext)
+                    .download(music, false)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new SingleObserver<MemberMusicModel>() {
+                        @Override
+                        public void onSubscribe(@NonNull Disposable d) {
+
+                        }
+
+                        @Override
+                        public void onSuccess(@NonNull MemberMusicModel musicModel) {
+                            onResourceReady(musicModel);
+                            musicModelReady = musicModel;
+
+                            open(musicModelReady);
+
+                            if (ObjectsCompat.equals(mUser.getObjectId(), music.getUserId())) {
+                                joinChannelEX();
+                            } else if (ObjectsCompat.equals(mUser.getObjectId(), music.getUser1Id())) {
+                                startNetTestTask();
+                                joinChannelEX();
+                            }
+                        }
+
+                        @Override
+                        public void onError(@NonNull Throwable e) {
+                            ToastUtile.toastShort(mContext, R.string.ktv_lrc_load_fail);
+                        }
+                    });
+        }
+    }
+
+    /**
+     * 主唱逻辑：
+     * 1.{@link MultipleMusicPlayer#sendStartPlay}通知陪唱的人，要开始了。
+     * 2.陪唱人会收到{@link MultipleMusicPlayer#onReceivedStatusPlay}。
+     * 3.为了保证所有人同时播放音乐，做延迟wait。
+     * <p>
+     * 陪唱逻辑:{@link MultipleMusicPlayer#onReceivedStatusPlay}
+     *
+     * @param music
+     */
+    private void onMemberChorusReady(@NonNull MemberMusicModel music) {
+        User mUser = UserManager.Instance(mContext).getUserLiveData().getValue();
+        if (mUser == null) {
+            return;
+        }
+
+        if (ObjectsCompat.equals(music.getUser1Id(), mUser.getObjectId())) {
+            RoomManager.Instance(mContext).getRtcEngine().muteRemoteVideoStreamEx(music.getUserbgId().intValue(), true, new RtcConnection());
+            RoomManager.Instance(mContext).getRtcEngine().muteRemoteVideoStreamEx(music.getUser1bgId().intValue(), true, new RtcConnection());
+        }
+
+        if (ObjectsCompat.equals(music.getUserId(), mUser.getObjectId())
+                || ObjectsCompat.equals(music.getUser1Id(), mUser.getObjectId())) {
+            music.setFileMusic(musicModelReady.getFileMusic());
+            music.setFileLrc(musicModelReady.getFileLrc());
+
+            if (ObjectsCompat.equals(music.getUserId(), mUser.getObjectId())) {
+                sendStartPlay();
+                try {
+                    synchronized (this) {
+                        wait(PLAY_WAIT);
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                play();
+            }
+        } else {
+            onPrepareResource();
+
+            ResourceManager.Instance(mContext)
+                    .download(music, true)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new SingleObserver<MemberMusicModel>() {
+                        @Override
+                        public void onSubscribe(@NonNull Disposable d) {
+
+                        }
+
+                        @Override
+                        public void onSuccess(@NonNull MemberMusicModel musicModel) {
+                            onResourceReady(musicModel);
+
+                            onMusicPlaingByListener();
+                            playWithDisplay(music);
+                        }
+
+                        @Override
+                        public void onError(@NonNull Throwable e) {
+                            ToastUtile.toastShort(mContext, R.string.ktv_lrc_load_fail);
+                        }
+                    });
+        }
+    }
+
+    @Override
+    protected void onReceivedStatusPlay(int uid) {
+        super.onReceivedStatusPlay(uid);
+
+        MemberMusicModel mMemberMusicModel = RoomManager.Instance(mContext).getMusicModel();
+        if (mMemberMusicModel == null) {
+            return;
+        }
+
+        User mUser = UserManager.Instance(mContext).getUserLiveData().getValue();
+        if (mUser == null) {
+            return;
+        }
+
+        if (ObjectsCompat.equals(mMemberMusicModel.getUser1Id(), mUser.getObjectId())) {
+            if (mStatus == Status.Started) {
+                return;
+            }
+
+            try {
+                synchronized (this) {
+//                    long now = System.currentTimeMillis();
+//                    long remoteTs = now - offsetTS;
+//                    long offset = remoteTs - time;
+//                    long waitTime = PLAY_WAIT - offset;
+//                    mLogger.d("onReceivedStatusPlay() called with: waitTime = [%s]", waitTime);
+//                    if (waitTime > 0) {
+//                        wait(waitTime);
+//                    }
+
+                    long waitTime = PLAY_WAIT - netRtt;
+                    mLogger.d("onReceivedStatusPlay() called with: waitTime = [%s]", waitTime);
+                    if (waitTime > 0) {
+                        wait(waitTime);
+                    }
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            play();
+        }
+    }
+
+    @Override
+    protected void onReceivedStatusPause(int uid) {
+        super.onReceivedStatusPause(uid);
+
+        MemberMusicModel mMemberMusicModel = RoomManager.Instance(mContext).getMusicModel();
+        if (mMemberMusicModel == null) {
+            return;
+        }
+
+        User mUser = UserManager.Instance(mContext).getUserLiveData().getValue();
+        if (mUser == null) {
+            return;
+        }
+
+        if (ObjectsCompat.equals(mMemberMusicModel.getUserId(), mUser.getObjectId())) {
+
+        } else if (ObjectsCompat.equals(mMemberMusicModel.getUser1Id(), mUser.getObjectId())) {
+            pause();
+        }
+    }
+
+    @Override
+    protected void onReceivedSetLrcTime(int uid, long position) {
+        MemberMusicModel mMemberMusicModel = RoomManager.Instance(mContext).getMusicModel();
+        if (mMemberMusicModel == null) {
+            return;
+        }
+
+        User mUser = UserManager.Instance(mContext).getUserLiveData().getValue();
+        if (mUser == null) {
+            return;
+        }
+
+        if (ObjectsCompat.equals(mMemberMusicModel.getUserId(), mUser.getObjectId())) {
+
+        } else if (ObjectsCompat.equals(mMemberMusicModel.getUser1Id(), mUser.getObjectId())) {
+            if (mStatus == Status.Paused) {
+                resume();
+            }
+
+//            long now = System.currentTimeMillis();
+//            long offsetTs = now - offsetTS - ts;
+//
+//            long remotePos = position + offsetTs;
+//            long localPos = mPlayer.getPlayPosition();
+//            long offsetPos = localPos - remotePos;
+//            if (Math.abs(offsetPos) > 500) {
+//                if (offsetPos > 0) {
+//                    seek(remotePos + 100);
+//                } else {
+//                    seek(remotePos - 100);
+//                }
+//            }
+//            mLogger.d("onReceivedSetLrcTime() called with: position = [%s], remotePos = [%s], localPos = [%s], offsetPos = [%s], offsetTs = [%s]", position, remotePos, localPos, offsetPos, offsetTs);
+
+            long remotePos = position + (netRtt / 2);
+            long localPos = mPlayer.getPlayPosition();
+            long offsetPos = localPos - remotePos;
+            if (Math.abs(offsetPos) > 500) {
+                seek(remotePos);
+            }
+            mLogger.d("onReceivedSetLrcTime() called with: remotePos = [%s], localPos = [%s], offsetPos = [%s]", remotePos, localPos, offsetPos);
+        } else {
+            super.onReceivedSetLrcTime(uid, position);
+        }
+    }
+
+    @Override
+    protected void onReceivedTestDelay(int uid, long time) {
+        super.onReceivedTestDelay(uid, time);
+
+        MemberMusicModel mMemberMusicModel = RoomManager.Instance(mContext).getMusicModel();
+        if (mMemberMusicModel == null) {
+            return;
+        }
+
+        User mUser = UserManager.Instance(mContext).getUserLiveData().getValue();
+        if (mUser == null) {
+            return;
+        }
+
+        if (ObjectsCompat.equals(mMemberMusicModel.getUserId(), mUser.getObjectId())) {
+            sendReplyTestDelay(time);
+        }
+    }
+
+    private long offsetTS = 0;
+    private long netRtt = 0;
+
+    @Override
+    protected void onReceivedReplyTestDelay(int uid, long testDelayTime, long time) {
+        super.onReceivedReplyTestDelay(uid, testDelayTime, time);
+        MemberMusicModel mMemberMusicModel = RoomManager.Instance(mContext).getMusicModel();
+        if (mMemberMusicModel == null) {
+            return;
+        }
+
+        User mUser = UserManager.Instance(mContext).getUserLiveData().getValue();
+        if (mUser == null) {
+            return;
+        }
+
+        if (ObjectsCompat.equals(mMemberMusicModel.getUser1Id(), mUser.getObjectId())) {
+            long localTs = System.currentTimeMillis();
+            long rtt = localTs - testDelayTime;
+            offsetTS = localTs - time - rtt / 2;
+            netRtt = System.currentTimeMillis() - testDelayTime;
+            mLogger.d("TestDelay offsetTS= [%s], netRtt = [%s]", offsetTS, netRtt);
+        }
+    }
+
+    @Override
+    public void switchRole(int role) {
+        mLogger.d("switchRole() called with: role = [%s]", role);
+        mRole = role;
+    }
+
+    @Override
+    public int open(MemberMusicModel mMusicModel) {
+        if (mRole != Constants.CLIENT_ROLE_BROADCASTER) {
+            mLogger.e("play: current role is not broadcaster, abort playing");
+            return -1;
+        }
+
+        if (mStatus.isAtLeast(Status.Opened)) {
+            mLogger.e("play: current player is in playing state already, abort playing");
+            return -2;
+        }
+
+        if (!mStopDisplayLrc) {
+            mLogger.e("play: current player is recving remote streams, abort playing");
+            return -3;
+        }
+
+        File fileMusic = mMusicModel.getFileMusic();
+        if (fileMusic.exists() == false) {
+            mLogger.e("play: fileMusic is not exists");
+            return -4;
+        }
+
+        File fileLrc = mMusicModel.getFileLrc();
+        if (fileLrc.exists() == false) {
+            mLogger.e("play: fileLrc is not exists");
+            return -5;
+        }
+
+        stopDisplayLrc();
+        // mpk open file
+        mAudioTrackIndex = 1;
+        BaseMusicPlayer.mMusicModelOpen = mMusicModel;
+        mLogger.i("play() called with: mMusicModel = [%s]", mMusicModel);
+        mPlayer.open(fileMusic.getAbsolutePath(), 0);
+        return 0;
+    }
+
+    @Override
+    protected void startPublish() {
+        MemberMusicModel mMemberMusicModel = RoomManager.Instance(mContext).getMusicModel();
+        if (mMemberMusicModel == null) {
+            return;
+        }
+
+        User mUser = UserManager.Instance(mContext).getUserLiveData().getValue();
+        if (mUser == null) {
+            return;
+        }
+
+        if (ObjectsCompat.equals(mMemberMusicModel.getUserId(), mUser.getObjectId())) {
+            super.startPublish();
+        }
+    }
+
+    @Override
+    public void toggleStart() {
+        if (mStatus == Status.Started) {
+            sendPause();
+        } else if (mStatus == Status.Paused) {
+
+        }
+
+        super.toggleStart();
+    }
+
+    private Integer mStreamIdTestDelay;
+
+    public void sendReplyTestDelay(long receiveTime) {
+        if (mStreamIdTestDelay == null) {
+            DataStreamConfig cfg = new DataStreamConfig();
+            cfg.syncWithAudio = true;
+            cfg.ordered = true;
+            mStreamIdTestDelay = RoomManager.Instance(mContext).getRtcEngine().createDataStream(cfg);
+        }
+
+        Map<String, Object> msg = new HashMap<>();
+        msg.put("cmd", "replyTestDelay");
+        msg.put("testDelayTime", String.valueOf(receiveTime));
+        msg.put("time", String.valueOf(System.currentTimeMillis()));
+        JSONObject jsonMsg = new JSONObject(msg);
+        RoomManager.Instance(mContext).getRtcEngine().sendStreamMessage(mStreamIdTestDelay, jsonMsg.toString().getBytes());
+    }
+
+    public void sendTestDelay() {
+        if (mStreamIdTestDelay == null) {
+            DataStreamConfig cfg = new DataStreamConfig();
+            cfg.syncWithAudio = true;
+            cfg.ordered = true;
+            mStreamIdTestDelay = RoomManager.Instance(mContext).getRtcEngine().createDataStream(cfg);
+        }
+
+        Map<String, Object> msg = new HashMap<>();
+        msg.put("cmd", "testDelay");
+        msg.put("time", String.valueOf(System.currentTimeMillis()));
+        JSONObject jsonMsg = new JSONObject(msg);
+        RoomManager.Instance(mContext).getRtcEngine().sendStreamMessage(mStreamIdTestDelay, jsonMsg.toString().getBytes());
+    }
+
+    private Integer mStreamIdPlay;
+
+    public void sendStartPlay() {
+        if (mStreamIdPlay == null) {
+            DataStreamConfig cfg = new DataStreamConfig();
+            cfg.syncWithAudio = true;
+            cfg.ordered = true;
+            mStreamIdPlay = RoomManager.Instance(mContext).getRtcEngine().createDataStream(cfg);
+        }
+
+        Map<String, Object> msg = new HashMap<>();
+        msg.put("cmd", "setLrcTime");
+        msg.put("time", 0);
+        JSONObject jsonMsg = new JSONObject(msg);
+        RoomManager.Instance(mContext).getRtcEngine().sendStreamMessage(mStreamIdPlay, jsonMsg.toString().getBytes());
+    }
+
+    public void sendPause() {
+        if (mStreamIdPlay == null) {
+            DataStreamConfig cfg = new DataStreamConfig();
+            cfg.syncWithAudio = true;
+            cfg.ordered = true;
+            mStreamIdPlay = RoomManager.Instance(mContext).getRtcEngine().createDataStream(cfg);
+        }
+
+        Map<String, Object> msg = new HashMap<>();
+        msg.put("cmd", "setLrcTime");
+        msg.put("time", -1);
+        JSONObject jsonMsg = new JSONObject(msg);
+        RoomManager.Instance(mContext).getRtcEngine().sendStreamMessage(mStreamIdPlay, jsonMsg.toString().getBytes());
+    }
+}
