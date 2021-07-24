@@ -25,8 +25,6 @@ import io.agora.rtc2.ChannelMediaOptions;
 import io.agora.rtc2.Constants;
 import io.agora.rtc2.DataStreamConfig;
 import io.agora.rtc2.IRtcEngineEventHandler;
-import io.reactivex.Completable;
-import io.reactivex.CompletableEmitter;
 
 public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerObserver {
     protected final Logger.Builder mLogger = XLog.tag("MusicPlayer");
@@ -34,18 +32,19 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
     protected final Context mContext;
     protected int mRole = Constants.CLIENT_ROLE_BROADCASTER;
 
+    //主唱同步歌词给其他人
     private boolean mStopSyncLrc = true;
     private Thread mSyncLrcThread;
 
+    //歌词实时刷新
     protected boolean mStopDisplayLrc = true;
     private Thread mDisplayThread;
 
     protected IMediaPlayer mPlayer;
 
-    private static volatile long mRecvedPlayPosition = 0;
+    private static volatile long mRecvedPlayPosition = 0;//播放器播放position，ms
     private static volatile Long mLastRecvPlayPosTime = null;
 
-    protected static volatile MemberMusicModel mMusicModelOpen;
     protected static volatile MemberMusicModel mMusicModel;
 
     private Callback mCallback;
@@ -134,7 +133,6 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
     private void reset() {
         mRecvedPlayPosition = 0;
         mLastRecvPlayPosTime = null;
-        mMusicModelOpen = null;
         mMusicModel = null;
         mAudioTrackIndex = 1;
         mStatus = Status.IDLE;
@@ -176,91 +174,63 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
 
     public abstract void prepare(@NonNull MemberMusicModel music);
 
-    public void playWithDisplay(MemberMusicModel mMusicModel) {
+    public void playByListener(@NonNull MemberMusicModel mMusicModel) {
         BaseMusicPlayer.mMusicModel = mMusicModel;
         startDisplayLrc();
     }
 
-    public int open(MemberMusicModel mMusicModel) {
+    protected int open(@NonNull MemberMusicModel mMusicModel) {
         if (mRole != Constants.CLIENT_ROLE_BROADCASTER) {
-            mLogger.e("play: current role is not broadcaster, abort playing");
+            mLogger.e("open error: current role is not broadcaster, abort playing");
             return -1;
         }
 
         if (mStatus.isAtLeast(Status.Opened)) {
-            mLogger.e("play: current player is in playing state already, abort playing");
+            mLogger.e("open error: current player is in playing state already, abort playing");
             return -2;
         }
 
         if (!mStopDisplayLrc) {
-            mLogger.e("play: current player is recving remote streams, abort playing");
+            mLogger.e("open error: current player is recving remote streams, abort playing");
             return -3;
         }
 
         File fileMusic = mMusicModel.getFileMusic();
         if (fileMusic.exists() == false) {
-            mLogger.e("play: fileMusic is not exists");
+            mLogger.e("open error: fileMusic is not exists");
             return -4;
         }
 
         File fileLrc = mMusicModel.getFileLrc();
         if (fileLrc.exists() == false) {
-            mLogger.e("play: fileLrc is not exists");
+            mLogger.e("open error: fileLrc is not exists");
             return -5;
         }
 
-        ChannelMediaOptions options = new ChannelMediaOptions();
-        options.publishMediaPlayerId = mPlayer.getMediaPlayerId();
-        options.clientRoleType = mRole;
-        options.autoSubscribeAudio = true;
-        options.autoSubscribeVideo = false;
-        options.publishCameraTrack = false;
-        options.publishMediaPlayerVideoTrack = false;
-        options.publishAudioTrack = true;
-        options.publishCustomAudioTrack = false;
-        options.enableAudioRecordingOrPlayout = true;
-        options.publishMediaPlayerAudioTrack = true;
-        RoomManager.Instance(mContext).getRtcEngine().updateChannelMediaOptions(options);
-
         stopDisplayLrc();
-        // mpk open file
+
         mAudioTrackIndex = 1;
-        BaseMusicPlayer.mMusicModelOpen = mMusicModel;
-        mLogger.i("play() called with: mMusicModel = [%s]", mMusicModel);
+        BaseMusicPlayer.mMusicModel = mMusicModel;
+        mLogger.i("open() called with: mMusicModel = [%s]", mMusicModel);
         mPlayer.open(fileMusic.getAbsolutePath(), 0);
         return 0;
     }
 
-    private volatile CompletableEmitter emitterStop;
-
-    public Completable stop() {
+    public void stop() {
         mLogger.i("stop() called");
-        if (mStatus == Status.IDLE) {
-            return Completable.complete();
+        if (!mStatus.isAtLeast(Status.Started)) {
+            return;
         }
 
-        return Completable.create(emitter -> {
-            this.emitterStop = emitter;
-
-            ChannelMediaOptions options = new ChannelMediaOptions();
-            options.publishMediaPlayerId = mPlayer.getMediaPlayerId();
-            options.clientRoleType = mRole;
-            options.autoSubscribeAudio = true;
-            options.autoSubscribeVideo = false;
-            options.publishCameraTrack = false;
-            options.publishMediaPlayerVideoTrack = false;
-            options.publishAudioTrack = false;
-            options.publishCustomAudioTrack = false;
-            options.enableAudioRecordingOrPlayout = false;
-            options.publishMediaPlayerAudioTrack = false;
-            RoomManager.Instance(mContext).getRtcEngine().updateChannelMediaOptions(options);
-            // mpk stop
-            mPlayer.stop();
-        });
+        mPlayer.stop();
     }
 
     protected void play() {
         mLogger.i("start() called");
+        if (!mStatus.isAtLeast(Status.Opened)) {
+            return;
+        }
+
         if (mStatus == Status.Started)
             return;
 
@@ -270,6 +240,10 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
 
     protected void pause() {
         mLogger.i("pause() called");
+        if (!mStatus.isAtLeast(Status.Opened)) {
+            return;
+        }
+
         if (mStatus == Status.Paused)
             return;
 
@@ -278,6 +252,10 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
 
     protected void resume() {
         mLogger.i("resume() called");
+        if (!mStatus.isAtLeast(Status.Opened)) {
+            return;
+        }
+
         if (mStatus == Status.Started)
             return;
 
@@ -391,7 +369,6 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
                 mLogger.e("stopDisplayLrc: " + exp.getMessage());
             }
         }
-        mMusicModel = null;
     }
 
     private void startSyncLrc(String lrcId, long duration) {
@@ -585,9 +562,6 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
         mLogger.i("onMusicOpenCompleted() called");
         mStatus = Status.Opened;
 
-        BaseMusicPlayer.mMusicModel = mMusicModelOpen;
-        mMusicModelOpen = null;
-
         mPlayer.play();
         startDisplayLrc();
         mHandler.obtainMessage(ACTION_ON_MUSIC_OPENCOMPLETED, mPlayer.getDuration()).sendToTarget();
@@ -631,10 +605,6 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
         stopDisplayLrc();
         stopPublish();
         reset();
-
-        if (emitterStop != null) {
-            emitterStop.onComplete();
-        }
 
         mHandler.obtainMessage(ACTION_ON_MUSIC_STOP).sendToTarget();
     }

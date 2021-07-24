@@ -576,6 +576,40 @@ public final class RoomManager {
         return mMusicModel;
     }
 
+    public boolean isMainSinger() {
+        User mUser = UserManager.Instance(mContext).getUserLiveData().getValue();
+        if (mUser == null) {
+            return false;
+        }
+
+        if (mMusicModel == null) {
+            return false;
+        }
+
+        return ObjectsCompat.equals(mMusicModel.getUserId(), mUser.getObjectId());
+    }
+
+    public boolean isFollowSinger() {
+        User mUser = UserManager.Instance(mContext).getUserLiveData().getValue();
+        if (mUser == null) {
+            return false;
+        }
+
+        if (mMusicModel == null) {
+            return false;
+        }
+
+        return ObjectsCompat.equals(mMusicModel.getUser1Id(), mUser.getObjectId());
+    }
+
+    public boolean isMainSinger(@NonNull AgoraMember member) {
+        if (mMusicModel == null) {
+            return false;
+        }
+
+        return ObjectsCompat.equals(mMusicModel.getUserId(), member.getUserId());
+    }
+
     public List<MemberMusicModel> getMusics() {
         return musics;
     }

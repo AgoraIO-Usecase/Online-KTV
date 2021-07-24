@@ -67,7 +67,7 @@ public class SingleMusicPlayer extends BaseMusicPlayer {
                             onResourceReady(musicModel);
 
                             onMusicPlaingByListener();
-                            playWithDisplay(musicModel);
+                            playByListener(musicModel);
                         }
 
                         @Override

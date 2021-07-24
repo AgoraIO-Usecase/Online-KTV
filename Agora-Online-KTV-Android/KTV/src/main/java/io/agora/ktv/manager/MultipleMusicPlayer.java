@@ -15,7 +15,6 @@ import com.agora.data.sync.SyncManager;
 
 import org.json.JSONObject;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,7 +22,6 @@ import io.agora.baselibrary.util.ToastUtile;
 import io.agora.ktv.R;
 import io.agora.ktv.bean.MemberMusicModel;
 import io.agora.rtc2.ChannelMediaOptions;
-import io.agora.rtc2.Constants;
 import io.agora.rtc2.DataStreamConfig;
 import io.agora.rtc2.IRtcEngineEventHandler;
 import io.agora.rtc2.RtcConnection;
@@ -69,6 +67,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
     @Override
     public void destory() {
         super.destory();
+        leaveChannelEX();
         stopNetTestTask();
         RoomManager.Instance(mContext).removeRoomEventCallback(mRoomEventCallback);
     }
@@ -139,6 +138,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
     }
 
     private void joinChannelEX() {
+        mLogger.d("joinChannelEX() called");
         User mUser = UserManager.Instance(mContext).getUserLiveData().getValue();
         if (mUser == null) {
             return;
@@ -148,13 +148,12 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
         assert mRoom != null;
 
         ChannelMediaOptions options = new ChannelMediaOptions();
+        options.clientRoleType = mRole;
+        options.publishAudioTrack = true;
+        options.publishMediaPlayerId = mPlayer.getMediaPlayerId();
         if (ObjectsCompat.equals(musicModelReady.getUserId(), mUser.getObjectId())) {
-            options.publishAudioTrack = true;
-            options.publishMediaPlayerId = mPlayer.getMediaPlayerId();
             options.publishMediaPlayerAudioTrack = true;
         } else if (ObjectsCompat.equals(musicModelReady.getUser1Id(), mUser.getObjectId())) {
-            options.publishAudioTrack = true;
-            options.publishMediaPlayerId = mPlayer.getMediaPlayerId();
             options.publishMediaPlayerAudioTrack = false;
         }
 
@@ -172,6 +171,13 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
                 mLogger.d("onLeaveChannel() called with: stats = [%s]", stats);
             }
         }, new RtcConnection());
+    }
+
+    private void leaveChannelEX() {
+        mLogger.d("leaveChannelEX() called");
+        AgoraRoom mRoom = RoomManager.Instance(mContext).getRoom();
+        assert mRoom != null;
+        RoomManager.Instance(mContext).getRtcEngine().leaveChannelEx(mRoom.getId(), new RtcConnection());
     }
 
     private int mUid;
@@ -236,9 +242,6 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
     protected void onMusicOpenCompleted() {
         mLogger.i("onMusicOpenCompleted() called");
         mStatus = Status.Opened;
-
-        BaseMusicPlayer.mMusicModel = mMusicModelOpen;
-        mMusicModelOpen = null;
 
         startDisplayLrc();
         mHandler.obtainMessage(ACTION_ON_MUSIC_OPENCOMPLETED, mPlayer.getDuration()).sendToTarget();
@@ -383,7 +386,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
                             onResourceReady(musicModel);
 
                             onMusicPlaingByListener();
-                            playWithDisplay(music);
+                            playByListener(music);
                         }
 
                         @Override
@@ -553,44 +556,6 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
     public void switchRole(int role) {
         mLogger.d("switchRole() called with: role = [%s]", role);
         mRole = role;
-    }
-
-    @Override
-    public int open(MemberMusicModel mMusicModel) {
-        if (mRole != Constants.CLIENT_ROLE_BROADCASTER) {
-            mLogger.e("play: current role is not broadcaster, abort playing");
-            return -1;
-        }
-
-        if (mStatus.isAtLeast(Status.Opened)) {
-            mLogger.e("play: current player is in playing state already, abort playing");
-            return -2;
-        }
-
-        if (!mStopDisplayLrc) {
-            mLogger.e("play: current player is recving remote streams, abort playing");
-            return -3;
-        }
-
-        File fileMusic = mMusicModel.getFileMusic();
-        if (fileMusic.exists() == false) {
-            mLogger.e("play: fileMusic is not exists");
-            return -4;
-        }
-
-        File fileLrc = mMusicModel.getFileLrc();
-        if (fileLrc.exists() == false) {
-            mLogger.e("play: fileLrc is not exists");
-            return -5;
-        }
-
-        stopDisplayLrc();
-        // mpk open file
-        mAudioTrackIndex = 1;
-        BaseMusicPlayer.mMusicModelOpen = mMusicModel;
-        mLogger.i("play() called with: mMusicModel = [%s]", mMusicModel);
-        mPlayer.open(fileMusic.getAbsolutePath(), 0);
-        return 0;
     }
 
     @Override
