@@ -724,7 +724,7 @@
                                 <rect key="frame" x="16" y="612" width="343" height="40"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="19f-ON-zhH" userLabel="voice">
-                                        <rect key="frame" x="12" y="1" width="38" height="38"/>
+                                        <rect key="frame" x="0.0" y="1" width="38" height="38"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="38" id="619-NL-d7b"/>
                                             <constraint firstAttribute="height" constant="38" id="gwK-gG-f70"/>
@@ -732,7 +732,7 @@
                                         <state key="normal" image="iconVoice"/>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="c4D-UQ-6My">
-                                        <rect key="frame" x="62" y="1" width="38" height="38"/>
+                                        <rect key="frame" x="50" y="1" width="38" height="38"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="38" id="8wB-sR-hnp"/>
                                             <constraint firstAttribute="height" constant="38" id="FDH-Ou-ZSV"/>
@@ -754,7 +754,7 @@
                                     <constraint firstItem="vAL-P1-gn3" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="c4D-UQ-6My" secondAttribute="trailing" id="6Dk-xZ-kQf"/>
                                     <constraint firstItem="c4D-UQ-6My" firstAttribute="centerY" secondItem="EQa-5h-Oqo" secondAttribute="centerY" id="87q-vS-2Ov"/>
                                     <constraint firstAttribute="bottom" secondItem="SWH-7L-1Ck" secondAttribute="bottom" id="9tk-jg-eHw"/>
-                                    <constraint firstItem="19f-ON-zhH" firstAttribute="leading" secondItem="EQa-5h-Oqo" secondAttribute="leading" constant="12" id="AdY-0F-x4q"/>
+                                    <constraint firstItem="19f-ON-zhH" firstAttribute="leading" secondItem="EQa-5h-Oqo" secondAttribute="leading" id="AdY-0F-x4q"/>
                                     <constraint firstAttribute="trailing" secondItem="SWH-7L-1Ck" secondAttribute="trailing" id="NVK-VO-4Sf"/>
                                     <constraint firstItem="SWH-7L-1Ck" firstAttribute="leading" secondItem="vAL-P1-gn3" secondAttribute="trailing" constant="10" id="dTO-Tf-EEJ"/>
                                     <constraint firstItem="19f-ON-zhH" firstAttribute="centerY" secondItem="EQa-5h-Oqo" secondAttribute="centerY" id="hbS-Hy-XxM"/>

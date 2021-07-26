@@ -32,6 +32,7 @@ protocol IRoomManager {
 
     func initChorusMusicPlayer() -> Observable<Result<UInt>>
     func play(music: LocalMusic, option: LocalMusicOption?) -> Observable<Result<Void>>
+    func updateLocalMusic(option: LocalMusicOption?)
     func seekMusic(position: TimeInterval)
     func countdown(time: Int)
     func pauseMusic()

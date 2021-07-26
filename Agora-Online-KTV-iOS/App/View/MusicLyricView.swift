@@ -332,6 +332,9 @@ class MusicLyricView: UIView, UITableViewDataSource, UITableViewDelegate {
             let curIndex = lyrics.enumerated().first { item in
                 let currentLyric = item.element
                 let index = item.offset
+                if self.currentTime < currentLyric.startMsTime() {
+                    return true
+                }
                 let nexrLyric = index < lyrics.count - 1 ? lyrics[index + 1] : nil
                 return (self.currentTime >= currentLyric.startMsTime()) &&
                     ((nexrLyric != nil && self.currentTime < nexrLyric!.startMsTime()) || (index == lyrics.count - 1))

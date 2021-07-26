@@ -81,7 +81,7 @@ extension LiveKtvRoom {
     static let COVER = "cover"
     static let MV = "mv"
 
-    private static let CHECK_TIME_UP = true
+    private static let CHECK_TIME_UP = false
     private static let TIME_UP: Double = 10 * 60
 
     private static var manager: SyncManager {

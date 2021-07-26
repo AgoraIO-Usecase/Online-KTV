@@ -18,6 +18,15 @@ private class ChorusMasterView: UIView {
         }
     }
 
+    var isEnabled: Bool {
+        get {
+            return button.isEnabled
+        }
+        set {
+            button.isEnabled = newValue
+        }
+    }
+
     // sec
     var time: TimeInterval? {
         didSet {
@@ -92,6 +101,15 @@ private class ChorusFollowerView: UIView {
         didSet {
             titleView.text = music?.name
             time = 20
+        }
+    }
+
+    var isEnabled: Bool {
+        get {
+            return button.isEnabled
+        }
+        set {
+            button.isEnabled = newValue
         }
     }
 
@@ -174,6 +192,7 @@ class MVPlayer: NSObject {
         case downloadChorusMusic
         case syncChorusMusicReady
         case startChorus
+        case resyncChorus
     }
 
     weak var delegate: RoomController!
@@ -300,6 +319,7 @@ class MVPlayer: NSObject {
                                 } else if music.user1Id != nil, oldValue?.user1Id == nil {
                                     // wait sync users status (master)
                                     timer?.invalidate()
+                                    timer = nil
                                     status = .downloadChorusMusic
                                 }
                             } else if music.user1Id != nil, oldValue?.user1Id == nil {
@@ -312,6 +332,10 @@ class MVPlayer: NSObject {
                                 }
                             }
                         } else if oldValue?.isChorusReady() != true {
+                            if _isMyOrdedMusic || music.user1Id == member.userId {
+                                status = .startChorus
+                            }
+                        } else if (music.userbgId != oldValue?.userbgId) || (music.user1bgId != oldValue?.user1bgId) {
                             if _isMyOrdedMusic || music.user1Id == member.userId {
                                 status = .startChorus
                             }
@@ -400,32 +424,41 @@ class MVPlayer: NSObject {
                 self?.onError(message: message)
             }
         case .startChorus:
-            if let masterId = music?.userId, let followerId = music?.user1Id, let localMusic = _localMusic {
-                if localMusic.id == delegate.viewModel.playingMusic?.musicId,
-                   delegate.viewModel.isLocalMusicPlaying(music: localMusic) == false
-                {
-                    let masterUid = delegate.viewModel.memberList.first { member in
-                        member.userId == masterId
-                    }?.streamId
-                    let followerUid = delegate.viewModel.memberList.first { member in
-                        member.userId == followerId
-                    }?.streamId
-
-                    if let masterUid = masterUid, let masterMusicUid = music?.userbgId,
-                       let followerUid = followerUid, let folowerMusicUid = music?.user1bgId
-                    {
-                        Logger.log(self, message: "masterUid:\(masterUid) followerUid:\(followerUid)", level: .info)
-                        delegate.viewModel.play(music: localMusic, option: LocalMusicOption(masterUid: masterUid, masterMusicUid: masterMusicUid, followerUid: followerUid, followerMusicUid: folowerMusicUid)) { [weak self] waiting in
-                            self?.show(processing: waiting)
-                        } onSuccess: {} onError: { [weak self] message in
-                            self?.onError(message: message)
-                        }
-                    }
+            let option = getLocalMusicOption()
+            if let option = option, let localMusic = _localMusic {
+                delegate.viewModel.play(music: localMusic, option: option) { [weak self] waiting in
+                    self?.show(processing: waiting)
+                } onSuccess: { [weak self] in
+                    self?.status = .play
+                } onError: { [weak self] message in
+                    self?.onError(message: message)
                 }
             } else {
                 show(processing: false)
             }
+        case .resyncChorus:
+            let option = getLocalMusicOption()
+            if let option = option {
+                delegate.viewModel.updateLocalMusic(option: option)
+            }
         }
+    }
+
+    private func getLocalMusicOption() -> LocalMusicOption? {
+        if let masterId = music?.userId, let followerId = music?.user1Id {
+            let masterUid = delegate.viewModel.memberList.first { member in
+                member.userId == masterId
+            }?.streamId
+            let followerUid = delegate.viewModel.memberList.first { member in
+                member.userId == followerId
+            }?.streamId
+            if let masterUid = masterUid, let masterMusicUid = music?.userbgId,
+               let followerUid = followerUid, let folowerMusicUid = music?.user1bgId
+            {
+                return LocalMusicOption(masterUid: masterUid, masterMusicUid: masterMusicUid, followerUid: followerUid, followerMusicUid: folowerMusicUid)
+            }
+        }
+        return nil
     }
 
     private func show(processing: Bool) {
@@ -476,9 +509,8 @@ class MVPlayer: NSObject {
     }
 
     private func onPlayMusicChange() {
-        if let timer = timer {
-            timer.invalidate()
-        }
+        timer?.invalidate()
+        timer = nil
         if let member = member, let music = music {
             switch music.type {
             case LiveKtvMusic.NORMAL:
@@ -506,6 +538,7 @@ class MVPlayer: NSObject {
                     status = .waitChorusApply
                     if music.isOrderBy(member: member) {
                         chorusMasterView.music = music
+                        chorusMasterView.isEnabled = true
                         if chorusFollowerView.superview != nil {
                             chorusFollowerView.removeFromSuperview()
                         }
@@ -531,6 +564,7 @@ class MVPlayer: NSObject {
                         })
                     } else {
                         chorusFollowerView.music = music
+                        chorusFollowerView.isEnabled = true
                         if chorusMasterView.superview != nil {
                             chorusMasterView.removeFromSuperview()
                         }
@@ -544,6 +578,9 @@ class MVPlayer: NSObject {
                             }
                         }
                     }
+                } else if member.isSpeaker(), music.isChorusReady(), _isMyOrdedMusic || music.user1Id == member.userId {
+                    listenerOnPlayMusicChange()
+                    status = .downloadChorusMusic
                 } else {
                     listenerOnPlayMusicChange()
                 }
@@ -580,17 +617,17 @@ class MVPlayer: NSObject {
     }
 
     func onMusic(state: RtcMusicState) {
-//        if let music = music {
-//            let orderMusicMember = delegate.viewModel.memberList.first { member in
-//                member.userId == music.userId
-//            }
-//            if orderMusicMember?.streamId != state.uid {
-//                Logger.log(self, message: "", level: .info)
-//                return
-//            }
-//        } else {
-//            return
-//        }
+        switch status {
+        case .waitChorusApply:
+            if state.type != .countdown {
+                return
+            }
+        case .downloadChorusMusic, .syncChorusMusicReady, .startChorus:
+            return
+        default:
+            break
+        }
+
         switch state.type {
         case .position:
             musicLyricView.scrollLyric(currentTime: TimeInterval(state.position), totalTime: TimeInterval(state.duration))
@@ -624,12 +661,11 @@ class MVPlayer: NSObject {
                 }
             }
         case .countdown:
-            let time = state.position
             if let member = member, let music = music, music.isChorus() {
                 if music.isOrderBy(member: member) {
-                    chorusMasterView.time = TimeInterval(time)
+                    chorusMasterView.time = TimeInterval(state.position)
                 } else {
-                    chorusFollowerView.time = TimeInterval(time)
+                    chorusFollowerView.time = TimeInterval(state.position)
                 }
             }
         }
@@ -686,20 +722,24 @@ class MVPlayer: NSObject {
 
     func onTapChorusMasterButton() {
         if let music = music {
-            delegate.viewModel.toNormal(music: music) { [unowned self] waiting in
-                delegate.show(processing: waiting)
-            } onSuccess: {} onError: { [unowned self] message in
-                delegate.show(message: message, type: .error)
+            chorusMasterView.isEnabled = false
+            delegate.viewModel.toNormal(music: music) { [weak self] waiting in
+                self?.delegate.show(processing: waiting)
+            } onSuccess: {} onError: { [weak self] message in
+                self?.chorusMasterView.isEnabled = true
+                self?.delegate.show(message: message, type: .error)
             }
         }
     }
 
     func onTapChorusFollowerButton() {
         if let music = music {
-            delegate.viewModel.applyAsFollower(music: music) { [unowned self] waiting in
-                delegate.show(processing: waiting)
-            } onSuccess: {} onError: { [unowned self] message in
-                delegate.show(message: message, type: .error)
+            chorusFollowerView.isEnabled = false
+            delegate.viewModel.applyAsFollower(music: music) { [weak self] waiting in
+                self?.delegate.show(processing: waiting)
+            } onSuccess: {} onError: { [weak self] message in
+                self?.chorusFollowerView.isEnabled = true
+                self?.delegate.show(message: message, type: .error)
             }
         }
     }

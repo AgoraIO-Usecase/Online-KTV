@@ -49,7 +49,8 @@ class LiveKtvMusic: Codable, IAgoraModel {
     }
 
     func isChorusReady() -> Bool {
-        return userStatus == LiveKtvMusic.READY &&
+        return isChorus() &&
+            userStatus == LiveKtvMusic.READY &&
             userbgId != nil &&
             user1Id != nil &&
             user1Status == LiveKtvMusic.READY &&

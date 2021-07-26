@@ -159,6 +159,10 @@ class RoomViewModel {
             .disposed(by: disposeBag)
     }
 
+    func updateLocalMusic(option: LocalMusicOption?) {
+        manager.updateLocalMusic(option: option)
+    }
+
     private func getLrcMusic(music: LiveKtvMusic) -> Observable<Result<LrcMusic>> {
         if let data = lrcMusicCache[music.musicId] {
             return Observable.just(Result(success: true, data: data))

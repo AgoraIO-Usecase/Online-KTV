@@ -202,6 +202,12 @@ class RtcServer: NSObject {
         }.asObservable()
     }
 
+    func updateLocalMusic(option: LocalMusicOption?) {
+        if rtcMusicPlayer is RtcChorusMusicPlayer {
+            (rtcMusicPlayer as? RtcChorusMusicPlayer)?.option = option
+        }
+    }
+
     func play(music: LocalMusic, option: LocalMusicOption?) -> Observable<Result<Void>> {
         if let option = option {
             if rtcMusicPlayer is RtcNormalMusicPlayer {

@@ -337,7 +337,8 @@ class RtcNormalMusicPlayer: AbstractRtcMusicPlayer {
                 player.stop()
             }
             originMusic(enable: false)
-            rtc.setAudioProfile(.musicHighQualityStereo, scenario: .highDefinition)
+            // rtc.setAudioProfile(.musicHighQualityStereo, scenario: .highDefinition)
+            rtc.setAudioProfile(.default)
 
             let option = AgoraRtcChannelMediaOptions()
             option.publishMediaPlayerId = AgoraRtcIntOptional.of(player.getMediaPlayerId())
@@ -382,8 +383,20 @@ class RtcNormalMusicPlayer: AbstractRtcMusicPlayer {
 }
 
 class RtcChorusMusicPlayer: AbstractRtcMusicPlayer {
-    private(set) var connectionId: UInt = 0
-    var option: LocalMusicOption!
+    private(set) var connectionId: UInt32 = 0
+    var option: LocalMusicOption! {
+        didSet {
+            if let rtc = rtcServer.rtcEngine {
+                if isFollower() {
+                    if let oldMasterMusicUid = oldValue?.masterMusicUid {
+                        rtc.muteRemoteAudioStream(oldMasterMusicUid, mute: false)
+                    }
+                    rtc.muteRemoteAudioStream(option.masterMusicUid, mute: true)
+                }
+            }
+        }
+    }
+
     private var timer: Timer?
 
     override func initPlayer(onSuccess: @escaping () -> Void, onFailed: @escaping (String) -> Void) {
@@ -396,8 +409,7 @@ class RtcChorusMusicPlayer: AbstractRtcMusicPlayer {
             rtc.setParameters("{\"rtc.audio_resend\":false}")
             rtc.setParameters("{\"rtc.audio.max_neteq_packets\":2}")
             rtc.setParameters("{\"rtc.audio.max_target_delay\":20}")
-
-            rtc.setAudioProfile(.musicHighQualityStereo, scenario: .chorus)
+            rtc.setAudioProfile(.default, scenario: .chorus)
 
             if connectionId == 0 {
                 let option = AgoraRtcChannelMediaOptions()
@@ -456,7 +468,6 @@ class RtcChorusMusicPlayer: AbstractRtcMusicPlayer {
                     mediaOption.publishMediaPlayerAudioTrack = AgoraRtcBoolOptional.of(false)
                     rtc.updateChannelEx(with: mediaOption, connectionId: connectionId)
 
-                    rtc.muteRemoteAudioStream(option.masterMusicUid, mute: true)
                     if let timer = timer {
                         timer.invalidate()
                     }
@@ -576,9 +587,8 @@ class RtcChorusMusicPlayer: AbstractRtcMusicPlayer {
     private var delay: CLongLong = 0
     private var needSeek = false
 
-    private var seekDelay: CLongLong = 0
     private let delayPlayTime = 1000
-    private let MAX_DELAY_MS = 200
+    private let MAX_DELAY_MS = 40
 
     private func initDelay() {
         delayWithBrod = 0
@@ -642,93 +652,81 @@ class RtcChorusMusicPlayer: AbstractRtcMusicPlayer {
             return false
         }
 
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self else {
-                return
-            }
-            if let player = self.player {
-                Logger.log(self, message: "receiveThenProcess uid:\(uid) cmd:\(cmd)", level: .info)
-                if self.isFollower(), self.option.masterUid == uid {
-                    // follower receive message from master
-                    switch cmd {
-                    case "replyTestDelay":
-                        let now = CLongLong(round(Date().timeIntervalSince1970 * 1000))
-                        let testDelayTime = data["testDelayTime"] as! String
-                        let time = data["time"] as! String
-                        let start = CLongLong(testDelayTime)!
-                        let brodTs = CLongLong(time)!
-                        let position = CLongLong(data["position"] as! Int)
+        if let player = self.player {
+            Logger.log(self, message: "receiveThenProcess uid:\(uid) cmd:\(cmd)", level: .info)
+            if isFollower(), option.masterUid == uid {
+                // follower receive message from master
+                switch cmd {
+                case "replyTestDelay":
+                    let now = CLongLong(round(Date().timeIntervalSince1970 * 1000))
+                    let testDelayTime = data["testDelayTime"] as! String
+                    let time = data["time"] as! String
+                    let start = CLongLong(testDelayTime)!
+                    let brodTs = CLongLong(time)!
+                    let position = CLongLong(data["position"] as! Int)
 
-                        self.delay = (now - start) / 2
-                        self.delayWithBrod = brodTs - now + self.delay
-                        if self.needSeek, player.getPlayerState() == .playing {
-                            let expLocalTs = brodTs - position - self.delayWithBrod
+                    delay = (now - start) / 2
+                    delayWithBrod = brodTs - now + delay
+                    if needSeek, player.getPlayerState() == .playing {
+                        let expLocalTs = brodTs - position - delayWithBrod
+                        let localPosition = CLongLong(player.getPosition())
+                        let diff = now - localPosition - expLocalTs
+                        if abs(diff) > MAX_DELAY_MS {
+                            let expSeek = now - expLocalTs + seekTime
+                            lastExpectLocalPosition = expSeek
+                            lastSeekTime = now
+                            player.seek(toPosition: Int(expSeek))
+                            Logger.log(self, message: "checkTestDelay:\(delay) seekTime:\(seekTime) diff:\(diff)", level: .info)
+                        }
+                    }
+                case "setLrcTime":
+                    let now = CLongLong(round(Date().timeIntervalSince1970 * 1000))
+                    let position = data["time"] as! Int
+                    let ts = data["ts"] as! String
+                    let brodTs = CLongLong(ts)!
+                    if position < 0 {
+                        if player.getPlayerState() == .playing {
+                            player.pause()
+                        }
+                    } else if position == 0 {
+                        if player.getPlayerState() == .openCompleted {
+                            MachWrapper.wait(Int32(delayPlayTime - Int(delay)))
+                            player.play()
+                        } else if player.getPlayerState() == .paused {
+                            player.resume()
+                        }
+                    } else {
+                        let expLocalTs = brodTs - CLongLong(position) - delayWithBrod
+                        if player.getPlayerState() == .playing {
                             let localPosition = CLongLong(player.getPosition())
-                            let diff = now - localPosition - expLocalTs
-                            if abs(diff) > self.MAX_DELAY_MS {
-                                let expSeek = now - expLocalTs + self.seekTime // + (diff > 0 ? -20 : 20)
-                                self.lastExpectLocalPosition = expSeek
-                                self.lastSeekTime = now
-                                player.seek(toPosition: Int(expSeek + self.seekDelay))
-                                self.seekDelay = (expSeek - CLongLong(player.getPosition()) + self.seekDelay) / 2
-                                if self.seekDelay > 500 {
-                                    self.seekDelay = 500
-                                }
-                                Logger.log(self, message: "localPosition:\(localPosition) expSeek:\(expSeek) seekDelay:\(self.seekDelay)", level: .info)
-                                Logger.log(self, message: "checkTestDelay:\(self.delay) seekTime:\(self.seekTime) diff:\(diff)", level: .info)
+                            if lastSeekTime != 0 {
+                                seekTime = lastExpectLocalPosition + now - lastSeekTime - localPosition
+                                lastSeekTime = 0
+                                lastExpectLocalPosition = 0
                             }
+                            if abs(Int(now - localPosition - expLocalTs)) > MAX_DELAY_MS {
+                                needSeek = true
+                            }
+                        } else if player.getPlayerState() == .openCompleted {
+                            player.seek(toPosition: Int(now - expLocalTs))
+                            player.play()
+                        } else if player.getPlayerState() == .paused {
+                            player.resume()
                         }
-                    case "setLrcTime":
-                        // let duration = data["duration"] as! Int
-                        let now = CLongLong(round(Date().timeIntervalSince1970 * 1000))
-                        let position = data["time"] as! Int
-                        let ts = data["ts"] as! String
-                        let brodTs = CLongLong(ts)!
-                        if position < 0 {
-                            if player.getPlayerState() == .playing {
-                                player.pause()
-                            }
-                        } else if position == 0 {
-                            if player.getPlayerState() == .openCompleted {
-                                MachWrapper.wait(Int32(self.delayPlayTime - Int(self.delay)))
-                                player.play()
-                            } else if player.getPlayerState() == .paused {
-                                player.resume()
-                            }
-                        } else {
-                            let expLocalTs = brodTs - CLongLong(position) - self.delayWithBrod
-                            if player.getPlayerState() == .playing {
-                                let localPosition = CLongLong(player.getPosition())
-                                if self.lastSeekTime != 0 {
-                                    self.seekTime = self.lastExpectLocalPosition + now - self.lastSeekTime - localPosition
-                                    self.lastSeekTime = 0
-                                    self.lastExpectLocalPosition = 0
-                                    // player.seek(toPosition: Int(now - expLocalTs))
-                                }
-                                if abs(Int(now - localPosition - expLocalTs)) > self.MAX_DELAY_MS {
-                                    self.needSeek = true
-                                }
-                            } else if player.getPlayerState() == .openCompleted {
-                                player.seek(toPosition: Int(now - expLocalTs))
-                                player.play()
-                            } else if player.getPlayerState() == .paused {
-                                player.resume()
-                            }
-                        }
-                    // sentTestDelayMessage()
-                    default:
-                        break
                     }
-                } else if self.isMaster(), self.option.followerUid == uid {
-                    // master receive message from folower
-                    switch cmd {
-                    case "testDelay":
-                        let testDelayTime = data["time"] as! String
-                        let now = CLongLong(round(Date().timeIntervalSince1970 * 1000))
-                        self.sentCheckTestDelayMessage(testDelayTime: testDelayTime, time: String(now), position: player.getPosition())
-                    default:
-                        break
-                    }
+                // sentTestDelayMessage()
+                default:
+                    break
+                }
+            } else if isMaster(), option.followerUid == uid {
+                // master receive message from folower
+                switch cmd {
+                case "testDelay":
+                    let testDelayTime = data["time"] as! String
+                    let now = CLongLong(round(Date().timeIntervalSince1970 * 1000))
+                    sentCheckTestDelayMessage(testDelayTime: testDelayTime, time: String(now), position: player.getPosition())
+                default:
+                    break
                 }
             }
         }
