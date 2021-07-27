@@ -40,6 +40,7 @@ import io.agora.ktv.view.dialog.MusicSettingDialog;
 import io.agora.ktv.view.dialog.RoomChooseSongDialog;
 import io.agora.ktv.view.dialog.RoomMVDialog;
 import io.agora.ktv.view.dialog.UserSeatMenuDialog;
+import io.agora.ktv.view.dialog.WaitingDialog;
 import io.agora.ktv.widget.LrcControlView;
 import io.agora.rtc2.ChannelMediaOptions;
 import io.agora.rtc2.Constants;
@@ -365,6 +366,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
         AgoraRoom mRoom = getIntent().getExtras().getParcelable(TAG_ROOM);
         mDataBinding.tvName.setText(mRoom.getChannelName());
 
+        showJoinRoomDialog();
         RoomManager.Instance(this)
                 .joinRoom(mRoom)
                 .observeOn(AndroidSchedulers.mainThread())
@@ -377,15 +379,41 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
 
                     @Override
                     public void onComplete() {
+                        closeJoinRoomDialog();
                         onJoinRoom();
                     }
 
                     @Override
                     public void onError(@NonNull Throwable e) {
+                        closeJoinRoomDialog();
                         ToastUtile.toastShort(RoomActivity.this, "加入房间失败");
                         doLeave();
                     }
                 });
+    }
+
+    private WaitingDialog dialogJoinRoom = null;
+
+    private void showJoinRoomDialog() {
+        if (dialogJoinRoom != null && dialogJoinRoom.isShowing()) {
+            return;
+        }
+
+        dialogJoinRoom = new WaitingDialog();
+        dialogJoinRoom.show(getSupportFragmentManager(), getString(R.string.ktv_dialog_join_msg), new WaitingDialog.Callback() {
+            @Override
+            public void onTimeout() {
+
+            }
+        });
+    }
+
+    private void closeJoinRoomDialog() {
+        if (dialogJoinRoom == null || dialogJoinRoom.isShowing() == false) {
+            return;
+        }
+
+        dialogJoinRoom.dismiss();
     }
 
     private void onJoinRoom() {
@@ -887,6 +915,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
 
     @Override
     protected void onDestroy() {
+        closeJoinRoomDialog();
         stopOnTrialTimer();
 
         RoomManager.Instance(this).removeRoomEventCallback(mRoomEventCallback);

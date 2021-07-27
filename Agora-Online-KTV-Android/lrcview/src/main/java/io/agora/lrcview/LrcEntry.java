@@ -24,7 +24,6 @@ public class LrcEntry {
 
     private Rect[] drawRects;//控制进度
 
-    private Rect[] textRectWords;//每一个字
     private Rect[] textRectTotalWords;//每一段歌词
     private Rect[] textRectDisplayLines;//每一行显示的歌词
 
@@ -78,21 +77,17 @@ public class LrcEntry {
 
         StringBuilder sb = new StringBuilder();
         IEntry.Tone[] tones = mIEntry.getTones();
-        textRectWords = new Rect[tones.length];
         textRectTotalWords = new Rect[tones.length];
         String text;
         for (int i = 0; i < tones.length; i++) {
             IEntry.Tone tone = tones[i];
-            Rect rect = new Rect();
             Rect rectTotal = new Rect();
-            textRectWords[i] = rect;
             textRectTotalWords[i] = rectTotal;
             String s = tone.word;
             if (tone.lang != IEntry.Lang.Chinese) {
                 s = s + " ";
             }
             sb.append(s);
-            mTextPaintBG.getTextBounds(s, 0, s.length(), rect);
 
             text = sb.toString();
             mTextPaintBG.getTextBounds(text, 0, text.length(), rectTotal);
@@ -140,11 +135,24 @@ public class LrcEntry {
         IEntry.Tone[] tones = mIEntry.getTones();
         for (int i = 0; i < tones.length; i++) {
             IEntry.Tone tone = tones[i];
-            int wordLen = textRectWords[i].width();
-
             if (time >= tone.end) {
-                doneLen = textRectTotalWords[i].width();
+                if (mLayoutFG.getLineCount() == 1) {
+                    if (i == tones.length - 1) {
+                        doneLen = textRectDisplayLines[0].width();
+                    } else {
+                        doneLen = textRectTotalWords[i].width();
+                    }
+                } else {
+                    doneLen = textRectTotalWords[i].width();
+                }
             } else {
+                int wordLen = 0;
+                if (i == 0) {
+                    wordLen = textRectTotalWords[i].width();
+                } else {
+                    wordLen = textRectTotalWords[i].width() - textRectTotalWords[i - 1].width();
+                }
+
                 float percent = (time - tone.begin) / (float) (tone.end - tone.begin);
                 curLen = wordLen * percent;
                 break;

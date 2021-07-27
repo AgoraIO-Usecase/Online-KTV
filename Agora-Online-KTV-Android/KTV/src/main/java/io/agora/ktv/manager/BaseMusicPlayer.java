@@ -440,7 +440,6 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
         try {
             String strMsg = new String(data);
             jsonMsg = new JSONObject(strMsg);
-            mLogger.d("onStreamMessage() called with: uid = [%s], streamId = [%s], strMsg = [%s]", uid, streamId, strMsg);
 
             if (jsonMsg.getString("cmd").equals("setLrcTime")) {
                 long position = jsonMsg.getLong("time");
