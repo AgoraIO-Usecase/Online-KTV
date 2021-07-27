@@ -599,46 +599,6 @@ class RtcChorusMusicPlayer: AbstractRtcMusicPlayer {
         needSeek = false
     }
 
-    /**
-     *     m_                                                                     f_
-     *  [master]        <-         testDelay:(f_ts)                  <-        [follower]
-     *                  ->    replyTestDelay:(f_ts,m_ts,m_postion)   ->
-     *
-     *                            start = f_ts
-     *                            bordTs = m_ts
-     *                            postion = m_postion
-     *                            Delay = (now - start)/2
-     *                            DelayWithBrod = bordTs - now + Delay
-     *                            expLocalTs = now - delay - position
-     *                            diff_postion = position - f_postion
-     *                            diff = abs(delay + diff_postion)
-     *                              -> if > 40
-     *                                   expSeek = Delay + position + SeekTime
-     *                                   LastExpectLocalPosition = expSeek
-     *                                   LastSeekTime = now
-     *
-     *
-     *                  ->        setLrcTime:(m_position,m_ts)            ->
-     *
-     *                            bordTs = m_ts
-     *                            postion = m_postion
-     *                            -> if position = 0
-     *                                 delay(500ms - Delay) -> start play
-     *                            -> if position > 0
-     *                                 expLocalTs = m_ts - m_postion - DelayWithBrod
-     *                                 -> if LastSeekTime != 0
-     *                                      SeekTime = LastExpectLocalPosition + (now - LastSeekTime) - f_position
-     *                                      LastSeekTime = 0
-     *                                      LastExpectLocalPosition = 0
-     *                                 -> if abs(now - f_postion - expLocalTs) > 40
-     *                                      expSeek = now - expLocalTs + SeekTime
-     *                                      NeedSeek = true
-     *
-     *
-     *
-     *
-     */
-
     private func isMaster() -> Bool {
         return option != nil && option.masterUid == rtcServer.uid
     }
@@ -646,7 +606,14 @@ class RtcChorusMusicPlayer: AbstractRtcMusicPlayer {
     private func isFollower() -> Bool {
         return option != nil && option.followerUid == rtcServer.uid
     }
-
+    
+    /**
+     *     m_                                                                     f_
+     *  [master]        <-         testDelay:(f_ts)                  <-        [follower]
+     *                  ->    replyTestDelay:(f_ts,m_ts,m_postion)   ->
+     *
+     *                  ->        setLrcTime:(m_position,m_ts)       ->
+     */
     override func receiveThenProcess(uid: UInt, cmd: String, data: NSDictionary) -> Bool {
         if music == nil {
             return false

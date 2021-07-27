@@ -193,6 +193,8 @@ class MVPlayer: NSObject {
         case syncChorusMusicReady
         case startChorus
         case resyncChorus
+        case redownloadChorusMusic
+        case resyncChorusMusicReady
     }
 
     weak var delegate: RoomController!
@@ -337,7 +339,11 @@ class MVPlayer: NSObject {
                             }
                         } else if (music.userbgId != oldValue?.userbgId) || (music.user1bgId != oldValue?.user1bgId) {
                             if _isMyOrdedMusic || music.user1Id == member.userId {
-                                status = .startChorus
+                                if status == .resyncChorusMusicReady {
+                                    status = .startChorus
+                                } else {
+                                    status = .resyncChorus
+                                }
                             }
                         }
                     }
@@ -441,6 +447,27 @@ class MVPlayer: NSObject {
             if let option = option {
                 delegate.viewModel.updateLocalMusic(option: option)
             }
+        case .redownloadChorusMusic:
+            guard let music = music else {
+                return
+            }
+            delegate.viewModel.fetchMusic(music: music) { [weak self] waiting in
+                self?.delegate.onFetchMusic(finish: !waiting)
+            } onSuccess: { [weak self] localMusic in
+                self?._localMusic = localMusic
+                self?.status = .resyncChorusMusicReady
+            } onError: { [weak self] message in
+                self?.onError(message: message)
+            }
+        case .resyncChorusMusicReady:
+            guard let music = music else {
+                return
+            }
+            delegate.viewModel.setPlayMusicReady(music: music) { [weak self] waiting in
+                self?.show(processing: waiting)
+            } onSuccess: {} onError: { [weak self] message in
+                self?.onError(message: message)
+            }
         }
     }
 
@@ -509,8 +536,11 @@ class MVPlayer: NSObject {
     }
 
     private func onPlayMusicChange() {
-        timer?.invalidate()
-        timer = nil
+        if timer != nil {
+            timer?.invalidate()
+            timer = nil
+        }
+
         if let member = member, let music = music {
             switch music.type {
             case LiveKtvMusic.NORMAL:
@@ -580,7 +610,7 @@ class MVPlayer: NSObject {
                     }
                 } else if member.isSpeaker(), music.isChorusReady(), _isMyOrdedMusic || music.user1Id == member.userId {
                     listenerOnPlayMusicChange()
-                    status = .downloadChorusMusic
+                    status = .redownloadChorusMusic
                 } else {
                     listenerOnPlayMusicChange()
                 }
@@ -622,7 +652,7 @@ class MVPlayer: NSObject {
             if state.type != .countdown {
                 return
             }
-        case .downloadChorusMusic, .syncChorusMusicReady, .startChorus:
+        case .downloadChorusMusic, .syncChorusMusicReady, .startChorus, .redownloadChorusMusic, .resyncChorusMusicReady:
             return
         default:
             break
