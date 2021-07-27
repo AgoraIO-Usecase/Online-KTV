@@ -151,7 +151,6 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
         mRole = role;
 
         ChannelMediaOptions options = new ChannelMediaOptions();
-
         options.publishMediaPlayerId = mPlayer.getMediaPlayerId();
         options.clientRoleType = role;
         options.autoSubscribeAudio = true;
@@ -432,6 +431,12 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
 
     private void stopPublish() {
         stopSyncLrc();
+    }
+
+    @Override
+    public void onStreamMessageError(int uid, int streamId, int error, int missed, int cached) {
+        super.onStreamMessageError(uid, streamId, error, missed, cached);
+        mLogger.e("onStreamMessageError() called with: uid = [%s], streamId = [%s], error = [%s], missed = [%s], cached = [%s]", uid, streamId, error, missed, cached);
     }
 
     @Override

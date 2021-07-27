@@ -162,7 +162,8 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
         public void onRoleChanged(@NonNull AgoraMember member) {
             super.onRoleChanged(member);
 
-            if (member.getRole() == AgoraMember.Role.Speaker) {
+            if (member.getRole() == AgoraMember.Role.Owner
+                    || member.getRole() == AgoraMember.Role.Speaker) {
                 mRoomSpeakerAdapter.addItem(member);
 
                 AgoraMember mMine = RoomManager.Instance(RoomActivity.this).getMine();
@@ -888,6 +889,19 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
             mMusicPlayer = new MultipleMusicPlayer(this);
             mMusicPlayer.prepare(music);
         }
+
+        AgoraMember mMine = RoomManager.Instance(this).getMine();
+        if (mMine != null) {
+            if (mMine.getRole() == AgoraMember.Role.Owner ||
+                    mMine.getRole() == AgoraMember.Role.Speaker) {
+                int role = Constants.CLIENT_ROLE_BROADCASTER;
+                mMusicPlayer.switchRole(role);
+            } else if (mMine.getRole() == AgoraMember.Role.Listener) {
+                int role = Constants.CLIENT_ROLE_AUDIENCE;
+                mMusicPlayer.switchRole(role);
+            }
+        }
+
         mMusicPlayer.registerPlayerObserver(mMusicCallback);
     }
 

@@ -115,12 +115,6 @@ public final class RoomManager {
         }
 
         @Override
-        public void onStreamMessageError(int uid, int streamId, int error, int missed, int cached) {
-            super.onStreamMessageError(uid, streamId, error, missed, cached);
-            mLogger.d("onStreamMessageError() called with: uid = [%s], streamId = [%s], error = [%s], missed = [%s], cached = [%s]", uid, streamId, error, missed, cached);
-        }
-
-        @Override
         public void onStreamMessage(int uid, int streamId, byte[] data) {
             JSONObject jsonMsg;
             try {
@@ -137,8 +131,6 @@ public final class RoomManager {
                     long total = jsonMsg.getLong("duration");
                     long cur = jsonMsg.getLong("time");
                     mMainThreadDispatch.onMusicProgress(total, cur);
-                } else if (jsonMsg.getString("cmd").equals("musicStopped")) {
-//                    stopDisplayLrc();
                 }
             } catch (JSONException exp) {
                 exp.printStackTrace();
