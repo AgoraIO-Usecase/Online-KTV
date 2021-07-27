@@ -301,6 +301,12 @@ extension RoomManager: IRoomManager {
         }
     }
 
+    func stopMusic() {
+        if rtcServer.isJoinChannel {
+            rtcServer.stopMusic()
+        }
+    }
+
     func getRecordingSignalVolume() -> Float {
         return rtcServer.getRecordingSignalVolume()
     }
@@ -327,7 +333,7 @@ extension RoomManager: IRoomManager {
 
     func stop(music: LiveKtvMusic) -> Observable<Result<Void>> {
         if rtcServer.isJoinChannel, let member = member /* , playingMusic?.id == music.musicId */ {
-            rtcServer.stopMusic()
+            stopMusic()
             if music.isOrderBy(member: member) {
                 return music.delete()
             }

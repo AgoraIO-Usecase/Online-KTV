@@ -337,8 +337,7 @@ class RtcNormalMusicPlayer: AbstractRtcMusicPlayer {
                 player.stop()
             }
             originMusic(enable: false)
-            // rtc.setAudioProfile(.musicHighQualityStereo, scenario: .highDefinition)
-            rtc.setAudioProfile(.default)
+            // rtc.setAudioProfile(.musicHighQualityStereo)
 
             let option = AgoraRtcChannelMediaOptions()
             option.publishMediaPlayerId = AgoraRtcIntOptional.of(player.getMediaPlayerId())
@@ -405,11 +404,11 @@ class RtcChorusMusicPlayer: AbstractRtcMusicPlayer {
                 player.stop()
             }
             originMusic(enable: false)
-            rtc.setParameters("{\"rtc.audio_fec\":[3,2]}")
-            rtc.setParameters("{\"rtc.audio_resend\":false}")
-            rtc.setParameters("{\"rtc.audio.max_neteq_packets\":2}")
-            rtc.setParameters("{\"rtc.audio.max_target_delay\":20}")
-            rtc.setAudioProfile(.default, scenario: .chorus)
+//            rtc.setParameters("{\"rtc.audio_fec\":[3,2]}")
+//            rtc.setParameters("{\"rtc.audio_resend\":false}")
+//            rtc.setParameters("{\"rtc.audio.max_neteq_packets\":2}")
+//            rtc.setParameters("{\"rtc.audio.max_target_delay\":20}")
+//            rtc.setAudioProfile(.musicHighQualityStereo, scenario: .chorus)
 
             if connectionId == 0 {
                 let option = AgoraRtcChannelMediaOptions()
@@ -606,7 +605,7 @@ class RtcChorusMusicPlayer: AbstractRtcMusicPlayer {
     private func isFollower() -> Bool {
         return option != nil && option.followerUid == rtcServer.uid
     }
-    
+
     /**
      *     m_                                                                     f_
      *  [master]        <-         testDelay:(f_ts)                  <-        [follower]

@@ -313,6 +313,10 @@ class RoomViewModel {
         manager.resumeMusic()
     }
 
+    func stopMusic() {
+        manager.stopMusic()
+    }
+
     func toNormal(music: LiveKtvMusic,
                   onWaiting: @escaping (Bool) -> Void,
                   onSuccess: @escaping () -> Void,

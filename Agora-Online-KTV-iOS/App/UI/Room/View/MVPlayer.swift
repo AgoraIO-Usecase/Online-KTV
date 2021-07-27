@@ -352,13 +352,7 @@ class MVPlayer: NSObject {
             }
             if let old = oldValue, old.isChorus() {
                 if old.user1Id == member?.userId {
-                    delegate.viewModel.end(music: old) { _ in
-
-                    } onSuccess: { [weak self] in
-                        self?.status = .stop
-                    } onError: { [weak self] message in
-                        self?.onError(message: message)
-                    }
+                    delegate.viewModel.stopMusic()
                 }
             }
             onPlayMusicChange()
@@ -525,13 +519,7 @@ class MVPlayer: NSObject {
     private func onRoleChange() {
         onPlayMusicChange()
         if let music = music, music.user1Id == member?.userId, lastRole == LiveKtvRoomRole.speaker.rawValue {
-            delegate.viewModel.end(music: music) { _ in
-
-            } onSuccess: { [weak self] in
-                self?.status = .stop
-            } onError: { [weak self] message in
-                self?.onError(message: message)
-            }
+            delegate.viewModel.stopMusic()
         }
     }
 

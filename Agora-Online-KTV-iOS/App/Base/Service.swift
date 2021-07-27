@@ -37,6 +37,7 @@ protocol IRoomManager {
     func countdown(time: Int)
     func pauseMusic()
     func resumeMusic()
+    func stopMusic()
     func stop(music: LiveKtvMusic) -> Observable<Result<Void>>
 
     func enable(earloop: Bool)
