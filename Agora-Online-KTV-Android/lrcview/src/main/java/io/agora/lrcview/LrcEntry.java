@@ -9,7 +9,9 @@ import android.text.TextPaint;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import io.agora.lrcview.bean.IEntry;
+import java.util.List;
+
+import io.agora.lrcview.bean.LrcEntryData;
 
 /**
  * 处理每一行歌词
@@ -17,8 +19,9 @@ import io.agora.lrcview.bean.IEntry;
  * @author chenhengfei(Aslanchen)
  * @date 2021/7/6
  */
-public class LrcEntry {
-    private static final String TAG = "LrcEntry";
+class LrcEntry {
+    private static final String TAG = "LrcEntryData";
+
     private StaticLayout mLayoutBG;//背景文字
     private StaticLayout mLayoutFG;//前排高亮文字
 
@@ -27,7 +30,7 @@ public class LrcEntry {
     private Rect[] textRectTotalWords;//每一段歌词
     private Rect[] textRectDisplayLines;//每一行显示的歌词
 
-    private IEntry mIEntry;//数据源
+    private LrcEntryData mEntry;//数据源
 
     public enum Gravity {
         CENTER(0), LEFT(1), RIGHT(2);
@@ -51,15 +54,17 @@ public class LrcEntry {
         }
     }
 
-    public LrcEntry(IEntry mIEntry) {
-        this.mIEntry = mIEntry;
-    }
-
-    void init(@NonNull TextPaint mTextPaintBG, int width, Gravity gravity) {
+    public LrcEntry(LrcEntryData mEntry, @NonNull TextPaint mTextPaintBG, int width, Gravity gravity) {
+        this.mEntry = mEntry;
         this.init(null, mTextPaintBG, width, gravity);
     }
 
-    void init(@Nullable TextPaint mTextPaintFG, @NonNull TextPaint mTextPaintBG, int width, Gravity gravity) {
+    public LrcEntry(LrcEntryData mEntry, @Nullable TextPaint mTextPaintFG, @NonNull TextPaint mTextPaintBG, int width, Gravity gravity) {
+        this.mEntry = mEntry;
+        this.init(mTextPaintFG, mTextPaintBG, width, gravity);
+    }
+
+    private void init(@Nullable TextPaint mTextPaintFG, @NonNull TextPaint mTextPaintBG, int width, Gravity gravity) {
         Layout.Alignment align;
         switch (gravity) {
             case LEFT:
@@ -76,15 +81,15 @@ public class LrcEntry {
         }
 
         StringBuilder sb = new StringBuilder();
-        IEntry.Tone[] tones = mIEntry.getTones();
-        textRectTotalWords = new Rect[tones.length];
+        List<LrcEntryData.Tone> tones = mEntry.tones;
+        textRectTotalWords = new Rect[tones.size()];
         String text;
-        for (int i = 0; i < tones.length; i++) {
-            IEntry.Tone tone = tones[i];
+        for (int i = 0; i < tones.size(); i++) {
+            LrcEntryData.Tone tone = tones.get(i);
             Rect rectTotal = new Rect();
             textRectTotalWords[i] = rectTotal;
             String s = tone.word;
-            if (tone.lang != IEntry.Lang.Chinese) {
+            if (tone.lang != LrcEntryData.Lang.Chinese) {
                 s = s + " ";
             }
             sb.append(s);
@@ -132,12 +137,12 @@ public class LrcEntry {
         int doneLen = 0;
         float curLen = 0f;
 
-        IEntry.Tone[] tones = mIEntry.getTones();
-        for (int i = 0; i < tones.length; i++) {
-            IEntry.Tone tone = tones[i];
+        List<LrcEntryData.Tone> tones = mEntry.tones;
+        for (int i = 0; i < tones.size(); i++) {
+            LrcEntryData.Tone tone = tones.get(i);
             if (time >= tone.end) {
                 if (mLayoutFG.getLineCount() == 1) {
-                    if (i == tones.length - 1) {
+                    if (i == tones.size() - 1) {
                         doneLen = textRectDisplayLines[0].width();
                     } else {
                         doneLen = textRectTotalWords[i].width();

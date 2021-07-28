@@ -12,7 +12,6 @@ import java.io.InputStreamReader;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import io.agora.lrcview.bean.IEntry;
 import io.agora.lrcview.bean.LrcData;
 
 /**
@@ -35,28 +34,53 @@ class LrcLoadUtils {
     }
 
     @Nullable
-    public static LrcData parse(IEntry.Type type, File lrcFile) {
+    public static LrcData parse(LrcData.Type type, File lrcFile) {
         if (type == null) {
+            InputStream instream = null;
+            InputStreamReader inputreader = null;
+            BufferedReader buffreader = null;
             try {
-                InputStream instream = new FileInputStream(lrcFile);
-                InputStreamReader inputreader = new InputStreamReader(instream);
-                BufferedReader buffreader = new BufferedReader(inputreader);
+                instream = new FileInputStream(lrcFile);
+                inputreader = new InputStreamReader(instream);
+                buffreader = new BufferedReader(inputreader);
                 String line = buffreader.readLine();
                 if (line.contains("xml")) {
-                    type = IEntry.Type.Migu;
+                    type = LrcData.Type.Migu;
                 } else {
-                    type = IEntry.Type.Default;
+                    type = LrcData.Type.Default;
                 }
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
+            } finally {
+                try {
+                    if (instream != null) {
+                        instream.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    if (inputreader != null) {
+                        inputreader.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    if (buffreader != null) {
+                        buffreader.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
 
-        if (type == IEntry.Type.Default) {
+        if (type == LrcData.Type.Default) {
             return LrcLoadDefaultUtils.parseLrc(lrcFile);
-        } else if (type == IEntry.Type.Migu) {
+        } else if (type == LrcData.Type.Migu) {
             return LrcLoadMiguUtils.parseLrc(lrcFile);
         } else {
             return null;

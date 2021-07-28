@@ -17,11 +17,10 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
-import io.agora.lrcview.bean.IEntry;
 import io.agora.lrcview.bean.LrcData;
+import io.agora.lrcview.bean.LrcEntryData;
 
 /**
  * 歌词View
@@ -33,7 +32,8 @@ import io.agora.lrcview.bean.LrcData;
 public class LrcView extends View {
     private static final String TAG = "LrcView";
 
-    private final List<IEntry> entrys = new ArrayList<>();
+    private static volatile LrcData lrcData;
+
     private final TextPaint mPaintFG = new TextPaint(Paint.ANTI_ALIAS_FLAG);
     private final TextPaint mPaintBG = new TextPaint(Paint.ANTI_ALIAS_FLAG);
     private int mNormalTextColor;
@@ -46,7 +46,7 @@ public class LrcView extends View {
     /**
      * 歌词显示位置，靠左/居中/靠右
      */
-    private LrcEntry.Gravity mTextGravity;
+    private io.agora.lrcview.LrcEntry.Gravity mTextGravity;
 
     private boolean mNewLine = true;
 
@@ -55,7 +55,7 @@ public class LrcView extends View {
     private final Rect mRectDst = new Rect();
 
     private long mCurrentTime = 0;
-    private long mTotalDuration = 0;
+    private Long mTotalDuration;
 
     private Bitmap mBitmapBG;
     private Canvas mCanvasBG;
@@ -68,7 +68,7 @@ public class LrcView extends View {
     private boolean isInDrag = false;
     private GestureDetector mGestureDetector;
     private float mOffset;
-    private GestureDetector.SimpleOnGestureListener mSimpleOnGestureListener = new GestureDetector.SimpleOnGestureListener() {
+    private final GestureDetector.SimpleOnGestureListener mSimpleOnGestureListener = new GestureDetector.SimpleOnGestureListener() {
 
         @Override
         public boolean onDown(MotionEvent e) {
@@ -115,7 +115,7 @@ public class LrcView extends View {
         mDefaultLabel = ta.getString(R.styleable.LrcView_lrcLabel);
         mDefaultLabel = TextUtils.isEmpty(mDefaultLabel) ? getContext().getString(R.string.lrc_label) : mDefaultLabel;
         int lrcTextGravity = ta.getInteger(R.styleable.LrcView_lrcTextGravity, 0);
-        mTextGravity = LrcEntry.Gravity.parse(lrcTextGravity);
+        mTextGravity = io.agora.lrcview.LrcEntry.Gravity.parse(lrcTextGravity);
 
         ta.recycle();
 
@@ -143,11 +143,11 @@ public class LrcView extends View {
             return super.onTouchEvent(event);
         }
 
-        if (entrys.isEmpty()) {
+        if (lrcData == null || lrcData.entrys == null || lrcData.entrys.isEmpty()) {
             return super.onTouchEvent(event);
         }
 
-        if (targetIndex < 0 || entrys.size() <= targetIndex) {
+        if (targetIndex < 0 || lrcData.entrys.size() <= targetIndex) {
             return super.onTouchEvent(event);
         }
 
@@ -156,7 +156,7 @@ public class LrcView extends View {
             mNewLine = true;
             mRectClip.setEmpty();
 
-            IEntry mIEntry = entrys.get(targetIndex);
+            LrcEntryData mIEntry = lrcData.entrys.get(targetIndex);
             updateTime(mIEntry.getStartTime());
 
             if (mOnSeekBarChangeListener != null) {
@@ -229,12 +229,9 @@ public class LrcView extends View {
     public void loadLrc(File lrcFile) {
         reset();
 
-        LrcLoadUtils.execute(new Runnable() {
-            @Override
-            public void run() {
-                LrcData data = LrcLoadUtils.parse(lrcFile);
-                onLrcLoaded(data);
-            }
+        LrcLoadUtils.execute(() -> {
+            LrcData data = LrcLoadUtils.parse(lrcFile);
+            onLrcLoaded(data);
         });
     }
 
@@ -244,7 +241,7 @@ public class LrcView extends View {
      * @return true，如果歌词有效，否则false
      */
     public boolean hasLrc() {
-        return !entrys.isEmpty();
+        return lrcData != null && lrcData.entrys != null && !lrcData.entrys.isEmpty();
     }
 
     /**
@@ -268,6 +265,7 @@ public class LrcView extends View {
             mNewLine = true;
             mCurrentLine = line;
         }
+
         invalidate();
     }
 
@@ -357,19 +355,18 @@ public class LrcView extends View {
             mBitmapFG.eraseColor(0);
             mPaintBG.setColor(mNormalTextColor);
 
-            LrcEntry mLrcEntry = null;
+            LrcEntry mLrcEntry;
             float y = 0;
-            float yReal = 0;
-            for (int i = 0; i < entrys.size(); i++) {
+            float yReal;
+            for (int i = 0; i < lrcData.entrys.size(); i++) {
                 if (i == mCurrentLine) {
                     mPaintBG.setTextSize(mCurrentTextSize);
                 } else {
                     mPaintBG.setTextSize(mNormalTextSize);
                 }
 
-                IEntry mIEntry = entrys.get(i);
-                mLrcEntry = mIEntry.createLRCEntry();
-                mLrcEntry.init(mPaintFG, mPaintBG, getLrcWidth(), mTextGravity);
+                LrcEntryData mIEntry = lrcData.entrys.get(i);
+                mLrcEntry = new LrcEntry(mIEntry, mPaintFG, mPaintBG, getLrcWidth(), mTextGravity);
 
                 yReal = y + mOffset;
                 if (i == 0 && yReal > (centerY - getPaddingTop() - (mLrcEntry.getHeight() / 2F))) {
@@ -381,12 +378,6 @@ public class LrcView extends View {
                 if (yReal + mLrcEntry.getHeight() < 0) {
                     y = y + mLrcEntry.getHeight() + mDividerHeight;
                     continue;
-                }
-
-                if (i >= entrys.size() - 1) {
-                    mIEntry.setDuration(mTotalDuration - mIEntry.getStartTime());
-                } else {
-                    mIEntry.setDuration(entrys.get(i + 1).getStartTime() - mIEntry.getStartTime());
                 }
 
                 mCanvasBG.save();
@@ -430,24 +421,17 @@ public class LrcView extends View {
 
             canvas.drawLine(0, centerY, getWidth(), centerY + 1, mPaintFG);
         } else {
-            IEntry cur = entrys.get(mCurrentLine);
+            LrcEntryData cur = lrcData.entrys.get(mCurrentLine);
             if (mNewLine) {
                 mPaintBG.setColor(mNormalTextColor);
                 mPaintBG.setTextSize(mCurrentTextSize);
 
-                if (mCurrentLine >= entrys.size() - 1) {
-                    cur.setDuration(mTotalDuration - cur.getStartTime());
-                } else {
-                    cur.setDuration(entrys.get(mCurrentLine + 1).getStartTime() - cur.getStartTime());
-                }
-
-                curLrcEntry = cur.createLRCEntry();
-                curLrcEntry.init(mPaintFG, mPaintBG, getLrcWidth(), mTextGravity);
+                curLrcEntry = new LrcEntry(cur, mPaintFG, mPaintBG, getLrcWidth(), mTextGravity);
 
                 // clear bitmap
                 mBitmapBG.eraseColor(0);
 
-                if (mCurrentLine < 0 || mCurrentLine >= entrys.size()) {
+                if (mCurrentLine < 0 || mCurrentLine >= lrcData.entrys.size()) {
                     mNewLine = false;
                     return;
                 }
@@ -472,18 +456,17 @@ public class LrcView extends View {
         }
 
         float curPointY = (getLrcHeight() - curLrcEntry.getHeight()) / 2F;
-        float y = 0;
-        IEntry line = null;
-        LrcEntry mLrcEntry = null;
+        float y;
+        LrcEntryData line;
+        LrcEntry mLrcEntry;
         mPaintBG.setTextSize(mNormalTextSize);
 
         mCanvasBG.save();
         mCanvasBG.translate(0, curPointY);
 
         for (int i = mCurrentLine - 1; i >= 0; i--) {
-            line = entrys.get(i);
-            mLrcEntry = line.createLRCEntry();
-            mLrcEntry.init(mPaintBG, getLrcWidth(), mTextGravity);
+            line = lrcData.entrys.get(i);
+            mLrcEntry = new LrcEntry(line, mPaintBG, getLrcWidth(), mTextGravity);
 
             mOffset = mOffset - mLrcEntry.getHeight() - mDividerHeight;
 
@@ -518,18 +501,17 @@ public class LrcView extends View {
         }
 
         float curPointY = (getLrcHeight() + curLrcEntry.getHeight()) / 2F + mDividerHeight;
-        float y = 0;
-        IEntry line = null;
-        LrcEntry mLrcEntry = null;
+        float y;
+        LrcEntryData data;
+        LrcEntry mLrcEntry;
         mPaintBG.setTextSize(mNormalTextSize);
 
         mCanvasBG.save();
         mCanvasBG.translate(0, curPointY);
 
-        for (int i = mCurrentLine + 1; i < entrys.size(); i++) {
-            line = entrys.get(i);
-            mLrcEntry = line.createLRCEntry();
-            mLrcEntry.init(mPaintBG, getLrcWidth(), mTextGravity);
+        for (int i = mCurrentLine + 1; i < lrcData.entrys.size(); i++) {
+            data = lrcData.entrys.get(i);
+            mLrcEntry = new LrcEntry(data, mPaintBG, getLrcWidth(), mTextGravity);
 
             if (curPointY + mLrcEntry.getHeight() > getLrcHeight())
                 break;
@@ -572,10 +554,14 @@ public class LrcView extends View {
     private volatile boolean isLrcLoadDone = false;
 
     private void onLrcLoaded(LrcData data) {
-        if (data != null) {
-            List<IEntry> entryList = data.getEntrys();
-            if (entryList != null && !entryList.isEmpty()) {
-                entrys.addAll(entryList);
+        lrcData = data;
+
+        if (mTotalDuration != null) {
+            if (lrcData != null && lrcData.entrys != null && !lrcData.entrys.isEmpty()) {
+                List<LrcEntryData.Tone> tone = lrcData.entrys.get(lrcData.entrys.size() - 1).tones;
+                if (tone != null && !tone.isEmpty()) {
+                    tone.get(tone.size() - 1).end = mTotalDuration;
+                }
             }
         }
 
@@ -584,13 +570,15 @@ public class LrcView extends View {
     }
 
     public void reset() {
-        entrys.clear();
+        lrcData = null;
         mCurrentLine = 0;
         mNewLine = true;
         mCurrentTime = 0;
         isLrcLoadDone = false;
         mOffset = 0;
         targetIndex = 0;
+        mTotalDuration = null;
+
         invalidate();
     }
 
@@ -599,15 +587,15 @@ public class LrcView extends View {
      */
     private int findShowLine(long time) {
         int left = 0;
-        int right = entrys.size();
+        int right = lrcData.entrys.size();
         while (left <= right) {
             int middle = (left + right) / 2;
-            long middleTime = entrys.get(middle).getStartTime();
+            long middleTime = lrcData.entrys.get(middle).getStartTime();
 
             if (time < middleTime) {
                 right = middle - 1;
             } else {
-                if (middle + 1 >= entrys.size() || time < entrys.get(middle + 1).getStartTime()) {
+                if (middle + 1 >= lrcData.entrys.size() || time < lrcData.entrys.get(middle + 1).getStartTime()) {
                     return middle;
                 }
 

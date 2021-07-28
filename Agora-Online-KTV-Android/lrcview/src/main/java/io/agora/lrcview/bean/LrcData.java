@@ -9,26 +9,14 @@ import java.util.List;
  * @date 2021/7/6
  */
 public class LrcData {
-    private IEntry.Type type;
-    private List<IEntry> entrys;
+    public static enum Type {
+        Default, Migu;
+    }
 
-    public LrcData(IEntry.Type type) {
+    public Type type;
+    public List<LrcEntryData> entrys;
+
+    public LrcData(Type type) {
         this.type = type;
-    }
-
-    public IEntry.Type getType() {
-        return type;
-    }
-
-    public void setType(IEntry.Type type) {
-        this.type = type;
-    }
-
-    public List<IEntry> getEntrys() {
-        return entrys;
-    }
-
-    public void setEntrys(List<IEntry> entrys) {
-        this.entrys = entrys;
     }
 }

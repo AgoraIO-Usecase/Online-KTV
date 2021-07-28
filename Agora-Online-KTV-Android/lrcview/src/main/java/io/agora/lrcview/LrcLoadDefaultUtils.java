@@ -13,9 +13,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import io.agora.lrcview.bean.IEntry;
 import io.agora.lrcview.bean.LrcData;
-import io.agora.lrcview.bean.LrcEntryDefault;
+import io.agora.lrcview.bean.LrcEntryData;
 
 /**
  * 通用歌词加载。
@@ -36,15 +35,15 @@ class LrcLoadDefaultUtils {
             return null;
         }
 
-        LrcData mLrcData = new LrcData(IEntry.Type.Default);
+        LrcData mLrcData = new LrcData(LrcData.Type.Default);
 
-        List<IEntry> entryList = new ArrayList<>();
-        mLrcData.setEntrys(entryList);
+        List<LrcEntryData> entryList = new ArrayList<>();
+        mLrcData.entrys = entryList;
         try {
             BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(lrcFile), "utf-8"));
             String line;
             while ((line = br.readLine()) != null) {
-                List<LrcEntryDefault> list = parseLine(line);
+                List<LrcEntryData> list = parseLine(line);
                 if (list != null && !list.isEmpty()) {
                     entryList.addAll(list);
                 }
@@ -53,13 +52,25 @@ class LrcLoadDefaultUtils {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        for (int i = 0; i < entryList.size() - 1; i++) {
+            LrcEntryData cur = entryList.get(i);
+            LrcEntryData next = entryList.get(i + 1);
+
+            if (cur.tones == null || cur.tones.size() <= 0) {
+                continue;
+            }
+
+            LrcEntryData.Tone first = cur.tones.get(0);
+            first.end = next.getStartTime();
+        }
         return mLrcData;
     }
 
     /**
      * 解析一行歌词
      */
-    private static List<LrcEntryDefault> parseLine(String line) {
+    private static List<LrcEntryData> parseLine(String line) {
         if (TextUtils.isEmpty(line)) {
             return null;
         }
@@ -77,7 +88,7 @@ class LrcLoadDefaultUtils {
         }
 
         String text = lineMatcher.group(3);
-        List<LrcEntryDefault> entryList = new ArrayList<>();
+        List<LrcEntryData> entryList = new ArrayList<>();
 
         // [00:17.65]
         Matcher timeMatcher = PATTERN_TIME.matcher(times);
@@ -91,7 +102,12 @@ class LrcLoadDefaultUtils {
                 mil = mil * 10;
             }
             long time = min * DateUtils.MINUTE_IN_MILLIS + sec * DateUtils.SECOND_IN_MILLIS + mil;
-            entryList.add(new LrcEntryDefault(time, text));
+
+            LrcEntryData.Tone tone = new LrcEntryData.Tone();
+            tone.begin = time;
+            tone.word = text;
+            tone.lang = LrcEntryData.Lang.Chinese;
+            entryList.add(new LrcEntryData(tone));
         }
         return entryList;
     }

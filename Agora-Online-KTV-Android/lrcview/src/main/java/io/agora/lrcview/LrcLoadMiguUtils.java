@@ -11,9 +11,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.agora.lrcview.bean.IEntry;
 import io.agora.lrcview.bean.LrcData;
-import io.agora.lrcview.bean.LrcEntryMigu;
+import io.agora.lrcview.bean.LrcEntryData;
 
 /**
  * 咪咕加载xml歌词
@@ -39,7 +38,7 @@ class LrcLoadMiguUtils {
     }
 
     public static class Paragraph {
-        public List<IEntry> sentences;
+        public List<LrcEntryData> sentences;
     }
 
     /**
@@ -60,12 +59,12 @@ class LrcLoadMiguUtils {
                 return null;
             }
 
-            LrcData mLrcData = new LrcData(IEntry.Type.Migu);
-            List<IEntry> entrys = new ArrayList<>();
+            LrcData mLrcData = new LrcData(LrcData.Type.Migu);
+            List<LrcEntryData> entrys = new ArrayList<>();
             for (Paragraph paragraph : mSong.midi.paragraphs) {
                 entrys.addAll(paragraph.sentences);
             }
-            mLrcData.setEntrys(entrys);
+            mLrcData.entrys = entrys;
             return mLrcData;
         } catch (Exception e) {
             e.printStackTrace();
@@ -150,7 +149,7 @@ class LrcLoadMiguUtils {
 
             String name = parser.getName();
             if (name.equals("sentence")) {
-                LrcEntryMigu sentence = new LrcEntryMigu();
+                LrcEntryData sentence = new LrcEntryData(new ArrayList<>());
                 paragraph.sentences.add(sentence);
                 readSentence(parser, sentence);
             } else {
@@ -159,17 +158,15 @@ class LrcLoadMiguUtils {
         }
     }
 
-    private static void readSentence(XmlPullParser parser, LrcEntryMigu sentence) throws XmlPullParserException, IOException {
+    private static void readSentence(XmlPullParser parser, LrcEntryData sentence) throws XmlPullParserException, IOException {
         parser.require(XmlPullParser.START_TAG, null, "sentence");
 
-        sentence.tones = new ArrayList<>();
-        sentence.mode = LrcEntryMigu.Mode.Default;
         String m = parser.getAttributeValue(null, "mode");
         if (m != null) {
             if (m.equals("man")) {
-                sentence.mode = LrcEntryMigu.Mode.Man;
+                //Man;
             } else {
-                sentence.mode = LrcEntryMigu.Mode.Woman;
+                //Woman;
             }
         }
 
@@ -180,7 +177,7 @@ class LrcLoadMiguUtils {
 
             String name = parser.getName();
             if (name.equals("tone")) {
-                LrcEntryMigu.Tone tone = new LrcEntryMigu.Tone();
+                LrcEntryData.Tone tone = new LrcEntryData.Tone();
                 sentence.tones.add(tone);
                 readTone(parser, tone);
             } else {
@@ -189,21 +186,24 @@ class LrcLoadMiguUtils {
         }
     }
 
-    private static void readTone(XmlPullParser parser, LrcEntryMigu.Tone tone) throws XmlPullParserException, IOException {
+    private static void readTone(XmlPullParser parser, LrcEntryData.Tone tone) throws XmlPullParserException, IOException {
         parser.require(XmlPullParser.START_TAG, null, "tone");
 
         // read tone attributes
-        tone.begin = Float.parseFloat(parser.getAttributeValue(null, "begin"));
-        tone.end = Float.parseFloat(parser.getAttributeValue(null, "end"));
+        tone.begin = (long) (Float.parseFloat(parser.getAttributeValue(null, "begin")) * 1000L);
+        tone.end = (long) (Float.parseFloat(parser.getAttributeValue(null, "end")) * 1000L);
         String t = parser.getAttributeValue(null, "pitch");
-        tone.pitch = 0;
+        int pitch = 0;
         if (t != null) {
-            tone.pitch = Integer.parseInt(t);
+            pitch = Integer.parseInt(t);
         }
-        tone.pronounce = parser.getAttributeValue(null, "pronounce");
-        tone.lang = parser.getAttributeValue(null, "lang");
-        if (tone.lang == null) {
-            tone.lang = "1";
+        String pronounce = parser.getAttributeValue(null, "pronounce");
+        String lang = parser.getAttributeValue(null, "lang");
+
+        if (lang == null || "1".equals(lang)) {
+            tone.lang = LrcEntryData.Lang.Chinese;
+        } else {
+            tone.lang = LrcEntryData.Lang.English;
         }
 
         while (parser.next() != XmlPullParser.END_TAG) {
