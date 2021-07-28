@@ -204,7 +204,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
     }
 
     protected void play() {
-        mLogger.i("start() called");
+        mLogger.i("play() called");
         if (!mStatus.isAtLeast(Status.Opened)) {
             return;
         }
@@ -455,7 +455,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
     }
 
     protected void onReceivedSetLrcTime(int uid, long position) {
-        mLogger.d("onReceivedSetLrcTime() called with: uid = [%s], position = [%s]", uid, position);
+//        mLogger.d("onReceivedSetLrcTime() called with: uid = [%s], position = [%s]", uid, position);
         mRecvedPlayPosition = position;
         mLastRecvPlayPosTime = System.currentTimeMillis();
     }
@@ -466,11 +466,11 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
     }
 
     protected void onReceivedTestDelay(int uid, long time) {
-        mLogger.d("onReceivedTestDelay() called with: uid = [%s], time = [%s]", uid, time);
+//        mLogger.d("onReceivedTestDelay() called with: uid = [%s], time = [%s]", uid, time);
     }
 
     protected void onReceivedReplyTestDelay(int uid, long testDelayTime, long time) {
-        mLogger.d("onReceivedReplyTestDelay() called with: uid = [%s], testDelayTime = [%s], time = [%s]", uid, testDelayTime, time);
+//        mLogger.d("onReceivedReplyTestDelay() called with: uid = [%s], testDelayTime = [%s], time = [%s]", uid, testDelayTime, time);
     }
 
     @Override
@@ -536,7 +536,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
         mLogger.i("onMusicOpenCompleted() called");
         mStatus = Status.Opened;
 
-        mPlayer.play();
+        play();
         startDisplayLrc();
         mHandler.obtainMessage(ACTION_ON_MUSIC_OPENCOMPLETED, mPlayer.getDuration()).sendToTarget();
     }

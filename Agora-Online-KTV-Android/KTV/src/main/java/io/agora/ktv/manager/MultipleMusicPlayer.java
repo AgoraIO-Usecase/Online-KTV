@@ -62,6 +62,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
 
     public MultipleMusicPlayer(Context mContext, int role, IMediaPlayer mPlayer) {
         super(mContext, role, mPlayer);
+        RoomManager.Instance(mContext).getRtcEngine().setAudioProfile(Constants.AUDIO_SCENARIO_CHORUS);
         RoomManager.Instance(mContext).addRoomEventCallback(mRoomEventCallback);
     }
 
@@ -124,7 +125,9 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
         }
 
         if (ObjectsCompat.equals(music.getUserId(), mUser.getObjectId())) {
-
+            if (music.getUserStatus() == MemberMusicModel.UserStatus.Ready) {
+                onMemberJoinedChorus(music);
+            }
         } else if (ObjectsCompat.equals(music.getUser1Id(), mUser.getObjectId())) {
             onMemberJoinedChorus(music);
         } else {
@@ -141,6 +144,8 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
 
     private RtcConnection mRtcConnection;
 
+    private String channelName = null;
+
     private void joinChannelEX() {
         mLogger.d("joinChannelEX() called");
         User mUser = UserManager.Instance(mContext).getUserLiveData().getValue();
@@ -150,6 +155,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
 
         AgoraRoom mRoom = RoomManager.Instance(mContext).getRoom();
         assert mRoom != null;
+        channelName = mRoom.getId();
 
         ChannelMediaOptions options = new ChannelMediaOptions();
         options.clientRoleType = mRole;
@@ -161,8 +167,19 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
             options.publishMediaPlayerAudioTrack = false;
         }
 
+        int uid = 0;
+        if (ObjectsCompat.equals(mUser.getObjectId(), musicModelReady.getUserId())) {
+            if (musicModelReady.getUserbgId() != null) {
+                uid = musicModelReady.getUserbgId().intValue();
+            }
+        } else if (ObjectsCompat.equals(mUser.getObjectId(), musicModelReady.getUser1Id())) {
+            if (musicModelReady.getUser1bgId() != null) {
+                uid = musicModelReady.getUser1bgId().intValue();
+            }
+        }
+
         mRtcConnection = new RtcConnection();
-        RoomManager.Instance(mContext).getRtcEngine().joinChannelEx("", mRoom.getId(), 0, options, new IRtcEngineEventHandler() {
+        RoomManager.Instance(mContext).getRtcEngine().joinChannelEx("", channelName, uid, options, new IRtcEngineEventHandler() {
             @Override
             public void onJoinChannelSuccess(String channel, int uid, int elapsed) {
                 super.onJoinChannelSuccess(channel, uid, elapsed);
@@ -185,9 +202,9 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
 
         mLogger.d("leaveChannelEX() called");
         RoomManager.Instance(mContext).getRtcEngine().muteAllRemoteAudioStreams(false);
-        AgoraRoom mRoom = RoomManager.Instance(mContext).getRoom();
-        assert mRoom != null;
-        RoomManager.Instance(mContext).getRtcEngine().leaveChannelEx(mRoom.getId(), mRtcConnection);
+        if (!TextUtils.isEmpty(channelName)) {
+            RoomManager.Instance(mContext).getRtcEngine().leaveChannelEx(channelName, mRtcConnection);
+        }
     }
 
     private int mUid;
@@ -359,8 +376,8 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
 
         if (ObjectsCompat.equals(music.getUser1Id(), mUser.getObjectId())) {
             mLogger.d("muteRemoteVideoStreamEx user1 = [%s], user2 = [%s]", music.getUserbgId().intValue(), music.getUser1bgId().intValue());
-            RoomManager.Instance(mContext).getRtcEngine().muteRemoteVideoStreamEx(music.getUserbgId().intValue(), true, mRtcConnection);
-            RoomManager.Instance(mContext).getRtcEngine().muteRemoteVideoStreamEx(music.getUser1bgId().intValue(), true, mRtcConnection);
+            RoomManager.Instance(mContext).getRtcEngine().muteRemoteAudioStreamEx(music.getUserbgId().intValue(), true, mRtcConnection);
+            RoomManager.Instance(mContext).getRtcEngine().muteRemoteAudioStreamEx(music.getUser1bgId().intValue(), true, mRtcConnection);
         }
 
         if (ObjectsCompat.equals(music.getUserId(), mUser.getObjectId())
@@ -578,6 +595,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
             options.publishAudioTrack = false;
             options.publishMediaPlayerAudioTrack = false;
         }
+
         RoomManager.Instance(mContext).getRtcEngine().updateChannelMediaOptions(options);
     }
 
@@ -610,7 +628,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
     }
 
     public void sendReplyTestDelay(long receiveTime) {
-        mLogger.d("sendReplyTestDelay() called with: receiveTime = [%s]", receiveTime);
+//        mLogger.d("sendReplyTestDelay() called with: receiveTime = [%s]", receiveTime);
 
         Map<String, Object> msg = new HashMap<>();
         msg.put("cmd", "replyTestDelay");

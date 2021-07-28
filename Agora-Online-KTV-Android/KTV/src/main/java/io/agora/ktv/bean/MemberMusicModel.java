@@ -266,6 +266,9 @@ public class MemberMusicModel implements Parcelable {
     }
 
     public SingType getType() {
+        if (type == null) {
+            type = SingType.Single;
+        }
         return type;
     }
 

@@ -874,9 +874,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
 
         if (mMusicPlayer != null) {
             mMusicPlayer.stop();
-
             mMusicPlayer.destory();
-            mMusicPlayer = null;
         }
 
         int role = Constants.CLIENT_ROLE_BROADCASTER;
@@ -893,14 +891,13 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
         if (music.getType() == MemberMusicModel.SingType.Single) {
             mDataBinding.lrcControlView.onPrepareStatus();
             mMusicPlayer = new SingleMusicPlayer(this, role, mPlayer);
-            mMusicPlayer.prepare(music);
         } else if (music.getType() == MemberMusicModel.SingType.Chorus) {
             mDataBinding.lrcControlView.onWaitChorusStatus();
             mMusicPlayer = new MultipleMusicPlayer(this, role, mPlayer);
-            mMusicPlayer.prepare(music);
         }
 
         mMusicPlayer.registerPlayerObserver(mMusicCallback);
+        mMusicPlayer.prepare(music);
     }
 
     private void onMusicEmpty() {
@@ -909,7 +906,6 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
 
         if (mMusicPlayer != null) {
             mMusicPlayer.stop();
-
             mMusicPlayer.destory();
             mMusicPlayer = null;
         }

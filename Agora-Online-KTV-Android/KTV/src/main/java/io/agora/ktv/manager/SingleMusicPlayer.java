@@ -22,6 +22,7 @@ public class SingleMusicPlayer extends BaseMusicPlayer {
 
     public SingleMusicPlayer(Context mContext, int role, IMediaPlayer mPlayer) {
         super(mContext, role, mPlayer);
+        RoomManager.Instance(mContext).getRtcEngine().setAudioProfile(Constants.AUDIO_SCENARIO_DEFAULT);
     }
 
     @Override
