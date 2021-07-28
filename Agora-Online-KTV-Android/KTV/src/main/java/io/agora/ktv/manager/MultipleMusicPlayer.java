@@ -21,9 +21,9 @@ import java.util.Map;
 import io.agora.baselibrary.util.ToastUtile;
 import io.agora.ktv.R;
 import io.agora.ktv.bean.MemberMusicModel;
+import io.agora.mediaplayer.IMediaPlayer;
 import io.agora.rtc2.ChannelMediaOptions;
 import io.agora.rtc2.Constants;
-import io.agora.rtc2.DataStreamConfig;
 import io.agora.rtc2.IRtcEngineEventHandler;
 import io.agora.rtc2.RtcConnection;
 import io.reactivex.SingleObserver;
@@ -60,8 +60,8 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
         }
     };
 
-    public MultipleMusicPlayer(Context mContext) {
-        super(mContext);
+    public MultipleMusicPlayer(Context mContext, int role, IMediaPlayer mPlayer) {
+        super(mContext, role, mPlayer);
         RoomManager.Instance(mContext).addRoomEventCallback(mRoomEventCallback);
     }
 
@@ -74,7 +74,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
     }
 
     private boolean mRunNetTask = false;
-    private Thread mDisplayThread;
+    private Thread mNetTestThread;
 
     @Override
     public void onJoinChannelSuccess(String channel, int uid, int elapsed) {
@@ -83,7 +83,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
 
     private void startNetTestTask() {
         mRunNetTask = true;
-        mDisplayThread = new Thread(new Runnable() {
+        mNetTestThread = new Thread(new Runnable() {
             @Override
             public void run() {
                 while (mRunNetTask) {
@@ -97,14 +97,15 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
                 }
             }
         });
-        mDisplayThread.start();
+        mNetTestThread.setName("Thread-NetTest");
+        mNetTestThread.start();
     }
 
     private void stopNetTestTask() {
         mRunNetTask = false;
-        if (mDisplayThread != null) {
-            mDisplayThread.interrupt();
-            mDisplayThread = null;
+        if (mNetTestThread != null) {
+            mNetTestThread.interrupt();
+            mNetTestThread = null;
         }
     }
 
@@ -138,7 +139,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
         }
     }
 
-    private RtcConnection mRtcConnection = new RtcConnection();
+    private RtcConnection mRtcConnection;
 
     private void joinChannelEX() {
         mLogger.d("joinChannelEX() called");
@@ -160,6 +161,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
             options.publishMediaPlayerAudioTrack = false;
         }
 
+        mRtcConnection = new RtcConnection();
         RoomManager.Instance(mContext).getRtcEngine().joinChannelEx("", mRoom.getId(), 0, options, new IRtcEngineEventHandler() {
             @Override
             public void onJoinChannelSuccess(String channel, int uid, int elapsed) {
@@ -177,7 +179,12 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
     }
 
     private void leaveChannelEX() {
+        if (mRtcConnection == null) {
+            return;
+        }
+
         mLogger.d("leaveChannelEX() called");
+        RoomManager.Instance(mContext).getRtcEngine().muteAllRemoteAudioStreams(false);
         AgoraRoom mRoom = RoomManager.Instance(mContext).getRoom();
         assert mRoom != null;
         RoomManager.Instance(mContext).getRtcEngine().leaveChannelEx(mRoom.getId(), mRtcConnection);
@@ -351,6 +358,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
         }
 
         if (ObjectsCompat.equals(music.getUser1Id(), mUser.getObjectId())) {
+            mLogger.d("muteRemoteVideoStreamEx user1 = [%s], user2 = [%s]", music.getUserbgId().intValue(), music.getUser1bgId().intValue());
             RoomManager.Instance(mContext).getRtcEngine().muteRemoteVideoStreamEx(music.getUserbgId().intValue(), true, mRtcConnection);
             RoomManager.Instance(mContext).getRtcEngine().muteRemoteVideoStreamEx(music.getUser1bgId().intValue(), true, mRtcConnection);
         }
@@ -563,19 +571,11 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
         ChannelMediaOptions options = new ChannelMediaOptions();
         options.publishMediaPlayerId = mPlayer.getMediaPlayerId();
         options.clientRoleType = role;
-        options.autoSubscribeAudio = true;
-        options.autoSubscribeVideo = false;
-        options.publishCameraTrack = false;
-        options.publishMediaPlayerVideoTrack = false;
         if (role == Constants.CLIENT_ROLE_BROADCASTER) {
             options.publishAudioTrack = true;
-            options.publishCustomAudioTrack = false;
-            options.enableAudioRecordingOrPlayout = false;
             options.publishMediaPlayerAudioTrack = false;
         } else {
             options.publishAudioTrack = false;
-            options.publishCustomAudioTrack = false;
-            options.enableAudioRecordingOrPlayout = false;
             options.publishMediaPlayerAudioTrack = false;
         }
         RoomManager.Instance(mContext).getRtcEngine().updateChannelMediaOptions(options);
@@ -599,82 +599,70 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
     }
 
     @Override
-    public void toggleStart() {
+    public void togglePlay() {
         if (mStatus == Status.Started) {
             sendPause();
         } else if (mStatus == Status.Paused) {
 
         }
 
-        super.toggleStart();
+        super.togglePlay();
     }
-
-    private Integer mStreamIdTestDelay;
 
     public void sendReplyTestDelay(long receiveTime) {
         mLogger.d("sendReplyTestDelay() called with: receiveTime = [%s]", receiveTime);
-        if (mStreamIdTestDelay == null) {
-            DataStreamConfig cfg = new DataStreamConfig();
-            cfg.syncWithAudio = true;
-            cfg.ordered = true;
-            mStreamIdTestDelay = RoomManager.Instance(mContext).getRtcEngine().createDataStream(cfg);
-        }
 
         Map<String, Object> msg = new HashMap<>();
         msg.put("cmd", "replyTestDelay");
         msg.put("testDelayTime", String.valueOf(receiveTime));
         msg.put("time", String.valueOf(System.currentTimeMillis()));
         JSONObject jsonMsg = new JSONObject(msg);
-        RoomManager.Instance(mContext).getRtcEngine().sendStreamMessage(mStreamIdTestDelay, jsonMsg.toString().getBytes());
+        int streamId = RoomManager.Instance(mContext).getStreamId();
+        int ret = RoomManager.Instance(mContext).getRtcEngine().sendStreamMessage(streamId, jsonMsg.toString().getBytes());
+        if (ret < 0) {
+            mLogger.e("sendReplyTestDelay() sendStreamMessage called returned: ret = [%s]", ret);
+        }
     }
 
     public void sendTestDelay() {
         mLogger.d("sendTestDelay() called");
-        if (mStreamIdTestDelay == null) {
-            DataStreamConfig cfg = new DataStreamConfig();
-            cfg.syncWithAudio = true;
-            cfg.ordered = true;
-            mStreamIdTestDelay = RoomManager.Instance(mContext).getRtcEngine().createDataStream(cfg);
-        }
 
         Map<String, Object> msg = new HashMap<>();
         msg.put("cmd", "testDelay");
         msg.put("time", String.valueOf(System.currentTimeMillis()));
         JSONObject jsonMsg = new JSONObject(msg);
-        RoomManager.Instance(mContext).getRtcEngine().sendStreamMessage(mStreamIdTestDelay, jsonMsg.toString().getBytes());
+        int streamId = RoomManager.Instance(mContext).getStreamId();
+        int ret = RoomManager.Instance(mContext).getRtcEngine().sendStreamMessage(streamId, jsonMsg.toString().getBytes());
+        if (ret < 0) {
+            mLogger.e("sendTestDelay() sendStreamMessage called returned: ret = [%s]", ret);
+        }
     }
-
-    private Integer mStreamIdPlay;
 
     public void sendStartPlay() {
         mLogger.d("sendStartPlay() called");
-        if (mStreamIdPlay == null) {
-            DataStreamConfig cfg = new DataStreamConfig();
-            cfg.syncWithAudio = true;
-            cfg.ordered = true;
-            mStreamIdPlay = RoomManager.Instance(mContext).getRtcEngine().createDataStream(cfg);
-        }
 
         Map<String, Object> msg = new HashMap<>();
         msg.put("cmd", "setLrcTime");
         msg.put("time", 0);
         JSONObject jsonMsg = new JSONObject(msg);
-        RoomManager.Instance(mContext).getRtcEngine().sendStreamMessage(mStreamIdPlay, jsonMsg.toString().getBytes());
+        int streamId = RoomManager.Instance(mContext).getStreamId();
+        int ret = RoomManager.Instance(mContext).getRtcEngine().sendStreamMessage(streamId, jsonMsg.toString().getBytes());
+        if (ret < 0) {
+            mLogger.e("sendStartPlay() sendStreamMessage called returned: ret = [%s]", ret);
+        }
     }
 
     public void sendPause() {
         mLogger.d("sendPause() called");
-        if (mStreamIdPlay == null) {
-            DataStreamConfig cfg = new DataStreamConfig();
-            cfg.syncWithAudio = true;
-            cfg.ordered = true;
-            mStreamIdPlay = RoomManager.Instance(mContext).getRtcEngine().createDataStream(cfg);
-        }
 
         Map<String, Object> msg = new HashMap<>();
         msg.put("cmd", "setLrcTime");
         msg.put("time", -1);
         JSONObject jsonMsg = new JSONObject(msg);
-        RoomManager.Instance(mContext).getRtcEngine().sendStreamMessage(mStreamIdPlay, jsonMsg.toString().getBytes());
+        int streamId = RoomManager.Instance(mContext).getStreamId();
+        int ret = RoomManager.Instance(mContext).getRtcEngine().sendStreamMessage(streamId, jsonMsg.toString().getBytes());
+        if (ret < 0) {
+            mLogger.e("sendPause() sendStreamMessage called returned: ret = [%s]", ret);
+        }
     }
 }

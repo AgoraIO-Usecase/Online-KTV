@@ -42,6 +42,7 @@ import io.agora.ktv.view.dialog.RoomMVDialog;
 import io.agora.ktv.view.dialog.UserSeatMenuDialog;
 import io.agora.ktv.view.dialog.WaitingDialog;
 import io.agora.ktv.widget.LrcControlView;
+import io.agora.mediaplayer.IMediaPlayer;
 import io.agora.rtc2.ChannelMediaOptions;
 import io.agora.rtc2.Constants;
 import io.reactivex.CompletableObserver;
@@ -65,6 +66,8 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
 
     private RoomSpeakerAdapter mRoomSpeakerAdapter;
     private BaseMusicPlayer mMusicPlayer;
+
+    protected IMediaPlayer mPlayer;
 
     private final BaseMusicPlayer.Callback mMusicCallback = new BaseMusicPlayer.Callback() {
 
@@ -436,6 +439,8 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
             startOnTrialTimer(liveTimeLeft);
         }
 
+        mPlayer = RoomManager.Instance(this).getRtcEngine().createMediaPlayer();
+
         mDataBinding.lrcControlView.setLrcViewBackground(mRoom.getMVRes());
 
         if (RoomManager.Instance(this).isOwner()) {
@@ -767,7 +772,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
             return;
         }
 
-        mMusicPlayer.toggleStart();
+        mMusicPlayer.togglePlay();
     }
 
     private void showOnSeatStatus() {
@@ -880,26 +885,25 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
             mMusicPlayer = null;
         }
 
-        if (music.getType() == MemberMusicModel.SingType.Single) {
-            mDataBinding.lrcControlView.onPrepareStatus();
-            mMusicPlayer = new SingleMusicPlayer(this);
-            mMusicPlayer.prepare(music);
-        } else if (music.getType() == MemberMusicModel.SingType.Chorus) {
-            mDataBinding.lrcControlView.onWaitChorusStatus();
-            mMusicPlayer = new MultipleMusicPlayer(this);
-            mMusicPlayer.prepare(music);
-        }
-
+        int role = Constants.CLIENT_ROLE_BROADCASTER;
         AgoraMember mMine = RoomManager.Instance(this).getMine();
         if (mMine != null) {
             if (mMine.getRole() == AgoraMember.Role.Owner ||
                     mMine.getRole() == AgoraMember.Role.Speaker) {
-                int role = Constants.CLIENT_ROLE_BROADCASTER;
-                mMusicPlayer.switchRole(role);
+                role = Constants.CLIENT_ROLE_BROADCASTER;
             } else if (mMine.getRole() == AgoraMember.Role.Listener) {
-                int role = Constants.CLIENT_ROLE_AUDIENCE;
-                mMusicPlayer.switchRole(role);
+                role = Constants.CLIENT_ROLE_AUDIENCE;
             }
+        }
+
+        if (music.getType() == MemberMusicModel.SingType.Single) {
+            mDataBinding.lrcControlView.onPrepareStatus();
+            mMusicPlayer = new SingleMusicPlayer(this, role, mPlayer);
+            mMusicPlayer.prepare(music);
+        } else if (music.getType() == MemberMusicModel.SingType.Chorus) {
+            mDataBinding.lrcControlView.onWaitChorusStatus();
+            mMusicPlayer = new MultipleMusicPlayer(this, role, mPlayer);
+            mMusicPlayer.prepare(music);
         }
 
         mMusicPlayer.registerPlayerObserver(mMusicCallback);
@@ -929,6 +933,11 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
 
     @Override
     protected void onDestroy() {
+        if (mPlayer != null) {
+            mPlayer.destroy();
+            mPlayer = null;
+        }
+
         closeJoinRoomDialog();
         stopOnTrialTimer();
 

@@ -23,7 +23,6 @@ import io.agora.mediaplayer.IMediaPlayer;
 import io.agora.mediaplayer.IMediaPlayerObserver;
 import io.agora.rtc2.ChannelMediaOptions;
 import io.agora.rtc2.Constants;
-import io.agora.rtc2.DataStreamConfig;
 import io.agora.rtc2.IRtcEngineEventHandler;
 
 public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerObserver {
@@ -119,15 +118,15 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
         }
     };
 
-    public BaseMusicPlayer(Context mContext) {
+    public BaseMusicPlayer(Context mContext, int role, IMediaPlayer mPlayer) {
         this.mContext = mContext;
+        this.mPlayer = mPlayer;
         reset();
 
-        // init mpk
-        mPlayer = RoomManager.Instance(mContext).getRtcEngine().createMediaPlayer();
-        mPlayer.registerPlayerObserver(this);
+        this.mPlayer.registerPlayerObserver(this);
 
         RoomManager.Instance(mContext).getRtcEngine().addHandler(this);
+        switchRole(role);
     }
 
     private void reset() {
@@ -153,19 +152,11 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
         ChannelMediaOptions options = new ChannelMediaOptions();
         options.publishMediaPlayerId = mPlayer.getMediaPlayerId();
         options.clientRoleType = role;
-        options.autoSubscribeAudio = true;
-        options.autoSubscribeVideo = false;
-        options.publishCameraTrack = false;
-        options.publishMediaPlayerVideoTrack = false;
         if (role == Constants.CLIENT_ROLE_BROADCASTER) {
             options.publishAudioTrack = true;
-            options.publishCustomAudioTrack = false;
-            options.enableAudioRecordingOrPlayout = true;
             options.publishMediaPlayerAudioTrack = true;
         } else {
             options.publishAudioTrack = false;
-            options.publishCustomAudioTrack = false;
-            options.enableAudioRecordingOrPlayout = false;
             options.publishMediaPlayerAudioTrack = false;
         }
         RoomManager.Instance(mContext).getRtcEngine().updateChannelMediaOptions(options);
@@ -204,6 +195,10 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
         if (fileLrc.exists() == false) {
             mLogger.e("open error: fileLrc is not exists");
             return -5;
+        }
+
+        if (mPlayer == null) {
+            return -6;
         }
 
         stopDisplayLrc();
@@ -261,7 +256,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
         mPlayer.resume();
     }
 
-    public void toggleStart() {
+    public void togglePlay() {
         if (!mStatus.isAtLeast(Status.Started)) {
             return;
         }
@@ -299,21 +294,13 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
         }
     }
 
-    private Integer mStreamIdCountDown;
-
     public void sendCountdown(int time) {
-        if (mStreamIdCountDown == null) {
-            DataStreamConfig cfg = new DataStreamConfig();
-            cfg.syncWithAudio = true;
-            cfg.ordered = true;
-            mStreamIdCountDown = RoomManager.Instance(mContext).getRtcEngine().createDataStream(cfg);
-        }
-
         Map<String, Object> msg = new HashMap<>();
         msg.put("cmd", "countdown");
         msg.put("time", time);
         JSONObject jsonMsg = new JSONObject(msg);
-        RoomManager.Instance(mContext).getRtcEngine().sendStreamMessage(mStreamIdCountDown, jsonMsg.toString().getBytes());
+        int streamId = RoomManager.Instance(mContext).getStreamId();
+        RoomManager.Instance(mContext).getRtcEngine().sendStreamMessage(streamId, jsonMsg.toString().getBytes());
     }
 
     public void setMusicVolume(int v) {
@@ -356,6 +343,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
                 }
             }
         });
+        mDisplayThread.setName("Thread-Display");
         mDisplayThread.start();
     }
 
@@ -372,16 +360,10 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
 
     private void startSyncLrc(String lrcId, long duration) {
         mSyncLrcThread = new Thread(new Runnable() {
-            int mStreamId = -1;
 
             @Override
             public void run() {
                 mLogger.i("startSyncLrc: " + lrcId);
-                DataStreamConfig cfg = new DataStreamConfig();
-                cfg.syncWithAudio = true;
-                cfg.ordered = true;
-                mStreamId = RoomManager.Instance(mContext).getRtcEngine().createDataStream(cfg);
-
                 mStopSyncLrc = false;
                 while (!mStopSyncLrc && mStatus.isAtLeast(Status.Started)) {
                     if (mPlayer == null) {
@@ -406,11 +388,15 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
                 msg.put("lrcId", lrcId);
                 msg.put("duration", duration);
                 msg.put("time", time);//ms
-                msg.put("ts", System.currentTimeMillis());//ms
                 JSONObject jsonMsg = new JSONObject(msg);
-                RoomManager.Instance(mContext).getRtcEngine().sendStreamMessage(mStreamId, jsonMsg.toString().getBytes());
+                int streamId = RoomManager.Instance(mContext).getStreamId();
+                int ret = RoomManager.Instance(mContext).getRtcEngine().sendStreamMessage(streamId, jsonMsg.toString().getBytes());
+                if (ret < 0) {
+                    mLogger.e("sendSyncLrc() sendStreamMessage called returned: ret = [%s]", ret);
+                }
             }
         });
+        mSyncLrcThread.setName("Thread-SyncLrc");
         mSyncLrcThread.start();
     }
 
@@ -532,7 +518,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
 
     @Override
     public void onPositionChanged(long position) {
-        mLogger.d("onPositionChanged() called with: position = [%s]", position);
+//        mLogger.d("onPositionChanged() called with: position = [%s]", position);
         mRecvedPlayPosition = position;
         mLastRecvPlayPosTime = System.currentTimeMillis();
     }
@@ -625,11 +611,9 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
 
     public void destory() {
         mLogger.i("destory() called");
+        mPlayer.unRegisterPlayerObserver(this);
         RoomManager.Instance(mContext).getRtcEngine().removeHandler(this);
         mCallback = null;
-
-        mPlayer.destroy();
-        mPlayer = null;
     }
 
     protected void onPrepareResource() {

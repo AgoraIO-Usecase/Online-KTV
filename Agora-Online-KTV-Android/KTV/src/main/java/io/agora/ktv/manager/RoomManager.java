@@ -35,6 +35,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import io.agora.ktv.bean.MemberMusicModel;
 import io.agora.rtc2.Constants;
+import io.agora.rtc2.DataStreamConfig;
 import io.agora.rtc2.IRtcEngineEventHandler;
 import io.agora.rtc2.RtcEngine;
 import io.agora.rtc2.RtcEngineConfig;
@@ -69,6 +70,8 @@ public final class RoomManager {
     private volatile MemberMusicModel mMusicModel;
 
     private RtcEngineEx mRtcEngine;
+
+    private Integer mStreamId;
 
     private IRtcEngineEventHandler mIRtcEngineEventHandler = new IRtcEngineEventHandler() {
 
@@ -170,6 +173,21 @@ public final class RoomManager {
 
     public RtcEngineEx getRtcEngine() {
         return mRtcEngine;
+    }
+
+    /**
+     * joinChannel之后只能创建5个，leaveChannel之后重置。
+     *
+     * @return
+     */
+    public Integer getStreamId() {
+        if (mStreamId == null) {
+            DataStreamConfig cfg = new DataStreamConfig();
+            cfg.syncWithAudio = true;
+            cfg.ordered = true;
+            mStreamId = getRtcEngine().createDataStream(cfg);
+        }
+        return mStreamId;
     }
 
     public static RoomManager Instance(Context mContext) {
@@ -846,6 +864,7 @@ public final class RoomManager {
         getRtcEngine().leaveChannel();
 
         memberHashMap.clear();
+        mStreamId = null;
 
         if (ObjectsCompat.equals(mMine, owner)) {
             //房主退出

@@ -11,14 +11,15 @@ import com.agora.data.model.User;
 import io.agora.baselibrary.util.ToastUtile;
 import io.agora.ktv.R;
 import io.agora.ktv.bean.MemberMusicModel;
+import io.agora.mediaplayer.IMediaPlayer;
 import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 
 public class SingleMusicPlayer extends BaseMusicPlayer {
 
-    public SingleMusicPlayer(Context mContext) {
-        super(mContext);
+    public SingleMusicPlayer(Context mContext, int role, IMediaPlayer mPlayer) {
+        super(mContext, role, mPlayer);
     }
 
     @Override
