@@ -849,16 +849,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
     }
 
     private void onMusicDelete(@NonNull MemberMusicModel music) {
-        User mUser = UserManager.Instance(this).getUserLiveData().getValue();
-        if (mUser == null) {
-            return;
-        }
 
-        if (ObjectsCompat.equals(music.getUser1Id(), mUser.getObjectId())) {
-            if (mMusicPlayer != null) {
-                mMusicPlayer.stop();
-            }
-        }
     }
 
     private void onMusicChanged(@NonNull MemberMusicModel music) {
@@ -882,6 +873,8 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
         }
 
         if (mMusicPlayer != null) {
+            mMusicPlayer.stop();
+
             mMusicPlayer.destory();
             mMusicPlayer = null;
         }
@@ -915,6 +908,8 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
         mDataBinding.lrcControlView.onIdleStatus();
 
         if (mMusicPlayer != null) {
+            mMusicPlayer.stop();
+
             mMusicPlayer.destory();
             mMusicPlayer = null;
         }
