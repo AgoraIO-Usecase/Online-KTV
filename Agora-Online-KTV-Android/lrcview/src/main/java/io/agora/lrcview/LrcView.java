@@ -171,8 +171,15 @@ public class LrcView extends View {
         this.enableDrag = enableDrag;
     }
 
-    public void setTotalDuration(long d) {
+    public synchronized void setTotalDuration(long d) {
         mTotalDuration = d;
+
+        if (lrcData != null && lrcData.entrys != null && !lrcData.entrys.isEmpty()) {
+            List<LrcEntryData.Tone> tone = lrcData.entrys.get(lrcData.entrys.size() - 1).tones;
+            if (tone != null && !tone.isEmpty()) {
+                tone.get(tone.size() - 1).end = mTotalDuration;
+            }
+        }
     }
 
     /**
@@ -553,7 +560,7 @@ public class LrcView extends View {
 
     private volatile boolean isLrcLoadDone = false;
 
-    private void onLrcLoaded(LrcData data) {
+    private synchronized void onLrcLoaded(LrcData data) {
         lrcData = data;
 
         if (mTotalDuration != null) {
