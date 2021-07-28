@@ -297,6 +297,11 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
 
         mDataBinding.lrcControlView.setOnLrcClickListener(new LrcControlView.OnLrcActionListener() {
             @Override
+            public void onLoadLrcCompleted() {
+
+            }
+
+            @Override
             public void onProgressChanged(long time) {
                 mMusicPlayer.seek(time);
             }

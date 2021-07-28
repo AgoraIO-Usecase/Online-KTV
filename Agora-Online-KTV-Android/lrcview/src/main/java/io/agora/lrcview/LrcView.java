@@ -16,6 +16,9 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 
+import androidx.annotation.ColorInt;
+import androidx.annotation.MainThread;
+
 import java.io.File;
 import java.util.List;
 
@@ -63,7 +66,7 @@ public class LrcView extends View {
     private Bitmap mBitmapFG;
     private Canvas mCanvasFG;
 
-    private OnSeekBarChangeListener mOnSeekBarChangeListener;
+    private OnActionListener mOnActionListener;
     private boolean enableDrag = true;
     private boolean isInDrag = false;
     private GestureDetector mGestureDetector;
@@ -74,8 +77,8 @@ public class LrcView extends View {
         public boolean onDown(MotionEvent e) {
             isInDrag = true;
 
-            if (mOnSeekBarChangeListener != null) {
-                mOnSeekBarChangeListener.onStartTrackingTouch();
+            if (mOnActionListener != null) {
+                mOnActionListener.onStartTrackingTouch();
             }
             return true;
         }
@@ -133,8 +136,8 @@ public class LrcView extends View {
         mGestureDetector.setIsLongpressEnabled(false);
     }
 
-    public void setOnSeekBarChangeListener(OnSeekBarChangeListener mOnSeekBarChangeListener) {
-        this.mOnSeekBarChangeListener = mOnSeekBarChangeListener;
+    public void setActionListener(OnActionListener mOnActionListener) {
+        this.mOnActionListener = mOnActionListener;
     }
 
     @Override
@@ -159,9 +162,9 @@ public class LrcView extends View {
             LrcEntryData mIEntry = lrcData.entrys.get(targetIndex);
             updateTime(mIEntry.getStartTime());
 
-            if (mOnSeekBarChangeListener != null) {
-                mOnSeekBarChangeListener.onProgressChanged(mIEntry.getStartTime());
-                mOnSeekBarChangeListener.onStopTrackingTouch();
+            if (mOnActionListener != null) {
+                mOnActionListener.onProgressChanged(mIEntry.getStartTime());
+                mOnActionListener.onStopTrackingTouch();
             }
         }
         return mGestureDetector.onTouchEvent(event);
@@ -185,7 +188,7 @@ public class LrcView extends View {
     /**
      * 设置非当前行歌词字体颜色
      */
-    public void setNormalColor(int normalColor) {
+    public void setNormalColor(@ColorInt int normalColor) {
         mNormalTextColor = normalColor;
         mPaintBG.setColor(mNormalTextColor);
         mNewLine = true;
@@ -213,7 +216,7 @@ public class LrcView extends View {
     /**
      * 设置当前行歌词的字体颜色
      */
-    public void setCurrentColor(int currentColor) {
+    public void setCurrentColor(@ColorInt int currentColor) {
         mCurrentTextColor = currentColor;
         mPaintFG.setColor(mCurrentTextColor);
         mNewLine = true;
@@ -254,7 +257,7 @@ public class LrcView extends View {
     /**
      * 刷新歌词
      *
-     * @param time 当前播放时间
+     * @param time 当前播放时间，毫秒
      */
     public void updateTime(long time) {
         if (!hasLrc()) {
@@ -573,6 +576,14 @@ public class LrcView extends View {
         }
 
         isLrcLoadDone = true;
+        post(new Runnable() {
+            @Override
+            public void run() {
+                if (mOnActionListener != null) {
+                    mOnActionListener.onLoadLrcCompleted();
+                }
+            }
+        });
         postInvalidate();
     }
 
@@ -621,11 +632,28 @@ public class LrcView extends View {
         return getHeight() - getPaddingTop() - getPaddingBottom();
     }
 
-    public interface OnSeekBarChangeListener {
+    @MainThread
+    public interface OnActionListener {
+        /**
+         * 歌词加载完回调
+         */
+        void onLoadLrcCompleted();
+
+        /**
+         * 进度条改变回调
+         *
+         * @param time 毫秒
+         */
         void onProgressChanged(long time);
 
+        /**
+         * 开始拖动
+         */
         void onStartTrackingTouch();
 
+        /**
+         * 结束拖动
+         */
         void onStopTrackingTouch();
     }
 }

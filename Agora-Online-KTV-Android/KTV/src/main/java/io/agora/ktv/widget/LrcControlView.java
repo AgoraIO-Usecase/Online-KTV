@@ -77,7 +77,7 @@ public class LrcControlView extends FrameLayout implements View.OnClickListener 
 
     public void setOnLrcClickListener(OnLrcActionListener mOnLrcActionListener) {
         this.mOnLrcActionListener = mOnLrcActionListener;
-        mDataBinding.ilActive.lrcView.setOnSeekBarChangeListener(this.mOnLrcActionListener);
+        mDataBinding.ilActive.lrcView.setActionListener(this.mOnLrcActionListener);
     }
 
     private CountDownTimer mCountDownLatch;
@@ -265,7 +265,7 @@ public class LrcControlView extends FrameLayout implements View.OnClickListener 
         mDataBinding.ilActive.switchOriginal.setChecked(checked);
     }
 
-    public interface OnLrcActionListener extends LrcView.OnSeekBarChangeListener {
+    public interface OnLrcActionListener extends LrcView.OnActionListener {
         void onSwitchOriginalClick();
 
         void onMenuClick();
