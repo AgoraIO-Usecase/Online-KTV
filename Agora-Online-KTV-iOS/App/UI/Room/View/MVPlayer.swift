@@ -491,13 +491,9 @@ class MVPlayer: NSObject {
     }
 
     private func updateMusicLyricViewLayout() {
-        var showSettingBar = false
-        if let member = member, let music = music {
-            showSettingBar = music.isOrderBy(member: member)
-        }
-        settingsView.superview?.isHidden = !showSettingBar
+        settingsView.superview?.isHidden = !_isMyOrdedMusic
         if let root = player.superview {
-            if !showSettingBar {
+            if !_isMyOrdedMusic {
                 if musicLyricView.superview != root {
                     musicLyricView.removeFromSuperview()
                     root.addSubview(musicLyricView)
@@ -533,7 +529,7 @@ class MVPlayer: NSObject {
             switch music.type {
             case LiveKtvMusic.NORMAL:
                 listenerOnPlayMusicChange()
-                if music.isOrderBy(member: member) {
+                if _isMyOrdedMusic {
                     delegate.viewModel.fetchMusic(music: music) { [weak self] waiting in
                         self?.delegate.onFetchMusic(finish: !waiting)
                     } onSuccess: { [weak self] localMusic in
@@ -554,7 +550,7 @@ class MVPlayer: NSObject {
             case LiveKtvMusic.CHORUS:
                 if member.isSpeaker(), !music.isChorusReady() {
                     status = .waitChorusApply
-                    if music.isOrderBy(member: member) {
+                    if _isMyOrdedMusic {
                         chorusMasterView.music = music
                         chorusMasterView.isEnabled = true
                         if chorusFollowerView.superview != nil {
@@ -679,8 +675,8 @@ class MVPlayer: NSObject {
                 }
             }
         case .countdown:
-            if let member = member, let music = music, music.isChorus() {
-                if music.isOrderBy(member: member) {
+            if music?.isChorus() == true {
+                if _isMyOrdedMusic {
                     chorusMasterView.time = TimeInterval(state.position)
                 } else {
                     chorusFollowerView.time = TimeInterval(state.position)
@@ -795,7 +791,9 @@ class MVPlayer: NSObject {
 
 extension MVPlayer: MusicLyricViewDelegate {
     func userEndSeeking(time: TimeInterval) {
-        Logger.log(self, message: "userEndSeeking \(time)", level: .info)
-        delegate.viewModel.seekMusic(position: time)
+        if _isMyOrdedMusic {
+            Logger.log(self, message: "userEndSeeking \(time)", level: .info)
+            delegate.viewModel.seekMusic(position: time)
+        }
     }
 }

@@ -70,10 +70,11 @@ struct RtcCheckTestDelayMessage: Encodable, Decodable {
 }
 
 protocol IRtcMusicPlayer {
-    var player: AgoraRtcMediaPlayerProtocol? { get set }
+    var player: AgoraRtcMediaPlayerProtocol? { get }
     var music: LocalMusic? { get set }
     var uid: UInt { get set }
-    var streamId: Int { get set }
+    var streamId: Int { get }
+    var orderedStreamId: Int { get }
     var position: Int { get set }
     var duration: Int { get set }
     var isPlaying: Bool { get set }
@@ -104,8 +105,18 @@ class AbstractRtcMusicPlayer: NSObject, IRtcMusicPlayer /* , AgoraRtcMediaPlayer
     static var msgId: Int = 0
     weak var rtcServer: RtcServer!
 
-    var player: AgoraRtcMediaPlayerProtocol?
-    var streamId: Int = -1
+    var player: AgoraRtcMediaPlayerProtocol? {
+        return rtcServer.getAgoraMusicPlayer()
+    }
+
+    var streamId: Int {
+        return rtcServer.getDataStreamId()
+    }
+
+    var orderedStreamId: Int {
+        return rtcServer.getOrderedDataStreamId()
+    }
+
     var uid: UInt = 0
     var music: LocalMusic?
     var position: Int = 0
@@ -118,7 +129,7 @@ class AbstractRtcMusicPlayer: NSObject, IRtcMusicPlayer /* , AgoraRtcMediaPlayer
     required init(rtcServer: RtcServer) {
         self.rtcServer = rtcServer
         super.init()
-        player = self.rtcServer.rtcEngine!.createMediaPlayer(with: rtcServer)
+        // player = self.rtcServer.rtcEngine!.createMediaPlayer(with: rtcServer)
         // player.setAudioFrameDelegate(self, mode: .readWrite)
     }
 
@@ -194,25 +205,22 @@ class AbstractRtcMusicPlayer: NSObject, IRtcMusicPlayer /* , AgoraRtcMediaPlayer
     func destory() {
         stop()
         uid = 0
-        if let player = player, let rtc = rtcServer.rtcEngine {
-            rtc.destroyMediaPlayer(player)
-        }
+//        if let player = player, let rtc = rtcServer.rtcEngine {
+//            rtc.destroyMediaPlayer(player)
+//        }
+//        player = nil
     }
 
     fileprivate func sendRtcStreamMessage<T: Encodable>(msg: T, ordered: Bool = false) {
         guard let rtcEngine = rtcServer.rtcEngine else {
             return
         }
+        let streamId = ordered ? orderedStreamId : self.streamId
         if streamId == -1 {
-            let config = AgoraDataStreamConfig()
-            config.ordered = ordered
-            config.syncWithAudio = ordered
-            rtcEngine.createDataStream(&streamId, config: config)
-            if streamId == -1 {
-                Logger.log(self, message: "error streamId == -1", level: .error)
-                return
-            }
+            Logger.log(self, message: "error streamId == -1", level: .error)
+            return
         }
+
         let jsonEncoder = JSONEncoder()
         do {
             let jsonData = try jsonEncoder.encode(msg)
@@ -343,15 +351,11 @@ class RtcNormalMusicPlayer: AbstractRtcMusicPlayer {
             option.publishMediaPlayerId = AgoraRtcIntOptional.of(player.getMediaPlayerId())
             option.clientRoleType = AgoraRtcIntOptional.of(Int32(AgoraClientRole.broadcaster.rawValue))
             option.publishCameraTrack = AgoraRtcBoolOptional.of(false)
-            option.autoSubscribeVideo = AgoraRtcBoolOptional.of(false)
             option.autoSubscribeAudio = AgoraRtcBoolOptional.of(true)
-            option.publishMediaPlayerVideoTrack = AgoraRtcBoolOptional.of(false)
-            option.publishCustomAudioTrack = AgoraRtcBoolOptional.of(false)
-            option.publishAudioTrack = AgoraRtcBoolOptional.of(true)
             option.enableAudioRecordingOrPlayout = AgoraRtcBoolOptional.of(true)
             option.publishMediaPlayerAudioTrack = AgoraRtcBoolOptional.of(true)
             rtc.updateChannel(with: option)
-            Logger.log(self, message: "open \(music.path)", level: .info)
+
             if player.open(music.path, startPos: 0) == 0 {
                 onSuccess()
             } else {
@@ -366,16 +370,9 @@ class RtcNormalMusicPlayer: AbstractRtcMusicPlayer {
         super.destory()
         if let rtc = rtcServer.rtcEngine {
             let option = AgoraRtcChannelMediaOptions()
-            option.publishMediaPlayerId = nil
             option.clientRoleType = AgoraRtcIntOptional.of(Int32(AgoraClientRole.broadcaster.rawValue))
             option.publishCameraTrack = AgoraRtcBoolOptional.of(false)
-            option.autoSubscribeVideo = AgoraRtcBoolOptional.of(false)
-            option.autoSubscribeAudio = AgoraRtcBoolOptional.of(true)
-            option.publishMediaPlayerVideoTrack = AgoraRtcBoolOptional.of(false)
-            option.publishCustomAudioTrack = AgoraRtcBoolOptional.of(false)
-            option.publishAudioTrack = AgoraRtcBoolOptional.of(true)
             option.enableAudioRecordingOrPlayout = AgoraRtcBoolOptional.of(true)
-            option.publishMediaPlayerAudioTrack = AgoraRtcBoolOptional.of(false)
             rtc.updateChannel(with: option)
         }
     }
@@ -383,19 +380,7 @@ class RtcNormalMusicPlayer: AbstractRtcMusicPlayer {
 
 class RtcChorusMusicPlayer: AbstractRtcMusicPlayer {
     private(set) var connectionId: UInt32 = 0
-    var option: LocalMusicOption! {
-        didSet {
-            if let rtc = rtcServer.rtcEngine {
-                if isFollower() {
-                    if let oldMasterMusicUid = oldValue?.masterMusicUid {
-                        rtc.muteRemoteAudioStream(oldMasterMusicUid, mute: false)
-                    }
-                    rtc.muteRemoteAudioStream(option.masterMusicUid, mute: true)
-                }
-            }
-        }
-    }
-
+    var option: LocalMusicOption!
     private var timer: Timer?
 
     override func initPlayer(onSuccess: @escaping () -> Void, onFailed: @escaping (String) -> Void) {
@@ -412,29 +397,23 @@ class RtcChorusMusicPlayer: AbstractRtcMusicPlayer {
 
             if connectionId == 0 {
                 let option = AgoraRtcChannelMediaOptions()
-                option.publishMediaPlayerId = AgoraRtcIntOptional.of(player.getMediaPlayerId())
                 option.clientRoleType = AgoraRtcIntOptional.of(Int32(AgoraClientRole.broadcaster.rawValue))
                 option.publishCameraTrack = AgoraRtcBoolOptional.of(false)
-                option.autoSubscribeVideo = AgoraRtcBoolOptional.of(false)
                 option.autoSubscribeAudio = AgoraRtcBoolOptional.of(false)
-                option.publishMediaPlayerVideoTrack = AgoraRtcBoolOptional.of(false)
-                option.publishCustomAudioTrack = AgoraRtcBoolOptional.of(false)
                 option.publishAudioTrack = AgoraRtcBoolOptional.of(false)
-                option.enableAudioRecordingOrPlayout = AgoraRtcBoolOptional.of(false)
-                option.publishMediaPlayerAudioTrack = AgoraRtcBoolOptional.of(false)
                 // var connectionId: UInt = 0
                 let code = rtc.joinChannelEx(byToken: BuildConfig.Token, channelId: channelId, uid: 0, connectionId: &connectionId, delegate: nil, mediaOptions: option) { _, uid, _ in
                     // self.connectionId = connectionId
                     Logger.log(self, message: "joinChannelEx success! channelId:\(channelId) uid:\(uid)", level: .info)
                     self.uid = uid
-                    rtc.muteRemoteAudioStream(uid, mute: true)
+                    // rtc.muteRemoteAudioStream(uid, mute: true)
                     onSuccess()
                 }
                 if code != 0 {
                     onFailed("joinChannelEx error!")
                 }
             } else {
-                rtc.muteRemoteAudioStream(uid, mute: true)
+                // rtc.muteRemoteAudioStream(uid, mute: true)
                 onSuccess()
             }
         } else {
@@ -453,18 +432,15 @@ class RtcChorusMusicPlayer: AbstractRtcMusicPlayer {
             if connectionId == 0 || option == nil {
                 onFailed("未初始化！")
             } else {
+                rtc.muteRemoteAudioStream(uid, mute: true)
                 if isFollower() {
+                    rtc.muteRemoteAudioStream(option.masterMusicUid, mute: true)
+
                     let mediaOption = AgoraRtcChannelMediaOptions()
-                    mediaOption.publishMediaPlayerId = AgoraRtcIntOptional.of(player.getMediaPlayerId())
                     mediaOption.clientRoleType = AgoraRtcIntOptional.of(Int32(AgoraClientRole.broadcaster.rawValue))
                     mediaOption.publishCameraTrack = AgoraRtcBoolOptional.of(false)
-                    mediaOption.autoSubscribeVideo = AgoraRtcBoolOptional.of(false)
                     mediaOption.autoSubscribeAudio = AgoraRtcBoolOptional.of(false)
-                    mediaOption.publishMediaPlayerVideoTrack = AgoraRtcBoolOptional.of(false)
-                    mediaOption.publishCustomAudioTrack = AgoraRtcBoolOptional.of(false)
                     mediaOption.publishAudioTrack = AgoraRtcBoolOptional.of(false)
-                    mediaOption.enableAudioRecordingOrPlayout = AgoraRtcBoolOptional.of(false)
-                    mediaOption.publishMediaPlayerAudioTrack = AgoraRtcBoolOptional.of(false)
                     rtc.updateChannelEx(with: mediaOption, connectionId: connectionId)
 
                     if let timer = timer {
@@ -481,12 +457,8 @@ class RtcChorusMusicPlayer: AbstractRtcMusicPlayer {
                     mediaOption.publishMediaPlayerId = AgoraRtcIntOptional.of(player.getMediaPlayerId())
                     mediaOption.clientRoleType = AgoraRtcIntOptional.of(Int32(AgoraClientRole.broadcaster.rawValue))
                     mediaOption.publishCameraTrack = AgoraRtcBoolOptional.of(false)
-                    mediaOption.autoSubscribeVideo = AgoraRtcBoolOptional.of(false)
                     mediaOption.autoSubscribeAudio = AgoraRtcBoolOptional.of(false)
-                    mediaOption.publishMediaPlayerVideoTrack = AgoraRtcBoolOptional.of(false)
-                    mediaOption.publishCustomAudioTrack = AgoraRtcBoolOptional.of(false)
                     mediaOption.publishAudioTrack = AgoraRtcBoolOptional.of(false)
-                    mediaOption.enableAudioRecordingOrPlayout = AgoraRtcBoolOptional.of(false)
                     mediaOption.publishMediaPlayerAudioTrack = AgoraRtcBoolOptional.of(true)
                     rtc.updateChannelEx(with: mediaOption, connectionId: connectionId)
                 }
@@ -585,7 +557,7 @@ class RtcChorusMusicPlayer: AbstractRtcMusicPlayer {
     private var seekTime: CLongLong = 0
     private var delay: CLongLong = 0
     private var needSeek = false
-
+    private var waitting = false
     private let delayPlayTime = 1000
     private let MAX_DELAY_MS = 40
 
@@ -596,6 +568,7 @@ class RtcChorusMusicPlayer: AbstractRtcMusicPlayer {
         seekTime = 0
         delay = 0
         needSeek = false
+        waitting = false
     }
 
     private func isMaster() -> Bool {
@@ -656,8 +629,12 @@ class RtcChorusMusicPlayer: AbstractRtcMusicPlayer {
                         }
                     } else if position == 0 {
                         if player.getPlayerState() == .openCompleted {
-                            MachWrapper.wait(Int32(delayPlayTime - Int(delay)))
-                            player.play()
+                            if !waitting {
+                                waitting = true
+                                MachWrapper.wait(Int32(delayPlayTime - Int(delay)))
+                                player.play()
+                                waitting = false
+                            }
                         } else if player.getPlayerState() == .paused {
                             player.resume()
                         }
@@ -674,8 +651,12 @@ class RtcChorusMusicPlayer: AbstractRtcMusicPlayer {
                                 needSeek = true
                             }
                         } else if player.getPlayerState() == .openCompleted {
-                            player.seek(toPosition: Int(now - expLocalTs))
-                            player.play()
+                            if !waitting {
+                                waitting = true
+                                player.seek(toPosition: Int(now - expLocalTs))
+                                player.play()
+                                waitting = false
+                            }
                         } else if player.getPlayerState() == .paused {
                             player.resume()
                         }

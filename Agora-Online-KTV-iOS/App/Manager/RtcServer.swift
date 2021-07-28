@@ -33,6 +33,10 @@ class RtcServer: NSObject {
     private(set) var isEnableEarloop: Bool = false
     private(set) var recordingSignalVolume: Float = 100 / 400
 
+    private var orderedDataStreamId: Int = -1
+    private var dataStreamId: Int = -1
+    private var rtcMediaPlayer: AgoraRtcMediaPlayerProtocol?
+
     var isJoinChannel: Bool {
         return channel != nil && channel?.isEmpty == false
     }
@@ -89,6 +93,8 @@ class RtcServer: NSObject {
         } else {
             setClientRole(.audience, setting.audienceLatency)
         }
+        rtc.enableAudio()
+        rtc.disableVideo()
         muteLocalMicrophone(mute: member.isSelfMuted)
         rtc.enable(inEarMonitoring: isEnableEarloop)
         setRecordingSignalVolume(value: recordingSignalVolume)
@@ -118,6 +124,8 @@ class RtcServer: NSObject {
         return Single.create { [unowned self] single in
             if isJoinChannel {
                 if let rtc = self.rtcEngine {
+                    self.dataStreamId = -1
+                    self.orderedDataStreamId = -1
                     self.channel = nil
                     self.uid = 0
                     self.members.removeAll()
@@ -145,6 +153,10 @@ class RtcServer: NSObject {
             return Single.create { single in
                 player.destory()
                 self.rtcMusicPlayer = nil
+                if let rtc = self.rtcEngine, let mediaPlayer = self.rtcMediaPlayer {
+                    rtc.destroyMediaPlayer(mediaPlayer)
+                    self.rtcMediaPlayer = nil
+                }
                 single(.success(Result(success: true)))
                 return Disposables.create()
             }.asObservable()
@@ -315,6 +327,49 @@ class RtcServer: NSObject {
     func sendMusic(state: RtcMusicState) {
         rtcMusicStatePublisher.accept(Result(success: true, data: state))
     }
+
+    func getDataStreamId() -> Int {
+        if let rtc = rtcEngine {
+            if dataStreamId == -1 {
+                let config = AgoraDataStreamConfig()
+                config.ordered = false
+                config.syncWithAudio = false
+                rtc.createDataStream(&dataStreamId, config: config)
+                if dataStreamId == -1 {
+                    Logger.log(self, message: "error dataStreamId == -1", level: .error)
+                }
+            }
+        } else {
+            dataStreamId = -1
+        }
+        return dataStreamId
+    }
+
+    func getOrderedDataStreamId() -> Int {
+        if let rtc = rtcEngine {
+            if orderedDataStreamId == -1 {
+                let config = AgoraDataStreamConfig()
+                config.ordered = true
+                config.syncWithAudio = true
+                rtc.createDataStream(&orderedDataStreamId, config: config)
+                if orderedDataStreamId == -1 {
+                    Logger.log(self, message: "error orderedDataStreamId == -1", level: .error)
+                }
+            }
+        } else {
+            orderedDataStreamId = -1
+        }
+        return orderedDataStreamId
+    }
+
+    func getAgoraMusicPlayer() -> AgoraRtcMediaPlayerProtocol? {
+        if let rtc = rtcEngine {
+            if rtcMediaPlayer == nil {
+                rtcMediaPlayer = rtc.createMediaPlayer(with: self)
+            }
+        }
+        return rtcMediaPlayer
+    }
 }
 
 extension RtcServer: AgoraRtcMediaPlayerDelegate {
@@ -389,10 +444,10 @@ extension RtcServer: AgoraRtcEngineDelegate {
             case "setLrcTime":
                 let duration = content["duration"] as? Int ?? 0
                 let position = content["time"] as? Int ?? -1
-                state = RtcMusicState(uid: uid, streamId: streamId, position: position, duration: duration, state: .playing, type: .position)
+                state = RtcMusicState(uid: uid, streamId: getOrderedDataStreamId(), position: position, duration: duration, state: .playing, type: .position)
             case "countdown":
                 let position = content["time"] as! Int
-                state = RtcMusicState(uid: uid, streamId: streamId, position: position, duration: position, state: .idle, type: .countdown)
+                state = RtcMusicState(uid: uid, streamId: getDataStreamId(), position: position, duration: position, state: .idle, type: .countdown)
             default:
                 state = nil
             }
