@@ -21,7 +21,6 @@ import java.util.Map;
 import io.agora.ktv.bean.MemberMusicModel;
 import io.agora.mediaplayer.IMediaPlayer;
 import io.agora.mediaplayer.IMediaPlayerObserver;
-import io.agora.rtc2.ChannelMediaOptions;
 import io.agora.rtc2.Constants;
 import io.agora.rtc2.IRtcEngineEventHandler;
 
@@ -145,22 +144,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
         this.mCallback = null;
     }
 
-    public void switchRole(int role) {
-        mLogger.d("switchRole() called with: role = [%s]", role);
-        mRole = role;
-
-        ChannelMediaOptions options = new ChannelMediaOptions();
-        options.publishMediaPlayerId = mPlayer.getMediaPlayerId();
-        options.clientRoleType = role;
-        if (role == Constants.CLIENT_ROLE_BROADCASTER) {
-            options.publishAudioTrack = true;
-            options.publishMediaPlayerAudioTrack = true;
-        } else {
-            options.publishAudioTrack = false;
-            options.publishMediaPlayerAudioTrack = false;
-        }
-        RoomManager.Instance(mContext).getRtcEngine().updateChannelMediaOptions(options);
-    }
+    public abstract void switchRole(int role);
 
     public abstract void prepare(@NonNull MemberMusicModel music);
 

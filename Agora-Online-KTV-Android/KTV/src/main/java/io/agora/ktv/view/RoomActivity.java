@@ -503,6 +503,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
         }
 
         if (mMember.getRole() == AgoraMember.Role.Listener) {
+            ToastUtile.toastShort(this, "请先上坐");
             return;
         }
 

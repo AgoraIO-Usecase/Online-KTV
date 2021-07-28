@@ -153,7 +153,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
 
         ChannelMediaOptions options = new ChannelMediaOptions();
         options.clientRoleType = mRole;
-        options.publishAudioTrack = true;
+        options.publishAudioTrack = false;
         options.publishMediaPlayerId = mPlayer.getMediaPlayerId();
         if (ObjectsCompat.equals(musicModelReady.getUserId(), mUser.getObjectId())) {
             options.publishMediaPlayerAudioTrack = true;
