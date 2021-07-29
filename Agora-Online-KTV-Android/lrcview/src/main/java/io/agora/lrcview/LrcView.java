@@ -27,6 +27,7 @@ import io.agora.lrcview.bean.LrcEntryData;
 
 /**
  * 歌词View
+ * 主要负责歌词的显示，支持上下拖动调整进度。
  *
  * @author chenhengfei(Aslanchen)
  * @date 2021/7/6
@@ -136,6 +137,11 @@ public class LrcView extends View {
         mGestureDetector.setIsLongpressEnabled(false);
     }
 
+    /**
+     * 绑定事件回调
+     *
+     * @param mOnActionListener
+     */
     public void setActionListener(OnActionListener mOnActionListener) {
         this.mOnActionListener = mOnActionListener;
     }
@@ -170,10 +176,20 @@ public class LrcView extends View {
         return mGestureDetector.onTouchEvent(event);
     }
 
+    /**
+     * 设置是否允许上下滑动
+     *
+     * @param enableDrag
+     */
     public void setEnableDrag(boolean enableDrag) {
         this.enableDrag = enableDrag;
     }
 
+    /**
+     * 设置音乐总长度，单位毫秒
+     *
+     * @param d 时间，单位毫秒
+     */
     public synchronized void setTotalDuration(long d) {
         mTotalDuration = d;
 
@@ -232,7 +248,7 @@ public class LrcView extends View {
     }
 
     /**
-     * 加载歌词文件
+     * 加载本地歌词文件
      *
      * @param lrcFile 歌词文件
      */
@@ -255,7 +271,7 @@ public class LrcView extends View {
     }
 
     /**
-     * 刷新歌词
+     * 更新进度，单位毫秒
      *
      * @param time 当前播放时间，毫秒
      */
@@ -587,6 +603,9 @@ public class LrcView extends View {
         postInvalidate();
     }
 
+    /**
+     * 重置内部状态，清空已经加载的歌词
+     */
     public void reset() {
         lrcData = null;
         mCurrentLine = 0;

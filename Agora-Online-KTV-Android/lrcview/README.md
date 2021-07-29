@@ -1,4 +1,5 @@
 # 歌词LrcView
+主要负责歌词的显示，支持上下拖动调整进度。
 
 ## 引入工程
 ```
@@ -36,13 +37,13 @@ implementation project(':lrcview')
 ## 主要API
 |API|说明|
 |----|----|
-|setActionListener|绑定事件|
-|setTotalDuration|设置音乐总长度|
-|loadLrc|加载歌词文件|
-|setEnableDrag|设置是否允许拖动|
-|updateTime|更新进度|
+|setActionListener|绑定事件回调|
+|setTotalDuration|设置音乐总长度，单位毫秒|
+|loadLrc|加载本地歌词文件|
+|setEnableDrag|设置是否允许上下滑动|
+|updateTime|更新进度，单位毫秒|
 |hasLrc|是否有歌词文件|
-|reset|重置|
+|reset|重置内部状态，清空已经加载的歌词|
 
 ## 使用流程
 ``` sequence
@@ -57,4 +58,6 @@ participant lrcView
 lrcView->>用户:listener.onLoadLrcCompleted()
 
 用户->>lrcView:updateTime(d)
+
+用户->>lrcView:reset()
 ```
