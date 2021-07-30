@@ -16,6 +16,13 @@ struct LocalMusic {
     let lrcPath: String
 }
 
+struct LocalMusicOption {
+    let masterUid: UInt
+    let masterMusicUid: UInt
+    let followerUid: UInt
+    let followerMusicUid: UInt
+}
+
 class LocalMusicManager {
 //    let localMusicList = [
 //        LocalMusic(
@@ -58,13 +65,13 @@ class LocalMusicManager {
         } else if music.lrcPath.hasSuffix(".zip") {
             do {
                 let zipFile = URL(fileURLWithPath: music.lrcPath)
-                let documentsURL = try FileManager.default.url(for: .cachesDirectory,
+                let documentsURL = try FileManager.default.url(for: .documentDirectory,
                                                                in: .userDomainMask,
                                                                appropriateFor: nil,
                                                                create: false)
                 var unzipFiles: [URL] = []
                 try Zip.unzipFile(zipFile, destination: documentsURL, overwrite: true, password: nil, fileOutputHandler: { url in
-//                    Logger.log(self, message: url.path, level: .info)
+                    Logger.log(self, message: url.path, level: .info)
                     unzipFiles.append(url)
                 })
                 if let unZipfile = unzipFiles.first {
