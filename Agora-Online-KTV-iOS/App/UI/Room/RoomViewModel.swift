@@ -78,6 +78,9 @@ class RoomViewModel {
                 if !result.success {
                     self.delegate?.onError(message: result.message)
                 } else if result.data == nil {
+                    if let message = result.message {
+                        self.delegate?.onError(message: message)
+                    }
                     self.delegate?.onRoomClosed()
                 } else {
                     self.delegate?.onRoomUpdate()
@@ -102,34 +105,11 @@ class RoomViewModel {
 
         manager.subscribeMusicList()
             .observe(on: MainScheduler.instance)
-            .concatMap { [unowned self] result -> Observable<Result<LocalMusic>> in
-                result.onSuccess {
+            .subscribe(onNext: { [unowned self] result in
+                if result.success {
                     let list = result.data ?? []
                     self.musicList = list
                     self.delegate?.onPlayListChanged()
-                    if let music = self.playingMusic {
-                        if music.isOrderBy(member: self.member) {
-                            return self.fetchMusic(music: music)
-                                .do(onSubscribe: {
-                                    self.delegate?.onFetchMusic(finish: false)
-                                }, onDispose: {
-                                    self.delegate?.onFetchMusic(finish: true)
-                                })
-                        }
-                    }
-                    return Observable.just(Result(success: true, data: nil))
-                }
-            }
-            .observe(on: MainScheduler.instance)
-            .subscribe(onNext: { [unowned self] result in
-                if result.success {
-                    if let localMusic = result.data, !self.isLocalMusicPlaying(music: localMusic) {
-                        self.play(music: localMusic) { [unowned self] waiting in
-                            self.delegate.show(processing: waiting)
-                        } onSuccess: {} onError: { [unowned self] message in
-                            self.delegate.onError(message: message)
-                        }
-                    }
                 } else {
                     self.delegate?.onError(message: result.message)
                 }
@@ -149,15 +129,16 @@ class RoomViewModel {
             .disposed(by: disposeBag)
     }
 
-    private func play(music: LocalMusic,
-                      onWaiting: @escaping (Bool) -> Void,
-                      onSuccess: @escaping () -> Void,
-                      onError: @escaping (String) -> Void)
+    func play(music: LocalMusic,
+              option: LocalMusicOption? = nil,
+              onWaiting: @escaping (Bool) -> Void,
+              onSuccess: @escaping () -> Void,
+              onError: @escaping (String) -> Void)
     {
         manager.handsUp()
-            .flatMap { result in
+            .flatMap { [unowned self] result in
                 result.onSuccess {
-                    self.manager.play(music: music)
+                    self.manager.play(music: music, option: option)
                 }
             }
             .observe(on: MainScheduler.instance)
@@ -176,6 +157,10 @@ class RoomViewModel {
                 onWaiting(false)
             }
             .disposed(by: disposeBag)
+    }
+
+    func updateLocalMusic(option: LocalMusicOption?) {
+        manager.updateLocalMusic(option: option)
     }
 
     private func getLrcMusic(music: LiveKtvMusic) -> Observable<Result<LrcMusic>> {
@@ -201,7 +186,7 @@ class RoomViewModel {
                 result.onSuccess {
                     let lrcMusic = result.data!
                     return Single.create { single in
-                        DownloadManager.shared.getFile(url: lrcMusic.song) { downloadResult in
+                        let task = DownloadManager.shared.getFile(url: lrcMusic.song) { downloadResult in
                             switch downloadResult {
                             case let .success(file: file):
                                 single(.success(Result(success: true, data: LocalMusic(id: lrcMusic.id!, name: lrcMusic.name!, path: file, lrcPath: ""))))
@@ -209,11 +194,59 @@ class RoomViewModel {
                                 single(.success(Result(success: false, message: error)))
                             }
                         }
-                        return Disposables.create()
+                        return Disposables.create {
+                            if task?.state == .running {
+                                task?.cancel()
+                            }
+                        }
                     }.asObservable()
                 }
             }
 //            .delay(DispatchTimeInterval.seconds(1), scheduler: scheduler)
+    }
+
+    func fetchMusic(music: LiveKtvMusic,
+                    onWaiting: @escaping (Bool) -> Void,
+                    onSuccess: @escaping (LocalMusic) -> Void,
+                    onError: @escaping (String) -> Void)
+    {
+        getLrcMusic(music: music)
+            .concatMap { result -> Observable<Result<LocalMusic>> in
+                result.onSuccess {
+                    let lrcMusic = result.data!
+                    return Single.create { single in
+                        let task = DownloadManager.shared.getFile(url: lrcMusic.song) { downloadResult in
+                            switch downloadResult {
+                            case let .success(file: file):
+                                single(.success(Result(success: true, data: LocalMusic(id: lrcMusic.id!, name: lrcMusic.name!, path: file, lrcPath: ""))))
+                            case let .failed(error: error):
+                                single(.success(Result(success: false, message: error)))
+                            }
+                        }
+                        return Disposables.create {
+                            if task?.state == .running {
+                                task?.cancel()
+                            }
+                        }
+                    }.asObservable()
+                }
+            }
+            .observe(on: MainScheduler.instance)
+            .do(onSubscribe: {
+                onWaiting(true)
+            }, onDispose: {
+                onWaiting(false)
+            })
+            .subscribe { result in
+                if result.success {
+                    onSuccess(result.data!)
+                } else {
+                    onError(result.message ?? "unknown error".localized)
+                }
+            } onDisposed: {
+                onWaiting(false)
+            }
+            .disposed(by: disposeBag)
     }
 
     func fetchMusicLrc(music: LiveKtvMusic,
@@ -226,7 +259,7 @@ class RoomViewModel {
                 result.onSuccess {
                     let lrcMusic = result.data!
                     return Single.create { single in
-                        DownloadManager.shared.getFile(url: lrcMusic.lrc) { downloadResult in
+                        let task = DownloadManager.shared.getFile(url: lrcMusic.lrc) { downloadResult in
                             switch downloadResult {
                             case let .success(file: file):
                                 single(.success(Result(success: true, data: LocalMusic(id: lrcMusic.id!, name: lrcMusic.name!, path: "", lrcPath: file))))
@@ -234,7 +267,11 @@ class RoomViewModel {
                                 single(.success(Result(success: false, message: error)))
                             }
                         }
-                        return Disposables.create()
+                        return Disposables.create {
+                            if task?.state == .running {
+                                task?.cancel()
+                            }
+                        }
                     }.asObservable()
                 }
             }
@@ -260,12 +297,125 @@ class RoomViewModel {
         return music.id == manager.playingMusic?.id
     }
 
+    func seekMusic(position: TimeInterval) {
+        manager.seekMusic(position: position)
+    }
+
+    func countdown(time: Int) {
+        manager.countdown(time: time)
+    }
+
     func pauseMusic() {
         manager.pauseMusic()
     }
 
     func resumeMusic() {
         manager.resumeMusic()
+    }
+
+    func stopMusic() {
+        manager.stopMusic()
+    }
+
+    func toNormal(music: LiveKtvMusic,
+                  onWaiting: @escaping (Bool) -> Void,
+                  onSuccess: @escaping () -> Void,
+                  onError: @escaping (String) -> Void)
+    {
+        music.asNormal()
+            .observe(on: MainScheduler.instance)
+            .do(onSubscribe: {
+                onWaiting(true)
+            }, onDispose: {
+                onWaiting(false)
+            })
+            .subscribe { result in
+                if result.success {
+                    onSuccess()
+                } else {
+                    onError(result.message ?? "unknown error".localized)
+                }
+            } onDisposed: {
+                onWaiting(false)
+            }
+            .disposed(by: disposeBag)
+    }
+
+    func applyAsFollower(music: LiveKtvMusic,
+                         onWaiting: @escaping (Bool) -> Void,
+                         onSuccess: @escaping () -> Void,
+                         onError: @escaping (String) -> Void)
+    {
+        music.applyAsFollower(member: member)
+            .observe(on: MainScheduler.instance)
+            .do(onSubscribe: {
+                onWaiting(true)
+            }, onDispose: {
+                onWaiting(false)
+            })
+            .subscribe { result in
+                if result.success {
+                    onSuccess()
+                } else {
+                    onError(result.message ?? "unknown error".localized)
+                }
+            } onDisposed: {
+                onWaiting(false)
+            }
+            .disposed(by: disposeBag)
+    }
+
+    func acceptAsFollower(music: LiveKtvMusic,
+                          onWaiting: @escaping (Bool) -> Void,
+                          onSuccess: @escaping () -> Void,
+                          onError: @escaping (String) -> Void)
+    {
+        member.acceptAsFollower(music: music)
+            .observe(on: MainScheduler.instance)
+            .do(onSubscribe: {
+                onWaiting(true)
+            }, onDispose: {
+                onWaiting(false)
+            })
+            .subscribe { result in
+                if result.success {
+                    onSuccess()
+                } else {
+                    onError(result.message ?? "unknown error".localized)
+                }
+            } onDisposed: {
+                onWaiting(false)
+            }
+            .disposed(by: disposeBag)
+    }
+
+    func setPlayMusicReady(music: LiveKtvMusic,
+                           onWaiting: @escaping (Bool) -> Void,
+                           onSuccess: @escaping () -> Void,
+                           onError: @escaping (String) -> Void)
+    {
+        manager.initChorusMusicPlayer()
+            .concatMap { [unowned self] result -> Observable<Result<Void>> in
+                result.onSuccess {
+                    self.member.setPlayMusicReady(music: music, uid: result.data!)
+                }
+            }
+            .observe(on: MainScheduler.instance)
+            .do(onSubscribe: {
+                onWaiting(true)
+            }, onDispose: {
+                onWaiting(false)
+            })
+            .subscribe { result in
+                if result.success {
+                    onSuccess()
+                } else {
+                    onError(result.message ?? "unknown error".localized)
+                }
+            } onDisposed: {
+                onWaiting(false)
+            }
+            .disposed(by: disposeBag)
     }
 
     func end(music: LiveKtvMusic,
@@ -317,11 +467,12 @@ class RoomViewModel {
     }
 
     func order(music: LocalMusic,
+               orderChorusMusic: Bool = false,
                onWaiting: @escaping (Bool) -> Void,
                onSuccess: @escaping () -> Void,
                onError: @escaping (String) -> Void)
     {
-        member.orderMusic(id: music.id, name: music.name)
+        member.orderMusic(id: music.id, name: music.name, chorus: orderChorusMusic)
             .observe(on: MainScheduler.instance)
             .do(onSubscribe: {
                 onWaiting(true)
@@ -438,12 +589,12 @@ class RoomViewModel {
             .disposed(by: disposeBag)
     }
 
-    func search(music _: String,
+    func search(music: String,
                 onWaiting: @escaping (Bool) -> Void,
                 onSuccess: @escaping ([LocalMusic]) -> Void,
                 onError: @escaping (String) -> Void)
     {
-        account.getMusicList()
+        account.getMusicList(key: music)
             .observe(on: MainScheduler.instance)
             .do(onSubscribe: {
                 onWaiting(true)
@@ -489,7 +640,7 @@ class RoomViewModel {
             .disposed(by: disposeBag)
     }
 
-    func _musicDataSource(music: String) -> Observable<Result<[LocalMusic]>> {
-        return Observable.just(Result(success: true, data: music.isEmpty ? localMusicManager.localMusicList : [])).delay(DispatchTimeInterval.seconds(5), scheduler: scheduler)
-    }
+//    func _musicDataSource(music: String) -> Observable<Result<[LocalMusic]>> {
+//        return Observable.just(Result(success: true, data: music.isEmpty ? localMusicManager.localMusicList : [])).delay(DispatchTimeInterval.seconds(5), scheduler: scheduler)
+//    }
 }

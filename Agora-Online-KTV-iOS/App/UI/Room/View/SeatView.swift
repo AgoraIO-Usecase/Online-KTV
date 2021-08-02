@@ -22,19 +22,7 @@ class SeatView {
 
     var music: LiveKtvMusic? {
         didSet {
-            if let music = music, let member = member, music.isOrderBy(member: member) {
-                label.text = "演唱中"
-                root.shadowAnimation(color: Colors.Music)
-                return
-            } else if let member = member {
-                if member.isManager {
-                    label.text = "房主"
-                    root.stopShadowAnimation()
-                    return
-                }
-            }
-            label.text = String(index + 1)
-            root.stopShadowAnimation()
+            onMusicChange()
         }
     }
 
@@ -66,19 +54,7 @@ class SeatView {
             } else {
                 icon.image = UIImage(named: "seat", in: Utils.bundle, with: nil)
             }
-            if let music = music, let member = member, music.isOrderBy(member: member) {
-                label.text = "演唱中"
-                root.shadowAnimation(color: Colors.Music)
-                return
-            } else if let member = member {
-                if member.isManager {
-                    label.text = "房主"
-                    root.stopShadowAnimation()
-                    return
-                }
-            }
-            root.stopShadowAnimation()
-            label.text = String(index + 1)
+            onMusicChange()
         }
     }
 
@@ -86,6 +62,42 @@ class SeatView {
 
     init(index: Int) {
         self.index = index
+    }
+
+    private func onMusicChange() {
+        if let music = music, let member = member, music.isOrderBy(member: member), member.isSpeaker() {
+            if music.type == LiveKtvMusic.CHORUS {
+                if music.isChorusReady() {
+                    label.text = "合唱中"
+                    root.shadowAnimation(color: Colors.Music)
+                } else {
+                    label.text = "准备中"
+                    root.stopShadowAnimation()
+                }
+            } else {
+                label.text = "演唱中"
+                root.shadowAnimation(color: Colors.Music)
+            }
+            return
+        } else if let member = member {
+            if let music = music, music.type == LiveKtvMusic.CHORUS, music.user1Id == member.userId, member.isSpeaker() {
+                if music.isChorusReady() {
+                    label.text = "合唱中"
+                    root.shadowAnimation(color: Colors.Music)
+                } else {
+                    label.text = "准备中"
+                    root.stopShadowAnimation()
+                }
+                return
+            }
+            if member.isManager {
+                label.text = "房主"
+                root.stopShadowAnimation()
+                return
+            }
+        }
+        label.text = String(index + 1)
+        root.stopShadowAnimation()
     }
 
     func subcribeUIEvent() {

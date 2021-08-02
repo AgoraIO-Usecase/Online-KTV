@@ -78,6 +78,7 @@ extension RoomManager: IRoomManager {
                 .map { result in
                     if result.success {
                         room.id = result.data!
+                        room.createdAt = Date()
                         return Result(success: true, data: room)
                     } else {
                         return Result(success: false, message: result.message)
@@ -187,7 +188,7 @@ extension RoomManager: IRoomManager {
         guard let room = room else {
             return Observable.just(Result(success: false, message: "room is nil!"))
         }
-        return room.subscribe()
+        return Observable.merge([room.subscribe(), room.timeUp()])
     }
 
     func subscribeMembers() -> Observable<Result<[LiveKtvMember]>> {
@@ -254,11 +255,37 @@ extension RoomManager: IRoomManager {
             .throttle(RxTimeInterval.milliseconds(20), latest: true, scheduler: scheduler)
     }
 
-    func play(music: LocalMusic) -> Observable<Result<Void>> {
+    func initChorusMusicPlayer() -> Observable<Result<UInt>> {
         if rtcServer.isJoinChannel {
-            return rtcServer.play(music: music)
+            return rtcServer.initChorusMusicPlayer()
+        } else {
+            return Observable.just(Result(success: false, message: "join room first!"))
+        }
+    }
+
+    func play(music: LocalMusic, option: LocalMusicOption?) -> Observable<Result<Void>> {
+        if rtcServer.isJoinChannel {
+            return rtcServer.play(music: music, option: option)
         } else {
             return Observable.just(Result(success: true))
+        }
+    }
+
+    func updateLocalMusic(option: LocalMusicOption?) {
+        if rtcServer.isJoinChannel {
+            rtcServer.updateLocalMusic(option: option)
+        }
+    }
+
+    func seekMusic(position: TimeInterval) {
+        if rtcServer.isJoinChannel {
+            rtcServer.seekMusic(position: position)
+        }
+    }
+
+    func countdown(time: Int) {
+        if rtcServer.isJoinChannel {
+            rtcServer.countdown(time: time)
         }
     }
 
@@ -271,6 +298,12 @@ extension RoomManager: IRoomManager {
     func resumeMusic() {
         if rtcServer.isJoinChannel {
             rtcServer.resumeMusic()
+        }
+    }
+
+    func stopMusic() {
+        if rtcServer.isJoinChannel {
+            rtcServer.stopMusic()
         }
     }
 
@@ -299,9 +332,12 @@ extension RoomManager: IRoomManager {
     }
 
     func stop(music: LiveKtvMusic) -> Observable<Result<Void>> {
-        if rtcServer.isJoinChannel /* , playingMusic?.id == music.musicId */ {
-            rtcServer.stopMusic()
-            return music.delete()
+        if rtcServer.isJoinChannel, let member = member /* , playingMusic?.id == music.musicId */ {
+            stopMusic()
+            if music.isOrderBy(member: member) {
+                return music.delete()
+            }
+            return Observable.just(Result(success: true))
         } else {
             return Observable.just(Result(success: true))
         }

@@ -87,7 +87,7 @@ private class OrderMusicCell: UITableViewCell {
 
 private class LocalMusicList: UITableView, UITableViewDataSource, OrderMusicDelegate {
     weak var roomDelegate: RoomController?
-
+    fileprivate var orderChorusMusic = false
     var data: [LocalMusic] = []
 
     override init(frame: CGRect, style: UITableView.Style) {
@@ -123,7 +123,7 @@ private class LocalMusicList: UITableView, UITableViewDataSource, OrderMusicDele
     }
 
     func order(music: LocalMusic) {
-        roomDelegate?.viewModel.order(music: music) { [weak self] waiting in
+        roomDelegate?.viewModel.order(music: music, orderChorusMusic: orderChorusMusic) { [weak self] waiting in
             if let self = self {
                 self.roomDelegate?.show(processing: waiting)
             }
@@ -147,7 +147,7 @@ private class LiveMusicCell: UITableViewCell {
     weak var delegate: OrderMusicDelegate!
     var music: LiveKtvMusic! {
         didSet {
-            nameView.text = music.name
+            nameView.text = "\(music.name)\(music.type == LiveKtvMusic.CHORUS ? "(合唱)" : "")"
             let isPlaying = delegate.isPlaying(music: music)
             indexView.isHidden = isPlaying
             icon.isHidden = !isPlaying
@@ -292,13 +292,17 @@ private class SearchView: UIView, UITextFieldDelegate {
     private var editor: UITextField = {
         let view = UITextField()
         view.borderStyle = .none
-        view.attributedPlaceholder = NSAttributedString(string: "搜索歌曲或歌手", attributes: [NSAttributedString.Key.foregroundColor: UIColor(hex: "#7e7e7e")])
+        view.attributedPlaceholder = NSAttributedString(string: "搜索歌曲", attributes: [NSAttributedString.Key.foregroundColor: UIColor(hex: "#7e7e7e")])
         view.font = UIFont.systemFont(ofSize: 14)
         view.textColor = UIColor(hex: "#ccffffff")
         view.clearButtonMode = .whileEditing
         view.returnKeyType = .search
         return view
     }()
+
+    var text: String {
+        return editor.text ?? ""
+    }
 
     init() {
         super.init(frame: .zero)
@@ -625,12 +629,13 @@ class MusicListDialog: Dialog, UIScrollViewDelegate, HeaderViewDelegate, SearchV
         }
     }
 
-    func show(delegate: RoomController) {
+    func show(delegate: RoomController, orderChorusMusic: Bool = false) {
         self.delegate = delegate
+        localMusicList.orderChorusMusic = orderChorusMusic
         onSelect(index: 0)
         reload()
         show(controller: delegate)
-        onSearch(text: "")
+        onSearch(text: searchView.text)
     }
 
     func reload() {

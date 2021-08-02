@@ -274,7 +274,60 @@ extension LiveKtvMember {
         }.asObservable()
     }
 
-    func orderMusic(id: String, name: String) -> Observable<Result<Void>> {
-        return LiveKtvMusic(id: "", userId: userId, roomId: roomId, name: name, musicId: id).order().map { $0.transform() }
+    func orderMusic(id: String, name: String, chorus: Bool = false) -> Observable<Result<Void>> {
+        let type = chorus ? LiveKtvMusic.CHORUS : LiveKtvMusic.NORMAL
+        return LiveKtvMusic(id: "", userId: userId, roomId: roomId, name: name, musicId: id, type: type)
+            .order()
+            .map { $0.transform() }
+    }
+
+    func acceptAsFollower(music: LiveKtvMusic) -> Observable<Result<Void>> {
+        Logger.log(self, message: "acceptAsFollower", level: .info)
+        return Single.create { single in
+            if music.isOrderBy(member: self), let id = music.applyUser1Id {
+                LiveKtvMember.manager
+                    .getRoom(id: music.roomId)
+                    .collection(className: LiveKtvMusic.TABLE)
+                    .document(id: music.id)
+                    .update(data: [LiveKtvMusic.USER1: id], delegate: AgoraObjectDelegate(success: { _ in
+                        single(.success(Result(success: true)))
+                    }, failed: { _, message in
+                        single(.success(Result(success: false, message: message)))
+                    }))
+            } else {
+                single(.success(Result(success: false, message: "出错了！")))
+            }
+            return Disposables.create()
+        }.asObservable()
+    }
+
+    func setPlayMusicReady(music: LiveKtvMusic, uid: UInt) -> Observable<Result<Void>> {
+        Logger.log(self, message: "setPlayMusicReady", level: .info)
+        return Single.create { single in
+            if music.isOrderBy(member: self) {
+                LiveKtvMember.manager
+                    .getRoom(id: music.roomId)
+                    .collection(className: LiveKtvMusic.TABLE)
+                    .document(id: music.id)
+                    .update(data: [LiveKtvMusic.USER_STATUS: 1, LiveKtvMusic.USER_BG_ID: uid], delegate: AgoraObjectDelegate(success: { _ in
+                        single(.success(Result(success: true)))
+                    }, failed: { _, message in
+                        single(.success(Result(success: false, message: message)))
+                    }))
+            } else if self.userId == music.user1Id {
+                LiveKtvMember.manager
+                    .getRoom(id: music.roomId)
+                    .collection(className: LiveKtvMusic.TABLE)
+                    .document(id: music.id)
+                    .update(data: [LiveKtvMusic.USER1_STATUS: 1, LiveKtvMusic.USER1_BG_ID: uid], delegate: AgoraObjectDelegate(success: { _ in
+                        single(.success(Result(success: true)))
+                    }, failed: { _, message in
+                        single(.success(Result(success: false, message: message)))
+                    }))
+            } else {
+                single(.success(Result(success: false, message: "出错了！")))
+            }
+            return Disposables.create()
+        }.asObservable()
     }
 }

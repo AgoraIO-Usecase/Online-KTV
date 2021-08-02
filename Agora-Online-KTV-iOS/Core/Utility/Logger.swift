@@ -15,6 +15,7 @@ public enum LogLevel {
 }
 
 public enum Logger {
+    private static let filters: [String] = []
     public static func log(message: String, level: LogLevel) {
         #if !DEBUG
             if level != .error {
@@ -25,6 +26,10 @@ public enum Logger {
     }
 
     public static func log(_ obj: Any, message: String, level: LogLevel) {
-        log(message: "[\(type(of: obj))] \(message)", level: level)
+        let tag = "\(type(of: obj))"
+        if filters.contains(tag) {
+            return
+        }
+        log(message: "[\(tag)] \(message)", level: level)
     }
 }
