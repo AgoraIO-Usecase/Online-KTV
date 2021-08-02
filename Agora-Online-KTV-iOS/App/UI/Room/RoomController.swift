@@ -300,7 +300,7 @@ class RoomController: BaseViewContoller, DialogDelegate {
             let color = ColorThief.getColor(from: image)?.makeUIColor()
             if let color = color {
                 Logger.log(self, message: "set MusicLyricView.hightColor \(color)", level: .info)
-                MusicLyricView.hightColor = color
+                // MusicLyricView.hightColor = color
             }
         }
     }

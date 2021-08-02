@@ -79,7 +79,7 @@ private class MusicLyricLabel: UILabel {
             context.addPath(path)
             context.clip()
             let _textColor = textColor
-            textColor = UIColor.white
+            textColor = MusicLyricView.hightColor
             if MusicLyricLabel.STYLE {
                 let _shadowOffset = shadowOffset
                 let _shadowColor = shadowColor
