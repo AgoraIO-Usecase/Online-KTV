@@ -138,7 +138,7 @@ public class LrcView extends View {
     }
 
     /**
-     * 绑定事件回调
+     * 绑定事件回调，用于接收运行中的事件。具体事件参考{@link OnActionListener}
      *
      * @param mOnActionListener
      */
@@ -250,7 +250,7 @@ public class LrcView extends View {
     /**
      * 加载本地歌词文件
      *
-     * @param lrcFile 歌词文件
+     * @param lrcFile 歌词文件对象
      */
     public void loadLrc(File lrcFile) {
         reset();

@@ -37,7 +37,7 @@ implementation project(':lrcview')
 ## 主要API
 |API|说明|
 |----|----|
-|setActionListener|绑定事件回调|
+|setActionListener|绑定事件回调，用于接收运行中的事件|
 |setTotalDuration|设置音乐总长度，单位毫秒|
 |loadLrc|加载本地歌词文件|
 |setEnableDrag|设置是否允许上下滑动|
