@@ -19,8 +19,8 @@ android {
         }
         minSdkVersion MINSDKVERSION
         targetSdkVersion TARGETSDKVERSION
-        versionCode 8
-        versionName "1.0.7"
+        versionCode 7
+        versionName "1.0.6"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -49,7 +49,7 @@ android {
     productFlavors {
         leancloud {
         }
-
+//
 //        firebase {
 //        }
     }
@@ -57,7 +57,7 @@ android {
     if (isModule.toBoolean()) {
         applicationVariants.all { variant ->
             variant.outputs.all {
-                outputFileName = "KTV-${versionName}-${variant.buildType.name}-主版.apk"
+                outputFileName = "KTV-${versionName}-${variant.buildType.name}-大重构.apk"
             }
         }
     }
@@ -72,6 +72,8 @@ dependencies {
     //Arogra SDK
 //    implementation 'io.agora.rtc:full-sdk:3.3.0'
 
+    implementation 'jp.wasabeef:glide-transformations:4.0.0'
+    implementation 'com.google.code.gson:gson:2.8.7'
     implementation 'androidx.palette:palette:1.0.0'
     api project(':data')
     api project(':lrcview')
