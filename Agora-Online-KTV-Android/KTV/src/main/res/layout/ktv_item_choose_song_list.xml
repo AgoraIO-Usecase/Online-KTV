@@ -27,7 +27,7 @@
             android:id="@+id/btChooseSong"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/ktv_shape_create_button_background"
+            android:background="@drawable/ktv_selector_create_button_background"
             android:paddingStart="20dp"
             android:paddingTop="6dp"
             android:paddingEnd="20dp"

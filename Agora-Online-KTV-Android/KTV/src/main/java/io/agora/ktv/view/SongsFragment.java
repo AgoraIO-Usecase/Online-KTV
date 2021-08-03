@@ -145,6 +145,8 @@ public class SongsFragment extends DataBindBaseFragment<KtvFragmentSongListBindi
                         view.setEnabled(true);
                         MemberMusicModel musicModel = result.toObject(MemberMusicModel.class);
                         musicModel.setId(result.getId());
+
+                        RoomManager.Instance(requireContext()).onMusicAdd(musicModel);
                         mAdapter.notifyItemChanged(position);
                     }
 

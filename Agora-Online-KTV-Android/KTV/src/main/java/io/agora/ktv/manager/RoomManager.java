@@ -13,6 +13,7 @@ import com.agora.data.R;
 import com.agora.data.manager.UserManager;
 import com.agora.data.model.AgoraMember;
 import com.agora.data.model.AgoraRoom;
+import com.agora.data.model.MusicModel;
 import com.agora.data.model.User;
 import com.agora.data.observer.DataObserver;
 import com.agora.data.provider.AgoraObject;
@@ -272,7 +273,7 @@ public final class RoomManager {
         mMainThreadDispatch.onAudioStatusChanged(isMine, member);
     }
 
-    private void onMusicAdd(MemberMusicModel model) {
+    public void onMusicAdd(MemberMusicModel model) {
         mLogger.i("onMusicAdd() called with: model = [%s]", model);
         if (musics.contains(model)) {
             return;
@@ -624,8 +625,13 @@ public final class RoomManager {
         return musics;
     }
 
-    public boolean isInMusicOrderList(MemberMusicModel item) {
-        return musics.contains(item);
+    public boolean isInMusicOrderList(MusicModel item) {
+        for (MemberMusicModel music : musics) {
+            if (ObjectsCompat.equals(music.getMusicId(), item.getMusicId())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private Single<AgoraMember> preJoinAddMember(AgoraRoom room, AgoraMember member) {
