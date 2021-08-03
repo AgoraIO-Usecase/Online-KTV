@@ -72,6 +72,7 @@ dependencies {
     //Arogra SDK
 //    implementation 'io.agora.rtc:full-sdk:3.3.0'
 
+    implementation 'jp.wasabeef:glide-transformations:4.0.0'
     implementation 'com.google.code.gson:gson:2.8.7'
     implementation 'androidx.palette:palette:1.0.0'
     api project(':data')

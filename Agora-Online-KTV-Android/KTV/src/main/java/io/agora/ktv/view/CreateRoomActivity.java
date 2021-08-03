@@ -2,16 +2,22 @@ package io.agora.ktv.view;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.agora.data.manager.UserManager;
 import com.agora.data.model.AgoraRoom;
 import com.agora.data.model.User;
 import com.agora.data.sync.SyncManager;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.transition.Transition;
 
 import java.util.Random;
 
@@ -22,6 +28,7 @@ import io.agora.ktv.databinding.KtvActivityCreateRoomBinding;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import jp.wasabeef.glide.transformations.BlurTransformation;
 
 
 /**
@@ -56,9 +63,29 @@ public class CreateRoomActivity extends DataBindBaseActivity<KtvActivityCreateRo
         mDataBinding.btCreate.setOnClickListener(this);
     }
 
+    AgoraRoom mRoom = new AgoraRoom();
+
     @Override
     protected void iniData() {
+        mRoom.radomCover();
+
         radomRoomName();
+
+        Glide.with(this)
+                .asDrawable()
+                .load(mRoom.getCoverRes())
+                .apply(RequestOptions.bitmapTransform(new BlurTransformation(25, 3)))
+                .into(new CustomTarget<Drawable>() {
+                    @Override
+                    public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
+                        mDataBinding.root.setBackground(resource);
+                    }
+
+                    @Override
+                    public void onLoadCleared(@Nullable Drawable placeholder) {
+
+                    }
+                });
     }
 
     @Override
@@ -86,8 +113,6 @@ public class CreateRoomActivity extends DataBindBaseActivity<KtvActivityCreateRo
             return;
         }
 
-        AgoraRoom mRoom = new AgoraRoom();
-        mRoom.radomCover();
         mRoom.radomMV();
         mRoom.setChannelName(name);
         mRoom.setUserId(mUser.getObjectId());

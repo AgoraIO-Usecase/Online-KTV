@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/root"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#535353">
@@ -31,8 +32,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:text="@string/ktv_create_room_name_label"
-            android:textColor="@android:color/white"
-            android:textSize="10sp"
+            android:textColor="#B3FFFFFF"
+            android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/top" />
@@ -88,7 +89,7 @@
             android:gravity="start|top"
             android:paddingBottom="20dp"
             android:text="@string/ktv_create_room_name_label2"
-            android:textColor="@android:color/white"
+            android:textColor="#CCFFFFFF"
             app:layout_constraintBottom_toTopOf="@+id/btCreate"
             app:layout_constraintEnd_toEndOf="@+id/bottom"
             app:layout_constraintStart_toStartOf="@+id/bottom" />

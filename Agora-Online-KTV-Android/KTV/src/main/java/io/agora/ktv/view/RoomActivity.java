@@ -4,11 +4,13 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.view.View;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.util.ObjectsCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 
@@ -19,6 +21,10 @@ import com.agora.data.model.User;
 import com.agora.data.provider.AgoraObject;
 import com.agora.data.sync.AgoraException;
 import com.agora.data.sync.SyncManager;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.transition.Transition;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -49,6 +55,7 @@ import io.reactivex.CompletableObserver;
 import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import jp.wasabeef.glide.transformations.BlurTransformation;
 
 /**
  * 房间界面
@@ -374,6 +381,22 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
 
         AgoraRoom mRoom = getIntent().getExtras().getParcelable(TAG_ROOM);
         mDataBinding.tvName.setText(mRoom.getChannelName());
+
+        Glide.with(this)
+                .asDrawable()
+                .load(mRoom.getCoverRes())
+                .apply(RequestOptions.bitmapTransform(new BlurTransformation(25, 3)))
+                .into(new CustomTarget<Drawable>() {
+                    @Override
+                    public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
+                        mDataBinding.root.setBackground(resource);
+                    }
+
+                    @Override
+                    public void onLoadCleared(@Nullable Drawable placeholder) {
+
+                    }
+                });
 
         showJoinRoomDialog();
         RoomManager.Instance(this)
