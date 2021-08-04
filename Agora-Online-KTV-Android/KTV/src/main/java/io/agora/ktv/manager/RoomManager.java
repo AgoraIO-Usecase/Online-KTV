@@ -54,15 +54,19 @@ import io.reactivex.functions.Consumer;
  * @date 2021/06/01
  */
 public final class RoomManager {
-    private Logger.Builder mLogger = XLog.tag("RoomManager");
-    private Logger.Builder mLoggerRTC = XLog.tag("RTC");
+    private final Logger.Builder mLogger = XLog.tag("RoomManager");
+    private final Logger.Builder mLoggerRTC = XLog.tag("RTC");
 
     private volatile static RoomManager instance;
 
-    private Context mContext;
-    private MainThreadDispatch mMainThreadDispatch = new MainThreadDispatch();
+    private final Context mContext;
+    private final MainThreadDispatch mMainThreadDispatch = new MainThreadDispatch();
 
-    private Map<String, AgoraMember> memberHashMap = new ConcurrentHashMap<>();
+    /**
+     * key:AgoraMember.id
+     * value:AgoraMember
+     */
+    private final Map<String, AgoraMember> memberHashMap = new ConcurrentHashMap<>();
 
     private volatile static AgoraRoom mRoom;
     private volatile static AgoraMember owner;
@@ -74,7 +78,12 @@ public final class RoomManager {
 
     private Integer mStreamId;
 
-    private IRtcEngineEventHandler mIRtcEngineEventHandler = new IRtcEngineEventHandler() {
+    /**
+     * 唱歌人的UserId
+     */
+    private final List<String> singers = new ArrayList<>();
+
+    private final IRtcEngineEventHandler mIRtcEngineEventHandler = new IRtcEngineEventHandler() {
 
         @Override
         public void onConnectionStateChanged(int state, int reason) {
@@ -228,6 +237,10 @@ public final class RoomManager {
         return mMine;
     }
 
+    public boolean isSinger(String userId) {
+        return singers.contains(userId);
+    }
+
     public void addRoomEventCallback(@NonNull RoomEventCallback callback) {
         mMainThreadDispatch.addRoomEventCallback(callback);
     }
@@ -303,6 +316,8 @@ public final class RoomManager {
     public void onMusicEmpty() {
         mLogger.i("onMusicEmpty() called");
         mMusicModel = null;
+        singers.clear();
+        musics.clear();
         mMainThreadDispatch.onMusicEmpty();
     }
 
@@ -313,6 +328,14 @@ public final class RoomManager {
             musics.set(index, model);
         }
         mMusicModel = model;
+
+        if (mMusicModel.getType() == MemberMusicModel.SingType.Single) {
+            singers.add(model.getUserId());
+        } else if (mMusicModel.getType() == MemberMusicModel.SingType.Chorus) {
+            singers.add(model.getUserId());
+            singers.add(model.getUser1Id());
+        }
+
         mMainThreadDispatch.onMusicChanged(model);
     }
 
@@ -871,6 +894,7 @@ public final class RoomManager {
 
         memberHashMap.clear();
         mStreamId = null;
+        singers.clear();
 
         if (ObjectsCompat.equals(mMine, owner)) {
             //房主退出

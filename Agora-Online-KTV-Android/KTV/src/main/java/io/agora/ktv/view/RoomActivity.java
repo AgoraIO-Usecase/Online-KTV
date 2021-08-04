@@ -883,6 +883,8 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
     private void onMusicChanged(@NonNull MemberMusicModel music) {
         mDataBinding.lrcControlView.setMusic(music);
 
+        mRoomSpeakerAdapter.notifyDataSetChanged();
+
         if (music.getType() == MemberMusicModel.SingType.Single) {
             RoomManager.Instance(this).getRtcEngine().setChannelProfile(Constants.CHANNEL_PROFILE_LIVE_BROADCASTING);
         } else if (music.getType() == MemberMusicModel.SingType.Chorus) {
@@ -929,6 +931,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
     }
 
     private void onMusicEmpty() {
+        mRoomSpeakerAdapter.notifyDataSetChanged();
         mDataBinding.lrcControlView.setRole(LrcControlView.Role.Listener);
         mDataBinding.lrcControlView.onIdleStatus();
 
