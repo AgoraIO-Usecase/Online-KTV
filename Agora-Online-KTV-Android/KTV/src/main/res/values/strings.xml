@@ -21,6 +21,7 @@
     <string name="ktv_room_before_speaker">上麦后可点歌与发言</string>
     <string name="ktv_room_owner">房主</string>
     <string name="ktv_room_sing1">演唱中</string>
+    <string name="ktv_room_sing1_1">合唱中</string>
     <string name="ktv_room_original">原唱</string>
     <string name="ktv_room_accompany">伴奏</string>
     <string name="ktv_room_change_song">切歌</string>

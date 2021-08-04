@@ -15,7 +15,9 @@ import java.util.List;
 
 import io.agora.baselibrary.base.BaseRecyclerViewAdapter;
 import io.agora.ktv.R;
+import io.agora.ktv.bean.MemberMusicModel;
 import io.agora.ktv.databinding.KtvItemRoomSpeakerBinding;
+import io.agora.ktv.manager.RoomManager;
 
 /**
  * 房间说话者列表
@@ -95,6 +97,13 @@ public class RoomSpeakerAdapter extends BaseRecyclerViewAdapter<AgoraMember, Roo
                     .into(holder.mDataBinding.ivHead);
         } else {
             holder.mDataBinding.ivHead.setImageResource(R.mipmap.default_head);
+        }
+
+        MemberMusicModel mMusicModel = RoomManager.Instance(mContext).getMusicModel();
+        if (mMusicModel != null) {
+            if (RoomManager.Instance(mContext).isSinger(item.getUserId())) {
+                holder.mDataBinding.tvName.setText(mContext.getString(R.string.ktv_room_sing1));
+            }
         }
     }
 
