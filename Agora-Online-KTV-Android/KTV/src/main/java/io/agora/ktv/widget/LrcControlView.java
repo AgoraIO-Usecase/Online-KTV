@@ -20,6 +20,7 @@ import io.agora.ktv.R;
 import io.agora.ktv.bean.MemberMusicModel;
 import io.agora.ktv.databinding.KtvLayoutLrcControlViewBinding;
 import io.agora.lrcview.LrcView;
+import io.agora.lrcview.PitchView;
 
 /**
  * 歌词控制View
@@ -34,6 +35,11 @@ public class LrcControlView extends FrameLayout implements View.OnClickListener 
     public LrcView getLrcView() {
         return mDataBinding.ilActive.lrcView;
     }
+
+    public PitchView getPitchView() {
+        return mDataBinding.ilActive.pitchView;
+    }
+
 
     public enum Role {
         Singer, Listener

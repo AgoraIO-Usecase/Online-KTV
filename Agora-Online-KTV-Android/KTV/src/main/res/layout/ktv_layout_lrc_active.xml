@@ -27,6 +27,17 @@
             app:lrcTextGravity="center"
             app:lrcTextSize="26sp" />
 
+        <io.agora.lrcview.PitchView
+            android:id="@+id/pitchView"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="@+id/lrcView"
+            app:layout_constraintEnd_toEndOf="@+id/lrcView"
+            app:layout_constraintStart_toStartOf="@+id/lrcView"
+            app:layout_constraintTop_toTopOf="@+id/lrcView"
+            app:pitchDoneTextColor="@color/ktv_lrc_highligh"
+            app:pitchNormalTextColor="@color/ktv_lrc_nomal" />
+
         <RelativeLayout
             android:id="@+id/rlMusicControlMenu"
             android:layout_width="match_parent"

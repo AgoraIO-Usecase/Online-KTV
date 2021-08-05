@@ -48,6 +48,8 @@ import io.agora.ktv.view.dialog.RoomMVDialog;
 import io.agora.ktv.view.dialog.UserSeatMenuDialog;
 import io.agora.ktv.view.dialog.WaitingDialog;
 import io.agora.ktv.widget.LrcControlView;
+import io.agora.lrcview.LrcLoadUtils;
+import io.agora.lrcview.bean.LrcData;
 import io.agora.mediaplayer.IMediaPlayer;
 import io.agora.rtc2.ChannelMediaOptions;
 import io.agora.rtc2.Constants;
@@ -86,7 +88,9 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
         @Override
         public void onResourceReady(@NonNull MemberMusicModel music) {
             File lrcFile = music.getFileLrc();
-            mDataBinding.lrcControlView.getLrcView().loadLrc(lrcFile);
+            LrcData data = LrcLoadUtils.parse(lrcFile);
+            mDataBinding.lrcControlView.getLrcView().setLrcData(data);
+            mDataBinding.lrcControlView.getPitchView().setLrcData(data);
         }
 
         @Override
@@ -128,6 +132,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
         @Override
         public void onMusicPositionChanged(long position) {
             mDataBinding.lrcControlView.getLrcView().updateTime(position);
+            mDataBinding.lrcControlView.getPitchView().updateTime(position);
         }
 
         @Override
@@ -303,11 +308,6 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
         mDataBinding.ivChorus.setOnClickListener(this);
 
         mDataBinding.lrcControlView.setOnLrcClickListener(new LrcControlView.OnLrcActionListener() {
-            @Override
-            public void onLoadLrcCompleted() {
-
-            }
-
             @Override
             public void onProgressChanged(long time) {
                 mMusicPlayer.seek(time);

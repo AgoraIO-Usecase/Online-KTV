@@ -20,6 +20,11 @@ public class LrcEntryData {
         public long end;
         public String word;
         public Lang lang = Lang.Chinese;
+        public int pitch = 0;
+
+        public long getDuration() {
+            return end - begin;
+        }
     }
 
     public List<Tone> tones;
