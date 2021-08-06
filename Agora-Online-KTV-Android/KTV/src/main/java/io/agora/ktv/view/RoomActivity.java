@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.view.View;
@@ -23,6 +24,10 @@ import com.agora.data.model.AgoraRoom;
 import com.agora.data.model.User;
 import com.agora.data.sync.AgoraException;
 import com.agora.data.sync.SyncManager;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.transition.Transition;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,6 +54,7 @@ import io.reactivex.CompletableObserver;
 import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import jp.wasabeef.glide.transformations.BlurTransformation;
 
 /**
  * 房间界面
@@ -276,6 +282,23 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
         AgoraRoom mRoom = getIntent().getExtras().getParcelable(TAG_ROOM);
         mDataBinding.tvName.setText(mRoom.getChannelName());
 
+        Glide.with(this)
+                .asDrawable()
+                .load(mRoom.getCoverRes())
+                .apply(RequestOptions.bitmapTransform(new BlurTransformation(25, 3)))
+                .into(new CustomTarget<Drawable>() {
+                    @Override
+                    public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
+                        mDataBinding.root.setBackground(resource);
+                    }
+
+                    @Override
+                    public void onLoadCleared(@Nullable Drawable placeholder) {
+
+                    }
+                });
+
+        showJoinRoomDialog();
         RoomManager.Instance(this)
                 .joinRoom(mRoom)
                 .observeOn(AndroidSchedulers.mainThread())
@@ -297,6 +320,30 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
                         doLeave();
                     }
                 });
+    }
+
+    private WaitingDialog dialogJoinRoom = null;
+
+    private void showJoinRoomDialog() {
+        if (dialogJoinRoom != null && dialogJoinRoom.isShowing()) {
+            return;
+        }
+
+        dialogJoinRoom = new WaitingDialog();
+        dialogJoinRoom.show(getSupportFragmentManager(), getString(R.string.ktv_dialog_join_msg), new WaitingDialog.Callback() {
+            @Override
+            public void onTimeout() {
+
+            }
+        });
+    }
+
+    private void closeJoinRoomDialog() {
+        if (dialogJoinRoom == null || dialogJoinRoom.isShowing() == false) {
+            return;
+        }
+
+        dialogJoinRoom.dismiss();
     }
 
     private void onJoinRoom() {
@@ -790,6 +837,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
 
     @Override
     protected void onDestroy() {
+        closeJoinRoomDialog();
         stopStopTimer();
 
         RoomManager.Instance(this).removeRoomEventCallback(mRoomEventCallback);
