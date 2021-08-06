@@ -311,11 +311,13 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
 
                     @Override
                     public void onComplete() {
+                        closeJoinRoomDialog();
                         onJoinRoom();
                     }
 
                     @Override
                     public void onError(@NonNull Throwable e) {
+                        closeJoinRoomDialog();
                         ToastUtile.toastShort(RoomActivity.this, "加入房间失败");
                         doLeave();
                     }
