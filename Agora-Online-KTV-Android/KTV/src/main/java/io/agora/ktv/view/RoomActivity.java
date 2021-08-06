@@ -235,7 +235,12 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
         mDataBinding.rvSpeakers.setLayoutManager(new GridLayoutManager(this, 4));
         mDataBinding.rvSpeakers.setAdapter(mRoomSpeakerAdapter);
 
-        mDataBinding.lrcView.OnSeekBarChangeListener(new LrcView.OnSeekBarChangeListener() {
+        mDataBinding.lrcView.setActionListener(new LrcView.OnActionListener() {
+            @Override
+            public void onLoadLrcCompleted() {
+
+            }
+
             @Override
             public void onProgressChanged(long time) {
                 mMusicPlayer.seek(time);
