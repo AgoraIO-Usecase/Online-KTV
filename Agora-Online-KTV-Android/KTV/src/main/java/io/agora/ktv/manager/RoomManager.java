@@ -52,15 +52,15 @@ import io.reactivex.functions.Consumer;
  * @date 2021/06/01
  */
 public final class RoomManager {
-    private Logger.Builder mLogger = XLog.tag("RoomManager");
-    private Logger.Builder mLoggerRTC = XLog.tag("RTC");
+    private final Logger.Builder mLogger = XLog.tag("RoomManager");
+    private final Logger.Builder mLoggerRTC = XLog.tag("RTC");
 
     private volatile static RoomManager instance;
 
     private Context mContext;
-    private MainThreadDispatch mMainThreadDispatch = new MainThreadDispatch();
+    private final MainThreadDispatch mMainThreadDispatch = new MainThreadDispatch();
 
-    private Map<String, AgoraMember> memberHashMap = new ConcurrentHashMap<>();
+    private final Map<String, AgoraMember> memberHashMap = new ConcurrentHashMap<>();
 
     private volatile static AgoraRoom mRoom;
     private volatile static AgoraMember owner;
@@ -69,6 +69,11 @@ public final class RoomManager {
     private volatile MemberMusicModel mMusicModel;
 
     private RtcEngine mRtcEngine;
+
+    /**
+     * 唱歌人的UserId
+     */
+    private final List<String> singers = new ArrayList<>();
 
     private IRtcEngineEventHandler mIRtcEngineEventHandler = new IRtcEngineEventHandler() {
 
@@ -206,6 +211,10 @@ public final class RoomManager {
         return mMine;
     }
 
+    public boolean isSinger(String userId) {
+        return singers.contains(userId);
+    }
+
     public void addRoomEventCallback(@NonNull RoomEventCallback callback) {
         mMainThreadDispatch.addRoomEventCallback(callback);
     }
@@ -283,12 +292,17 @@ public final class RoomManager {
     public void onMusicEmpty() {
         mLogger.i("onMusicEmpty() called");
         mMusicModel = null;
+        singers.clear();
+        musics.clear();
         mMainThreadDispatch.onMusicEmpty();
     }
 
     public void onMusicChanged(MemberMusicModel model) {
         mLogger.i("onMusicChanged() called with: model = [%s]", model);
         mMusicModel = model;
+
+        singers.add(model.getUserId());
+
         mMainThreadDispatch.onMusicChanged(model);
     }
 
@@ -748,6 +762,7 @@ public final class RoomManager {
         getRtcEngine().leaveChannel();
 
         memberHashMap.clear();
+        singers.clear();
 
         if (ObjectsCompat.equals(mMine, owner)) {
             //房主退出

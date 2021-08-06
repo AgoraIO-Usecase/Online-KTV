@@ -789,6 +789,8 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
         showInSingStatus();
         mDataBinding.tvMusicName.setText(music.getName());
 
+        mRoomSpeakerAdapter.notifyDataSetChanged();
+
         User mUser = UserManager.Instance(this).getUserLiveData().getValue();
         if (mUser == null) {
             return;
@@ -809,6 +811,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
 
     private void onMusicEmpty() {
         showNoSingerStatus();
+        mRoomSpeakerAdapter.notifyDataSetChanged();
     }
 
     private WaitingDialog mPreparingDialog;
