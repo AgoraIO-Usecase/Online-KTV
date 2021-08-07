@@ -5,25 +5,30 @@
 //  Created by XC on 2021/6/11.
 //
 
-import Core
 import Foundation
 import Zip
 
-struct LocalMusic {
-    let id: String
-    let name: String
-    let path: String
-    let lrcPath: String
+public struct LocalMusic {
+    public let id: String
+    public let name: String
+    public let path: String
+    public let lrcPath: String
+    public init(id: String, name: String, path: String, lrcPath: String) {
+        self.id = id
+        self.name = name
+        self.path = path
+        self.lrcPath = lrcPath
+    }
 }
 
-struct LocalMusicOption {
+public struct LocalMusicOption {
     let masterUid: UInt
     let masterMusicUid: UInt
     let followerUid: UInt
     let followerMusicUid: UInt
 }
 
-class LocalMusicManager {
+public class LocalMusicManager {
 //    let localMusicList = [
 //        LocalMusic(
 //            id: "music0",
@@ -42,8 +47,9 @@ class LocalMusicManager {
 //    static func parseLyric(music: LocalMusic) -> [LyricModel] {
 //        return LyricParser.parseLyric(filePath: music.lrcPath)
 //    }
+    public init() {}
 
-    static func parseLyric(music: LocalMusic) -> [LrcSentence] {
+    public static func parseLyric(music: LocalMusic) -> [LrcSentence] {
         Logger.log(self, message: "parseLyric \(music.lrcPath)", level: .info)
         if music.lrcPath.hasSuffix(".lrc") {
             let lyrics = LyricParser.parseLyric(filePath: music.lrcPath)

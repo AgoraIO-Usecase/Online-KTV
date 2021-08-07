@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		2286E14579B4C41428ADC844 /* Pods_OnlineKTV_Firebase.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B761F18FE8145F50224BD9B /* Pods_OnlineKTV_Firebase.framework */; };
+		3080660D297D9239CC1F3C8A /* Pods_LrcView.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C1A6B7D5EC88E0E3F8BDBBFB /* Pods_LrcView.framework */; };
 		570997CB265756EC00B87998 /* AppDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 570997CA265756EC00B87998 /* AppDataManager.swift */; };
 		571AA46E2629862700B82B35 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 571AA46D2629862700B82B35 /* AppDelegate.swift */; };
 		571AA4702629862700B82B35 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 571AA46F2629862700B82B35 /* SceneDelegate.swift */; };
@@ -75,13 +76,8 @@
 		5764BBC22671F79500293B73 /* PlayerSettingDialog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5764BBC12671F79500293B73 /* PlayerSettingDialog.swift */; };
 		5764BBC42672034900293B73 /* SelectMVDialog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5764BBC32672034900293B73 /* SelectMVDialog.swift */; };
 		5764BBC626723F1200293B73 /* LiveKtvMusic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5764BBC526723F1200293B73 /* LiveKtvMusic.swift */; };
-		5764BBE12673512F00293B73 /* LocalMusicManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5764BBE02673512F00293B73 /* LocalMusicManager.swift */; };
-		5764BBE426735D9900293B73 /* Lyric.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5764BBE326735D9900293B73 /* Lyric.swift */; };
-		5764BBE62673AE1F00293B73 /* MusicLyricView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5764BBE52673AE1F00293B73 /* MusicLyricView.swift */; };
-		5782AC8A2695597500B4162A /* MiguLyric.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5782AC892695597500B4162A /* MiguLyric.swift */; };
 		5782AC8C26958EED00B4162A /* 004.xml in Resources */ = {isa = PBXBuildFile; fileRef = 5782AC8B26958EED00B4162A /* 004.xml */; };
 		5782AC8D2695A76300B4162A /* 004.xml in Resources */ = {isa = PBXBuildFile; fileRef = 5782AC8B26958EED00B4162A /* 004.xml */; };
-		5782AC8F2695CA7D00B4162A /* LrcSentence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5782AC8E2695CA7D00B4162A /* LrcSentence.swift */; };
 		5782AC91269C144200B4162A /* 005.xml in Resources */ = {isa = PBXBuildFile; fileRef = 5782AC90269C144200B4162A /* 005.xml */; };
 		5782AC93269C145100B4162A /* 001.xml in Resources */ = {isa = PBXBuildFile; fileRef = 5782AC92269C145100B4162A /* 001.xml */; };
 		5782AC95269C4B0200B4162A /* 003.xml in Resources */ = {isa = PBXBuildFile; fileRef = 5782AC94269C4B0200B4162A /* 003.xml */; };
@@ -113,6 +109,18 @@
 		57FFD42626A02DEA00668BE0 /* MMCQ.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57FFD42526A02DEA00668BE0 /* MMCQ.swift */; };
 		6B7246CCC6D98958270A218F /* Pods_OnlineKTV_LeanCloud.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55CA5154BEFE30CEC188B4E6 /* Pods_OnlineKTV_LeanCloud.framework */; };
 		761402B6C292295B451C235C /* Pods_Core.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A0D7AE253FD40BFF3FC44E37 /* Pods_Core.framework */; };
+		8B0C3A3226BE7E12004C7F27 /* Util.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B0C3A3126BE7E12004C7F27 /* Util.swift */; };
+		8B0C3A3326BE7F10004C7F27 /* LrcView.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BBB784C26BE6C1B00096F8E /* LrcView.framework */; };
+		8B0C3A3826BE8A98004C7F27 /* Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B0C3A3726BE8A98004C7F27 /* Extension.swift */; };
+		8B0C3A3A26BEBEB4004C7F27 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B0C3A3926BEBEB4004C7F27 /* Logger.swift */; };
+		8BBB785026BE6C1B00096F8E /* LrcView.h in Headers */ = {isa = PBXBuildFile; fileRef = 8BBB784E26BE6C1B00096F8E /* LrcView.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		8BBB785326BE6C1B00096F8E /* LrcView.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BBB784C26BE6C1B00096F8E /* LrcView.framework */; };
+		8BBB785426BE6C1B00096F8E /* LrcView.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 8BBB784C26BE6C1B00096F8E /* LrcView.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		8BBB785826BE6CDD00096F8E /* Lyric.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5764BBE326735D9900293B73 /* Lyric.swift */; };
+		8BBB785926BE6CDF00096F8E /* MiguLyric.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5782AC892695597500B4162A /* MiguLyric.swift */; };
+		8BBB785A26BE6CE300096F8E /* LrcSentence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5782AC8E2695CA7D00B4162A /* LrcSentence.swift */; };
+		8BBB785B26BE6CE500096F8E /* LocalMusicManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5764BBE02673512F00293B73 /* LocalMusicManager.swift */; };
+		8BBB785C26BE6CEE00096F8E /* MusicLyricView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5764BBE52673AE1F00293B73 /* MusicLyricView.swift */; };
 		8DBFDF9E1F5B67064C73BC9C /* Pods_app.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D4C940726440F80BCBE3DFF6 /* Pods_app.framework */; };
 /* End PBXBuildFile section */
 
@@ -152,25 +160,30 @@
 			remoteGlobalIDString = 5757D047262D834700B4A785;
 			remoteInfo = Core;
 		};
+		8B0C3A3526BE7F10004C7F27 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 571AA4622629862700B82B35 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8BBB784B26BE6C1B00096F8E;
+			remoteInfo = LrcView;
+		};
+		8BBB785126BE6C1B00096F8E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 571AA4622629862700B82B35 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8BBB784B26BE6C1B00096F8E;
+			remoteInfo = LrcView;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		574C9CC4266A0BDB00822A95 /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		5757D030262D81C600B4A785 /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				8BBB785426BE6C1B00096F8E /* LrcView.framework in Embed Frameworks */,
 				57E8D546264A31B2007001BC /* Core.framework in Embed Frameworks */,
 				574C9CB8266A0B4300822A95 /* app.framework in Embed Frameworks */,
 			);
@@ -313,16 +326,25 @@
 		7B8E4E73EB4B93DD2AA03649 /* Pods-Scene-Examples_LeanCloud.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Scene-Examples_LeanCloud.release.xcconfig"; path = "Target Support Files/Pods-Scene-Examples_LeanCloud/Pods-Scene-Examples_LeanCloud.release.xcconfig"; sourceTree = "<group>"; };
 		87BA292B4C3C38D451E19D70 /* Pods_InteractivePodcast_Firebase.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_InteractivePodcast_Firebase.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		87C0C09B110C805F55A2EA35 /* Pods-BlindDate_LeanCloud.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BlindDate_LeanCloud.release.xcconfig"; path = "Target Support Files/Pods-BlindDate_LeanCloud/Pods-BlindDate_LeanCloud.release.xcconfig"; sourceTree = "<group>"; };
+		8B0C3A3126BE7E12004C7F27 /* Util.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Util.swift; sourceTree = "<group>"; };
+		8B0C3A3726BE8A98004C7F27 /* Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extension.swift; sourceTree = "<group>"; };
+		8B0C3A3926BEBEB4004C7F27 /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
+		8BBB784C26BE6C1B00096F8E /* LrcView.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = LrcView.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		8BBB784E26BE6C1B00096F8E /* LrcView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LrcView.h; sourceTree = "<group>"; };
+		8BBB784F26BE6C1B00096F8E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		937BFF1E7F912D5BF2A75B63 /* Pods-LiveKtv.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-LiveKtv.release.xcconfig"; path = "Target Support Files/Pods-LiveKtv/Pods-LiveKtv.release.xcconfig"; sourceTree = "<group>"; };
 		9CE9588A4C98EFF802BB1A4E /* Pods-OnlineKTV_Firebase.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OnlineKTV_Firebase.debug.xcconfig"; path = "Target Support Files/Pods-OnlineKTV_Firebase/Pods-OnlineKTV_Firebase.debug.xcconfig"; sourceTree = "<group>"; };
 		9E1E16F362FBD9C432044155 /* Pods-Database_LeanCloud.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Database_LeanCloud.debug.xcconfig"; path = "Target Support Files/Pods-Database_LeanCloud/Pods-Database_LeanCloud.debug.xcconfig"; sourceTree = "<group>"; };
 		A0D7AE253FD40BFF3FC44E37 /* Pods_Core.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Core.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		A289AA6F7379CBD4C64ABF0F /* Pods-LrcView.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-LrcView.release.xcconfig"; path = "Target Support Files/Pods-LrcView/Pods-LrcView.release.xcconfig"; sourceTree = "<group>"; };
 		A3BBB0EA41A6E941399791B8 /* Pods-Database_Firebase.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Database_Firebase.release.xcconfig"; path = "Target Support Files/Pods-Database_Firebase/Pods-Database_Firebase.release.xcconfig"; sourceTree = "<group>"; };
 		A5D93A8BC9FA018DF820EFB2 /* Pods-Database_Firebase.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Database_Firebase.debug.xcconfig"; path = "Target Support Files/Pods-Database_Firebase/Pods-Database_Firebase.debug.xcconfig"; sourceTree = "<group>"; };
 		B0FD9DDB0223C8305338ED51 /* Pods_BlindDate_Firebase.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_BlindDate_Firebase.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		B463897AA0F897B9B5481F21 /* Pods-LrcView.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-LrcView.debug.xcconfig"; path = "Target Support Files/Pods-LrcView/Pods-LrcView.debug.xcconfig"; sourceTree = "<group>"; };
 		B5B7DBC86F4511EB8992BC69 /* Pods-Core.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Core.debug.xcconfig"; path = "Target Support Files/Pods-Core/Pods-Core.debug.xcconfig"; sourceTree = "<group>"; };
 		BD033C7EE6C65EEBEC1A513D /* Pods-Scene-Examples_LeanCloud.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Scene-Examples_LeanCloud.debug.xcconfig"; path = "Target Support Files/Pods-Scene-Examples_LeanCloud/Pods-Scene-Examples_LeanCloud.debug.xcconfig"; sourceTree = "<group>"; };
 		C02AC6BC7F49EF3A552CE30F /* Pods-Core_LeanCloud.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Core_LeanCloud.release.xcconfig"; path = "Target Support Files/Pods-Core_LeanCloud/Pods-Core_LeanCloud.release.xcconfig"; sourceTree = "<group>"; };
+		C1A6B7D5EC88E0E3F8BDBBFB /* Pods_LrcView.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_LrcView.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C5EAB88583F25862ACF8D280 /* Pods-Scene-Examples_Firebase.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Scene-Examples_Firebase.release.xcconfig"; path = "Target Support Files/Pods-Scene-Examples_Firebase/Pods-Scene-Examples_Firebase.release.xcconfig"; sourceTree = "<group>"; };
 		D4C940726440F80BCBE3DFF6 /* Pods_app.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_app.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		DA494E4986C66CDAF9D9F9FD /* Pods-Core_Firebase.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Core_Firebase.release.xcconfig"; path = "Target Support Files/Pods-Core_Firebase/Pods-Core_Firebase.release.xcconfig"; sourceTree = "<group>"; };
@@ -341,6 +363,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				574C9CB7266A0B4300822A95 /* app.framework in Frameworks */,
+				8BBB785326BE6C1B00096F8E /* LrcView.framework in Frameworks */,
 				57E8D545264A31B2007001BC /* Core.framework in Frameworks */,
 				6B7246CCC6D98958270A218F /* Pods_OnlineKTV_LeanCloud.framework in Frameworks */,
 			);
@@ -350,6 +373,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8B0C3A3326BE7F10004C7F27 /* LrcView.framework in Frameworks */,
 				574C9CC0266A0BDB00822A95 /* Core.framework in Frameworks */,
 				8DBFDF9E1F5B67064C73BC9C /* Pods_app.framework in Frameworks */,
 			);
@@ -373,6 +397,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		8BBB784926BE6C1B00096F8E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3080660D297D9239CC1F3C8A /* Pods_LrcView.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -382,6 +414,7 @@
 				571AA46C2629862700B82B35 /* OnlineKTV */,
 				5757D049262D834700B4A785 /* Core */,
 				574C9CB1266A0B4200822A95 /* App */,
+				8BBB784D26BE6C1B00096F8E /* LrcView */,
 				571AA46B2629862700B82B35 /* Products */,
 				956B5ECA0381DF39035305A1 /* Pods */,
 				A63338D10A92F3710B84E0ED /* Frameworks */,
@@ -395,6 +428,7 @@
 				5757D048262D834700B4A785 /* Core.framework */,
 				57E8D519264A2C03007001BC /* OnlineKTV_Firebase.app */,
 				574C9CB0266A0B4200822A95 /* app.framework */,
+				8BBB784C26BE6C1B00096F8E /* LrcView.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -587,7 +621,6 @@
 				5764BB9F266E4C3000293B73 /* RoundImageView.swift */,
 				5764BBB92670842700293B73 /* CenterNotification.swift */,
 				5764BBBD2670BAD000293B73 /* AlertDialog.swift */,
-				5764BBE52673AE1F00293B73 /* MusicLyricView.swift */,
 				578545452689CF0B00605ABE /* Dialog.swift */,
 			);
 			path = View;
@@ -640,10 +673,6 @@
 		5764BBE226735D8000293B73 /* Music */ = {
 			isa = PBXGroup;
 			children = (
-				5764BBE02673512F00293B73 /* LocalMusicManager.swift */,
-				5764BBE326735D9900293B73 /* Lyric.swift */,
-				5782AC892695597500B4162A /* MiguLyric.swift */,
-				5782AC8E2695CA7D00B4162A /* LrcSentence.swift */,
 			);
 			path = Music;
 			sourceTree = "<group>";
@@ -675,6 +704,23 @@
 				5783FEC526673A0B000B39F3 /* UserManager.swift */,
 			);
 			path = Firebase;
+			sourceTree = "<group>";
+		};
+		8BBB784D26BE6C1B00096F8E /* LrcView */ = {
+			isa = PBXGroup;
+			children = (
+				5764BBE52673AE1F00293B73 /* MusicLyricView.swift */,
+				5764BBE02673512F00293B73 /* LocalMusicManager.swift */,
+				5782AC8E2695CA7D00B4162A /* LrcSentence.swift */,
+				5782AC892695597500B4162A /* MiguLyric.swift */,
+				5764BBE326735D9900293B73 /* Lyric.swift */,
+				8BBB784E26BE6C1B00096F8E /* LrcView.h */,
+				8BBB784F26BE6C1B00096F8E /* Info.plist */,
+				8B0C3A3126BE7E12004C7F27 /* Util.swift */,
+				8B0C3A3726BE8A98004C7F27 /* Extension.swift */,
+				8B0C3A3926BEBEB4004C7F27 /* Logger.swift */,
+			);
+			path = LrcView;
 			sourceTree = "<group>";
 		};
 		956B5ECA0381DF39035305A1 /* Pods */ = {
@@ -712,6 +758,8 @@
 				FDC8A807C5564B30AE7560A9 /* Pods-OnlineKTV_LeanCloud.release.xcconfig */,
 				FC0DC180B241497C009B1960 /* Pods-app.debug.xcconfig */,
 				6EBE036E339C16D90188E502 /* Pods-app.release.xcconfig */,
+				B463897AA0F897B9B5481F21 /* Pods-LrcView.debug.xcconfig */,
+				A289AA6F7379CBD4C64ABF0F /* Pods-LrcView.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -733,6 +781,7 @@
 				3B761F18FE8145F50224BD9B /* Pods_OnlineKTV_Firebase.framework */,
 				55CA5154BEFE30CEC188B4E6 /* Pods_OnlineKTV_LeanCloud.framework */,
 				D4C940726440F80BCBE3DFF6 /* Pods_app.framework */,
+				C1A6B7D5EC88E0E3F8BDBBFB /* Pods_LrcView.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -756,6 +805,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		8BBB784726BE6C1B00096F8E /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8BBB785026BE6C1B00096F8E /* LrcView.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
@@ -776,6 +833,7 @@
 			dependencies = (
 				574C9C9B26689AE200822A95 /* PBXTargetDependency */,
 				574C9CB6266A0B4300822A95 /* PBXTargetDependency */,
+				8BBB785226BE6C1B00096F8E /* PBXTargetDependency */,
 			);
 			name = OnlineKTV_LeanCloud;
 			productName = "Scene-Examples";
@@ -791,12 +849,12 @@
 				574C9CAC266A0B4200822A95 /* Sources */,
 				574C9CAD266A0B4200822A95 /* Frameworks */,
 				574C9CAE266A0B4200822A95 /* Resources */,
-				574C9CC4266A0BDB00822A95 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				574C9CC3266A0BDB00822A95 /* PBXTargetDependency */,
+				8B0C3A3626BE7F10004C7F27 /* PBXTargetDependency */,
 			);
 			name = app;
 			productName = LiveKtv;
@@ -845,6 +903,25 @@
 			productReference = 57E8D519264A2C03007001BC /* OnlineKTV_Firebase.app */;
 			productType = "com.apple.product-type.application";
 		};
+		8BBB784B26BE6C1B00096F8E /* LrcView */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8BBB785526BE6C1B00096F8E /* Build configuration list for PBXNativeTarget "LrcView" */;
+			buildPhases = (
+				F6ADBCD9E2A93D05D86EEB6C /* [CP] Check Pods Manifest.lock */,
+				8BBB784726BE6C1B00096F8E /* Headers */,
+				8BBB784826BE6C1B00096F8E /* Sources */,
+				8BBB784926BE6C1B00096F8E /* Frameworks */,
+				8BBB784A26BE6C1B00096F8E /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = LrcView;
+			productName = LrcView;
+			productReference = 8BBB784C26BE6C1B00096F8E /* LrcView.framework */;
+			productType = "com.apple.product-type.framework";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -864,6 +941,9 @@
 					5757D047262D834700B4A785 = {
 						CreatedOnToolsVersion = 12.4;
 						LastSwiftMigration = 1240;
+					};
+					8BBB784B26BE6C1B00096F8E = {
+						CreatedOnToolsVersion = 12.5;
 					};
 				};
 			};
@@ -885,6 +965,7 @@
 				57E8D4F8264A2C03007001BC /* OnlineKTV_Firebase */,
 				5757D047262D834700B4A785 /* Core */,
 				574C9CAF266A0B4200822A95 /* app */,
+				8BBB784B26BE6C1B00096F8E /* LrcView */,
 			);
 		};
 /* End PBXProject section */
@@ -934,6 +1015,13 @@
 				57E8D61B264A6A57007001BC /* GoogleService-Info.plist in Resources */,
 				57E8D50E264A2C03007001BC /* LaunchScreen.storyboard in Resources */,
 				57E8D50F264A2C03007001BC /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8BBB784A26BE6C1B00096F8E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1096,6 +1184,28 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
+		F6ADBCD9E2A93D05D86EEB6C /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-LrcView-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -1130,7 +1240,6 @@
 				5764BBB8266F8FE500293B73 /* CreateRoomViewModel.swift in Sources */,
 				5764BB91266DCD9F00293B73 /* Icon.swift in Sources */,
 				5764BBB6266F5EB200293B73 /* LiveKtvAction.swift in Sources */,
-				5764BBE62673AE1F00293B73 /* MusicLyricView.swift in Sources */,
 				5764BBA0266E4C3000293B73 /* RoundImageView.swift in Sources */,
 				5764BBAD266F1DA000293B73 /* RoomManager.swift in Sources */,
 				5791A95C2678D89800A02B30 /* MusicListDialog.swift in Sources */,
@@ -1139,10 +1248,7 @@
 				5764BBAB266F1D2D00293B73 /* RtcServer.swift in Sources */,
 				578545462689CF0B00605ABE /* Dialog.swift in Sources */,
 				574C9CD4266A26BE00822A95 /* Colors.swift in Sources */,
-				5764BBE426735D9900293B73 /* Lyric.swift in Sources */,
 				574C9CCA266A0C4300822A95 /* Model.swift in Sources */,
-				5782AC8F2695CA7D00B4162A /* LrcSentence.swift in Sources */,
-				5782AC8A2695597500B4162A /* MiguLyric.swift in Sources */,
 				5764BBA6266E53D800293B73 /* MVPlayer.swift in Sources */,
 				574C9CDD266A41AE00822A95 /* HomeViewModel.swift in Sources */,
 				5764BBC626723F1200293B73 /* LiveKtvMusic.swift in Sources */,
@@ -1150,7 +1256,6 @@
 				5764BBBA2670842700293B73 /* CenterNotification.swift in Sources */,
 				5764BBBE2670BAD000293B73 /* AlertDialog.swift in Sources */,
 				5764BBC22671F79500293B73 /* PlayerSettingDialog.swift in Sources */,
-				5764BBE12673512F00293B73 /* LocalMusicManager.swift in Sources */,
 				5764BBB4266F5E8600293B73 /* LiveKtvMember.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1200,6 +1305,21 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		8BBB784826BE6C1B00096F8E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8BBB785826BE6CDD00096F8E /* Lyric.swift in Sources */,
+				8B0C3A3226BE7E12004C7F27 /* Util.swift in Sources */,
+				8B0C3A3826BE8A98004C7F27 /* Extension.swift in Sources */,
+				8BBB785B26BE6CE500096F8E /* LocalMusicManager.swift in Sources */,
+				8BBB785A26BE6CE300096F8E /* LrcSentence.swift in Sources */,
+				8BBB785926BE6CDF00096F8E /* MiguLyric.swift in Sources */,
+				8BBB785C26BE6CEE00096F8E /* MusicLyricView.swift in Sources */,
+				8B0C3A3A26BEBEB4004C7F27 /* Logger.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -1227,6 +1347,16 @@
 			isa = PBXTargetDependency;
 			target = 5757D047262D834700B4A785 /* Core */;
 			targetProxy = 5762F80626568446003B042D /* PBXContainerItemProxy */;
+		};
+		8B0C3A3626BE7F10004C7F27 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8BBB784B26BE6C1B00096F8E /* LrcView */;
+			targetProxy = 8B0C3A3526BE7F10004C7F27 /* PBXContainerItemProxy */;
+		};
+		8BBB785226BE6C1B00096F8E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8BBB784B26BE6C1B00096F8E /* LrcView */;
+			targetProxy = 8BBB785126BE6C1B00096F8E /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -1396,7 +1526,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 0703;
-				DEVELOPMENT_TEAM = Y695MMFA83;
+				DEVELOPMENT_TEAM = T3RCD6CX8B;
 				INFOPLIST_FILE = "$(SRCROOT)/OnlineKTV/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1405,7 +1535,7 @@
 				);
 				MARKETING_VERSION = 3.4.200;
 				OTHER_SWIFT_FLAGS = "$(inherited) -D COCOAPODS -DLEANCLOUD";
-				PRODUCT_BUNDLE_IDENTIFIER = io.agora.OnlineKTV;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ning.example;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
@@ -1422,7 +1552,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = Y695MMFA83;
+				DEVELOPMENT_TEAM = T3RCD6CX8B;
 				INFOPLIST_FILE = "$(SRCROOT)/OnlineKTV/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1431,7 +1561,7 @@
 				);
 				MARKETING_VERSION = 3.4.200;
 				OTHER_SWIFT_FLAGS = "$(inherited) -D COCOAPODS -DLEANCLOUD";
-				PRODUCT_BUNDLE_IDENTIFIER = io.agora.OnlineKTV;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ning.example;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
@@ -1465,6 +1595,7 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SKIP_INSTALL = YES;
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1499,6 +1630,7 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SKIP_INSTALL = YES;
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
@@ -1534,6 +1666,7 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SKIP_INSTALL = YES;
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1570,6 +1703,7 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SKIP_INSTALL = YES;
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
@@ -1627,6 +1761,68 @@
 			};
 			name = Release;
 		};
+		8BBB785626BE6C1B00096F8E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = B463897AA0F897B9B5481F21 /* Pods-LrcView.debug.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = JDPG69R49Z;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = LrcView/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = io.agora.OnlineKTV.LrcView;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		8BBB785726BE6C1B00096F8E /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = A289AA6F7379CBD4C64ABF0F /* Pods-LrcView.release.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = JDPG69R49Z;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = LrcView/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = io.agora.OnlineKTV.LrcView;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1671,6 +1867,15 @@
 			buildConfigurations = (
 				57E8D517264A2C03007001BC /* Debug */,
 				57E8D518264A2C03007001BC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		8BBB785526BE6C1B00096F8E /* Build configuration list for PBXNativeTarget "LrcView" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8BBB785626BE6C1B00096F8E /* Debug */,
+				8BBB785726BE6C1B00096F8E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
