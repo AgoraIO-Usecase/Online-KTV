@@ -24,6 +24,12 @@ target 'app' do
   pod 'Zip', '~> 2.1'
 end
 
+target 'LrcView' do
+  commonPods
+  use_frameworks!
+  pod 'Zip', '~> 2.1'
+end
+
 # target with leancloud sdk
 target 'OnlineKTV_LeanCloud' do
   commonPods
