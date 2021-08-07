@@ -62,7 +62,8 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
 
     public MultipleMusicPlayer(Context mContext, int role, IMediaPlayer mPlayer) {
         super(mContext, role, mPlayer);
-        RoomManager.Instance(mContext).getRtcEngine().setAudioProfile(Constants.AUDIO_SCENARIO_CHORUS);
+        //TODO 替换成合唱 AUDIO_SCENARIO_CHORUS
+        RoomManager.Instance(mContext).getRtcEngine().setAudioProfile(Constants.AUDIO_SCENARIO_DEFAULT);
         RoomManager.Instance(mContext).addRoomEventCallback(mRoomEventCallback);
     }
 
