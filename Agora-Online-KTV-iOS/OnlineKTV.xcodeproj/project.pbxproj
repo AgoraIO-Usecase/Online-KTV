@@ -113,6 +113,12 @@
 		8B0C3A3326BE7F10004C7F27 /* LrcView.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BBB784C26BE6C1B00096F8E /* LrcView.framework */; };
 		8B0C3A3826BE8A98004C7F27 /* Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B0C3A3726BE8A98004C7F27 /* Extension.swift */; };
 		8B0C3A3A26BEBEB4004C7F27 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B0C3A3926BEBEB4004C7F27 /* Logger.swift */; };
+		8B0C3A3C26BECC18004C7F27 /* app-Bridging-Header.h in Headers */ = {isa = PBXBuildFile; fileRef = 8B0C3A3B26BECC18004C7F27 /* app-Bridging-Header.h */; };
+		8B0C3A4126BECCE6004C7F27 /* mach_wait.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8B0C3A3D26BECCE6004C7F27 /* mach_wait.cpp */; };
+		8B0C3A4226BECCE6004C7F27 /* machWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8B0C3A3E26BECCE6004C7F27 /* machWrapper.mm */; };
+		8B0C3A4326BECCE6004C7F27 /* machWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = 8B0C3A3F26BECCE6004C7F27 /* machWrapper.h */; };
+		8B0C3A4426BECCE6004C7F27 /* mach_wait.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 8B0C3A4026BECCE6004C7F27 /* mach_wait.hpp */; };
+		8B0C3A4626BECD9B004C7F27 /* RtcMusicPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B0C3A4526BECD9B004C7F27 /* RtcMusicPlayer.swift */; };
 		8BBB785026BE6C1B00096F8E /* LrcView.h in Headers */ = {isa = PBXBuildFile; fileRef = 8BBB784E26BE6C1B00096F8E /* LrcView.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		8BBB785326BE6C1B00096F8E /* LrcView.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BBB784C26BE6C1B00096F8E /* LrcView.framework */; };
 		8BBB785426BE6C1B00096F8E /* LrcView.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 8BBB784C26BE6C1B00096F8E /* LrcView.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -177,16 +183,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		574C9CC4266A0BDB00822A95 /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		5757D030262D81C600B4A785 /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -339,6 +335,12 @@
 		8B0C3A3126BE7E12004C7F27 /* Util.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Util.swift; sourceTree = "<group>"; };
 		8B0C3A3726BE8A98004C7F27 /* Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extension.swift; sourceTree = "<group>"; };
 		8B0C3A3926BEBEB4004C7F27 /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
+		8B0C3A3B26BECC18004C7F27 /* app-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "app-Bridging-Header.h"; sourceTree = "<group>"; };
+		8B0C3A3D26BECCE6004C7F27 /* mach_wait.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = mach_wait.cpp; sourceTree = "<group>"; };
+		8B0C3A3E26BECCE6004C7F27 /* machWrapper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = machWrapper.mm; sourceTree = "<group>"; };
+		8B0C3A3F26BECCE6004C7F27 /* machWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = machWrapper.h; sourceTree = "<group>"; };
+		8B0C3A4026BECCE6004C7F27 /* mach_wait.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = mach_wait.hpp; sourceTree = "<group>"; };
+		8B0C3A4526BECD9B004C7F27 /* RtcMusicPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RtcMusicPlayer.swift; sourceTree = "<group>"; };
 		8BBB784C26BE6C1B00096F8E /* LrcView.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = LrcView.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		8BBB784E26BE6C1B00096F8E /* LrcView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LrcView.h; sourceTree = "<group>"; };
 		8BBB784F26BE6C1B00096F8E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -494,6 +496,7 @@
 		574C9CB1266A0B4200822A95 /* App */ = {
 			isa = PBXGroup;
 			children = (
+				8B0C3A3B26BECC18004C7F27 /* app-Bridging-Header.h */,
 				5764BBA9266F1D1900293B73 /* Manager */,
 				5764BB95266DF69A00293B73 /* View */,
 				574C9CD2266A26AF00822A95 /* Base */,
@@ -553,6 +556,10 @@
 		574C9CD2266A26AF00822A95 /* Base */ = {
 			isa = PBXGroup;
 			children = (
+				8B0C3A3D26BECCE6004C7F27 /* mach_wait.cpp */,
+				8B0C3A4026BECCE6004C7F27 /* mach_wait.hpp */,
+				8B0C3A3F26BECCE6004C7F27 /* machWrapper.h */,
+				8B0C3A3E26BECCE6004C7F27 /* machWrapper.mm */,
 				574C9CD3266A26BE00822A95 /* Colors.swift */,
 				574C9CD5266A281A00822A95 /* Utils.swift */,
 				5764BB90266DCD9F00293B73 /* Icon.swift */,
@@ -654,7 +661,7 @@
 		5764BBA9266F1D1900293B73 /* Manager */ = {
 			isa = PBXGroup;
 			children = (
-				5764BBE226735D8000293B73 /* Music */,
+				8B0C3A4526BECD9B004C7F27 /* RtcMusicPlayer.swift */,
 				5764BBAA266F1D2D00293B73 /* RtcServer.swift */,
 				5764BBAC266F1DA000293B73 /* RoomManager.swift */,
 			);
@@ -679,13 +686,6 @@
 			);
 			path = Res;
 			sourceTree = SOURCE_ROOT;
-		};
-		5764BBE226735D8000293B73 /* Music */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Music;
-			sourceTree = "<group>";
 		};
 		5783FE952664B741000B39F3 /* Manager */ = {
 			isa = PBXGroup;
@@ -803,7 +803,10 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8B0C3A4426BECCE6004C7F27 /* mach_wait.hpp in Headers */,
 				574C9CB4266A0B4300822A95 /* LiveKtv.h in Headers */,
+				8B0C3A4326BECCE6004C7F27 /* machWrapper.h in Headers */,
+				8B0C3A3C26BECC18004C7F27 /* app-Bridging-Header.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1238,19 +1241,21 @@
 			files = (
 				5764BBA2266E4EF600293B73 /* ListenerToolbar.swift in Sources */,
 				5764BB97266DF6A700293B73 /* Header.swift in Sources */,
+				8B0C3A4626BECD9B004C7F27 /* RtcMusicPlayer.swift in Sources */,
 				5764BBB2266F5DF700293B73 /* LiveKtvRoom.swift in Sources */,
 				5764BBA8266F1CAD00293B73 /* Service.swift in Sources */,
 				5764BB99266E15E200293B73 /* RoomController.swift in Sources */,
 				5764BB94266DD0B500293B73 /* CreateRoomController.swift in Sources */,
 				5764BBB0266F326800293B73 /* HomeCardView.swift in Sources */,
+				8B0C3A4226BECCE6004C7F27 /* machWrapper.mm in Sources */,
 				5764BBBC2670A51400293B73 /* RoomViewModel.swift in Sources */,
 				5764BB9C266E25C000293B73 /* SeatView.swift in Sources */,
 				5764BBA4266E4F0500293B73 /* SpeakerToolbar.swift in Sources */,
 				5764BBC42672034900293B73 /* SelectMVDialog.swift in Sources */,
+				8B0C3A4126BECCE6004C7F27 /* mach_wait.cpp in Sources */,
 				5764BBB8266F8FE500293B73 /* CreateRoomViewModel.swift in Sources */,
 				5764BB91266DCD9F00293B73 /* Icon.swift in Sources */,
 				5764BBB6266F5EB200293B73 /* LiveKtvAction.swift in Sources */,
-				57FFD42B26A971C000668BE0 /* mach_wait.cpp in Sources */,
 				5764BBA0266E4C3000293B73 /* RoundImageView.swift in Sources */,
 				5764BBAD266F1DA000293B73 /* RoomManager.swift in Sources */,
 				5791A95C2678D89800A02B30 /* MusicListDialog.swift in Sources */,
@@ -1537,7 +1542,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 0703;
-				DEVELOPMENT_TEAM = Y695MMFA83;
+				DEVELOPMENT_TEAM = JDPG69R49Z;
 				INFOPLIST_FILE = "$(SRCROOT)/OnlineKTV/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1563,7 +1568,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = Y695MMFA83;
+				DEVELOPMENT_TEAM = JDPG69R49Z;
 				INFOPLIST_FILE = "$(SRCROOT)/OnlineKTV/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1606,8 +1611,8 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SKIP_INSTALL = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = "App/app-Bridging-Header.h";
 				SUPPORTS_MACCATALYST = NO;
+				SWIFT_OBJC_BRIDGING_HEADER = "App/app-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1642,8 +1647,8 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SKIP_INSTALL = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = "App/app-Bridging-Header.h";
 				SUPPORTS_MACCATALYST = NO;
+				SWIFT_OBJC_BRIDGING_HEADER = "App/app-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";

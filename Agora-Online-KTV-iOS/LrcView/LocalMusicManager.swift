@@ -22,10 +22,16 @@ public struct LocalMusic {
 }
 
 public struct LocalMusicOption {
-    let masterUid: UInt
-    let masterMusicUid: UInt
-    let followerUid: UInt
-    let followerMusicUid: UInt
+    public let masterUid: UInt
+    public let masterMusicUid: UInt
+    public let followerUid: UInt
+    public let followerMusicUid: UInt
+    public init(masterUid: UInt, masterMusicUid: UInt, followerUid: UInt, followerMusicUid: UInt) {
+        self.masterUid = masterUid
+        self.masterMusicUid = masterMusicUid
+        self.followerUid = followerUid
+        self.followerMusicUid = followerMusicUid
+    }
 }
 
 public class LocalMusicManager {
