@@ -8,6 +8,7 @@
 import AgoraRtcKit
 import Core
 import Foundation
+import LrcView
 import RxRelay
 import RxSwift
 

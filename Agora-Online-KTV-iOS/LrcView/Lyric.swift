@@ -5,7 +5,6 @@
 //  Created by XC on 2021/6/11.
 //
 
-import Core
 import Foundation
 
 class LyricModel {
@@ -26,7 +25,7 @@ class LyricModel {
     }
 }
 
-class LyricParser {
+enum LyricParser {
     static func parseLyric(filePath: String, isDelBlank: Bool = false) -> [LyricModel] {
         do {
             let lyricStr = try String(contentsOf: URL(fileURLWithPath: filePath), encoding: .utf8)
