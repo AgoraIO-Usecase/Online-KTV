@@ -532,7 +532,12 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
     }
 
     private void showBackgroundPicDialog() {
-        new RoomMVDialog().show(getSupportFragmentManager());
+        AgoraRoom room = RoomManager.Instance(this).getRoom();
+        if (room == null) {
+            return;
+        }
+
+        new RoomMVDialog().show(getSupportFragmentManager(), Integer.parseInt(room.getMv()) - 1);
     }
 
     private void doLeave() {

@@ -10,4 +10,5 @@
 
     <color name="ktv_lrc_nomal">#99FFFFFF</color>
     <color name="ktv_lrc_highligh">#FFFFFFFF</color>
+    <color name="ktv_mv_selected">#0088EB</color>
 </resources>
