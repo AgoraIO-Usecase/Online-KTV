@@ -7,6 +7,7 @@
 
 import Core
 import Foundation
+import LrcView
 import RxSwift
 
 class RoomManager: NSObject {

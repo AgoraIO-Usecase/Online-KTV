@@ -5,7 +5,6 @@
 //  Created by XC on 2021/7/7.
 //
 
-import Core
 import Foundation
 
 enum MiguLang: String {

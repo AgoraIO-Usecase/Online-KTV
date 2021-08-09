@@ -8,6 +8,7 @@
 import AgoraRtcKit
 import Core
 import Foundation
+import LrcView
 import RxRelay
 import RxSwift
 
@@ -379,7 +380,7 @@ class RtcNormalMusicPlayer: AbstractRtcMusicPlayer {
 }
 
 class RtcChorusMusicPlayer: AbstractRtcMusicPlayer {
-    private(set) var connectionId: UInt32 = 0
+    private(set) var connectionId: UInt = 0
     var option: LocalMusicOption!
     private var timer: Timer?
 

@@ -5,11 +5,10 @@
 //  Created by XC on 2021/7/7.
 //
 
-import Core
 import Foundation
 import UIKit
 
-protocol LrcSentence {
+public protocol LrcSentence {
     func startMsTime() -> TimeInterval
     func endMsTime() -> TimeInterval
     func render(with: UILabel) -> Void

@@ -5,7 +5,6 @@
 //  Created by XC on 2021/6/11.
 //
 
-import Core
 import Foundation
 import UIKit
 
@@ -134,13 +133,13 @@ private class MusicLyricCell: UITableViewCell {
     }
 }
 
-protocol MusicLyricViewDelegate: NSObject {
+public protocol MusicLyricViewDelegate: NSObject {
     func userEndSeeking(time: TimeInterval) -> Void
 }
 
-class MusicLyricView: UIView, UITableViewDataSource, UITableViewDelegate {
+public class MusicLyricView: UIView, UITableViewDataSource, UITableViewDelegate {
     static var hightColor = UIColor.white
-    weak var delegate: MusicLyricViewDelegate?
+    public weak var delegate: MusicLyricViewDelegate?
     // ms
     private var seekTime: TimeInterval = 0
     private var Distance = 3
@@ -148,7 +147,7 @@ class MusicLyricView: UIView, UITableViewDataSource, UITableViewDelegate {
     private(set) var isWillDraging: Bool = false
     private(set) var isScrolling: Bool = false
     private(set) var lyricIndex: Int = 0
-    var lyrics: [LrcSentence]? {
+    public var lyrics: [LrcSentence]? {
         didSet {
             DispatchQueue.main.async { [weak self] in
                 if let self = self {
@@ -200,7 +199,7 @@ class MusicLyricView: UIView, UITableViewDataSource, UITableViewDelegate {
     private var curLyricsTimestamp: TimeInterval = 0
     private var currentTime: TimeInterval = 0
     private var totalTime: TimeInterval = 0
-    var paused: Bool = false
+    public var paused: Bool = false
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -312,7 +311,7 @@ class MusicLyricView: UIView, UITableViewDataSource, UITableViewDelegate {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func scrollLyric(currentTime: TimeInterval, totalTime: TimeInterval) {
+    public func scrollLyric(currentTime: TimeInterval, totalTime: TimeInterval) {
         if self.currentTime == currentTime && self.totalTime == totalTime {
             return
         }
@@ -355,13 +354,13 @@ class MusicLyricView: UIView, UITableViewDataSource, UITableViewDelegate {
         }
     }
 
-    func tableView(_ tableView: UITableView, numberOfRowsInSection _: Int) -> Int {
+    public func tableView(_ tableView: UITableView, numberOfRowsInSection _: Int) -> Int {
         tableView.backgroundColor = .clear
         tableView.separatorStyle = .none
         return (lyrics?.count ?? 0) + Distance * 2
     }
 
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell: MusicLyricCell = tableView.dequeueReusableCell(withIdentifier: NSStringFromClass(MusicLyricCell.self), for: indexPath) as! MusicLyricCell
         cell.lyricLabel.textColor = normalLyricTextColor
         if cell.selectedBackgroundView == nil {
@@ -388,7 +387,7 @@ class MusicLyricView: UIView, UITableViewDataSource, UITableViewDelegate {
         return cell
     }
 
-    func scrollViewWillBeginDragging(_: UIScrollView) {
+    public func scrollViewWillBeginDragging(_: UIScrollView) {
         isWillDraging = true
         NSObject.cancelPreviousPerformRequests(withTarget: self)
         isScrolling = true
@@ -397,7 +396,7 @@ class MusicLyricView: UIView, UITableViewDataSource, UITableViewDelegate {
         seekTime = -1
     }
 
-    func scrollViewDidEndDragging(_: UIScrollView, willDecelerate decelerate: Bool) {
+    public func scrollViewDidEndDragging(_: UIScrollView, willDecelerate decelerate: Bool) {
         if !decelerate {
             isWillDraging = false
             perform(#selector(endScroll), with: nil, afterDelay: 1)
@@ -409,16 +408,16 @@ class MusicLyricView: UIView, UITableViewDataSource, UITableViewDelegate {
         }
     }
 
-    func scrollViewWillBeginDecelerating(_: UIScrollView) {
+    public func scrollViewWillBeginDecelerating(_: UIScrollView) {
         isScrolling = true
     }
 
-    func scrollViewDidEndDecelerating(_: UIScrollView) {
+    public func scrollViewDidEndDecelerating(_: UIScrollView) {
         isWillDraging = false
         perform(#selector(endScroll), with: nil, afterDelay: 1)
     }
 
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+    public func scrollViewDidScroll(_ scrollView: UIScrollView) {
         if !isScrolling {
             return
         }
