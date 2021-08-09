@@ -6,6 +6,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
+import com.bumptech.glide.Glide;
+
 import java.util.List;
 
 import io.agora.baselibrary.base.BaseRecyclerViewAdapter;
@@ -49,7 +51,10 @@ public class MVAdapter extends BaseRecyclerViewAdapter<MVAdapter.MVModel, MVAdap
             holder.mDataBinding.llRoot.setBackground(null);
             holder.mDataBinding.ivSelected.setVisibility(View.GONE);
         }
-        holder.mDataBinding.iv.setImageResource(item.resId);
+
+        Glide.with(holder.itemView)
+                .load(item.resId)
+                .into(holder.mDataBinding.iv);
     }
 
     class ViewHolder extends BaseRecyclerViewAdapter.BaseViewHolder<KtvItemMvBinding> {
