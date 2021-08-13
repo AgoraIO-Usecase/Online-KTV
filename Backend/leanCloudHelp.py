@@ -46,6 +46,8 @@ def insertMusicRecursive(songCode):
             musicRepo = MusicRepo()
             musicRepo.set('musicId', str(song["songCode"]))
             musicRepo.set('name', song["name"])
+            musicRepo.set('singer', song["singer"])
+            musicRepo.set('poster', song["poster"])
             musicRepo.save()
         insertMusicRecursive(last_song_code)
     else:
