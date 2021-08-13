@@ -184,7 +184,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
             public void onJoinChannelSuccess(String channel, int uid, int elapsed) {
                 super.onJoinChannelSuccess(channel, uid, elapsed);
                 mLogger.d("onJoinChannelSuccessEX() called with: channel = [%s], uid = [%s], elapsed = [%s]", channel, uid, elapsed);
-                MultipleMusicPlayer.this.onJoinChannelSuccess(uid);
+                MultipleMusicPlayer.this.onJoinChannelExSuccess(uid);
             }
 
             @Override
@@ -209,7 +209,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
 
     private int mUid;
 
-    private void onJoinChannelSuccess(int uid) {
+    private void onJoinChannelExSuccess(int uid) {
         User mUser = UserManager.Instance(mContext).getUserLiveData().getValue();
         if (mUser == null) {
             return;
@@ -355,6 +355,9 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
                             ToastUtile.toastShort(mContext, R.string.ktv_lrc_load_fail);
                         }
                     });
+        } else {
+            //TODO 观众也需要加入ex
+            joinChannelEX();
         }
     }
 
@@ -374,9 +377,14 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
             return;
         }
 
-        if (ObjectsCompat.equals(music.getUser1Id(), mUser.getObjectId())) {
-            mLogger.d("muteRemoteVideoStreamEx user1 = [%s], user2 = [%s]", music.getUserbgId().intValue(), music.getUser1bgId().intValue());
+        if (ObjectsCompat.equals(music.getUserId(), mUser.getObjectId())) {
+            //唱歌人，需要屏蔽对方背景音乐
+            RoomManager.Instance(mContext).getRtcEngine().muteRemoteAudioStreamEx(music.getUser1bgId().intValue(), true, mRtcConnection);
+        } else if (ObjectsCompat.equals(music.getUser1Id(), mUser.getObjectId())) {
+            //唱歌人，需要屏蔽对方背景音乐
             RoomManager.Instance(mContext).getRtcEngine().muteRemoteAudioStreamEx(music.getUserbgId().intValue(), true, mRtcConnection);
+        } else {
+            //观众，需要屏蔽陪唱背景音乐
             RoomManager.Instance(mContext).getRtcEngine().muteRemoteAudioStreamEx(music.getUser1bgId().intValue(), true, mRtcConnection);
         }
 
