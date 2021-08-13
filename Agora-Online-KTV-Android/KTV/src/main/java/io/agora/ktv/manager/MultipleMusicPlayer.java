@@ -355,9 +355,6 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
                             ToastUtile.toastShort(mContext, R.string.ktv_lrc_load_fail);
                         }
                     });
-        } else {
-            //TODO 观众也需要加入ex
-            joinChannelEX();
         }
     }
 
