@@ -18,8 +18,9 @@
 
         <ImageView
             android:id="@+id/iv"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginStart="6dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@+id/tvNo"
             app:layout_constraintTop_toTopOf="parent" />
