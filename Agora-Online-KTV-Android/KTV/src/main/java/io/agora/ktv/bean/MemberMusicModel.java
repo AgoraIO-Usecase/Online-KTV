@@ -20,6 +20,8 @@ public class MemberMusicModel implements Parcelable {
     public static final String TABLE_NAME = "MUSIC_KTV";
 
     public static final String COLUMN_NAME = "name";
+    public static final String COLUMN_SINGER = "singer";
+    public static final String COLUMN_POSTER = "poster";
     public static final String COLUMN_USERID = "userId";
     public static final String COLUMN_USERBGID = "userbgId";
     public static final String COLUMN_ROOMID = "roomId";
@@ -79,7 +81,8 @@ public class MemberMusicModel implements Parcelable {
 
     private AgoraRoom roomId;
     private String musicId;
-
+    private String singer;
+    private String poster;
     private String song;
     private String lrc;
 
@@ -92,13 +95,13 @@ public class MemberMusicModel implements Parcelable {
 
     private String userId;
     private Long userbgId;
-    public UserStatus userStatus;
+    private UserStatus userStatus;
 
-    public String user1Id;
-    public Long user1bgId;
-    public UserStatus user1Status;
+    private String user1Id;
+    private Long user1bgId;
+    private UserStatus user1Status;
 
-    public String applyUser1Id;
+    private String applyUser1Id;
 
     public MemberMusicModel(String musicId) {
         this.musicId = musicId;
@@ -107,6 +110,8 @@ public class MemberMusicModel implements Parcelable {
     public MemberMusicModel(MusicModel data) {
         this.name = data.getName();
         this.musicId = data.getMusicId();
+        this.singer = data.getSinger();
+        this.poster = data.getPoster();
     }
 
     protected MemberMusicModel(Parcel in) {
@@ -115,6 +120,8 @@ public class MemberMusicModel implements Parcelable {
         roomId = in.readParcelable(AgoraRoom.class.getClassLoader());
         musicId = in.readString();
         song = in.readString();
+        singer = in.readString();
+        poster = in.readString();
         lrc = in.readString();
         fileMusic = (File) in.readSerializable();
         fileLrc = (File) in.readSerializable();
@@ -136,6 +143,8 @@ public class MemberMusicModel implements Parcelable {
         dest.writeParcelable(roomId, flags);
         dest.writeString(musicId);
         dest.writeString(song);
+        dest.writeString(singer);
+        dest.writeString(poster);
         dest.writeString(lrc);
         dest.writeSerializable(fileMusic);
         dest.writeSerializable(fileLrc);
@@ -174,6 +183,8 @@ public class MemberMusicModel implements Parcelable {
 
         HashMap<String, Object> datas = new HashMap<>();
         datas.put(COLUMN_NAME, name);
+        datas.put(COLUMN_SINGER, singer);
+        datas.put(COLUMN_POSTER, poster);
         datas.put(COLUMN_ROOMID, drRoom);
         datas.put(COLUMN_MUSICID, musicId);
         datas.put(COLUMN_TYPE, type.value);
@@ -324,6 +335,22 @@ public class MemberMusicModel implements Parcelable {
         this.user1bgId = user1bgId;
     }
 
+    public String getSinger() {
+        return singer;
+    }
+
+    public void setSinger(String singer) {
+        this.singer = singer;
+    }
+
+    public String getPoster() {
+        return poster;
+    }
+
+    public void setPoster(String poster) {
+        this.poster = poster;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -350,6 +377,8 @@ public class MemberMusicModel implements Parcelable {
                 ", name='" + name + '\'' +
                 ", roomId=" + roomId +
                 ", musicId='" + musicId + '\'' +
+                ", singer='" + singer + '\'' +
+                ", poster='" + poster + '\'' +
                 ", song='" + song + '\'' +
                 ", lrc='" + lrc + '\'' +
                 ", fileMusic=" + fileMusic +
@@ -357,10 +386,10 @@ public class MemberMusicModel implements Parcelable {
                 ", musicType=" + musicType +
                 ", type=" + type +
                 ", userId='" + userId + '\'' +
-                ", userbgId='" + userbgId + '\'' +
+                ", userbgId=" + userbgId +
                 ", userStatus=" + userStatus +
                 ", user1Id='" + user1Id + '\'' +
-                ", user1bgId='" + user1bgId + '\'' +
+                ", user1bgId=" + user1bgId +
                 ", user1Status=" + user1Status +
                 ", applyUser1Id='" + applyUser1Id + '\'' +
                 '}';
