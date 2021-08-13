@@ -30,6 +30,8 @@ public class MemberMusicModel implements Parcelable {
 
     private String id;
     private String name;
+    private String singer;
+    private String poster;
     private String userId;
     private AgoraRoom roomId;
     private String musicId;
@@ -62,6 +64,7 @@ public class MemberMusicModel implements Parcelable {
         fileMusic = (File) in.readSerializable();
         fileLrc = (File) in.readSerializable();
         type = (Type) in.readSerializable();
+        userId = in.readString();
     }
 
     @Override
@@ -112,6 +115,7 @@ public class MemberMusicModel implements Parcelable {
         datas.put(COLUMN_MUSICID, musicId);
         return datas;
     }
+
 
     public String getId() {
         return id;
