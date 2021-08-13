@@ -121,6 +121,101 @@ public class MemberMusicModel implements Parcelable {
         return datas;
     }
 
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getSinger() {
+        return singer;
+    }
+
+    public void setSinger(String singer) {
+        this.singer = singer;
+    }
+
+    public String getPoster() {
+        return poster;
+    }
+
+    public void setPoster(String poster) {
+        this.poster = poster;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public AgoraRoom getRoomId() {
+        return roomId;
+    }
+
+    public void setRoomId(AgoraRoom roomId) {
+        this.roomId = roomId;
+    }
+
+    public String getMusicId() {
+        return musicId;
+    }
+
+    public void setMusicId(String musicId) {
+        this.musicId = musicId;
+    }
+
+    public String getSong() {
+        return song;
+    }
+
+    public void setSong(String song) {
+        this.song = song;
+    }
+
+    public String getLrc() {
+        return lrc;
+    }
+
+    public void setLrc(String lrc) {
+        this.lrc = lrc;
+    }
+
+    public File getFileMusic() {
+        return fileMusic;
+    }
+
+    public void setFileMusic(File fileMusic) {
+        this.fileMusic = fileMusic;
+    }
+
+    public File getFileLrc() {
+        return fileLrc;
+    }
+
+    public void setFileLrc(File fileLrc) {
+        this.fileLrc = fileLrc;
+    }
+
+    public Type getType() {
+        return type;
+    }
+
+    public void setType(Type type) {
+        this.type = type;
+    }
 
     @Override
     public boolean equals(Object o) {
