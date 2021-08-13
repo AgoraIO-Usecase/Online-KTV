@@ -26,7 +26,7 @@ import io.agora.lrcview.bean.LrcEntryData;
  */
 public class PitchView extends View {
 
-    private static final int START_PERCENT = 20;
+    private static final int START_PERCENT = 30;
 
     private static volatile LrcData lrcData;
 
@@ -104,7 +104,7 @@ public class PitchView extends View {
 
     private void drawStartLine(Canvas canvas) {
         mPaint.setColor(Color.WHITE);
-        canvas.drawLine(dotPointX, 0, dotPointX + 1, getHeight(), mPaint);
+        canvas.drawLine(dotPointX, 0, dotPointX + 2, getHeight(), mPaint);
     }
 
     private void drawItems(Canvas canvas) {
