@@ -91,7 +91,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
                     sendTestDelay();
 
                     try {
-                        Thread.sleep(2000L);
+                        Thread.sleep(10 * 1000L);
                     } catch (InterruptedException exp) {
                         break;
                     }
@@ -160,6 +160,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
         ChannelMediaOptions options = new ChannelMediaOptions();
         options.clientRoleType = mRole;
         options.publishAudioTrack = false;
+        options.publishCustomAudioTrack = false;
         options.publishMediaPlayerId = mPlayer.getMediaPlayerId();
         if (ObjectsCompat.equals(musicModelReady.getUserId(), mUser.getObjectId())) {
             options.publishMediaPlayerAudioTrack = true;
