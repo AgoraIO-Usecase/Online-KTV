@@ -586,8 +586,8 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
     }
 
     @Override
-    protected void onReceivedChangeOrigle(int uid, int mode) {
-        super.onReceivedChangeOrigle(uid, mode);
+    protected void onReceivedOrigleChanged(int uid, int mode) {
+        super.onReceivedOrigleChanged(uid, mode);
         MemberMusicModel mMemberMusicModel = RoomManager.Instance(mContext).getMusicModel();
         if (mMemberMusicModel == null) {
             return;

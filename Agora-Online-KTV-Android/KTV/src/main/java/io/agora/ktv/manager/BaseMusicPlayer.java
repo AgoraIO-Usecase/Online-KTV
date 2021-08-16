@@ -145,7 +145,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
                 Bundle data = msg.getData();
                 int uid = data.getInt("uid");
                 int mode = data.getInt("mode");
-                onReceivedChangeOrigle(uid, mode);
+                onReceivedOrigleChanged(uid, mode);
             }
         }
     };
@@ -490,10 +490,10 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
                 message.setData(bundle);
                 message.sendToTarget();
             } else if (jsonMsg.getString("cmd").equals("changeOrigle")) {
-                int isOrigle = jsonMsg.getInt("isOrigle");
+                int mode = jsonMsg.getInt("mode");
                 Bundle bundle = new Bundle();
                 bundle.putInt("uid", uid);
-                bundle.putInt("mode", isOrigle);
+                bundle.putInt("mode", mode);
                 Message message = Message.obtain(mHandler, ACTION_ON_RECEIVED_CHANGED_ORIGLE);
                 message.setData(bundle);
                 message.sendToTarget();
@@ -526,7 +526,8 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
     protected void onReceivedReplyTestDelay(int uid, long testDelayTime, long time) {
     }
 
-    protected void onReceivedChangeOrigle(int uid, int mode) {
+    protected void onReceivedOrigleChanged(int uid, int mode) {
+        mLogger.d("onReceivedOrigleChanged() called with: uid = [%s], mode = [%s]", uid, mode);
     }
 
     @Override
