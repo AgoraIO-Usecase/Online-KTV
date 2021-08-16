@@ -124,6 +124,9 @@ public class PitchView extends View {
         for (int i = 0; i < entrys.size(); i++) {
             LrcEntryData entry = lrcData.entrys.get(i);
             List<LrcEntryData.Tone> tones = entry.tones;
+            if (tones == null || tones.isEmpty()) {
+                continue;
+            }
 
             long startTime = entry.getStartTime();
             float emptyPX = widthPerSecond * (startTime - preEndTIme);
