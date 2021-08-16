@@ -586,6 +586,24 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
     }
 
     @Override
+    protected void onReceivedChangeOrigle(int uid, int mode) {
+        super.onReceivedChangeOrigle(uid, mode);
+        MemberMusicModel mMemberMusicModel = RoomManager.Instance(mContext).getMusicModel();
+        if (mMemberMusicModel == null) {
+            return;
+        }
+
+        User mUser = UserManager.Instance(mContext).getUserLiveData().getValue();
+        if (mUser == null) {
+            return;
+        }
+
+        if (ObjectsCompat.equals(mMemberMusicModel.getUser1Id(), mUser.getObjectId())) {
+            selectAudioTrack(mode);
+        }
+    }
+
+    @Override
     public void switchRole(int role) {
         mLogger.d("switchRole() called with: role = [%s]", role);
         mRole = role;
@@ -633,8 +651,6 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
     }
 
     public void sendReplyTestDelay(long receiveTime) {
-//        mLogger.d("sendReplyTestDelay() called with: receiveTime = [%s]", receiveTime);
-
         Map<String, Object> msg = new HashMap<>();
         msg.put("cmd", "replyTestDelay");
         msg.put("testDelayTime", String.valueOf(receiveTime));
@@ -648,8 +664,6 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
     }
 
     public void sendTestDelay() {
-        mLogger.d("sendTestDelay() called");
-
         Map<String, Object> msg = new HashMap<>();
         msg.put("cmd", "testDelay");
         msg.put("time", String.valueOf(System.currentTimeMillis()));
@@ -662,8 +676,6 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
     }
 
     public void sendStartPlay() {
-        mLogger.d("sendStartPlay() called");
-
         Map<String, Object> msg = new HashMap<>();
         msg.put("cmd", "setLrcTime");
         msg.put("time", 0);
@@ -676,8 +688,6 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
     }
 
     public void sendPause() {
-        mLogger.d("sendPause() called");
-
         Map<String, Object> msg = new HashMap<>();
         msg.put("cmd", "setLrcTime");
         msg.put("time", -1);
@@ -686,6 +696,37 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
         int ret = RoomManager.Instance(mContext).getRtcEngine().sendStreamMessage(streamId, jsonMsg.toString().getBytes());
         if (ret < 0) {
             mLogger.e("sendPause() sendStreamMessage called returned: ret = [%s]", ret);
+        }
+    }
+
+    @Override
+    public void selectAudioTrack(int i) {
+        super.selectAudioTrack(i);
+
+        MemberMusicModel mMemberMusicModel = RoomManager.Instance(mContext).getMusicModel();
+        if (mMemberMusicModel == null) {
+            return;
+        }
+
+        User mUser = UserManager.Instance(mContext).getUserLiveData().getValue();
+        if (mUser == null) {
+            return;
+        }
+
+        if (ObjectsCompat.equals(mMemberMusicModel.getUserId(), mUser.getObjectId())) {
+            sendChangeOrigle(i);
+        }
+    }
+
+    public void sendChangeOrigle(int mode) {
+        Map<String, Object> msg = new HashMap<>();
+        msg.put("cmd", "changeOrigle");
+        msg.put("mode", mode);
+        JSONObject jsonMsg = new JSONObject(msg);
+        int streamId = RoomManager.Instance(mContext).getStreamId();
+        int ret = RoomManager.Instance(mContext).getRtcEngine().sendStreamMessage(streamId, jsonMsg.toString().getBytes());
+        if (ret < 0) {
+            mLogger.e("sendChangeOrigle() sendStreamMessage called returned: ret = [%s]", ret);
         }
     }
 }
