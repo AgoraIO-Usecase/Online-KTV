@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.core.util.ObjectsCompat;
 
 import com.agora.data.manager.UserManager;
+import com.agora.data.model.AgoraMember;
 import com.agora.data.model.AgoraRoom;
 import com.agora.data.model.User;
 import com.agora.data.provider.AgoraObject;
@@ -160,7 +161,6 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
         ChannelMediaOptions options = new ChannelMediaOptions();
         options.clientRoleType = mRole;
         options.publishAudioTrack = false;
-        options.publishCustomAudioTrack = false;
         options.publishMediaPlayerId = mPlayer.getMediaPlayerId();
         if (ObjectsCompat.equals(musicModelReady.getUserId(), mUser.getObjectId())) {
             options.publishMediaPlayerAudioTrack = true;
@@ -375,12 +375,23 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
             return;
         }
 
+        AgoraMember mMine = RoomManager.Instance(mContext).getMine();
+        if (mMine == null) {
+            return;
+        }
+
         if (ObjectsCompat.equals(music.getUserId(), mUser.getObjectId())) {
             //唱歌人，需要屏蔽对方背景音乐
             RoomManager.Instance(mContext).getRtcEngine().muteRemoteAudioStreamEx(music.getUser1bgId().intValue(), true, mRtcConnection);
+
+            //唱歌人，必须屏蔽自己麦克风声音
+            RoomManager.Instance(mContext).getRtcEngine().muteRemoteAudioStreamEx(mMine.getStreamId().intValue(), true, mRtcConnection);
         } else if (ObjectsCompat.equals(music.getUser1Id(), mUser.getObjectId())) {
             //唱歌人，需要屏蔽对方背景音乐
             RoomManager.Instance(mContext).getRtcEngine().muteRemoteAudioStreamEx(music.getUserbgId().intValue(), true, mRtcConnection);
+
+            //唱歌人，必须屏蔽自己麦克风声音
+            RoomManager.Instance(mContext).getRtcEngine().muteRemoteAudioStreamEx(mMine.getStreamId().intValue(), true, mRtcConnection);
         } else {
             //观众，需要屏蔽陪唱背景音乐
             RoomManager.Instance(mContext).getRtcEngine().muteRemoteAudioStreamEx(music.getUser1bgId().intValue(), true, mRtcConnection);
@@ -612,12 +623,11 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
         ChannelMediaOptions options = new ChannelMediaOptions();
         options.publishMediaPlayerId = mPlayer.getMediaPlayerId();
         options.clientRoleType = role;
+        options.publishMediaPlayerAudioTrack = false;
         if (role == Constants.CLIENT_ROLE_BROADCASTER) {
             options.publishAudioTrack = true;
-            options.publishMediaPlayerAudioTrack = false;
         } else {
             options.publishAudioTrack = false;
-            options.publishMediaPlayerAudioTrack = false;
         }
 
         RoomManager.Instance(mContext).getRtcEngine().updateChannelMediaOptions(options);
