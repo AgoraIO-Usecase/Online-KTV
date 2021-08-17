@@ -148,7 +148,7 @@ private class LiveMusicCell: UITableViewCell {
     weak var delegate: OrderMusicDelegate!
     var music: LiveKtvMusic! {
         didSet {
-            nameView.text = "\(music.name)\(music.type == LiveKtvMusic.CHORUS ? "(合唱)" : "")"
+            nameView.text = "\(music.name)\(music.singer==nil ? "":"-\(music.singer)")\(music.type == LiveKtvMusic.CHORUS ? "(合唱)" : "")"
             let isPlaying = delegate.isPlaying(music: music)
             indexView.isHidden = isPlaying
             icon.isHidden = !isPlaying

@@ -18,6 +18,8 @@ class LiveKtvMusic: Codable, IAgoraModel {
     public var roomId: String
     public var name: String
     public var musicId: String
+    public var poster: String?
+    public var singer: String?
 
     public var type: Int
 
@@ -31,13 +33,15 @@ class LiveKtvMusic: Codable, IAgoraModel {
 
     public var applyUser1Id: String?
 
-    init(id: String, userId: String, roomId: String, name: String, musicId: String, type: Int = LiveKtvMusic.NORMAL) {
+    init(id: String, userId: String, roomId: String, name: String, musicId: String, type: Int = LiveKtvMusic.NORMAL,poster:String?,singer:String?) {
         self.id = id
         self.userId = userId
         self.roomId = roomId
         self.name = name
         self.musicId = musicId
         self.type = type
+        self.poster = poster
+        self.singer = singer
     }
 
     func isOrderBy(member: LiveKtvMember) -> Bool {
@@ -62,6 +66,8 @@ class LiveKtvMusic: Codable, IAgoraModel {
             LiveKtvMusic.NAME: name,
             LiveKtvMusic.MUSIC_ID: musicId,
             LiveKtvMusic.ROOM: roomId,
+            LiveKtvMusic.POSTER: poster,
+            LiveKtvMusic.SINGER: singer,
             LiveKtvMusic.TYPE: type,
             LiveKtvMusic.USER: userId,
             LiveKtvMusic.USER_STATUS: userStatus,
@@ -79,6 +85,8 @@ extension LiveKtvMusic {
     static let ROOM = "roomId"
     static let NAME = "name"
     static let MUSIC_ID = "musicId"
+    static let POSTER = "poster"
+    static let SINGER = "singer"
 
     static let TYPE = "type"
     static let USER = "userId"
@@ -98,6 +106,8 @@ extension LiveKtvMusic {
         let name: String = try object.getValue(key: LiveKtvMusic.NAME, type: String.self) as! String
         let music: String = try object.getValue(key: LiveKtvMusic.MUSIC_ID, type: String.self) as! String
         let roomId = room.id
+        let poster: String? = try object.getValue(key: LiveKtvMusic.POSTER, type: String.self) as? String
+        let singer: String? = try object.getValue(key: LiveKtvMusic.SINGER, type: String.self) as? String
 
         let type: Int = try object.getValue(key: LiveKtvMusic.TYPE, type: Int.self) as? Int ?? LiveKtvMusic.NORMAL
         let userId: String = try object.getValue(key: LiveKtvMusic.USER, type: String.self) as! String
@@ -108,7 +118,7 @@ extension LiveKtvMusic {
         let user1bgId: UInt? = try object.getValue(key: LiveKtvMusic.USER1_BG_ID, type: UInt.self) as? UInt
         let applyUser1Id: String? = try object.getValue(key: LiveKtvMusic.APPLY_USER1_ID, type: String.self) as? String
 
-        let liveMusic = LiveKtvMusic(id: id, userId: userId, roomId: roomId, name: name, musicId: music, type: type)
+        let liveMusic = LiveKtvMusic(id: id, userId: userId, roomId: roomId, name: name, musicId: music, type: type,poster:poster,singer: singer)
         liveMusic.userStatus = userStatus
         liveMusic.userbgId = userbgId
         liveMusic.user1Id = user1Id
