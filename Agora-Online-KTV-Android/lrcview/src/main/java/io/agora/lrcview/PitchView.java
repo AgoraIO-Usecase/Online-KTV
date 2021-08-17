@@ -3,9 +3,10 @@ package io.agora.lrcview;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
-import android.graphics.Color;
+import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.graphics.Shader;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
@@ -26,7 +27,7 @@ import io.agora.lrcview.bean.LrcEntryData;
  */
 public class PitchView extends View {
 
-    private static final int START_PERCENT = 30;
+    private static final int START_PERCENT = 40;
 
     private static volatile LrcData lrcData;
 
@@ -35,12 +36,14 @@ public class PitchView extends View {
     private int itemHeight = 10;//每一项高度px
     private int itemSpace = 4;//间距px
 
-    private int pitchMax = 100;//最大值
-    private int pitchMin = 50;//最小值
+    private int pitchMax = 0;//最大值
+    private int pitchMin = 100;//最小值
 
     private final Paint mPaint = new Paint();
     private int mNormalTextColor;
     private int mDoneTextColor;
+
+    private LinearGradient linearGradient;
 
     private float dotPointX = 0F;//亮点坐标
 
@@ -90,6 +93,10 @@ public class PitchView extends View {
             int h = bottom - top;
             dotPointX = w * START_PERCENT / 100F;
 
+            int startColor = getResources().getColor(R.color.pitch_start);
+            int endColor = getResources().getColor(R.color.pitch_end);
+            linearGradient = new LinearGradient(dotPointX, 0, 0, 0, startColor, endColor, Shader.TileMode.CLAMP);
+
             invalidate();
         }
     }
@@ -103,29 +110,33 @@ public class PitchView extends View {
     }
 
     private void drawStartLine(Canvas canvas) {
-        mPaint.setColor(Color.WHITE);
-        canvas.drawLine(dotPointX, 0, dotPointX + 2, getHeight(), mPaint);
+        mPaint.setShader(linearGradient);
+        canvas.drawRect(0, 0, dotPointX, getHeight(), mPaint);
     }
 
     private void drawItems(Canvas canvas) {
+        mPaint.setShader(null);
         mPaint.setColor(mNormalTextColor);
 
         if (lrcData == null || lrcData.entrys == null || lrcData.entrys.isEmpty()) {
             return;
         }
 
+        float realPitchMax = pitchMax + 5;
+        float realPitchMin = pitchMin - 5;
+
         List<LrcEntryData> entrys = lrcData.entrys;
         float currentPX = this.mCurrentTime * widthPerSecond;
         float x = dotPointX - currentPX;
         float y = 0;
         float widthTone = 0;
-        float mItemHeight = getHeight() / (float) (pitchMax - pitchMin);//高度
+        float mItemHeight = getHeight() / (float) (realPitchMax - realPitchMin);//高度
         long preEndTIme = 0;
         for (int i = 0; i < entrys.size(); i++) {
             LrcEntryData entry = lrcData.entrys.get(i);
             List<LrcEntryData.Tone> tones = entry.tones;
             if (tones == null || tones.isEmpty()) {
-                continue;
+                return;
             }
 
             long startTime = entry.getStartTime();
@@ -150,7 +161,7 @@ public class PitchView extends View {
                     break;
                 }
 
-                y = (pitchMax - tone.pitch) * mItemHeight;
+                y = (realPitchMax - tone.pitch) * mItemHeight;
                 RectF r = new RectF(x, y, endX, y + itemHeight);
                 canvas.drawRect(r, mPaint);
 
@@ -166,6 +177,16 @@ public class PitchView extends View {
      */
     public void setLrcData(LrcData data) {
         lrcData = data;
+
+        if (lrcData != null && lrcData.entrys != null && !lrcData.entrys.isEmpty()) {
+            for (LrcEntryData entry : lrcData.entrys) {
+                for (LrcEntryData.Tone tone : entry.tones) {
+                    pitchMin = Math.min(pitchMin, tone.pitch);
+                    pitchMax = Math.max(pitchMax, tone.pitch);
+                }
+            }
+        }
+
         invalidate();
     }
 
@@ -192,6 +213,8 @@ public class PitchView extends View {
     public void reset() {
         lrcData = null;
         mCurrentTime = 0;
+        pitchMax = 0;
+        pitchMin = 100;
 
         invalidate();
     }

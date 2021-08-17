@@ -10,6 +10,7 @@
             android:id="@+id/lrcView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
+            android:layout_marginTop="40dp"
             android:background="#00000000"
             android:paddingStart="10dp"
             android:paddingTop="20dp"
@@ -30,13 +31,14 @@
         <io.agora.lrcview.PitchView
             android:id="@+id/pitchView"
             android:layout_width="0dp"
-            android:layout_height="0dp"
-            app:layout_constraintBottom_toBottomOf="@+id/lrcView"
-            app:layout_constraintEnd_toEndOf="@+id/lrcView"
-            app:layout_constraintStart_toStartOf="@+id/lrcView"
-            app:layout_constraintTop_toTopOf="@+id/lrcView"
+            android:layout_height="60dp"
+            android:layout_marginTop="26dp"
+            android:background="#26FFFFFF"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             app:pitchDoneTextColor="@color/ktv_lrc_highligh"
-            app:pitchNormalTextColor="@color/ktv_lrc_nomal" />
+            app:pitchNormalTextColor="@color/ktv_pitch_nomal" />
 
         <RelativeLayout
             android:id="@+id/rlMusicControlMenu"
