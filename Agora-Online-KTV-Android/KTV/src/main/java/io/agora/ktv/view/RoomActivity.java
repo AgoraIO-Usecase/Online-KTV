@@ -225,8 +225,8 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
         }
 
         @Override
-        public void onAudioStatusChanged(boolean isMine, @NonNull AgoraMember member) {
-            super.onAudioStatusChanged(isMine, member);
+        public void onAudioStatusChanged(@NonNull AgoraMember member) {
+            super.onAudioStatusChanged(member);
 
             AgoraMember mMine = RoomManager.Instance(RoomActivity.this).getMine();
             if (ObjectsCompat.equals(member, mMine)) {
@@ -971,5 +971,10 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
             mMusicPlayer = null;
         }
         super.onDestroy();
+    }
+
+    @Override
+    public void onBackPressed() {
+
     }
 }

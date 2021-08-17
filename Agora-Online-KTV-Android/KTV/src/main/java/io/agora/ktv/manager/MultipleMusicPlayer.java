@@ -70,7 +70,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
     @Override
     public void destory() {
         super.destory();
-        RoomManager.Instance(mContext).getRtcEngine().muteAllRemoteAudioStreams(false);
+
         leaveChannelEX();
         stopNetTestTask();
         RoomManager.Instance(mContext).removeRoomEventCallback(mRoomEventCallback);
@@ -207,6 +207,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
         if (!TextUtils.isEmpty(channelName)) {
             RoomManager.Instance(mContext).getRtcEngine().leaveChannelEx(channelName, mRtcConnection);
         }
+        mRtcConnection = null;
     }
 
     private int mUid;
@@ -382,12 +383,12 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
         }
 
         if (ObjectsCompat.equals(music.getUserId(), mUser.getObjectId())) {
-            //唱歌人，joinChannel 需要屏蔽的uid
+            //唱歌人，主唱，joinChannel 需要屏蔽的uid
             RoomManager.Instance(mContext).getRtcEngine().muteRemoteAudioStream(music.getUserbgId().intValue(), true);
             RoomManager.Instance(mContext).getRtcEngine().muteRemoteAudioStream(music.getUser1bgId().intValue(), true);
             RoomManager.Instance(mContext).getRtcEngine().muteRemoteAudioStreamEx(mMine.getStreamId().intValue(), true, mRtcConnection);
         } else if (ObjectsCompat.equals(music.getUser1Id(), mUser.getObjectId())) {
-            //唱歌人，joinChannel 需要屏蔽的uid
+            //唱歌人，陪唱人，joinChannel 需要屏蔽的uid
             RoomManager.Instance(mContext).getRtcEngine().muteRemoteAudioStream(music.getUserbgId().intValue(), true);
             RoomManager.Instance(mContext).getRtcEngine().muteRemoteAudioStream(music.getUser1bgId().intValue(), true);
             RoomManager.Instance(mContext).getRtcEngine().muteRemoteAudioStreamEx(mMine.getStreamId().intValue(), true, mRtcConnection);

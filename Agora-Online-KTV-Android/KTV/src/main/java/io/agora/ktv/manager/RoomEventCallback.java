@@ -41,10 +41,8 @@ public interface RoomEventCallback {
 
     /**
      * Audio变化回调，这里变化是指：开麦和禁麦
-     *
-     * @param isMine 是否是我主动触发的回调，true-我主动触发，false-不是我触发，被动触发。
      */
-    void onAudioStatusChanged(boolean isMine, @NonNull AgoraMember member);
+    void onAudioStatusChanged(@NonNull AgoraMember member);
 
     void onRoomError(int error, String msg);
 

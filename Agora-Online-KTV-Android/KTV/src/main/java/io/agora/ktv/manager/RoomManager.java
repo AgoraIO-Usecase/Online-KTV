@@ -281,9 +281,9 @@ public final class RoomManager {
         mMainThreadDispatch.onRoleChanged(member);
     }
 
-    private void onAudioStatusChanged(boolean isMine, @NonNull AgoraMember member) {
-        mLogger.i("onAudioStatusChanged() called with: isMine = [%s], member = [%s]", isMine, member);
-        mMainThreadDispatch.onAudioStatusChanged(isMine, member);
+    private void onAudioStatusChanged(@NonNull AgoraMember member) {
+        mLogger.i("onAudioStatusChanged() called with: member = [%s]", member);
+        mMainThreadDispatch.onAudioStatusChanged(member);
     }
 
     public void onMusicAdd(MemberMusicModel model) {
@@ -434,7 +434,7 @@ public final class RoomManager {
 
             if (memberLocal != null && memberLocal.getIsSelfMuted() != memberRemote.getIsSelfMuted()) {
                 memberLocal.setIsSelfMuted(memberRemote.getIsSelfMuted());
-                onAudioStatusChanged(true, memberLocal);
+                onAudioStatusChanged(memberLocal);
             }
         }
 

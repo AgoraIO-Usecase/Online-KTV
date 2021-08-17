@@ -39,6 +39,15 @@ public class SplashActivity extends DataBindBaseActivity<KtvActivitySplashBindin
 
     @Override
     protected void iniData() {
+        Intent intent = getIntent();
+        if (!this.isTaskRoot() && intent != null) {
+            String action = intent.getAction();
+            if (intent.hasCategory(Intent.CATEGORY_LAUNCHER) && Intent.ACTION_MAIN.equals(action)) {
+                finish();
+                return;
+            }
+        }
+
         startActivity(new Intent(this, RoomListActivity.class));
         finish();
     }
