@@ -1,4 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources translatable="false">
     <string name="ktv_app_name">KTV</string>
+
+    <string name="ktv_ok">好的</string>
+    <string name="ktv_done">完成</string>
+    <string name="ktv_search">搜索</string>
+    <string name="ktv_confirm">确定</string>
+    <string name="ktv_cancel">取消</string>
+
+    <string name="ktv_error_permisstion">需要相应权限，请打开</string>
+
+    <string name="ktv_room_list_title">歌房</string>
+    <string name="ktv_room_list_empty">请创建一个歌房</string>
+
+    <string name="ktv_create_room_name_label">歌房名称</string>
+    <string name="ktv_create_room_name_label2">本应用为测试产品，请勿商用。单次直播最长10分钟，每个频道最多10人。</string>
+    <string name="ktv_create_button">创建</string>
+
+    <string name="ktv_dialog_join_msg">准备中，请等待...</string>
+
+    <string name="ktv_room_before_speaker">上麦后可点歌与发言</string>
+    <string name="ktv_room_owner">房主</string>
+    <string name="ktv_room_sing1">演唱中</string>
+    <string name="ktv_room_sing1_1">合唱中</string>
+    <string name="ktv_room_original">原唱</string>
+    <string name="ktv_room_accompany">伴奏</string>
+    <string name="ktv_room_change_song">切歌</string>
+    <string name="ktv_room_seat_off">下麦</string>
+    <string name="ktv_room_choose_song">点歌</string>
+    <string name="ktv_room_choosed_song">已点</string>
+    <string name="ktv_room_sing2">正在演唱</string>
+    <string name="ktv_room_no_sing_1">当前无人演唱</string>
+    <string name="ktv_room_no_sing_2">点击“点歌”一展歌喉</string>
+    <string name="ktv_dialog_migu_tip">歌曲来自咪咕音乐</string>
+    <string name="ktv_dialog_music_list_empty">未找到相关搜索结果</string>
+    <string name="ktv_dialog_music_list_search_hint">搜索歌曲或歌手</string>
+    <string name="ktv_lrc_loading">歌曲准备中</string>
+    <string name="ktv_lrc_load_fail">加载失败</string>
+    <string name="ktv_room_change_music_title">切歌</string>
+    <string name="ktv_room_change_music_msg">终止当前歌曲的演唱？</string>
+    <string name="ktv_room_time_wait_join_chorus">等待加入合唱 %02d:%02d</string>
+    <string name="ktv_room_time_join_chorus_">抢麦倒计时 %02d:%02d</string>
+    <string name="ktv_music_join_chorus">加入合唱</string>
+    <string name="ktv_music_chorus_start_now">不等了，独唱</string>
+    <string name="ktv_use_overtime">试用时间已到</string>
+    <string name="ktv_need_up">请先上坐</string>
+    <string name="ktv_error_cut">该歌曲无法进行人声切换</string>
+    <string name="ktv_join_error">加入房间失败</string>
+    <string name="ktv_sync_music_error">同步歌曲失败</string>
+    <string name="ktv_leave_title">关闭歌房</string>
+    <string name="ktv_leave_msg">关闭歌房后所有成员将被移除房间</string>
+
+    <string name="ktv_music_menu_dialog_title">参数设置</string>
+    <string name="ktv_music_menu_dialog_ear">耳返</string>
+    <string name="ktv_music_menu_dialog_vol1">人声音量</string>
+    <string name="ktv_music_menu_dialog_vol2">伴奏音量</string>
 </resources>
