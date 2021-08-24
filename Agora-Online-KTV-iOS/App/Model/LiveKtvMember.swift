@@ -274,7 +274,7 @@ extension LiveKtvMember {
         }.asObservable()
     }
 
-    func orderMusic(id: String, name: String) -> Observable<Result<Void>> {
-        return LiveKtvMusic(id: "", userId: userId, roomId: roomId, name: name, musicId: id).order().map { $0.transform() }
+    func orderMusic(id: String, name: String, singer: String, poster: String) -> Observable<Result<Void>> {
+        return LiveKtvMusic(id: "", userId: userId, roomId: roomId, name: name, musicId: id, singer: singer, poster: poster).order().map { $0.transform() }
     }
 }

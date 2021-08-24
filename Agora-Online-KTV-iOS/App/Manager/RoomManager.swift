@@ -333,10 +333,10 @@ extension RoomManager: IRoomManager {
         }
     }
 
-    func order(musicId: String, name: String) -> Observable<Result<Void>> {
+    func order(musicId: String, name: String, singer: String, poster: String) -> Observable<Result<Void>> {
         if let member = member {
             if rtcServer.isJoinChannel {
-                return member.orderMusic(id: musicId, name: name)
+                return member.orderMusic(id: musicId, name: name, singer: singer, poster: poster)
             }
         }
         return Observable.just(Result(success: true))
