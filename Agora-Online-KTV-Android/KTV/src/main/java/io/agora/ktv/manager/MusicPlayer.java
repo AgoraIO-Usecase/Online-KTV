@@ -1,6 +1,7 @@
 package io.agora.ktv.manager;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -19,22 +20,18 @@ import java.util.HashMap;
 import java.util.Map;
 
 import io.agora.ktv.bean.MemberMusicModel;
-import io.agora.lrcview.LrcView;
 import io.agora.rtc.Constants;
 import io.agora.rtc.IRtcEngineEventHandler;
 import io.agora.rtc.RtcEngine;
 import io.agora.rtc.models.DataStreamConfig;
 import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
-import io.reactivex.SingleObserver;
-import io.reactivex.disposables.Disposable;
 
 public class MusicPlayer extends IRtcEngineEventHandler {
     private Logger.Builder mLogger = XLog.tag("MusicPlayer");
 
     private Context mContext;
     private RtcEngine mRtcEngine;
-    private LrcView mLrcView;
     private int mRole = Constants.CLIENT_ROLE_BROADCASTER;
 
     private boolean mStopSyncLrc = true;
@@ -63,9 +60,7 @@ public class MusicPlayer extends IRtcEngineEventHandler {
     private static final int ACTION_ON_MUSIC_PAUSE = 204;
     private static final int ACTION_ON_MUSIC_STOP = 205;
     private static final int ACTION_ON_MUSIC_COMPLETED = 206;
-    private static final int ACTION_ON_MUSIC_PREPARING = 207;
-    private static final int ACTION_ON_MUSIC_PREPARED = 208;
-    private static final int ACTION_ON_MUSIC_PREPARE_FAIL = 209;
+    private static final int ACTION_ON_RECEIVED_SYNC_TIME = 207;
 
     private static volatile Status mStatus = Status.IDLE;
 
@@ -88,14 +83,16 @@ public class MusicPlayer extends IRtcEngineEventHandler {
         public void handleMessage(@NonNull Message msg) {
             super.handleMessage(msg);
             if (msg.what == ACTION_UPDATE_TIME) {
-                mLrcView.updateTime((long) msg.obj);
+                if (mCallback != null) {
+                    mCallback.onMusicPositionChanged((long) msg.obj);
+                }
             } else if (msg.what == ACTION_ONMUSIC_OPENING) {
                 if (mCallback != null) {
                     mCallback.onMusicOpening();
                 }
             } else if (msg.what == ACTION_ON_MUSIC_OPENCOMPLETED) {
                 if (mCallback != null) {
-                    mCallback.onMusicOpenCompleted();
+                    mCallback.onMusicOpenCompleted((int) msg.obj);
                 }
             } else if (msg.what == ACTION_ON_MUSIC_OPENERROR) {
                 if (mCallback != null) {
@@ -117,26 +114,18 @@ public class MusicPlayer extends IRtcEngineEventHandler {
                 if (mCallback != null) {
                     mCallback.onMusicCompleted();
                 }
-            } else if (msg.what == ACTION_ON_MUSIC_PREPARING) {
-                if (mCallback != null) {
-                    mCallback.onMusicPlaing();
-                }
-            } else if (msg.what == ACTION_ON_MUSIC_PREPARED) {
-                if (mCallback != null) {
-                    mCallback.onMusicPrepared();
-                }
-            } else if (msg.what == ACTION_ON_MUSIC_PREPARE_FAIL) {
-                if (mCallback != null) {
-                    mCallback.onMusicPrepareError();
-                }
+            } else if (msg.what == ACTION_ON_RECEIVED_SYNC_TIME) {
+                Bundle data = msg.getData();
+                int uid = data.getInt("uid");
+                long time = data.getLong("time");
+                onReceivedSetLrcTime(uid, time);
             }
         }
     };
 
-    public MusicPlayer(Context mContext, RtcEngine mRtcEngine, LrcView lrcView) {
+    public MusicPlayer(Context mContext, RtcEngine mRtcEngine) {
         this.mContext = mContext;
         this.mRtcEngine = mRtcEngine;
-        this.mLrcView = lrcView;
 
         reset();
 
@@ -296,13 +285,6 @@ public class MusicPlayer extends IRtcEngineEventHandler {
 
     private void startDisplayLrc() {
         File lrcs = mMusicModel.getFileLrc();
-        mLrcView.post(new Runnable() {
-            @Override
-            public void run() {
-                mLrcView.loadLrc(lrcs);
-            }
-        });
-
         mStopDisplayLrc = false;
         mDisplayThread = new Thread(new Runnable() {
             @Override
@@ -340,12 +322,6 @@ public class MusicPlayer extends IRtcEngineEventHandler {
                 mLogger.e("stopDisplayLrc: " + exp.getMessage());
             }
         }
-        mLrcView.post(new Runnable() {
-            @Override
-            public void run() {
-                mLrcView.reset();
-            }
-        });
         mMusicModel = null;
     }
 
@@ -442,41 +418,50 @@ public class MusicPlayer extends IRtcEngineEventHandler {
                 return;
 
             if (jsonMsg.getString("cmd").equals("setLrcTime")) {
-                if (mMusicModel == null || !jsonMsg.getString("lrcId").equals(mMusicModel.getMusicId())) {
-                    if (MusicResourceManager.isPreparing) {
-                        return;
-                    }
+                long position = jsonMsg.getLong("time");
 
-                    stopDisplayLrc();
+                Bundle bundle = new Bundle();
+                bundle.putInt("uid", uid);
+                bundle.putLong("time", position);
+                Message message = Message.obtain(mHandler, ACTION_ON_RECEIVED_SYNC_TIME);
+                message.setData(bundle);
+                message.sendToTarget();
 
-                    // 加载歌词文本
-                    String musicId = jsonMsg.getString("lrcId");
-                    long duration = jsonMsg.getLong("duration");
-
-                    onMusicPreparing();
-                    MemberMusicModel musicModel = new MemberMusicModel(musicId);
-                    MusicResourceManager.Instance(mContext)
-                            .prepareMusic(musicModel, true)
-                            .subscribe(new SingleObserver<MemberMusicModel>() {
-                                @Override
-                                public void onSubscribe(@NonNull Disposable d) {
-
-                                }
-
-                                @Override
-                                public void onSuccess(@NonNull MemberMusicModel musicModel) {
-                                    onMusicPrepared();
-                                    playWithDisplay(musicModel);
-                                }
-
-                                @Override
-                                public void onError(@NonNull Throwable e) {
-                                    onMusicPrepareError();
-                                }
-                            });
-                }
-                mRecvedPlayPosition = jsonMsg.getLong("time");
-                mLastRecvPlayPosTime = System.currentTimeMillis();
+//                if (mMusicModel == null || !jsonMsg.getString("lrcId").equals(mMusicModel.getMusicId())) {
+//                    if (MusicResourceManager.isPreparing) {
+//                        return;
+//                    }
+//
+//                    stopDisplayLrc();
+//
+//                    // 加载歌词文本
+//                    String musicId = jsonMsg.getString("lrcId");
+//                    long duration = jsonMsg.getLong("duration");
+//
+//                    onMusicPreparing();
+//                    MemberMusicModel musicModel = new MemberMusicModel(musicId);
+//                    MusicResourceManager.Instance(mContext)
+//                            .prepareMusic(musicModel, true)
+//                            .subscribe(new SingleObserver<MemberMusicModel>() {
+//                                @Override
+//                                public void onSubscribe(@NonNull Disposable d) {
+//
+//                                }
+//
+//                                @Override
+//                                public void onSuccess(@NonNull MemberMusicModel musicModel) {
+//                                    onMusicPrepared();
+//                                    playWithDisplay(musicModel);
+//                                }
+//
+//                                @Override
+//                                public void onError(@NonNull Throwable e) {
+//                                    onMusicPrepareError();
+//                                }
+//                            });
+//                }
+//                mRecvedPlayPosition = jsonMsg.getLong("time");
+//                mLastRecvPlayPosTime = System.currentTimeMillis();
             } else if (jsonMsg.getString("cmd").equals("musicStopped")) {
                 stopDisplayLrc();
             }
@@ -518,9 +503,8 @@ public class MusicPlayer extends IRtcEngineEventHandler {
 
         initAudioTracks();
 
-        mLrcView.setTotalDuration(mRtcEngine.getAudioMixingDuration());
         startDisplayLrc();
-        mHandler.obtainMessage(ACTION_ON_MUSIC_OPENCOMPLETED).sendToTarget();
+        mHandler.obtainMessage(ACTION_ON_MUSIC_OPENCOMPLETED, mRtcEngine.getAudioMixingDuration()).sendToTarget();
     }
 
     private void onMusicOpenError(int error) {
@@ -570,19 +554,9 @@ public class MusicPlayer extends IRtcEngineEventHandler {
         mHandler.obtainMessage(ACTION_ON_MUSIC_COMPLETED).sendToTarget();
     }
 
-    private void onMusicPreparing() {
-        mLogger.i("onMusicPreparing() called");
-        mHandler.obtainMessage(ACTION_ON_MUSIC_PREPARING).sendToTarget();
-    }
-
-    private void onMusicPrepared() {
-        mLogger.i("onMusicPrepared() called");
-        mHandler.obtainMessage(ACTION_ON_MUSIC_PREPARED).sendToTarget();
-    }
-
-    private void onMusicPrepareError() {
-        mLogger.i("onMusicPrepareError() called");
-        mHandler.obtainMessage(ACTION_ON_MUSIC_PREPARE_FAIL).sendToTarget();
+    protected void onReceivedSetLrcTime(int uid, long position) {
+        mRecvedPlayPosition = position;
+        mLastRecvPlayPosTime = System.currentTimeMillis();
     }
 
     public void destory() {
@@ -593,9 +567,13 @@ public class MusicPlayer extends IRtcEngineEventHandler {
 
     @MainThread
     public interface Callback {
+        void onPrepareResource();
+
+        void onResourceReady(@NonNull MemberMusicModel music);
+
         void onMusicOpening();
 
-        void onMusicOpenCompleted();
+        void onMusicOpenCompleted(int duration);
 
         void onMusicOpenError(int error);
 
@@ -607,10 +585,6 @@ public class MusicPlayer extends IRtcEngineEventHandler {
 
         void onMusicCompleted();
 
-        void onMusicPreparing();
-
-        void onMusicPrepared();
-
-        void onMusicPrepareError();
+        void onMusicPositionChanged(long position);
     }
 }

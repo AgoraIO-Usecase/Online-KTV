@@ -9,8 +9,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 import io.agora.lrcview.bean.LrcData;
 
@@ -20,13 +18,7 @@ import io.agora.lrcview.bean.LrcData;
  * @author chenhengfei(Aslanchen)
  * @date 2021/7/6
  */
-class LrcLoadUtils {
-
-    private static final Executor mExecutor = Executors.newSingleThreadExecutor();
-
-    public static void execute(Runnable runnable) {
-        mExecutor.execute(runnable);
-    }
+public class LrcLoadUtils {
 
     @Nullable
     public static LrcData parse(File lrcFile) {

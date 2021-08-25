@@ -29,6 +29,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,7 +49,9 @@ import io.agora.ktv.view.dialog.RoomChooseSongDialog;
 import io.agora.ktv.view.dialog.RoomMVDialog;
 import io.agora.ktv.view.dialog.UserSeatMenuDialog;
 import io.agora.ktv.view.dialog.WaitingDialog;
+import io.agora.lrcview.LrcLoadUtils;
 import io.agora.lrcview.LrcView;
+import io.agora.lrcview.bean.LrcData;
 import io.agora.rtc.Constants;
 import io.reactivex.CompletableObserver;
 import io.reactivex.SingleObserver;
@@ -76,12 +79,28 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
     private MusicPlayer.Callback mMusicCallback = new MusicPlayer.Callback() {
 
         @Override
+        public void onPrepareResource() {
+            showPreparingDialog();
+        }
+
+        @Override
+        public void onResourceReady(@NonNull MemberMusicModel music) {
+            closePreparingDialog();
+
+            File lrcFile = music.getFileLrc();
+            LrcData data = LrcLoadUtils.parse(lrcFile);
+            mDataBinding.lrcView.setLrcData(data);
+            mDataBinding.pitchView.setLrcData(data);
+        }
+
+        @Override
         public void onMusicOpening() {
             mDataBinding.ivChangeSong.setEnabled(false);
         }
 
         @Override
-        public void onMusicOpenCompleted() {
+        public void onMusicOpenCompleted(int duration) {
+            mDataBinding.lrcView.setTotalDuration(duration);
             mDataBinding.ivChangeSong.setEnabled(true);
         }
 
@@ -111,18 +130,9 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
         }
 
         @Override
-        public void onMusicPreparing() {
-            showPreparingDialog();
-        }
-
-        @Override
-        public void onMusicPrepared() {
-            closePreparingDialog();
-        }
-
-        @Override
-        public void onMusicPrepareError() {
-            closePreparingDialog();
+        public void onMusicPositionChanged(long position) {
+            mDataBinding.lrcView.updateTime(position);
+            mDataBinding.pitchView.updateTime(position);
         }
     };
 
@@ -236,11 +246,6 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
         mDataBinding.rvSpeakers.setAdapter(mRoomSpeakerAdapter);
 
         mDataBinding.lrcView.setActionListener(new LrcView.OnActionListener() {
-            @Override
-            public void onLoadLrcCompleted() {
-
-            }
-
             @Override
             public void onProgressChanged(long time) {
                 mMusicPlayer.seek(time);
@@ -374,7 +379,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
 
         setLrcViewBackground(mRoom.getMVRes());
 
-        mMusicPlayer = new MusicPlayer(getApplicationContext(), RoomManager.Instance(this).getRtcEngine(), mDataBinding.lrcView);
+        mMusicPlayer = new MusicPlayer(getApplicationContext(), RoomManager.Instance(this).getRtcEngine());
         mMusicPlayer.registerPlayerObserver(mMusicCallback);
 
         if (RoomManager.Instance(this).isOwner()) {
@@ -428,7 +433,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
     }
 
     private void preperMusic(final MemberMusicModel musicModel, boolean isSinger) {
-        mMusicCallback.onMusicPreparing();
+        mMusicCallback.onPrepareResource();
         MusicResourceManager.Instance(this)
                 .prepareMusic(musicModel, !isSinger)
                 .observeOn(AndroidSchedulers.mainThread())
@@ -441,7 +446,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
 
                     @Override
                     public void onSuccess(@NonNull MemberMusicModel musicModel) {
-                        mMusicCallback.onMusicPrepared();
+                        mMusicCallback.onResourceReady(musicModel);
 
                         if (isSinger) {
                             mMusicPlayer.play(musicModel);
@@ -452,7 +457,6 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
 
                     @Override
                     public void onError(@NonNull Throwable e) {
-                        mMusicCallback.onMusicPrepareError();
                         ToastUtile.toastShort(RoomActivity.this, R.string.ktv_lrc_load_fail);
                     }
                 });

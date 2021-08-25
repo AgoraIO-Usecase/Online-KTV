@@ -197,6 +197,8 @@ class LrcLoadMiguUtils {
         if (t != null) {
             pitch = Integer.parseInt(t);
         }
+        tone.pitch = pitch;
+
         String pronounce = parser.getAttributeValue(null, "pronounce");
         String lang = parser.getAttributeValue(null, "lang");
 

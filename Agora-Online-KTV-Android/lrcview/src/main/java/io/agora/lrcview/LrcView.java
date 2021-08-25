@@ -19,7 +19,6 @@ import android.view.View;
 import androidx.annotation.ColorInt;
 import androidx.annotation.MainThread;
 
-import java.io.File;
 import java.util.List;
 
 import io.agora.lrcview.bean.LrcData;
@@ -50,7 +49,7 @@ public class LrcView extends View {
     /**
      * 歌词显示位置，靠左/居中/靠右
      */
-    private io.agora.lrcview.LrcEntry.Gravity mTextGravity;
+    private LrcEntry.Gravity mTextGravity;
 
     private boolean mNewLine = true;
 
@@ -248,25 +247,11 @@ public class LrcView extends View {
     }
 
     /**
-     * 加载本地歌词文件
-     *
-     * @param lrcFile 歌词文件对象
-     */
-    public void loadLrc(File lrcFile) {
-        reset();
-
-        LrcLoadUtils.execute(() -> {
-            LrcData data = LrcLoadUtils.parse(lrcFile);
-            onLrcLoaded(data);
-        });
-    }
-
-    /**
      * 歌词是否有效
      *
      * @return true，如果歌词有效，否则false
      */
-    public boolean hasLrc() {
+    private boolean hasLrc() {
         return lrcData != null && lrcData.entrys != null && !lrcData.entrys.isEmpty();
     }
 
@@ -277,10 +262,6 @@ public class LrcView extends View {
      */
     public void updateTime(long time) {
         if (!hasLrc()) {
-            return;
-        }
-
-        if (!isLrcLoadDone) {
             return;
         }
 
@@ -577,9 +558,7 @@ public class LrcView extends View {
         }
     }
 
-    private volatile boolean isLrcLoadDone = false;
-
-    private synchronized void onLrcLoaded(LrcData data) {
+    public void setLrcData(LrcData data) {
         lrcData = data;
 
         if (mTotalDuration != null) {
@@ -591,16 +570,7 @@ public class LrcView extends View {
             }
         }
 
-        isLrcLoadDone = true;
-        post(new Runnable() {
-            @Override
-            public void run() {
-                if (mOnActionListener != null) {
-                    mOnActionListener.onLoadLrcCompleted();
-                }
-            }
-        });
-        postInvalidate();
+        invalidate();
     }
 
     /**
@@ -611,7 +581,6 @@ public class LrcView extends View {
         mCurrentLine = 0;
         mNewLine = true;
         mCurrentTime = 0;
-        isLrcLoadDone = false;
         mOffset = 0;
         targetIndex = 0;
         mTotalDuration = null;
@@ -653,11 +622,6 @@ public class LrcView extends View {
 
     @MainThread
     public interface OnActionListener {
-        /**
-         * 歌词加载完回调
-         */
-        void onLoadLrcCompleted();
-
         /**
          * 进度条改变回调
          *

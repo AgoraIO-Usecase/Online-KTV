@@ -72,6 +72,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
+                    android:gravity="center"
                     android:text="@string/ktv_room_no_sing_1"
                     android:textColor="#CCFFFFFF"
                     android:textSize="@dimen/ktv_room_text" />
@@ -80,6 +81,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
+                    android:gravity="center"
                     android:text="@string/ktv_room_no_sing_2"
                     android:textColor="#CCFFFFFF"
                     android:textSize="@dimen/ktv_room_text" />
@@ -91,39 +93,50 @@
                 android:layout_height="match_parent"
                 android:background="@mipmap/ktv_music_background1">
 
+                <TextView
+                    android:id="@+id/tvMusicName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:drawableStart="@mipmap/ktv_room_music_name"
+                    android:drawablePadding="4dp"
+                    android:gravity="center"
+                    android:textColor="@android:color/white"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
                 <io.agora.lrcview.LrcView
                     android:id="@+id/lrcView"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:background="#00000000"
                     android:paddingStart="10dp"
-                    android:paddingTop="20dp"
                     android:paddingEnd="10dp"
                     android:paddingBottom="20dp"
                     app:layout_constraintBottom_toTopOf="@+id/rlMusicMenu"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:lrcCurrentTextColor="#FFFFFFFF"
+                    app:layout_constraintTop_toBottomOf="@+id/pitchView"
+                    app:lrcCurrentTextColor="@color/ktv_lrc_highligh"
                     app:lrcDividerHeight="20dp"
                     app:lrcLabel=" "
-                    app:lrcNormalTextColor="#99FFFFFF"
+                    app:lrcNormalTextColor="@color/ktv_lrc_nomal"
                     app:lrcNormalTextSize="16sp"
                     app:lrcTextGravity="center"
                     app:lrcTextSize="26sp" />
 
-                <TextView
-                    android:id="@+id/tvMusicName"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="20dp"
-                    android:layout_marginTop="20dp"
-                    android:drawableStart="@mipmap/ktv_room_music_name"
-                    android:drawablePadding="4dp"
-                    android:gravity="center"
-                    android:textColor="@android:color/white"
+                <io.agora.lrcview.PitchView
+                    android:id="@+id/pitchView"
+                    android:layout_width="0dp"
+                    android:layout_height="60dp"
+                    android:layout_marginTop="26dp"
+                    android:background="#26FFFFFF"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:pitchDoneTextColor="@color/ktv_lrc_highligh"
+                    app:pitchNormalTextColor="@color/ktv_pitch_nomal" />
 
                 <RelativeLayout
                     android:id="@+id/rlMusicMenu"
