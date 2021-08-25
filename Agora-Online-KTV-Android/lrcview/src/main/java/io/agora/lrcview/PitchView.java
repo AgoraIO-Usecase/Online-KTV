@@ -31,9 +31,9 @@ public class PitchView extends View {
 
     private static volatile LrcData lrcData;
 
-    private float widthPerSecond = 0.1F;//1ms对应像素px
+    private float widthPerSecond = 0.2F;//1ms对应像素px
 
-    private int itemHeight = 10;//每一项高度px
+    private int itemHeight = 4;//每一项高度px
     private int itemSpace = 4;//间距px
 
     private int pitchMax = 0;//最大值
