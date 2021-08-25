@@ -323,7 +323,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
                     @Override
                     public void onError(@NonNull Throwable e) {
                         closeJoinRoomDialog();
-                        ToastUtile.toastShort(RoomActivity.this, "加入房间失败");
+                        ToastUtile.toastShort(RoomActivity.this, R.string.ktv_join_error);
                         doLeave();
                     }
                 });
@@ -364,7 +364,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
         if (RoomManager.Instance(this).isOwner()) {
             long liveTimeLeft = mRoom.getCreatedAt().getTime() + (10 * 60 * 1000) - System.currentTimeMillis();
             if (liveTimeLeft <= 0) {
-                ToastUtile.toastShort(RoomActivity.this, "试用时间已到");
+                ToastUtile.toastShort(RoomActivity.this, R.string.ktv_use_overtime);
                 doLeave();
                 return;
             }
@@ -414,7 +414,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
             }
 
             public void onFinish() {
-                ToastUtile.toastShort(RoomActivity.this, "试用时间已到");
+                ToastUtile.toastShort(RoomActivity.this, R.string.ktv_use_overtime);
                 doLeave();
             }
         }.start();
@@ -480,7 +480,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
 
                     @Override
                     public void onError(@NonNull Throwable e) {
-                        ToastUtile.toastShort(RoomActivity.this, "同步歌曲失败");
+                        ToastUtile.toastShort(RoomActivity.this, R.string.ktv_sync_music_error);
                         e.printStackTrace();
                     }
                 });
@@ -606,7 +606,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
             mMusicPlayer.toggleOrigle();
         } else {
             mDataBinding.switchOriginal.setChecked(true);
-            ToastUtile.toastShort(this, "该歌曲无法进行人声切换");
+            ToastUtile.toastShort(this, R.string.ktv_error_cut);
         }
     }
 
