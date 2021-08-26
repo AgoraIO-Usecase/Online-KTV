@@ -45,8 +45,8 @@ import io.agora.ktv.view.dialog.RoomChooseSongDialog;
 import io.agora.ktv.view.dialog.RoomMVDialog;
 import io.agora.ktv.view.dialog.UserSeatMenuDialog;
 import io.agora.ktv.view.dialog.WaitingDialog;
+import io.agora.ktv.widget.LrcControlView;
 import io.agora.lrcview.LrcLoadUtils;
-import io.agora.lrcview.LrcView;
 import io.agora.lrcview.bean.LrcData;
 import io.agora.rtc.Constants;
 import io.reactivex.CompletableObserver;
@@ -76,28 +76,25 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
 
         @Override
         public void onPrepareResource() {
-            showPreparingDialog();
+            mDataBinding.lrcControlView.onPrepareStatus();
         }
 
         @Override
         public void onResourceReady(@NonNull MemberMusicModel music) {
-            closePreparingDialog();
-
             File lrcFile = music.getFileLrc();
             LrcData data = LrcLoadUtils.parse(lrcFile);
-            mDataBinding.lrcView.setLrcData(data);
-            mDataBinding.pitchView.setLrcData(data);
+            mDataBinding.lrcControlView.getLrcView().setLrcData(data);
+            mDataBinding.lrcControlView.getPitchView().setLrcData(data);
         }
 
         @Override
         public void onMusicOpening() {
-            mDataBinding.ivChangeSong.setEnabled(false);
+
         }
 
         @Override
         public void onMusicOpenCompleted(int duration) {
-            mDataBinding.lrcView.setTotalDuration(duration);
-            mDataBinding.ivChangeSong.setEnabled(true);
+            mDataBinding.lrcControlView.getLrcView().setTotalDuration(duration);
         }
 
         @Override
@@ -107,12 +104,12 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
 
         @Override
         public void onMusicPlaing() {
-            mDataBinding.ivMusicStart.setImageResource(R.mipmap.ktv_room_music_pause);
+            mDataBinding.lrcControlView.onPlayStatus();
         }
 
         @Override
         public void onMusicPause() {
-            mDataBinding.ivMusicStart.setImageResource(R.mipmap.ktv_room_music_play);
+            mDataBinding.lrcControlView.onPauseStatus();
         }
 
         @Override
@@ -122,13 +119,15 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
 
         @Override
         public void onMusicCompleted() {
+            mDataBinding.lrcControlView.getLrcView().reset();
+
             changeMusic();
         }
 
         @Override
         public void onMusicPositionChanged(long position) {
-            mDataBinding.lrcView.updateTime(position);
-            mDataBinding.pitchView.updateTime(position);
+            mDataBinding.lrcControlView.getLrcView().updateTime(position);
+            mDataBinding.lrcControlView.getPitchView().updateTime(position);
         }
     };
 
@@ -143,7 +142,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
         @Override
         public void onRoomInfoChanged(@NonNull AgoraRoom room) {
             super.onRoomInfoChanged(room);
-            setLrcViewBackground(room.getMVRes());
+            mDataBinding.lrcControlView.setLrcViewBackground(room.getMVRes());
         }
 
         @Override
@@ -214,12 +213,20 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
         }
 
         @Override
+        public void onMusicDelete(@NonNull MemberMusicModel music) {
+            super.onMusicDelete(music);
+            RoomActivity.this.onMusicDelete(music);
+        }
+
+        @Override
         public void onMusicChanged(@NonNull MemberMusicModel music) {
+            super.onMusicChanged(music);
             RoomActivity.this.onMusicChanged(music);
         }
 
         @Override
         public void onMusicEmpty() {
+            super.onMusicEmpty();
             RoomActivity.this.onMusicEmpty();
         }
     };
@@ -235,13 +242,21 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
 
     @Override
     protected void iniView() {
-        mDataBinding.lrcView.setEnableDrag(false);
-
         mRoomSpeakerAdapter = new RoomSpeakerAdapter(new ArrayList<>(), this);
         mDataBinding.rvSpeakers.setLayoutManager(new GridLayoutManager(this, 4));
         mDataBinding.rvSpeakers.setAdapter(mRoomSpeakerAdapter);
+    }
 
-        mDataBinding.lrcView.setActionListener(new LrcView.OnActionListener() {
+    @Override
+    protected void iniListener() {
+        RoomManager.Instance(this).addRoomEventCallback(mRoomEventCallback);
+        mDataBinding.ivLeave.setOnClickListener(this);
+        mDataBinding.ivMic.setOnClickListener(this);
+        mDataBinding.ivBackgroundPicture.setOnClickListener(this);
+        mDataBinding.llChooseSong.setOnClickListener(this);
+        mDataBinding.ivChorus.setOnClickListener(this);
+
+        mDataBinding.lrcControlView.setOnLrcClickListener(new LrcControlView.OnLrcActionListener() {
             @Override
             public void onProgressChanged(long time) {
                 mMusicPlayer.seek(time);
@@ -256,21 +271,27 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
             public void onStopTrackingTouch() {
 
             }
-        });
-    }
 
-    @Override
-    protected void iniListener() {
-        RoomManager.Instance(this).addRoomEventCallback(mRoomEventCallback);
-        mDataBinding.ivLeave.setOnClickListener(this);
-        mDataBinding.ivMic.setOnClickListener(this);
-        mDataBinding.ivBackgroundPicture.setOnClickListener(this);
-        mDataBinding.llChooseSong.setOnClickListener(this);
-        mDataBinding.ivChorus.setOnClickListener(this);
-        mDataBinding.switchOriginal.setOnClickListener(this);
-        mDataBinding.ivMusicMenu.setOnClickListener(this);
-        mDataBinding.ivMusicStart.setOnClickListener(this);
-        mDataBinding.ivChangeSong.setOnClickListener(this);
+            @Override
+            public void onSwitchOriginalClick() {
+                toggleOriginal();
+            }
+
+            @Override
+            public void onMenuClick() {
+                showMusicMenuDialog();
+            }
+
+            @Override
+            public void onPlayClick() {
+                toggleStart();
+            }
+
+            @Override
+            public void onChangeMusicClick() {
+                showChangeMusicDialog();
+            }
+        });
     }
 
     @Override
@@ -282,8 +303,8 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
             return;
         }
 
-        showNoSingerStatus();
         showNotOnSeatStatus();
+        mDataBinding.lrcControlView.setRole(LrcControlView.Role.Listener);
 
         AgoraRoom mRoom = getIntent().getExtras().getParcelable(TAG_ROOM);
         mDataBinding.tvName.setText(mRoom.getChannelName());
@@ -370,10 +391,10 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
                 return;
             }
 
-            startStopTimer(liveTimeLeft);
+            startOnTrialTimer(liveTimeLeft);
         }
 
-        setLrcViewBackground(mRoom.getMVRes());
+        mDataBinding.lrcControlView.setLrcViewBackground(mRoom.getMVRes());
 
         mMusicPlayer = new MusicPlayer(getApplicationContext(), RoomManager.Instance(this).getRtcEngine());
         mMusicPlayer.registerPlayerObserver(mMusicCallback);
@@ -388,29 +409,10 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
         syncMusics();
     }
 
-    private void setLrcViewBackground(int resId) {
-//        Bitmap mBitmap = BitmapFactory.decodeResource(getResources(), resId);
-//        Palette.from(mBitmap).generate(new Palette.PaletteAsyncListener() {
-//            @Override
-//            public void onGenerated(@Nullable Palette palette) {
-//                if (palette == null) {
-//                    return;
-//                }
-//
-//                int defaultColor = ContextCompat.getColor(RoomActivity.this, R.color.ktv_lrc_highligh);
-//                mDataBinding.lrcView.setCurrentColor(palette.getLightVibrantColor(defaultColor));
-//
-//                defaultColor = ContextCompat.getColor(RoomActivity.this, R.color.ktv_lrc_nomal);
-//                mDataBinding.lrcView.setNormalColor(palette.getLightMutedColor(defaultColor));
-//            }
-//        });
-        mDataBinding.rlSing.setBackgroundResource(resId);
-    }
+    private CountDownTimer timerOnTrial;
 
-    private CountDownTimer timerStop;
-
-    private void startStopTimer(long liveTimeLeft) {
-        timerStop = new CountDownTimer(liveTimeLeft, 999) {
+    private void startOnTrialTimer(long liveTimeLeft) {
+        timerOnTrial = new CountDownTimer(liveTimeLeft, 999) {
             public void onTick(long millisUntilFinished) {
             }
 
@@ -421,10 +423,10 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
         }.start();
     }
 
-    private void stopStopTimer() {
-        if (timerStop != null) {
-            timerStop.cancel();
-            timerStop = null;
+    private void stopOnTrialTimer() {
+        if (timerOnTrial != null) {
+            timerOnTrial.cancel();
+            timerOnTrial = null;
         }
     }
 
@@ -447,7 +449,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
                         if (isSinger) {
                             mMusicPlayer.play(musicModel);
                         } else {
-                            mMusicPlayer.playWithDisplay(musicModel);
+                            mMusicPlayer.playByListener(musicModel);
                         }
                     }
 
@@ -507,7 +509,17 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
     @Override
     public void onClick(View v) {
         if (v == mDataBinding.ivLeave) {
-            doLeave();
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.ktv_leave_title)
+                    .setMessage(R.string.ktv_leave_msg)
+                    .setPositiveButton(R.string.ktv_confirm, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            doLeave();
+                        }
+                    })
+                    .setNegativeButton(R.string.ktv_cancel, null)
+                    .show();
         } else if (v == mDataBinding.ivMic) {
             toggleMic();
         } else if (v == mDataBinding.ivBackgroundPicture) {
@@ -516,14 +528,6 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
             showChooseSongDialog();
         } else if (v == mDataBinding.ivChorus) {
 
-        } else if (v == mDataBinding.switchOriginal) {
-            toggleOriginal();
-        } else if (v == mDataBinding.ivMusicMenu) {
-            showMusicMenuDialog();
-        } else if (v == mDataBinding.ivMusicStart) {
-            toggleStart();
-        } else if (v == mDataBinding.ivChangeSong) {
-            showChangeMusicDialog();
         }
     }
 
@@ -605,7 +609,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
         if (mMusicPlayer.hasAccompaniment()) {
             mMusicPlayer.toggleOrigle();
         } else {
-            mDataBinding.switchOriginal.setChecked(true);
+            mDataBinding.lrcControlView.setSwitchOriginalChecked(true);
             ToastUtile.toastShort(this, R.string.ktv_error_cut);
         }
     }
@@ -619,7 +623,6 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
             return;
         }
 
-        mDataBinding.ivMusicMenu.setEnabled(false);
         new MusicSettingDialog().show(getSupportFragmentManager(), isEar, volMic, volMusic, new MusicSettingDialog.Callback() {
             @Override
             public void onEarChanged(boolean isEar) {
@@ -639,7 +642,6 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
                 mMusicPlayer.setMusicVolume(vol);
             }
         });
-        mDataBinding.ivMusicMenu.setEnabled(true);
     }
 
     private void showChangeMusicDialog() {
@@ -671,7 +673,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
             return;
         }
 
-        mDataBinding.ivChangeSong.setEnabled(false);
+        mDataBinding.lrcControlView.setEnabled(false);
         mMusicPlayer.stop()
                 .subscribe(new CompletableObserver() {
                     @Override
@@ -688,21 +690,20 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
                                 .delete(new SyncManager.Callback() {
                                     @Override
                                     public void onSuccess() {
-                                        mDataBinding.ivChangeSong.setEnabled(true);
+                                        mDataBinding.lrcControlView.setEnabled(true);
                                     }
 
                                     @Override
                                     public void onFail(AgoraException exception) {
-                                        mDataBinding.ivChangeSong.setEnabled(true);
+                                        mDataBinding.lrcControlView.setEnabled(true);
                                         ToastUtile.toastShort(RoomActivity.this, exception.getMessage());
-                                        finish();
                                     }
                                 });
                     }
 
                     @Override
                     public void onError(@NonNull Throwable e) {
-                        mDataBinding.ivChangeSong.setEnabled(true);
+                        mDataBinding.lrcControlView.setEnabled(true);
                     }
                 });
     }
@@ -729,16 +730,6 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
         mDataBinding.llChooseSong.setVisibility(View.INVISIBLE);
         mDataBinding.ivChorus.setVisibility(View.INVISIBLE);
         mDataBinding.tvNoOnSeat.setVisibility(View.VISIBLE);
-    }
-
-    private void showNoSingerStatus() {
-        mDataBinding.llNoSing.setVisibility(View.VISIBLE);
-        mDataBinding.rlSing.setVisibility(View.INVISIBLE);
-    }
-
-    private void showInSingStatus() {
-        mDataBinding.llNoSing.setVisibility(View.INVISIBLE);
-        mDataBinding.rlSing.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -797,9 +788,12 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
                 });
     }
 
+    private void onMusicDelete(@NonNull MemberMusicModel music) {
+
+    }
+
     private void onMusicChanged(@NonNull MemberMusicModel music) {
-        showInSingStatus();
-        mDataBinding.tvMusicName.setText(music.getName());
+        mDataBinding.lrcControlView.setMusic(music);
 
         mRoomSpeakerAdapter.notifyDataSetChanged();
 
@@ -809,51 +803,30 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
         }
 
         if (ObjectsCompat.equals(music.getUserId(), mUser.getObjectId())) {
-            mDataBinding.rlMusicMenu.setVisibility(View.VISIBLE);
-            mDataBinding.switchOriginal.setChecked(true);
+            mDataBinding.lrcControlView.setRole(LrcControlView.Role.Singer);
+        } else {
+            mDataBinding.lrcControlView.setRole(LrcControlView.Role.Listener);
+        }
 
-            mDataBinding.lrcView.setEnableDrag(true);
+        mDataBinding.lrcControlView.onPrepareStatus();
+
+        if (ObjectsCompat.equals(music.getUserId(), mUser.getObjectId())) {
             preperMusic(music, true);
         } else {
-            mDataBinding.lrcView.setEnableDrag(false);
             preperMusic(music, false);
-            mDataBinding.rlMusicMenu.setVisibility(View.GONE);
         }
     }
 
     private void onMusicEmpty() {
-        showNoSingerStatus();
         mRoomSpeakerAdapter.notifyDataSetChanged();
-    }
-
-    private WaitingDialog mPreparingDialog;
-
-    private void showPreparingDialog() {
-        if (mPreparingDialog != null && mPreparingDialog.isShowing()) {
-            return;
-        }
-
-        mPreparingDialog = new WaitingDialog();
-        mPreparingDialog.show(getSupportFragmentManager(), getString(R.string.ktv_lrc_loading), new WaitingDialog.Callback() {
-            @Override
-            public void onTimeout() {
-
-            }
-        });
-    }
-
-    private void closePreparingDialog() {
-        if (mPreparingDialog == null || mPreparingDialog.isShowing() == false) {
-            return;
-        }
-
-        mPreparingDialog.dismiss();
+        mDataBinding.lrcControlView.setRole(LrcControlView.Role.Listener);
+        mDataBinding.lrcControlView.onIdleStatus();
     }
 
     @Override
     protected void onDestroy() {
         closeJoinRoomDialog();
-        stopStopTimer();
+        stopOnTrialTimer();
 
         RoomManager.Instance(this).removeRoomEventCallback(mRoomEventCallback);
         if (mMusicPlayer != null) {
@@ -862,5 +835,10 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
             mMusicPlayer = null;
         }
         super.onDestroy();
+    }
+
+    @Override
+    public void onBackPressed() {
+
     }
 }

@@ -155,7 +155,8 @@ public class MusicPlayer extends IRtcEngineEventHandler {
         mRole = role;
     }
 
-    public void playWithDisplay(MemberMusicModel mMusicModel) {
+    public void playByListener(MemberMusicModel mMusicModel) {
+        onMusicPlaingByListener();
         MusicPlayer.mMusicModel = mMusicModel;
         startDisplayLrc();
     }
@@ -284,7 +285,6 @@ public class MusicPlayer extends IRtcEngineEventHandler {
     }
 
     private void startDisplayLrc() {
-        File lrcs = mMusicModel.getFileLrc();
         mStopDisplayLrc = false;
         mDisplayThread = new Thread(new Runnable() {
             @Override
@@ -310,6 +310,7 @@ public class MusicPlayer extends IRtcEngineEventHandler {
                 }
             }
         });
+        mDisplayThread.setName("Thread-Display");
         mDisplayThread.start();
     }
 
@@ -512,6 +513,13 @@ public class MusicPlayer extends IRtcEngineEventHandler {
         reset();
 
         mHandler.obtainMessage(ACTION_ON_MUSIC_OPENERROR, error).sendToTarget();
+    }
+
+    protected void onMusicPlaingByListener() {
+        mLogger.i("onMusicPlaingByListener() called");
+        mStatus = Status.Started;
+
+        mHandler.obtainMessage(ACTION_ON_MUSIC_PLAING).sendToTarget();
     }
 
     private void onMusicPlaing() {
