@@ -233,21 +233,21 @@ public class LrcControlView extends FrameLayout implements View.OnClickListener 
     }
 
     public void setLrcViewBackground(@DrawableRes int resId) {
-        Bitmap mBitmap = BitmapFactory.decodeResource(getResources(), resId);
-        Palette.from(mBitmap).generate(new Palette.PaletteAsyncListener() {
-            @Override
-            public void onGenerated(@Nullable Palette palette) {
-                if (palette == null) {
-                    return;
-                }
-
-                int defaultColor = ContextCompat.getColor(getContext(), R.color.ktv_lrc_highligh);
-                mDataBinding.ilActive.lrcView.setCurrentColor(palette.getLightVibrantColor(defaultColor));
-
-                defaultColor = ContextCompat.getColor(getContext(), R.color.ktv_lrc_nomal);
-                mDataBinding.ilActive.lrcView.setNormalColor(palette.getLightMutedColor(defaultColor));
-            }
-        });
+//        Bitmap mBitmap = BitmapFactory.decodeResource(getResources(), resId);
+//        Palette.from(mBitmap).generate(new Palette.PaletteAsyncListener() {
+//            @Override
+//            public void onGenerated(@Nullable Palette palette) {
+//                if (palette == null) {
+//                    return;
+//                }
+//
+//                int defaultColor = ContextCompat.getColor(getContext(), R.color.ktv_lrc_highligh);
+//                mDataBinding.ilActive.lrcView.setCurrentColor(palette.getLightVibrantColor(defaultColor));
+//
+//                defaultColor = ContextCompat.getColor(getContext(), R.color.ktv_lrc_nomal);
+//                mDataBinding.ilActive.lrcView.setNormalColor(palette.getLightMutedColor(defaultColor));
+//            }
+//        });
         mDataBinding.clActive.setBackgroundResource(resId);
     }
 
