@@ -227,15 +227,6 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
         return 0;
     }
 
-    public void stop() {
-        mLogger.i("stop() called");
-        if (!mStatus.isAtLeast(Status.Started)) {
-            return;
-        }
-
-        mPlayer.stop();
-    }
-
     protected void play() {
         mLogger.i("play() called");
         if (!mStatus.isAtLeast(Status.Opened)) {
@@ -247,6 +238,15 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
 
         mStatus = Status.Started;
         mPlayer.play();
+    }
+
+    public void stop() {
+        mLogger.i("stop() called");
+        if (!mStatus.isAtLeast(Status.Started)) {
+            return;
+        }
+
+        mPlayer.stop();
     }
 
     protected void pause() {
@@ -343,9 +343,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
                 while (!mStopDisplayLrc) {
                     if (mLastRecvPlayPosTime != null) {
                         curTime = System.currentTimeMillis();
-
                         offset = curTime - mLastRecvPlayPosTime;
-
                         if (offset <= 1000) {
                             curTs = mRecvedPlayPosition + offset;
                             mHandler.obtainMessage(ACTION_UPDATE_TIME, curTs).sendToTarget();
@@ -392,7 +390,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
                     }
 
                     try {
-                        Thread.sleep(1000L);
+                        Thread.sleep(999L);
                     } catch (InterruptedException exp) {
                         break;
                     }

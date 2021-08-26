@@ -238,7 +238,6 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
             }
         }
 
-
         @Override
         public void onMusicDelete(@NonNull MemberMusicModel music) {
             super.onMusicDelete(music);
