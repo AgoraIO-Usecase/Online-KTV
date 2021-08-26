@@ -13,4 +13,9 @@
             <enum name="right" value="2" />
         </attr>
     </declare-styleable>
+
+    <declare-styleable name="PitchView">
+        <attr name="pitchNormalTextColor" format="reference|color" />
+        <attr name="pitchDoneTextColor" format="reference|color" />
+    </declare-styleable>
 </resources>

@@ -35,8 +35,7 @@ public class MainThreadDispatch implements RoomEventCallback {
     private static final int ON_MUSIC_EMPTY = ON_MUSIC_CHANGED + 1;
     private static final int ON_MUSIC_PROGRESS = ON_MUSIC_EMPTY + 1;
     private static final int ON_ROOM_INFO_CHANGED = ON_MUSIC_PROGRESS + 1;
-    private static final int ON_COUNT_DOWN = ON_ROOM_INFO_CHANGED + 1;
-    private static final int ON_MEMBER_APPLY_JOIN_CHORUS = ON_COUNT_DOWN + 1;
+    private static final int ON_MEMBER_APPLY_JOIN_CHORUS = ON_ROOM_INFO_CHANGED + 1;
     private static final int ON_MEMBER_JOIN_CHORUS = ON_MEMBER_APPLY_JOIN_CHORUS + 1;
     private static final int ON_MEMBER_CHORUS_READY = ON_MEMBER_JOIN_CHORUS + 1;
 
@@ -66,12 +65,8 @@ public class MainThreadDispatch implements RoomEventCallback {
                     callback.onRoleChanged((AgoraMember) msg.obj);
                 }
             } else if (msg.what == ON_AUDIO_CHANGED) {
-                Bundle bundle = msg.getData();
-                boolean isMine = bundle.getBoolean("isMine");
-                AgoraMember member = bundle.getParcelable("member");
-
                 for (RoomEventCallback callback : enevtCallbacks) {
-                    callback.onAudioStatusChanged(isMine, member);
+                    callback.onAudioStatusChanged((AgoraMember) msg.obj);
                 }
             } else if (msg.what == ON_ROOM_ERROR) {
                 Bundle bundle = msg.getData();
@@ -117,10 +112,6 @@ public class MainThreadDispatch implements RoomEventCallback {
             } else if (msg.what == ON_ROOM_INFO_CHANGED) {
                 for (RoomEventCallback callback : enevtCallbacks) {
                     callback.onRoomInfoChanged((AgoraRoom) msg.obj);
-                }
-            } else if (msg.what == ON_COUNT_DOWN) {
-                for (RoomEventCallback callback : enevtCallbacks) {
-                    callback.onCountDown((Integer) msg.obj);
                 }
             } else if (msg.what == ON_MEMBER_APPLY_JOIN_CHORUS) {
                 for (RoomEventCallback callback : enevtCallbacks) {
@@ -176,15 +167,9 @@ public class MainThreadDispatch implements RoomEventCallback {
     }
 
     @Override
-    public void onAudioStatusChanged(boolean isMine, @NonNull AgoraMember member) {
-        mLogger.d("onAudioStatusChanged() called with: isMine = [%s], member = [%s]", isMine, member);
-        Bundle bundle = new Bundle();
-        bundle.putBoolean("isMine", isMine);
-        bundle.putParcelable("member", member);
-
-        Message message = mHandler.obtainMessage(ON_AUDIO_CHANGED);
-        message.setData(bundle);
-        message.sendToTarget();
+    public void onAudioStatusChanged(@NonNull AgoraMember member) {
+        mLogger.d("onAudioStatusChanged() called with: member = [%s]", member);
+        mHandler.obtainMessage(ON_AUDIO_CHANGED, member).sendToTarget();
     }
 
     @Override
@@ -251,11 +236,5 @@ public class MainThreadDispatch implements RoomEventCallback {
         Message message = mHandler.obtainMessage(ON_MUSIC_PROGRESS);
         message.setData(bundle);
         message.sendToTarget();
-    }
-
-    @Override
-    public void onCountDown(int time) {
-        mLogger.d("onCountDown() called with: time = [%s]", time);
-        mHandler.obtainMessage(ON_COUNT_DOWN, time).sendToTarget();
     }
 }

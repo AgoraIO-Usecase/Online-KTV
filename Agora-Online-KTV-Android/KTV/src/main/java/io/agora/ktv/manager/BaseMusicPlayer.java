@@ -1,6 +1,7 @@
 package io.agora.ktv.manager;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -55,7 +56,13 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
     protected static final int ACTION_ON_MUSIC_PAUSE = ACTION_ON_MUSIC_PLAING + 1;
     protected static final int ACTION_ON_MUSIC_STOP = ACTION_ON_MUSIC_PAUSE + 1;
     protected static final int ACTION_ON_MUSIC_COMPLETED = ACTION_ON_MUSIC_STOP + 1;
-    protected static final int ACTION_ON_COUNT_DOWN = ACTION_ON_MUSIC_COMPLETED + 1;
+    protected static final int ACTION_ON_RECEIVED_COUNT_DOWN = ACTION_ON_MUSIC_COMPLETED + 1;
+    protected static final int ACTION_ON_RECEIVED_PLAY = ACTION_ON_RECEIVED_COUNT_DOWN + 1;
+    protected static final int ACTION_ON_RECEIVED_PAUSE = ACTION_ON_RECEIVED_PLAY + 1;
+    protected static final int ACTION_ON_RECEIVED_SYNC_TIME = ACTION_ON_RECEIVED_PAUSE + 1;
+    protected static final int ACTION_ON_RECEIVED_TEST_DELAY = ACTION_ON_RECEIVED_SYNC_TIME + 1;
+    protected static final int ACTION_ON_RECEIVED_REPLAY_TEST_DELAY = ACTION_ON_RECEIVED_TEST_DELAY + 1;
+    protected static final int ACTION_ON_RECEIVED_CHANGED_ORIGLE = ACTION_ON_RECEIVED_REPLAY_TEST_DELAY + 1;
 
     protected static volatile Status mStatus = Status.IDLE;
 
@@ -109,10 +116,36 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
                 if (mCallback != null) {
                     mCallback.onMusicCompleted();
                 }
-            } else if (msg.what == ACTION_ON_COUNT_DOWN) {
-                if (mCallback != null) {
-                    mCallback.onReceivedCountdown((int) msg.obj);
-                }
+            } else if (msg.what == ACTION_ON_RECEIVED_COUNT_DOWN) {
+                Bundle data = msg.getData();
+                int uid = data.getInt("uid");
+                int time = data.getInt("time");
+                onReceivedCountdown(uid, time);
+            } else if (msg.what == ACTION_ON_RECEIVED_PLAY) {
+                onReceivedStatusPlay((Integer) msg.obj);
+            } else if (msg.what == ACTION_ON_RECEIVED_PAUSE) {
+                onReceivedStatusPause((Integer) msg.obj);
+            } else if (msg.what == ACTION_ON_RECEIVED_SYNC_TIME) {
+                Bundle data = msg.getData();
+                int uid = data.getInt("uid");
+                long time = data.getLong("time");
+                onReceivedSetLrcTime(uid, time);
+            } else if (msg.what == ACTION_ON_RECEIVED_TEST_DELAY) {
+                Bundle data = msg.getData();
+                int uid = data.getInt("uid");
+                long time = data.getLong("time");
+                onReceivedTestDelay(uid, time);
+            } else if (msg.what == ACTION_ON_RECEIVED_REPLAY_TEST_DELAY) {
+                Bundle data = msg.getData();
+                int uid = data.getInt("uid");
+                long testDelayTime = data.getLong("testDelayTime");
+                long time = data.getLong("time");
+                onReceivedReplyTestDelay(uid, testDelayTime, time);
+            } else if (msg.what == ACTION_ON_RECEIVED_CHANGED_ORIGLE) {
+                Bundle data = msg.getData();
+                int uid = data.getInt("uid");
+                int mode = data.getInt("mode");
+                onReceivedOrigleChanged(uid, mode);
             }
         }
     };
@@ -194,15 +227,6 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
         return 0;
     }
 
-    public void stop() {
-        mLogger.i("stop() called");
-        if (!mStatus.isAtLeast(Status.Started)) {
-            return;
-        }
-
-        mPlayer.stop();
-    }
-
     protected void play() {
         mLogger.i("play() called");
         if (!mStatus.isAtLeast(Status.Opened)) {
@@ -214,6 +238,15 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
 
         mStatus = Status.Started;
         mPlayer.play();
+    }
+
+    public void stop() {
+        mLogger.i("stop() called");
+        if (!mStatus.isAtLeast(Status.Started)) {
+            return;
+        }
+
+        mPlayer.stop();
     }
 
     protected void pause() {
@@ -310,9 +343,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
                 while (!mStopDisplayLrc) {
                     if (mLastRecvPlayPosTime != null) {
                         curTime = System.currentTimeMillis();
-
                         offset = curTime - mLastRecvPlayPosTime;
-
                         if (offset <= 1000) {
                             curTs = mRecvedPlayPosition + offset;
                             mHandler.obtainMessage(ACTION_UPDATE_TIME, curTs).sendToTarget();
@@ -359,7 +390,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
                     }
 
                     try {
-                        Thread.sleep(1000L);
+                        Thread.sleep(999L);
                     } catch (InterruptedException exp) {
                         break;
                     }
@@ -419,27 +450,51 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
             if (jsonMsg.getString("cmd").equals("setLrcTime")) {
                 long position = jsonMsg.getLong("time");
                 if (position == 0) {
-                    onReceivedStatusPlay(uid);
+                    mHandler.obtainMessage(ACTION_ON_RECEIVED_PLAY, uid).sendToTarget();
                 } else if (position == -1) {
-                    onReceivedStatusPause(uid);
+                    mHandler.obtainMessage(ACTION_ON_RECEIVED_PAUSE, uid).sendToTarget();
                 } else {
-                    onReceivedSetLrcTime(uid, position);
+                    Bundle bundle = new Bundle();
+                    bundle.putInt("uid", uid);
+                    bundle.putLong("time", position);
+                    Message message = Message.obtain(mHandler, ACTION_ON_RECEIVED_SYNC_TIME);
+                    message.setData(bundle);
+                    message.sendToTarget();
                 }
             } else if (jsonMsg.getString("cmd").equals("countdown")) {
                 int time = jsonMsg.getInt("time");
-                onReceivedCountdown(uid, time);
+                Bundle bundle = new Bundle();
+                bundle.putInt("uid", uid);
+                bundle.putInt("time", time);
+                Message message = Message.obtain(mHandler, ACTION_ON_RECEIVED_COUNT_DOWN);
+                message.setData(bundle);
+                message.sendToTarget();
             } else if (jsonMsg.getString("cmd").equals("testDelay")) {
                 long time = jsonMsg.getLong("time");
-                onReceivedTestDelay(uid, time);
+                Bundle bundle = new Bundle();
+                bundle.putInt("uid", uid);
+                bundle.putLong("time", time);
+                Message message = Message.obtain(mHandler, ACTION_ON_RECEIVED_TEST_DELAY);
+                message.setData(bundle);
+                message.sendToTarget();
             } else if (jsonMsg.getString("cmd").equals("replyTestDelay")) {
                 long testDelayTime = jsonMsg.getLong("testDelayTime");
                 long time = jsonMsg.getLong("time");
-                onReceivedReplyTestDelay(uid, testDelayTime, time);
-            } else if (jsonMsg.getString("cmd").equals("play")) {
-                long time = jsonMsg.getLong("time");
-//                onReceivedStatusPlay(uid, time);
-            } else if (jsonMsg.getString("cmd").equals("pause")) {
-//                onReceivedStatusPause(uid);
+                Bundle bundle = new Bundle();
+                bundle.putInt("uid", uid);
+                bundle.putLong("time", time);
+                bundle.putLong("testDelayTime", testDelayTime);
+                Message message = Message.obtain(mHandler, ACTION_ON_RECEIVED_REPLAY_TEST_DELAY);
+                message.setData(bundle);
+                message.sendToTarget();
+            } else if (jsonMsg.getString("cmd").equals("changeOrigle")) {
+                int mode = jsonMsg.getInt("mode");
+                Bundle bundle = new Bundle();
+                bundle.putInt("uid", uid);
+                bundle.putInt("mode", mode);
+                Message message = Message.obtain(mHandler, ACTION_ON_RECEIVED_CHANGED_ORIGLE);
+                message.setData(bundle);
+                message.sendToTarget();
             }
         } catch (JSONException exp) {
             mLogger.e("onStreamMessage: failed parse json, error: " + exp.toString());
@@ -447,30 +502,30 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
     }
 
     protected void onReceivedStatusPlay(int uid) {
-        mLogger.d("onReceivedStatusPlay() called with: uid = [%s]", uid);
     }
 
     protected void onReceivedStatusPause(int uid) {
-        mLogger.d("onReceivedStatusPause() called with: uid = [%s]", uid);
     }
 
     protected void onReceivedSetLrcTime(int uid, long position) {
-//        mLogger.d("onReceivedSetLrcTime() called with: uid = [%s], position = [%s]", uid, position);
         mRecvedPlayPosition = position;
         mLastRecvPlayPosTime = System.currentTimeMillis();
     }
 
     protected void onReceivedCountdown(int uid, int time) {
-        mLogger.d("onReceivedCountdown() called with: uid = [%s], time = [%s]", uid, time);
-        mHandler.obtainMessage(ACTION_ON_COUNT_DOWN, time).sendToTarget();
+        if (mCallback != null) {
+            mCallback.onReceivedCountdown(time);
+        }
     }
 
     protected void onReceivedTestDelay(int uid, long time) {
-//        mLogger.d("onReceivedTestDelay() called with: uid = [%s], time = [%s]", uid, time);
     }
 
     protected void onReceivedReplyTestDelay(int uid, long testDelayTime, long time) {
-//        mLogger.d("onReceivedReplyTestDelay() called with: uid = [%s], testDelayTime = [%s], time = [%s]", uid, testDelayTime, time);
+    }
+
+    protected void onReceivedOrigleChanged(int uid, int mode) {
+        mLogger.d("onReceivedOrigleChanged() called with: uid = [%s], mode = [%s]", uid, mode);
     }
 
     @Override
@@ -502,7 +557,6 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
 
     @Override
     public void onPositionChanged(long position) {
-//        mLogger.d("onPositionChanged() called with: position = [%s]", position);
         mRecvedPlayPosition = position;
         mLastRecvPlayPosTime = System.currentTimeMillis();
     }
@@ -614,26 +668,69 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
 
     @MainThread
     public interface Callback {
+        /**
+         * 从云端下载资源
+         */
         void onPrepareResource();
 
+        /**
+         * 资源下载结束
+         *
+         * @param music
+         */
         void onResourceReady(@NonNull MemberMusicModel music);
 
+        /**
+         * 歌曲文件打开
+         */
         void onMusicOpening();
 
+        /**
+         * 歌曲打开成功
+         *
+         * @param duration 总共时间，毫秒
+         */
         void onMusicOpenCompleted(long duration);
 
+        /**
+         * 歌曲打开失败
+         *
+         * @param error 错误码
+         */
         void onMusicOpenError(int error);
 
+        /**
+         * 正在播放
+         */
         void onMusicPlaing();
 
+        /**
+         * 暂停
+         */
         void onMusicPause();
 
+        /**
+         * 结束
+         */
         void onMusicStop();
 
+        /**
+         * 播放完成
+         */
         void onMusicCompleted();
 
+        /**
+         * 进度更新
+         *
+         * @param position
+         */
         void onMusicPositionChanged(long position);
 
+        /**
+         * 合唱模式下，等待加入合唱倒计时
+         *
+         * @param time 秒
+         */
         void onReceivedCountdown(int time);
     }
 }

@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.core.util.ObjectsCompat;
 
 import com.agora.data.manager.UserManager;
+import com.agora.data.model.AgoraMember;
 import com.agora.data.model.AgoraRoom;
 import com.agora.data.model.User;
 import com.agora.data.provider.AgoraObject;
@@ -70,6 +71,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
     @Override
     public void destory() {
         super.destory();
+
         leaveChannelEX();
         stopNetTestTask();
         RoomManager.Instance(mContext).removeRoomEventCallback(mRoomEventCallback);
@@ -92,7 +94,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
                     sendTestDelay();
 
                     try {
-                        Thread.sleep(2000L);
+                        Thread.sleep(10 * 1000L);
                     } catch (InterruptedException exp) {
                         break;
                     }
@@ -185,7 +187,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
             public void onJoinChannelSuccess(String channel, int uid, int elapsed) {
                 super.onJoinChannelSuccess(channel, uid, elapsed);
                 mLogger.d("onJoinChannelSuccessEX() called with: channel = [%s], uid = [%s], elapsed = [%s]", channel, uid, elapsed);
-                MultipleMusicPlayer.this.onJoinChannelSuccess(uid);
+                MultipleMusicPlayer.this.onJoinChannelExSuccess(uid);
             }
 
             @Override
@@ -206,11 +208,12 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
         if (!TextUtils.isEmpty(channelName)) {
             RoomManager.Instance(mContext).getRtcEngine().leaveChannelEx(channelName, mRtcConnection);
         }
+        mRtcConnection = null;
     }
 
     private int mUid;
 
-    private void onJoinChannelSuccess(int uid) {
+    private void onJoinChannelExSuccess(int uid) {
         User mUser = UserManager.Instance(mContext).getUserLiveData().getValue();
         if (mUser == null) {
             return;
@@ -375,10 +378,24 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
             return;
         }
 
-        if (ObjectsCompat.equals(music.getUser1Id(), mUser.getObjectId())) {
-            mLogger.d("muteRemoteVideoStreamEx user1 = [%s], user2 = [%s]", music.getUserbgId().intValue(), music.getUser1bgId().intValue());
-            RoomManager.Instance(mContext).getRtcEngine().muteRemoteAudioStreamEx(music.getUserbgId().intValue(), true, mRtcConnection);
-            RoomManager.Instance(mContext).getRtcEngine().muteRemoteAudioStreamEx(music.getUser1bgId().intValue(), true, mRtcConnection);
+        AgoraMember mMine = RoomManager.Instance(mContext).getMine();
+        if (mMine == null) {
+            return;
+        }
+
+        if (ObjectsCompat.equals(music.getUserId(), mUser.getObjectId())) {
+            //唱歌人，主唱，joinChannel 需要屏蔽的uid
+            RoomManager.Instance(mContext).getRtcEngine().muteRemoteAudioStream(music.getUserbgId().intValue(), true);
+            RoomManager.Instance(mContext).getRtcEngine().muteRemoteAudioStream(music.getUser1bgId().intValue(), true);
+            RoomManager.Instance(mContext).getRtcEngine().muteRemoteAudioStreamEx(mMine.getStreamId().intValue(), true, mRtcConnection);
+        } else if (ObjectsCompat.equals(music.getUser1Id(), mUser.getObjectId())) {
+            //唱歌人，陪唱人，joinChannel 需要屏蔽的uid
+            RoomManager.Instance(mContext).getRtcEngine().muteRemoteAudioStream(music.getUserbgId().intValue(), true);
+            RoomManager.Instance(mContext).getRtcEngine().muteRemoteAudioStream(music.getUser1bgId().intValue(), true);
+            RoomManager.Instance(mContext).getRtcEngine().muteRemoteAudioStreamEx(mMine.getStreamId().intValue(), true, mRtcConnection);
+        } else {
+            //观众，需要屏蔽陪唱背景音乐
+            RoomManager.Instance(mContext).getRtcEngine().muteRemoteAudioStream(music.getUser1bgId().intValue(), true);
         }
 
         if (ObjectsCompat.equals(music.getUserId(), mUser.getObjectId())
@@ -582,6 +599,24 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
     }
 
     @Override
+    protected void onReceivedOrigleChanged(int uid, int mode) {
+        super.onReceivedOrigleChanged(uid, mode);
+        MemberMusicModel mMemberMusicModel = RoomManager.Instance(mContext).getMusicModel();
+        if (mMemberMusicModel == null) {
+            return;
+        }
+
+        User mUser = UserManager.Instance(mContext).getUserLiveData().getValue();
+        if (mUser == null) {
+            return;
+        }
+
+        if (ObjectsCompat.equals(mMemberMusicModel.getUser1Id(), mUser.getObjectId())) {
+            selectAudioTrack(mode);
+        }
+    }
+
+    @Override
     public void switchRole(int role) {
         mLogger.d("switchRole() called with: role = [%s]", role);
         mRole = role;
@@ -589,12 +624,11 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
         ChannelMediaOptions options = new ChannelMediaOptions();
         options.publishMediaPlayerId = mPlayer.getMediaPlayerId();
         options.clientRoleType = role;
+        options.publishMediaPlayerAudioTrack = false;
         if (role == Constants.CLIENT_ROLE_BROADCASTER) {
             options.publishAudioTrack = true;
-            options.publishMediaPlayerAudioTrack = false;
         } else {
             options.publishAudioTrack = false;
-            options.publishMediaPlayerAudioTrack = false;
         }
 
         RoomManager.Instance(mContext).getRtcEngine().updateChannelMediaOptions(options);
@@ -629,8 +663,6 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
     }
 
     public void sendReplyTestDelay(long receiveTime) {
-//        mLogger.d("sendReplyTestDelay() called with: receiveTime = [%s]", receiveTime);
-
         Map<String, Object> msg = new HashMap<>();
         msg.put("cmd", "replyTestDelay");
         msg.put("testDelayTime", String.valueOf(receiveTime));
@@ -644,8 +676,6 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
     }
 
     public void sendTestDelay() {
-        mLogger.d("sendTestDelay() called");
-
         Map<String, Object> msg = new HashMap<>();
         msg.put("cmd", "testDelay");
         msg.put("time", String.valueOf(System.currentTimeMillis()));
@@ -658,8 +688,6 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
     }
 
     public void sendStartPlay() {
-        mLogger.d("sendStartPlay() called");
-
         Map<String, Object> msg = new HashMap<>();
         msg.put("cmd", "setLrcTime");
         msg.put("time", 0);
@@ -672,8 +700,6 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
     }
 
     public void sendPause() {
-        mLogger.d("sendPause() called");
-
         Map<String, Object> msg = new HashMap<>();
         msg.put("cmd", "setLrcTime");
         msg.put("time", -1);
@@ -682,6 +708,37 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
         int ret = RoomManager.Instance(mContext).getRtcEngine().sendStreamMessage(streamId, jsonMsg.toString().getBytes());
         if (ret < 0) {
             mLogger.e("sendPause() sendStreamMessage called returned: ret = [%s]", ret);
+        }
+    }
+
+    @Override
+    public void selectAudioTrack(int i) {
+        super.selectAudioTrack(i);
+
+        MemberMusicModel mMemberMusicModel = RoomManager.Instance(mContext).getMusicModel();
+        if (mMemberMusicModel == null) {
+            return;
+        }
+
+        User mUser = UserManager.Instance(mContext).getUserLiveData().getValue();
+        if (mUser == null) {
+            return;
+        }
+
+        if (ObjectsCompat.equals(mMemberMusicModel.getUserId(), mUser.getObjectId())) {
+            sendChangeOrigle(i);
+        }
+    }
+
+    public void sendChangeOrigle(int mode) {
+        Map<String, Object> msg = new HashMap<>();
+        msg.put("cmd", "changeOrigle");
+        msg.put("mode", mode);
+        JSONObject jsonMsg = new JSONObject(msg);
+        int streamId = RoomManager.Instance(mContext).getStreamId();
+        int ret = RoomManager.Instance(mContext).getRtcEngine().sendStreamMessage(streamId, jsonMsg.toString().getBytes());
+        if (ret < 0) {
+            mLogger.e("sendChangeOrigle() sendStreamMessage called returned: ret = [%s]", ret);
         }
     }
 }

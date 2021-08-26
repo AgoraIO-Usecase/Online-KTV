@@ -37,7 +37,7 @@ public class SimpleRoomEventCallback implements RoomEventCallback {
     }
 
     @Override
-    public void onAudioStatusChanged(boolean isMine, @NonNull AgoraMember member) {
+    public void onAudioStatusChanged(@NonNull AgoraMember member) {
 
     }
 
@@ -83,11 +83,6 @@ public class SimpleRoomEventCallback implements RoomEventCallback {
 
     @Override
     public void onMusicProgress(long total, long cur) {
-
-    }
-
-    @Override
-    public void onCountDown(int time) {
 
     }
 }

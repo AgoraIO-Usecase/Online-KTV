@@ -1,8 +1,6 @@
 package io.agora.ktv.widget;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.CountDownTimer;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -12,14 +10,13 @@ import android.widget.FrameLayout;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
-import androidx.palette.graphics.Palette;
 
 import io.agora.ktv.R;
 import io.agora.ktv.bean.MemberMusicModel;
 import io.agora.ktv.databinding.KtvLayoutLrcControlViewBinding;
 import io.agora.lrcview.LrcView;
+import io.agora.lrcview.PitchView;
 
 /**
  * 歌词控制View
@@ -34,6 +31,11 @@ public class LrcControlView extends FrameLayout implements View.OnClickListener 
     public LrcView getLrcView() {
         return mDataBinding.ilActive.lrcView;
     }
+
+    public PitchView getPitchView() {
+        return mDataBinding.ilActive.pitchView;
+    }
+
 
     public enum Role {
         Singer, Listener
@@ -208,6 +210,9 @@ public class LrcControlView extends FrameLayout implements View.OnClickListener 
     }
 
     public void setMusic(@NonNull MemberMusicModel mMusic) {
+        mDataBinding.ilActive.lrcView.reset();
+        mDataBinding.ilActive.pitchView.reset();
+
         this.mMusic = mMusic;
         mDataBinding.tvMusicName.setText(this.mMusic.getName());
         mDataBinding.ilChorus.tvMusicName2.setText(this.mMusic.getName());
@@ -224,21 +229,21 @@ public class LrcControlView extends FrameLayout implements View.OnClickListener 
     }
 
     public void setLrcViewBackground(@DrawableRes int resId) {
-        Bitmap mBitmap = BitmapFactory.decodeResource(getResources(), resId);
-        Palette.from(mBitmap).generate(new Palette.PaletteAsyncListener() {
-            @Override
-            public void onGenerated(@Nullable Palette palette) {
-                if (palette == null) {
-                    return;
-                }
-
-                int defaultColor = ContextCompat.getColor(getContext(), R.color.ktv_lrc_highligh);
-                mDataBinding.ilActive.lrcView.setCurrentColor(palette.getLightVibrantColor(defaultColor));
-
-                defaultColor = ContextCompat.getColor(getContext(), R.color.ktv_lrc_nomal);
-                mDataBinding.ilActive.lrcView.setNormalColor(palette.getLightMutedColor(defaultColor));
-            }
-        });
+//        Bitmap mBitmap = BitmapFactory.decodeResource(getResources(), resId);
+//        Palette.from(mBitmap).generate(new Palette.PaletteAsyncListener() {
+//            @Override
+//            public void onGenerated(@Nullable Palette palette) {
+//                if (palette == null) {
+//                    return;
+//                }
+//
+//                int defaultColor = ContextCompat.getColor(getContext(), R.color.ktv_lrc_highligh);
+//                mDataBinding.ilActive.lrcView.setCurrentColor(palette.getLightVibrantColor(defaultColor));
+//
+//                defaultColor = ContextCompat.getColor(getContext(), R.color.ktv_lrc_nomal);
+//                mDataBinding.ilActive.lrcView.setNormalColor(palette.getLightMutedColor(defaultColor));
+//            }
+//        });
         mDataBinding.clActive.setBackgroundResource(resId);
     }
 

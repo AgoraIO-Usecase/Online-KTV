@@ -18,6 +18,8 @@ public class MusicModel implements Parcelable {
     private String updatedAt;
     private String song;
     private String lrc;
+    private String singer;
+    private String poster;
 
     protected MusicModel(Parcel in) {
         objectId = in.readString();
@@ -27,6 +29,8 @@ public class MusicModel implements Parcelable {
         updatedAt = in.readString();
         song = in.readString();
         lrc = in.readString();
+        singer = in.readString();
+        poster = in.readString();
     }
 
     @Override
@@ -38,6 +42,8 @@ public class MusicModel implements Parcelable {
         dest.writeString(updatedAt);
         dest.writeString(song);
         dest.writeString(lrc);
+        dest.writeString(singer);
+        dest.writeString(poster);
     }
 
     @Override
@@ -111,5 +117,21 @@ public class MusicModel implements Parcelable {
 
     public void setLrc(String lrc) {
         this.lrc = lrc;
+    }
+
+    public String getSinger() {
+        return singer;
+    }
+
+    public void setSinger(String singer) {
+        this.singer = singer;
+    }
+
+    public String getPoster() {
+        return poster;
+    }
+
+    public void setPoster(String poster) {
+        this.poster = poster;
     }
 }

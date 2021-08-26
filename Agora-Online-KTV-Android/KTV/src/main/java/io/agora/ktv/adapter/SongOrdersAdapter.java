@@ -5,6 +5,10 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
+import com.bumptech.glide.request.RequestOptions;
+
 import java.util.List;
 
 import io.agora.baselibrary.base.BaseRecyclerViewAdapter;
@@ -41,7 +45,12 @@ public class SongOrdersAdapter extends BaseRecyclerViewAdapter<MemberMusicModel,
         }
 
         holder.mDataBinding.tvNo.setText(String.valueOf(position + 1));
-        holder.mDataBinding.tvName.setText(item.getName());
+        holder.mDataBinding.tvName.setText(item.getName() + "-" + item.getSinger());
+
+        Glide.with(holder.itemView)
+                .load(item.getPoster())
+                .apply(RequestOptions.bitmapTransform(new RoundedCorners(10)))
+                .into(holder.mDataBinding.iv);
 
         if (position == 0) {
             holder.mDataBinding.tvSing.setVisibility(View.VISIBLE);
