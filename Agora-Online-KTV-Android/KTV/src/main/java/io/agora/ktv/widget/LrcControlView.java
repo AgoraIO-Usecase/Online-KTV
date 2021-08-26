@@ -1,8 +1,6 @@
 package io.agora.ktv.widget;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.CountDownTimer;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -12,9 +10,7 @@ import android.widget.FrameLayout;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
-import androidx.palette.graphics.Palette;
 
 import io.agora.ktv.R;
 import io.agora.ktv.bean.MemberMusicModel;

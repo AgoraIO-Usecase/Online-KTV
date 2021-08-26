@@ -670,26 +670,69 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
 
     @MainThread
     public interface Callback {
+        /**
+         * 从云端下载资源
+         */
         void onPrepareResource();
 
+        /**
+         * 资源下载结束
+         *
+         * @param music
+         */
         void onResourceReady(@NonNull MemberMusicModel music);
 
+        /**
+         * 歌曲文件打开
+         */
         void onMusicOpening();
 
+        /**
+         * 歌曲打开成功
+         *
+         * @param duration 总共时间，毫秒
+         */
         void onMusicOpenCompleted(long duration);
 
+        /**
+         * 歌曲打开失败
+         *
+         * @param error 错误码
+         */
         void onMusicOpenError(int error);
 
+        /**
+         * 正在播放
+         */
         void onMusicPlaing();
 
+        /**
+         * 暂停
+         */
         void onMusicPause();
 
+        /**
+         * 结束
+         */
         void onMusicStop();
 
+        /**
+         * 播放完成
+         */
         void onMusicCompleted();
 
+        /**
+         * 进度更新
+         *
+         * @param position
+         */
         void onMusicPositionChanged(long position);
 
+        /**
+         * 合唱模式下，等待加入合唱倒计时
+         *
+         * @param time 秒
+         */
         void onReceivedCountdown(int time);
     }
 }

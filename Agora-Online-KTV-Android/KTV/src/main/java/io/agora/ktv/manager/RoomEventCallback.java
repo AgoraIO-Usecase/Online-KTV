@@ -54,13 +54,32 @@ public interface RoomEventCallback {
 
     void onMusicEmpty();
 
+    /**
+     * 合唱模式下，有用户申请加入合唱。
+     *
+     * @param music
+     */
     void onMemberApplyJoinChorus(@NonNull MemberMusicModel music);
 
+    /**
+     * 合唱模式下，有用户加入合唱。
+     *
+     * @param music
+     */
     void onMemberJoinedChorus(@NonNull MemberMusicModel music);
 
+    /**
+     * 合唱模式下，唱歌人准备就绪。
+     *
+     * @param music
+     */
     void onMemberChorusReady(@NonNull MemberMusicModel music);
 
+    /**
+     * 歌曲进度
+     *
+     * @param total 当前时间，毫秒
+     * @param cur   总共时间，毫秒
+     */
     void onMusicProgress(long total, long cur);
-
-    void onCountDown(int time);
 }
