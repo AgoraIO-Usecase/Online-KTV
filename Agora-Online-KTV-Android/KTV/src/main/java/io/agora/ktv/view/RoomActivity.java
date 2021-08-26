@@ -274,12 +274,6 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
             super.onMemberChorusReady(music);
             RoomActivity.this.onMemberChorusReady(music);
         }
-
-        @Override
-        public void onCountDown(int time) {
-            super.onCountDown(time);
-            mDataBinding.lrcControlView.setCountDown(time);
-        }
     };
 
     @Override

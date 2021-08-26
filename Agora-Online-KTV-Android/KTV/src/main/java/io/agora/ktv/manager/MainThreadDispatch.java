@@ -35,8 +35,7 @@ public class MainThreadDispatch implements RoomEventCallback {
     private static final int ON_MUSIC_EMPTY = ON_MUSIC_CHANGED + 1;
     private static final int ON_MUSIC_PROGRESS = ON_MUSIC_EMPTY + 1;
     private static final int ON_ROOM_INFO_CHANGED = ON_MUSIC_PROGRESS + 1;
-    private static final int ON_COUNT_DOWN = ON_ROOM_INFO_CHANGED + 1;
-    private static final int ON_MEMBER_APPLY_JOIN_CHORUS = ON_COUNT_DOWN + 1;
+    private static final int ON_MEMBER_APPLY_JOIN_CHORUS = ON_ROOM_INFO_CHANGED + 1;
     private static final int ON_MEMBER_JOIN_CHORUS = ON_MEMBER_APPLY_JOIN_CHORUS + 1;
     private static final int ON_MEMBER_CHORUS_READY = ON_MEMBER_JOIN_CHORUS + 1;
 
@@ -113,10 +112,6 @@ public class MainThreadDispatch implements RoomEventCallback {
             } else if (msg.what == ON_ROOM_INFO_CHANGED) {
                 for (RoomEventCallback callback : enevtCallbacks) {
                     callback.onRoomInfoChanged((AgoraRoom) msg.obj);
-                }
-            } else if (msg.what == ON_COUNT_DOWN) {
-                for (RoomEventCallback callback : enevtCallbacks) {
-                    callback.onCountDown((Integer) msg.obj);
                 }
             } else if (msg.what == ON_MEMBER_APPLY_JOIN_CHORUS) {
                 for (RoomEventCallback callback : enevtCallbacks) {
@@ -241,11 +236,5 @@ public class MainThreadDispatch implements RoomEventCallback {
         Message message = mHandler.obtainMessage(ON_MUSIC_PROGRESS);
         message.setData(bundle);
         message.sendToTarget();
-    }
-
-    @Override
-    public void onCountDown(int time) {
-        mLogger.d("onCountDown() called with: time = [%s]", time);
-        mHandler.obtainMessage(ON_COUNT_DOWN, time).sendToTarget();
     }
 }
