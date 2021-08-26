@@ -447,7 +447,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
                         mMusicCallback.onResourceReady(musicModel);
 
                         if (isSinger) {
-                            mMusicPlayer.play(musicModel);
+                            mMusicPlayer.open(musicModel);
                         } else {
                             mMusicPlayer.playByListener(musicModel);
                         }
@@ -673,37 +673,23 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
             return;
         }
 
+        mMusicPlayer.stop();
+
         mDataBinding.lrcControlView.setEnabled(false);
-        mMusicPlayer.stop()
-                .subscribe(new CompletableObserver() {
+        SyncManager.Instance()
+                .getRoom(mRoom.getId())
+                .collection(MemberMusicModel.TABLE_NAME)
+                .document(musicModel.getId())
+                .delete(new SyncManager.Callback() {
                     @Override
-                    public void onSubscribe(@NonNull Disposable d) {
-
-                    }
-
-                    @Override
-                    public void onComplete() {
-                        SyncManager.Instance()
-                                .getRoom(mRoom.getId())
-                                .collection(MemberMusicModel.TABLE_NAME)
-                                .document(musicModel.getId())
-                                .delete(new SyncManager.Callback() {
-                                    @Override
-                                    public void onSuccess() {
-                                        mDataBinding.lrcControlView.setEnabled(true);
-                                    }
-
-                                    @Override
-                                    public void onFail(AgoraException exception) {
-                                        mDataBinding.lrcControlView.setEnabled(true);
-                                        ToastUtile.toastShort(RoomActivity.this, exception.getMessage());
-                                    }
-                                });
-                    }
-
-                    @Override
-                    public void onError(@NonNull Throwable e) {
+                    public void onSuccess() {
                         mDataBinding.lrcControlView.setEnabled(true);
+                    }
+
+                    @Override
+                    public void onFail(AgoraException exception) {
+                        mDataBinding.lrcControlView.setEnabled(true);
+                        ToastUtile.toastShort(RoomActivity.this, exception.getMessage());
                     }
                 });
     }
@@ -713,7 +699,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
             return;
         }
 
-        mMusicPlayer.toggleStart();
+        mMusicPlayer.togglePlay();
     }
 
     private void showOnSeatStatus() {
