@@ -8,6 +8,182 @@
 import Foundation
 import UIKit
 
+/**
+ *  -----|----------------------------------
+ *       |__        --__    __--__
+ *   __--|  __                    __
+ *       |    --__--                __----
+ *  -----|----------------------------------
+ */
+
+private class MusicLyricPitchView: UIView {
+    private static let lineHeight: CGFloat = 2
+    private static let perSecPixel: CGFloat = 100
+    var normalColor = UIColor.white.withAlphaComponent(0.4)
+    var highlightColor = UIColor.white
+    lazy var gradient: CGGradient = {
+        let colors = [UIColor.clear.cgColor, normalColor.cgColor]
+        let colorSpace = CGColorSpaceCreateDeviceRGB()
+        let colorLocations: [CGFloat] = [0.0, 1.0]
+        return CGGradient(colorsSpace: colorSpace, colors: colors as CFArray, locations: colorLocations)!
+    }()
+
+    var pitchs: [PitchData]?
+    var time: TimeInterval = -1 {
+        didSet {
+            if oldValue != time {
+                performSelector(onMainThread: #selector(setDisplay), with: nil, waitUntilDone: true)
+            }
+        }
+    }
+
+    @objc func setDisplay() {
+        setNeedsDisplay()
+    }
+
+    private var p0 = CGPoint(x: 0, y: 0)
+    private var p1 = CGPoint(x: 0, y: 0)
+    private let padding: CGFloat = 15
+
+    override func draw(_ rect: CGRect) {
+        guard let context = UIGraphicsGetCurrentContext() else {
+            return
+        }
+
+        let startX: CGFloat = rect.width / 3.0
+//        drawPlayingVLine(rect, x: startX, context: context)
+
+        guard let pitchs = pitchs, time >= 0, time < ((pitchs.last?.start ?? 0) + (pitchs.last?.duration ?? 0)) else {
+            return
+        }
+
+        let startTime = time - widthToTime(startX)
+        let maxTime = startTime + widthToTime(rect.width)
+        var firstIndex = -1
+        if let first = pitchs.first {
+            if startTime < first.start {
+                firstIndex = 0
+            }
+        }
+        if firstIndex == -1 {
+            firstIndex = pitchs.firstIndex { item in
+                (startTime >= item.start && startTime < item.end()) || startTime < item.start
+            } ?? -1
+        }
+        guard firstIndex >= 0, firstIndex < pitchs.count else {
+            return
+        }
+
+        let list = pitchs.filter { data in
+            data.start >= startTime && data.end() <= maxTime
+        }
+        let min = list.reduce(50) { value, data in
+            if data.value <= value {
+                return data.value
+            }
+            return value
+        }
+        let max = list.reduce(100) { value, data in
+            if data.value >= value {
+                return data.value
+            }
+            return value
+        }
+
+        for i in firstIndex ..< pitchs.count {
+            let pitch = pitchs[i]
+            let y = pitchToY(rect, min: min, max: max, pitch.value)
+            if y < 0 {
+                continue
+            }
+
+            p0.x = timeToWidth(pitch.start - time) + startX
+            if p0.x > frame.width {
+                break
+            }
+            p1.x = timeToWidth(pitch.duration) + p0.x
+            if p1.x <= 0 {
+                continue
+            }
+            if p0.x <= startX, p1.x >= startX {
+                // Logger.log(self, message: "\(pitch.key ?? "--")", level: .info)
+            }
+
+            p0.y = y
+            p1.y = y
+
+            context.setLineWidth(MusicLyricPitchView.lineHeight)
+            if p1.x <= startX {
+                context.move(to: p0)
+                context.addLine(to: p1)
+                highlightColor.set()
+                context.strokePath()
+
+            } else if p0.x >= startX {
+                context.move(to: p0)
+                context.addLine(to: p1)
+                normalColor.set()
+                context.strokePath()
+            } else {
+                let middle = CGPoint(x: startX, y: y)
+                context.move(to: p0)
+                context.addLine(to: middle)
+                highlightColor.set()
+                context.strokePath()
+
+                context.move(to: middle)
+                context.addLine(to: p1)
+                normalColor.set()
+                context.strokePath()
+            }
+        }
+
+        context.saveGState()
+        let shadow = CGRect(x: 0, y: 0, width: startX, height: rect.height / 3)
+        context.addRect(shadow)
+        context.clip()
+        context.drawLinearGradient(gradient, start: CGPoint(x: 0, y: rect.height / 2), end: CGPoint(x: startX, y: rect.height / 2), options: [])
+        context.restoreGState()
+    }
+
+    private func drawPlayingVLine(_ rect: CGRect, x: CGFloat, context: CGContext) {
+        p0.x = x
+        p0.y = 0
+        p1.x = p0.x
+        p1.y = rect.height / 2
+
+        context.move(to: p0)
+        context.addLine(to: p1)
+        normalColor.set()
+        context.setLineWidth(1)
+        context.strokePath()
+
+        context.move(to: CGPoint(x: 0, y: p0.y))
+        context.addLine(to: CGPoint(x: rect.width, y: p0.y))
+        normalColor.set()
+        context.setLineWidth(1)
+        context.strokePath()
+
+        context.move(to: CGPoint(x: 0, y: p1.y))
+        context.addLine(to: CGPoint(x: rect.width, y: p1.y))
+        normalColor.set()
+        context.setLineWidth(1)
+        context.strokePath()
+    }
+
+    private func timeToWidth(_ time: TimeInterval) -> CGFloat {
+        return CGFloat(CGFloat(time) / 1000 * MusicLyricPitchView.perSecPixel)
+    }
+
+    private func widthToTime(_ width: CGFloat) -> TimeInterval {
+        return TimeInterval(width * 1000 / MusicLyricPitchView.perSecPixel)
+    }
+
+    private func pitchToY(_ rect: CGRect, min: Int, max: Int, _ value: Int) -> CGFloat {
+        return (rect.height / 3) * (1 - CGFloat(Float(value - min) / Float(max - min)))
+    }
+}
+
 private class MusicLyricLabel: UILabel {
     private static let STYLE = false
     var progress: CGFloat = 0 {
@@ -17,6 +193,8 @@ private class MusicLyricLabel: UILabel {
             }
         }
     }
+
+    var styleShadowColor = UIColor.black.withAlphaComponent(0.5)
 
     private func renderText() {
         if let text = self.text {
@@ -87,8 +265,8 @@ private class MusicLyricLabel: UILabel {
                 //            context.setLineJoin(.round)
                 //            context.setTextDrawingMode(.stroke)
                 //            textColor = MusicLyricView.hightColor
-                shadowOffset = CGSize(width: 0, height: 2)
-                shadowColor = MusicLyricView.hightColor
+                shadowOffset = CGSize(width: 0, height: 1)
+                shadowColor = styleShadowColor
                 super.draw(rect)
                 shadowOffset = _shadowOffset
                 shadowColor = _shadowColor
@@ -138,7 +316,7 @@ public protocol MusicLyricViewDelegate: NSObject {
 }
 
 public class MusicLyricView: UIView, UITableViewDataSource, UITableViewDelegate {
-    static var hightColor = UIColor.white
+    public static var hightColor = UIColor.white
     public weak var delegate: MusicLyricViewDelegate?
     // ms
     private var seekTime: TimeInterval = 0
@@ -196,6 +374,12 @@ public class MusicLyricView: UIView, UITableViewDataSource, UITableViewDelegate 
         return view
     }()
 
+    private lazy var pitchView: MusicLyricPitchView = {
+        let view = MusicLyricPitchView()
+        view.backgroundColor = UIColor.clear
+        return view
+    }()
+
     private var curLyricsTimestamp: TimeInterval = 0
     private var currentTime: TimeInterval = 0
     private var totalTime: TimeInterval = 0
@@ -204,8 +388,13 @@ public class MusicLyricView: UIView, UITableViewDataSource, UITableViewDelegate 
     override init(frame: CGRect) {
         super.init(frame: frame)
         backgroundColor = .clear
+
+        addSubview(pitchView)
+        pitchView.fill(view: self)
+            .active()
+
         addSubview(lyricTable)
-        lyricTable.fill(view: self)
+        lyricTable.fill(view: self, top: 60)
             .active()
         lyricTable.addSubview(tipsLabel)
         tipsLabel
@@ -254,6 +443,8 @@ public class MusicLyricView: UIView, UITableViewDataSource, UITableViewDelegate 
             let totalTime = self.totalTime
             let curLyricsTimestamp = self.curLyricsTimestamp
             var offset: TimeInterval = (Date().timeIntervalSince1970 * 1000 - curLyricsTimestamp)
+            pitchView.time = currentTime + offset
+
             if abs(offset) > 1500 {
                 offset = 0
             }
@@ -278,9 +469,10 @@ public class MusicLyricView: UIView, UITableViewDataSource, UITableViewDelegate 
                 if let self = self {
                     let cell: MusicLyricCell? = self.lyricTable.cellForRow(at: IndexPath(row: index, section: 0)) as? MusicLyricCell
                     cell?.progress = CGFloat(progress)
-
                     if progress >= 1, nextLyric != nil, (currentLyric.startMsTime() + consume) >= nextLyric!.startMsTime() {
-                        self.scrollLyric(currentTime: currentLyric.startMsTime() + consume, totalTime: totalTime)
+                        let current = currentLyric.startMsTime() + consume
+                        self.pitchView.time = current
+                        self.scrollLyric(currentTime: current, totalTime: totalTime)
                     }
                 }
             }
@@ -299,7 +491,20 @@ public class MusicLyricView: UIView, UITableViewDataSource, UITableViewDelegate 
             if lyrics.count > 0 {
                 lyricTable.selectRow(at: IndexPath(row: Distance, section: 0), animated: true, scrollPosition: .middle)
             }
+            pitchView.isHidden = lyrics.count == 0
+            pitchView.time = -1
+            var pitchList: [PitchData] = []
+            lyrics.map { lrc in
+                lrc.pitchData()
+            }.forEach { list in
+                pitchList.append(contentsOf: list)
+            }
+            pitchView.pitchs = pitchList
         } else {
+            pitchView.isHidden = true
+            pitchView.time = -1
+            pitchView.pitchs = nil
+
             tipsLabel.isHidden = false
             tipsLabel.text = "歌词加载中..."
             lyricTable.reloadData()
@@ -323,6 +528,8 @@ public class MusicLyricView: UIView, UITableViewDataSource, UITableViewDelegate 
         if totalTime <= 0 || currentTime > totalTime {
             return
         }
+
+        // pitchView.time = currentTime
 
         if let lyrics = lyrics {
             if lyrics.count == 0 {

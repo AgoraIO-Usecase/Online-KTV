@@ -54,7 +54,7 @@ protocol IRoomManager {
     func subscribeMusicList() -> Observable<Result<[LiveKtvMusic]>>
     func subscribeRtcMusicState() -> Observable<Result<RtcMusicState>>
 
-    func order(musicId: String, name: String) -> Observable<Result<Void>>
+    func order(musicId: String, name: String, singer: String, poster: String) -> Observable<Result<Void>>
     func handsUp() -> Observable<Result<Void>>
     func kickSpeaker(member: LiveKtvMember) -> Observable<Result<Void>>
 

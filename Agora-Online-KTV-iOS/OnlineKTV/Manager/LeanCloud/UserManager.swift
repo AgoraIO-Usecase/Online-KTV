@@ -71,7 +71,9 @@
                     list.map { data in
                         let id = data.get("musicId")!.stringValue!
                         let name = data.get("name")!.stringValue!
-                        return LrcMusic(id: id, name: name, song: "", lrc: "")
+                        let singer = data.get("singer")!.stringValue!
+                        let poster = data.get("poster")!.stringValue!
+                        return LrcMusic(id: id, name: name, song: "", lrc: "", singer: singer, poster: poster)
                     }
                 }
             } else {
@@ -79,7 +81,9 @@
                     list.map { data in
                         let id = data.get("musicId")!.stringValue!
                         let name = data.get("name")!.stringValue!
-                        return LrcMusic(id: id, name: name, song: "", lrc: "")
+                        let singer = data.get("singer")!.stringValue!
+                        let poster = data.get("poster")!.stringValue!
+                        return LrcMusic(id: id, name: name, song: "", lrc: "", singer: singer, poster: poster)
                     }
                 }
             }

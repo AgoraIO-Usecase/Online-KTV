@@ -13,11 +13,15 @@ public struct LocalMusic {
     public let name: String
     public let path: String
     public let lrcPath: String
-    public init(id: String, name: String, path: String, lrcPath: String) {
+    public let singer: String
+    public let poster: String
+    public init(id: String, name: String, path: String, lrcPath: String, singer: String, poster: String) {
         self.id = id
         self.name = name
         self.path = path
         self.lrcPath = lrcPath
+        self.singer = singer
+        self.poster = poster
     }
 }
 

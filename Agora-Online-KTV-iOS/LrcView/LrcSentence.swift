@@ -8,6 +8,22 @@
 import Foundation
 import UIKit
 
+public class PitchData {
+    let value: Int
+    let start: TimeInterval
+    let duration: TimeInterval
+
+    init(value: Int, start: TimeInterval, duration: TimeInterval) {
+        self.value = value
+        self.start = start
+        self.duration = duration
+    }
+
+    func end() -> TimeInterval {
+        return start + duration
+    }
+}
+
 public protocol LrcSentence {
     func startMsTime() -> TimeInterval
     func endMsTime() -> TimeInterval
@@ -15,6 +31,7 @@ public protocol LrcSentence {
     func getProgress(consume: TimeInterval, totalMsTime: TimeInterval) -> Float
     func getSentence() -> String
     func timeString() -> String
+    func pitchData() -> [PitchData]
 }
 
 class NormalLrc: LrcSentence {
@@ -61,6 +78,10 @@ class NormalLrc: LrcSentence {
     }
 
     func render(with _: UILabel) {}
+
+    func pitchData() -> [PitchData] {
+        return [PitchData(value: -1, start: startMsTime(), duration: 0)]
+    }
 }
 
 class MiguLrc: LrcSentence {
@@ -140,5 +161,11 @@ class MiguLrc: LrcSentence {
 
     func timeString() -> String {
         return Utils.format(time: startMsTime() / 1000)
+    }
+
+    func pitchData() -> [PitchData] {
+        return model.tones.map { tone in
+            PitchData(value: tone.pitch, start: tone.begin, duration: tone.end - tone.begin)
+        }
     }
 }

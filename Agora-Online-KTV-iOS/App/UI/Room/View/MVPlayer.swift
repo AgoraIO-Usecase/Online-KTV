@@ -607,8 +607,8 @@ class MVPlayer: NSObject {
             status = .none
         }
 
-        if let musicName = music?.name {
-            name.text = musicName
+        if let musicName = music?.name, let singer = music?.singer {
+            name.text = "\(musicName)-\(singer)"
             icon.isHidden = false
             name.isHidden = false
         } else {

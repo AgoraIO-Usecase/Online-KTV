@@ -20,7 +20,13 @@ private class OrderMusicCell: UITableViewCell {
     weak var delegate: OrderMusicDelegate!
     var music: LocalMusic! {
         didSet {
-            nameView.text = music.name
+            nameView.text = "\(music.name)-\(music.singer)"
+            let url = URL(string: music.poster)!
+            let data: NSData! = NSData(contentsOf: url)
+            if data != nil {
+                coverView.image = UIImage(data: data as Data, scale: 1)
+            }
+
             orderButton.isEnabled = !delegate.isOrdered(music: music)
             orderButton.backgroundColor = orderButton.isEnabled ? UIColor(hex: Colors.Blue) : UIColor(hex: Colors.Blue).withAlphaComponent(0.3)
         }
@@ -124,7 +130,7 @@ private class LocalMusicList: UITableView, UITableViewDataSource, OrderMusicDele
     }
 
     func order(music: LocalMusic) {
-        roomDelegate?.viewModel.order(music: music, orderChorusMusic: orderChorusMusic) { [weak self] waiting in
+        roomDelegate?.viewModel.order(music: music) { [weak self] waiting in
             if let self = self {
                 self.roomDelegate?.show(processing: waiting)
             }
@@ -148,7 +154,7 @@ private class LiveMusicCell: UITableViewCell {
     weak var delegate: OrderMusicDelegate!
     var music: LiveKtvMusic! {
         didSet {
-            nameView.text = "\(music.name)\(music.singer==nil ? "":"-\(music.singer)")\(music.type == LiveKtvMusic.CHORUS ? "(合唱)" : "")"
+            nameView.text = "\(music.name)-\(music.singer)\(music.type == LiveKtvMusic.CHORUS ? "(合唱)" : "")"
             let isPlaying = delegate.isPlaying(music: music)
             indexView.isHidden = isPlaying
             icon.isHidden = !isPlaying
@@ -196,7 +202,7 @@ private class LiveMusicCell: UITableViewCell {
         let view = UILabel()
         view.textColor = UIColor(hex: Colors.Text).withAlphaComponent(0.6)
         view.font = UIFont.systemFont(ofSize: 12)
-        view.text = "正在演唱"
+        view.text = "Singing".localized
         return view
     }()
 

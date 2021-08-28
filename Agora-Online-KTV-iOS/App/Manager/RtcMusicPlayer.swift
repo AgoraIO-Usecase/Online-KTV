@@ -442,7 +442,7 @@ class RtcChorusMusicPlayer: AbstractRtcMusicPlayer {
                     mediaOption.publishCameraTrack = AgoraRtcBoolOptional.of(false)
                     mediaOption.autoSubscribeAudio = AgoraRtcBoolOptional.of(false)
                     mediaOption.publishAudioTrack = AgoraRtcBoolOptional.of(false)
-                    rtc.updateChannelEx(with: mediaOption, connectionId: connectionId)
+                    rtc.updateChannelEx(with: mediaOption, connectionId: UInt(connectionId))
 
                     if let timer = timer {
                         timer.invalidate()
@@ -461,7 +461,7 @@ class RtcChorusMusicPlayer: AbstractRtcMusicPlayer {
                     mediaOption.autoSubscribeAudio = AgoraRtcBoolOptional.of(false)
                     mediaOption.publishAudioTrack = AgoraRtcBoolOptional.of(false)
                     mediaOption.publishMediaPlayerAudioTrack = AgoraRtcBoolOptional.of(true)
-                    rtc.updateChannelEx(with: mediaOption, connectionId: connectionId)
+                    rtc.updateChannelEx(with: mediaOption, connectionId: UInt(connectionId))
                 }
                 if player.open(music.path, startPos: 0) == 0 {
                     onSuccess()
@@ -685,7 +685,7 @@ class RtcChorusMusicPlayer: AbstractRtcMusicPlayer {
         super.destory()
         if let rtc = rtcServer.rtcEngine {
             if let channelId = rtcServer.channel, connectionId != 0 {
-                rtc.leaveChannelEx(channelId, connectionId: connectionId, leaveChannelBlock: nil)
+                rtc.leaveChannelEx(channelId, connectionId: UInt(connectionId), leaveChannelBlock: nil)
                 connectionId = 0
             }
         }

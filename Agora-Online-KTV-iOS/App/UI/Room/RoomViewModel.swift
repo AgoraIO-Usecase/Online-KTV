@@ -174,6 +174,8 @@ class RoomViewModel {
                         let data: LrcMusic = result.data!
                         data.id = music.musicId
                         data.name = music.name
+                        data.singer = music.singer
+                        data.poster = music.poster
                         self?.lrcMusicCache[music.musicId] = data
                     }
                     return result
@@ -190,7 +192,7 @@ class RoomViewModel {
                         let task = DownloadManager.shared.getFile(url: lrcMusic.song) { downloadResult in
                             switch downloadResult {
                             case let .success(file: file):
-                                single(.success(Result(success: true, data: LocalMusic(id: lrcMusic.id!, name: lrcMusic.name!, path: file, lrcPath: ""))))
+                                single(.success(Result(success: true, data: LocalMusic(id: lrcMusic.id!, name: lrcMusic.name!, path: file, lrcPath: "", singer: lrcMusic.singer!, poster: lrcMusic.poster!))))
                             case let .failed(error: error):
                                 single(.success(Result(success: false, message: error)))
                             }
@@ -219,7 +221,7 @@ class RoomViewModel {
                         let task = DownloadManager.shared.getFile(url: lrcMusic.song) { downloadResult in
                             switch downloadResult {
                             case let .success(file: file):
-                                single(.success(Result(success: true, data: LocalMusic(id: lrcMusic.id!, name: lrcMusic.name!, path: file, lrcPath: ""))))
+                                single(.success(Result(success: true, data: LocalMusic(id: lrcMusic.id!, name: lrcMusic.name!, path: file, lrcPath: "", singer: music.singer, poster: music.poster))))
                             case let .failed(error: error):
                                 single(.success(Result(success: false, message: error)))
                             }
@@ -263,7 +265,7 @@ class RoomViewModel {
                         let task = DownloadManager.shared.getFile(url: lrcMusic.lrc) { downloadResult in
                             switch downloadResult {
                             case let .success(file: file):
-                                single(.success(Result(success: true, data: LocalMusic(id: lrcMusic.id!, name: lrcMusic.name!, path: "", lrcPath: file))))
+                                single(.success(Result(success: true, data: LocalMusic(id: lrcMusic.id!, name: lrcMusic.name!, path: "", lrcPath: file, singer: lrcMusic.singer!, poster: lrcMusic.poster!))))
                             case let .failed(error: error):
                                 single(.success(Result(success: false, message: error)))
                             }
@@ -473,7 +475,7 @@ class RoomViewModel {
                onSuccess: @escaping () -> Void,
                onError: @escaping (String) -> Void)
     {
-        member.orderMusic(id: music.id, name: music.name, chorus: orderChorusMusic)
+        member.orderMusic(id: music.id, name: music.name, chorus: orderChorusMusic, singer: music.singer, poster: music.poster)
             .observe(on: MainScheduler.instance)
             .do(onSubscribe: {
                 onWaiting(true)
@@ -606,7 +608,7 @@ class RoomViewModel {
                 if result.success {
                     let data = result.data ?? []
                     onSuccess(data.map { lrcMusic in
-                        LocalMusic(id: lrcMusic.id!, name: lrcMusic.name!, path: "", lrcPath: "")
+                        LocalMusic(id: lrcMusic.id!, name: lrcMusic.name!, path: "", lrcPath: "", singer: lrcMusic.singer!, poster: lrcMusic.poster!)
                     })
                 } else {
                     onError(result.message ?? "unknown error".localized)

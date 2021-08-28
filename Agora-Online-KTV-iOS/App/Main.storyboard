@@ -435,9 +435,24 @@
                                     </view>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="TfO-5v-8an" userLabel="player">
                                         <rect key="frame" x="0.0" y="0.0" width="355" height="219"/>
+                                        <subviews>
+                                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="iconMusic" translatesAutoresizingMaskIntoConstraints="NO" id="ocL-Ah-TRc">
+                                                <rect key="frame" x="8" y="8" width="12" height="14"/>
+                                            </imageView>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="IX2-vs-PP4">
+                                                <rect key="frame" x="28" y="8" width="31" height="14.5"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                        </subviews>
                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <constraints>
                                             <constraint firstAttribute="width" secondItem="TfO-5v-8an" secondAttribute="height" multiplier="345:213" id="Oee-do-DoQ"/>
+                                            <constraint firstItem="ocL-Ah-TRc" firstAttribute="top" secondItem="TfO-5v-8an" secondAttribute="top" constant="8" id="RHh-4M-x75"/>
+                                            <constraint firstItem="IX2-vs-PP4" firstAttribute="leading" secondItem="ocL-Ah-TRc" secondAttribute="trailing" constant="8" symbolic="YES" id="Zch-dP-7Nz"/>
+                                            <constraint firstItem="ocL-Ah-TRc" firstAttribute="leading" secondItem="TfO-5v-8an" secondAttribute="leading" constant="8" id="uQy-zg-c34"/>
+                                            <constraint firstItem="IX2-vs-PP4" firstAttribute="top" secondItem="TfO-5v-8an" secondAttribute="top" constant="8" id="ugz-hk-Wjt"/>
                                         </constraints>
                                     </view>
                                 </subviews>
@@ -461,13 +476,6 @@
                                     </userDefinedRuntimeAttribute>
                                 </userDefinedRuntimeAttributes>
                             </view>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="iconMusic" translatesAutoresizingMaskIntoConstraints="NO" id="ocL-Ah-TRc">
-                                <rect key="frame" x="26" y="74" width="14" height="14"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="14" id="HvI-Ba-aUU"/>
-                                    <constraint firstAttribute="width" constant="14" id="oyw-Ow-USg"/>
-                                </constraints>
-                            </imageView>
                             <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="mOD-RY-tgi">
                                 <rect key="frame" x="16" y="382" width="343" height="80"/>
                                 <subviews>
@@ -588,12 +596,6 @@
                                     <constraint firstAttribute="height" constant="80" id="mxO-lZ-mib"/>
                                 </constraints>
                             </stackView>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="IX2-vs-PP4">
-                                <rect key="frame" x="47" y="74" width="31" height="14.5"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="12"/>
-                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <nil key="highlightedColor"/>
-                            </label>
                             <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="H8l-nJ-J3G">
                                 <rect key="frame" x="16" y="471" width="343" height="80"/>
                                 <subviews>
@@ -780,13 +782,10 @@
                             <constraint firstItem="zpZ-vh-ZD8" firstAttribute="width" secondItem="zpZ-vh-ZD8" secondAttribute="height" multiplier="345:276" id="Eet-dr-74D"/>
                             <constraint firstItem="mOD-RY-tgi" firstAttribute="leading" secondItem="Udj-Rq-Vr5" secondAttribute="leading" constant="16" id="GVs-nU-MGQ"/>
                             <constraint firstItem="H8l-nJ-J3G" firstAttribute="centerX" secondItem="Udj-Rq-Vr5" secondAttribute="centerX" id="Iwe-5X-M87"/>
-                            <constraint firstItem="IX2-vs-PP4" firstAttribute="centerY" secondItem="ocL-Ah-TRc" secondAttribute="centerY" id="Lmt-jo-5o2"/>
                             <constraint firstItem="zpZ-vh-ZD8" firstAttribute="top" secondItem="Zr2-zW-RmE" secondAttribute="bottom" constant="14" id="RWq-Zq-EtL"/>
                             <constraint firstItem="Udj-Rq-Vr5" firstAttribute="trailing" secondItem="ig9-kb-y64" secondAttribute="trailing" id="VHZ-hO-fWU"/>
                             <constraint firstItem="H8l-nJ-J3G" firstAttribute="leading" secondItem="Udj-Rq-Vr5" secondAttribute="leading" constant="16" id="W7y-VV-4Bz"/>
                             <constraint firstItem="EQa-5h-Oqo" firstAttribute="leading" secondItem="Udj-Rq-Vr5" secondAttribute="leading" constant="16" id="XDq-oc-4Sv"/>
-                            <constraint firstItem="ocL-Ah-TRc" firstAttribute="top" secondItem="TfO-5v-8an" secondAttribute="top" constant="16" id="aGg-wa-YxX"/>
-                            <constraint firstItem="TfO-5v-8an" firstAttribute="leading" secondItem="ocL-Ah-TRc" secondAttribute="leading" constant="-16" id="aeW-1G-chx"/>
                             <constraint firstItem="zpZ-vh-ZD8" firstAttribute="centerX" secondItem="8qz-gJ-HIz" secondAttribute="centerX" id="cQb-PH-O3C"/>
                             <constraint firstAttribute="trailing" secondItem="Zr2-zW-RmE" secondAttribute="trailing" id="ee1-90-AQO"/>
                             <constraint firstItem="mOD-RY-tgi" firstAttribute="top" secondItem="zpZ-vh-ZD8" secondAttribute="bottom" constant="40" id="ezq-id-xiQ"/>
@@ -797,7 +796,6 @@
                             <constraint firstItem="0Xs-Pj-8GT" firstAttribute="centerX" secondItem="Udj-Rq-Vr5" secondAttribute="centerX" id="ow0-aL-27X"/>
                             <constraint firstItem="Udj-Rq-Vr5" firstAttribute="trailing" secondItem="EQa-5h-Oqo" secondAttribute="trailing" constant="16" id="oy8-52-M3n"/>
                             <constraint firstItem="ig9-kb-y64" firstAttribute="leading" secondItem="Udj-Rq-Vr5" secondAttribute="leading" id="pQn-Tu-pfe"/>
-                            <constraint firstItem="IX2-vs-PP4" firstAttribute="leading" secondItem="ocL-Ah-TRc" secondAttribute="trailing" constant="7" id="tQk-zM-pEn"/>
                             <constraint firstAttribute="trailing" secondItem="8qz-gJ-HIz" secondAttribute="trailing" id="uhH-gT-Cx3"/>
                         </constraints>
                     </view>
