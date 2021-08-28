@@ -118,6 +118,7 @@ private class MusicLyricPitchView: UIView {
                 context.addLine(to: p1)
                 highlightColor.set()
                 context.strokePath()
+
             } else if p0.x >= startX {
                 context.move(to: p0)
                 context.addLine(to: p1)
@@ -129,20 +130,20 @@ private class MusicLyricPitchView: UIView {
                 context.addLine(to: middle)
                 highlightColor.set()
                 context.strokePath()
+
                 context.move(to: middle)
                 context.addLine(to: p1)
                 normalColor.set()
                 context.strokePath()
-
-                context.saveGState()
-//                let shadow = CGRect(x: 0, y: padding, width: startX, height: rect.height - padding * 2)
-                let shadow = CGRect(x: 0, y: 0, width: startX, height: rect.height / 3)
-                context.addRect(shadow)
-                context.clip()
-                context.drawLinearGradient(gradient, start: CGPoint(x: 0, y: rect.height / 2), end: CGPoint(x: startX, y: rect.height / 2), options: [])
-                context.restoreGState()
             }
         }
+
+        context.saveGState()
+        let shadow = CGRect(x: 0, y: 0, width: startX, height: rect.height / 3)
+        context.addRect(shadow)
+        context.clip()
+        context.drawLinearGradient(gradient, start: CGPoint(x: 0, y: rect.height / 2), end: CGPoint(x: startX, y: rect.height / 2), options: [])
+        context.restoreGState()
     }
 
     private func drawPlayingVLine(_ rect: CGRect, x: CGFloat, context: CGContext) {
@@ -442,11 +443,11 @@ public class MusicLyricView: UIView, UITableViewDataSource, UITableViewDelegate 
             let totalTime = self.totalTime
             let curLyricsTimestamp = self.curLyricsTimestamp
             var offset: TimeInterval = (Date().timeIntervalSince1970 * 1000 - curLyricsTimestamp)
-            pitchView.time = currentTime + offset
 
             if abs(offset) > 1500 {
                 offset = 0
             }
+            pitchView.time = currentTime + offset
 
             if currentTime < currentLyric.startMsTime() {
                 return
