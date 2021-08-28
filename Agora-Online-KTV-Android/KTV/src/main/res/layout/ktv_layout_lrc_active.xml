@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <io.agora.lrcview.LrcView
+            android:id="@+id/lrcView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:background="#00000000"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:paddingBottom="20dp"
+            app:layout_constraintBottom_toTopOf="@+id/rlMusicControlMenu"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/pitchView"
+            app:lrcCurrentTextColor="@color/ktv_lrc_highligh"
+            app:lrcDividerHeight="20dp"
+            app:lrcLabel=" "
+            app:lrcNormalTextColor="@color/ktv_lrc_nomal"
+            app:lrcNormalTextSize="16sp"
+            app:lrcTextGravity="center"
+            app:lrcTextSize="26sp" />
+
+        <io.agora.lrcview.PitchView
+            android:id="@+id/pitchView"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_marginTop="26dp"
+            android:background="#26FFFFFF"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:pitchDoneTextColor="@color/ktv_lrc_highligh"
+            app:pitchNormalTextColor="@color/ktv_pitch_nomal" />
+
+        <RelativeLayout
+            android:id="@+id/rlMusicControlMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:background="@drawable/ktv_shape_room_irc_menu_background"
+            android:padding="20dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <TextView
+                android:id="@+id/tvOriginalLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:text="@string/ktv_room_original"
+                android:textColor="#9BA2AB" />
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/switchOriginal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="10dp"
+                android:layout_toRightOf="@+id/tvOriginalLabel"
+                android:checked="true"
+                android:track="@drawable/ktv_selector_switch_background" />
+
+            <ImageView
+                android:id="@+id/ivMusicMenu"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="20dp"
+                android:layout_toStartOf="@+id/ivMusicStart"
+                android:src="@mipmap/ktv_room_music_menu" />
+
+            <ImageView
+                android:id="@+id/ivMusicStart"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="20dp"
+                android:layout_toStartOf="@+id/ivChangeSong"
+                android:src="@mipmap/ktv_room_music_pause" />
+
+            <ImageView
+                android:id="@+id/ivChangeSong"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:src="@mipmap/ktv_room_music_qie" />
+        </RelativeLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

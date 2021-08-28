@@ -1,0 +1,6 @@
+/build
+google-services.json
+/leancloud
+/firebase
+/libs
+/src/main/jniLibs

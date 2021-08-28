@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="CustomToolbar">
+        <attr name="ct_showback" format="boolean" />
+        <attr name="ct_title" format="string|reference" />
+        <attr name="ct_icon_back" format="reference" />
+        <attr name="ct_color_title" format="color|reference" />
+    </declare-styleable>
+</resources>

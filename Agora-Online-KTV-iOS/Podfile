@@ -1,0 +1,46 @@
+# Uncomment the next line to define a global platform for your project
+platform :ios, '13.0'
+source 'https://github.com/CocoaPods/Specs.git'
+
+def commonPods
+  use_frameworks!
+  pod 'RxSwift', '6.1.0'
+  pod 'RxCocoa', '6.1.0'
+  pod 'RxRelay', '6.1.0'
+  pod 'IGListKit', '~> 4.0.0'
+  pod 'SwiftFormat/CLI'
+end
+
+target 'Core' do
+  commonPods
+  use_frameworks!
+end
+
+target 'app' do
+  commonPods
+  use_frameworks!
+  pod 'AgoraSdk', :path => './AgoraSdk'
+  #pod 'YYCache'
+  pod 'Zip', '~> 2.1'
+end
+
+target 'LrcView' do
+  commonPods
+  use_frameworks!
+  pod 'Zip', '~> 2.1'
+end
+
+# target with leancloud sdk
+target 'OnlineKTV_LeanCloud' do
+  commonPods
+  use_frameworks!
+  pod 'LeanCloud'
+end
+
+# target with firebase sdk
+target 'OnlineKTV_Firebase' do
+  commonPods
+  use_frameworks!
+  pod 'Firebase/Firestore'
+  pod 'FirebaseFirestoreSwift'
+end
