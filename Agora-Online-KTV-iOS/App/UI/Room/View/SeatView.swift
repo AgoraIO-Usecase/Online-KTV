@@ -20,23 +20,7 @@ class SeatView {
 
     private var getUserDisposable: Disposable?
 
-    var music: LiveKtvMusic? {
-        didSet {
-            if let music = music, let member = member, music.isOrderBy(member: member) {
-                label.text = "演唱中"
-                root.shadowAnimation(color: Colors.Music)
-                return
-            } else if let member = member {
-                if member.isManager {
-                    label.text = "房主"
-                    root.stopShadowAnimation()
-                    return
-                }
-            }
-            label.text = String(index + 1)
-            root.stopShadowAnimation()
-        }
-    }
+    var music: LiveKtvMusic?
 
     var member: LiveKtvMember? {
         didSet {
@@ -45,6 +29,7 @@ class SeatView {
                     return
                 }
                 getUserDisposable?.dispose()
+
                 getUserDisposable = User.getUser(by: member.userId)
                     .observe(on: MainScheduler.instance)
                     .subscribe { [weak self] result in

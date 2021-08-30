@@ -84,9 +84,9 @@ extension LiveKtvRoom {
     private static let CHECK_TIME_UP = true
     private static let TIME_UP: Double = 10 * 60
 
-    private static var manager: SyncManager {
-        SyncManager.shared
-    }
+//    private static var manager: SyncManager {
+//        SyncManager.shared
+//    }
 
     static func get(object: IAgoraObject, check: Bool = false) throws -> LiveKtvRoom {
         let id = try object.getId()
@@ -108,7 +108,7 @@ extension LiveKtvRoom {
         return room
     }
 
-    static func create(room: LiveKtvRoom) -> Observable<Result<String>> {
+    static func create(room _: LiveKtvRoom) -> Observable<Result<String>> {
         return Single.create { single in
             let delegate = AgoraObjectDelegate { object in
                 do {
@@ -120,7 +120,7 @@ extension LiveKtvRoom {
             } failed: { _, message in
                 single(.success(Result(success: false, message: message)))
             }
-            manager.createAgoraRoom(room: room, delegate: delegate)
+//            manager.createAgoraRoom(room: room, delegate: delegate)
             return Disposables.create()
         }.asObservable()
     }
@@ -133,7 +133,7 @@ extension LiveKtvRoom {
                 single(.success(Result<Void>(success: false, message: message)))
             }
             let ref = AgoraRoomReference(id: roomId)
-            LiveKtvRoom.manager.delete(reference: ref, delegate: delegate)
+//            LiveKtvRoom.manager.delete(reference: ref, delegate: delegate)
             return Disposables.create()
         }.asObservable()
     }
@@ -153,12 +153,12 @@ extension LiveKtvRoom {
                 single(.success(Result(success: false, message: message)))
             }
 
-            manager.getAgoraRooms(delegate: delegate)
+//            manager.getAgoraRooms(delegate: delegate)
             return Disposables.create()
         }.asObservable()
     }
 
-    static func getRoom(by objectId: String) -> Observable<Result<LiveKtvRoom>> {
+    static func getRoom(by _: String) -> Observable<Result<LiveKtvRoom>> {
         return Single.create { single in
             let delegate = AgoraObjectDelegate { object in
                 do {
@@ -170,21 +170,14 @@ extension LiveKtvRoom {
             } failed: { _, message in
                 single(.success(Result(success: false, message: message)))
             }
-            manager.getRoom(id: objectId).get(delegate: delegate)
+//            manager.getRoom(id: objectId).get(delegate: delegate)
             return Disposables.create()
         }.asObservable()
     }
 
-    static func queryMemberCount(by roomId: String) -> Observable<Result<Int>> {
-        return Single.create { single in
-            manager.getRoom(id: roomId)
-                .collection(className: LiveKtvMember.TABLE)
-                .get(delegate: AgoraObjectListDelegate(success: { objects in
-                    single(.success(Result<Int>(success: true, data: objects.count)))
-                }, failed: { _, message in
-                    single(.success(Result<Int>(success: false, message: message)))
-                }))
-            return Disposables.create()
+    static func queryMemberCount(by _: String) -> Observable<Result<Int>> {
+        return Single.create { _ in
+            Disposables.create()
         }.asObservable()
     }
 
@@ -202,9 +195,6 @@ extension LiveKtvRoom {
             } failed: { _, message in
                 single(.success(Result(success: false, message: message)))
             }
-            LiveKtvRoom.manager.getRoom(id: self.id)
-                .collection(className: LiveKtvMember.TABLE)
-                .get(delegate: delegate)
             return Disposables.create()
         }.asObservable()
     }
@@ -223,28 +213,13 @@ extension LiveKtvRoom {
             } failed: { _, message in
                 single(.success(Result(success: false, message: message)))
             }
-            LiveKtvRoom.manager.getRoom(id: self.id)
-                .collection(className: LiveKtvMusic.TABLE)
-                .get(delegate: delegate)
             return Disposables.create()
         }.asObservable()
     }
 
     func subscribeMembers() -> Observable<Result<[LiveKtvMember]>> {
-        return Observable<Result<Void>>.create { [unowned self] observer -> Disposable in
-            let handler = LiveKtvRoom.manager
-                .getRoom(id: self.id)
-                .collection(className: LiveKtvMember.TABLE)
-                .document()
-                .subscribe(delegate: AgoraSyncManagerEventDelegate(onEvent: { _ in
-                    observer.onNext(Result<Void>(success: true))
-                }, failed: { _, message in
-                    observer.onNext(Result<Void>(success: false, message: message))
-                    // observer.onCompleted()
-                }))
-            return Disposables.create {
-                handler.unsubscribe()
-            }
+        return Observable<Result<Void>>.create { [unowned self] _ -> Disposable in
+            Disposables.create {}
         }
         .startWith(Result<Void>(success: true))
         .flatMap { [unowned self] result -> Observable<Result<[LiveKtvMember]>> in
@@ -253,20 +228,8 @@ extension LiveKtvRoom {
     }
 
     func subscribeMusicList() -> Observable<Result<[LiveKtvMusic]>> {
-        return Observable<Result<Void>>.create { [unowned self] observer -> Disposable in
-            let handler = LiveKtvRoom.manager
-                .getRoom(id: self.id)
-                .collection(className: LiveKtvMusic.TABLE)
-                .document()
-                .subscribe(delegate: AgoraSyncManagerEventDelegate(onEvent: { _ in
-                    observer.onNext(Result<Void>(success: true))
-                }, failed: { _, message in
-                    observer.onNext(Result<Void>(success: false, message: message))
-                    // observer.onCompleted()
-                }))
-            return Disposables.create {
-                handler.unsubscribe()
-            }
+        return Observable<Result<Void>>.create { [unowned self] _ -> Disposable in
+            Disposables.create {}
         }
         .startWith(Result<Void>(success: true))
         .flatMap { [unowned self] result -> Observable<Result<[LiveKtvMusic]>> in
@@ -275,36 +238,8 @@ extension LiveKtvRoom {
     }
 
     func subscribe() -> Observable<Result<LiveKtvRoom>> {
-        return Observable.create { [unowned self] observer -> Disposable in
-            let handler = LiveKtvRoom.manager
-                .getRoom(id: self.id)
-                .subscribe(delegate: AgoraSyncManagerEventDelegate(onEvent: { event in
-                    do {
-                        switch event {
-                        case let .create(object: object):
-                            observer.onNext(Result<LiveKtvRoom>(success: true, data: try LiveKtvRoom.get(object: object)))
-                        case let .update(object: object):
-                            let room = try LiveKtvRoom.get(object: object)
-                            self.channelName = room.channelName
-                            self.cover = room.cover
-                            self.mv = room.mv
-                            observer.onNext(Result<LiveKtvRoom>(success: true, data: room))
-                        case let .delete(id: id):
-                            Logger.log(self, message: "(\(id)) delete", level: .info)
-                            observer.onNext(Result<LiveKtvRoom>(success: true, data: nil))
-                        case .subscribed:
-                            observer.onNext(Result<LiveKtvRoom>(success: true, data: self))
-                        }
-                    } catch {
-                        observer.onNext(Result<LiveKtvRoom>(success: false, message: error.localizedDescription))
-                    }
-                }, failed: { _, message in
-                    observer.onNext(Result<LiveKtvRoom>(success: false, message: message))
-                    observer.onCompleted()
-                }))
-            return Disposables.create {
-                handler.unsubscribe()
-            }
+        return Observable.create { [unowned self] _ -> Disposable in
+            Disposables.create {}
         }.startWith(Result(success: true, data: self))
     }
 
@@ -329,15 +264,18 @@ extension LiveKtvRoom {
             if mv == self.mv {
                 single(.success(Result<Void>(success: true)))
             } else {
-                LiveKtvRoom.manager
-                    .getRoom(id: self.id)
-                    .update(data: [LiveKtvRoom.MV: LiveKtvRoom.getMV(local: localMV)], delegate: AgoraObjectDelegate(success: { _ in
-                        single(.success(Result<Void>(success: true)))
-                    }, failed: { _, message in
-                        single(.success(Result<Void>(success: false, message: message)))
-                    }))
+                single(.success(Result<Void>(success: true)))
             }
             return Disposables.create()
         }.asObservable()
+    }
+
+    public static func getDefaultList() -> [LiveKtvRoom] {
+        return [LiveKtvRoom(id: "001", userId: "u01", channelName: "和你一起看月亮", cover: "1", mv: "1"),
+                LiveKtvRoom(id: "002", userId: "u02", channelName: "治愈", cover: "2", mv: "2"),
+                LiveKtvRoom(id: "003", userId: "u03", channelName: "一锤定音", cover: "3", mv: "3"),
+                LiveKtvRoom(id: "004", userId: "u04", channelName: "有酒吗", cover: "4", mv: "4"),
+                LiveKtvRoom(id: "005", userId: "u05", channelName: "早安序曲", cover: "5", mv: "5"),
+                LiveKtvRoom(id: "006", userId: "u06", channelName: "风情万种的歌房", cover: "6", mv: "6")]
     }
 }

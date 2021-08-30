@@ -27,9 +27,6 @@ public class DownloadManager {
                                                                appropriateFor: nil,
                                                                create: false)
                 let savedURL = documentsURL.appendingPathComponent(_url.lastPathComponent)
-//                if FileManager.default.fileExists(atPath: savedURL.path) {
-//                    try FileManager.default.removeItem(at: savedURL)
-//                }
                 if FileManager.default.fileExists(atPath: savedURL.path) {
                     completion(DownloadResult.success(file: savedURL.path))
                 } else {

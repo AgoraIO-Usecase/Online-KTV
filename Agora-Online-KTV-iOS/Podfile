@@ -20,7 +20,6 @@ target 'app' do
   commonPods
   use_frameworks!
   pod 'AgoraSdk', :path => './AgoraSdk'
-  #pod 'YYCache'
   pod 'Zip', '~> 2.1'
 end
 
@@ -30,17 +29,8 @@ target 'LrcView' do
   pod 'Zip', '~> 2.1'
 end
 
-# target with leancloud sdk
-target 'OnlineKTV_LeanCloud' do
-  commonPods
-  use_frameworks!
-  pod 'LeanCloud'
-end
 
-# target with firebase sdk
-target 'OnlineKTV_Firebase' do
+target 'OnlineKTV' do
   commonPods
   use_frameworks!
-  pod 'Firebase/Firestore'
-  pod 'FirebaseFirestoreSwift'
 end

@@ -66,10 +66,6 @@ extension LiveKtvMusic {
     static let SINGER = "singer"
     static let POSTER = "poster"
 
-    private static var manager: SyncManager {
-        SyncManager.shared
-    }
-
     static func get(object: IAgoraObject, room: LiveKtvRoom) throws -> LiveKtvMusic {
         let id = try object.getId()
         let name: String = try object.getValue(key: LiveKtvMusic.NAME, type: String.self) as! String
@@ -79,80 +75,5 @@ extension LiveKtvMusic {
         let roomId = room.id
         let userId: String = try object.getValue(key: LiveKtvMusic.USER, type: String.self) as! String
         return LiveKtvMusic(id: id, userId: userId, roomId: roomId, name: name, musicId: music, singer: singer, poster: poster)
-    }
-
-//    static func get(object: IAgoraObject, member: LiveKtvMember) throws -> LiveKtvMusic {
-//        let id = try object.getId()
-//        let name: String = try object.getValue(key: LiveKtvMusic.NAME, type: String.self) as! String
-//        let music: String = try object.getValue(key: LiveKtvMusic.MUSIC_ID, type: String.self) as! String
-//        let roomId = member.roomId
-//        let memberId: String = member.id // try object.getValue(key: LiveKtvMusic.MEMBER, type: String.self) as! String
-//        return LiveKtvMusic(id: id, memberId: memberId, roomId: roomId, name: name, musicId: music)
-//    }
-
-    func order() -> Observable<Result<LiveKtvMusic>> {
-        return Single.create { single in
-            LiveKtvMusic.manager
-                .getRoom(id: self.roomId)
-                .collection(className: LiveKtvMusic.TABLE)
-                .add(data: self.toDictionary(), delegate: AgoraObjectDelegate(success: { object in
-                    do {
-                        self.id = try object.getId()
-                        single(.success(Result(success: true, data: self)))
-                    } catch {
-                        single(.success(Result(success: false, message: error.localizedDescription)))
-                    }
-                }, failed: { _, message in
-                    single(.success(Result(success: false, message: message)))
-                }))
-            return Disposables.create()
-        }.asObservable()
-    }
-
-    func delete() -> Observable<Result<Void>> {
-        return Single.create { single in
-            LiveKtvMusic.manager
-                .getRoom(id: self.roomId)
-                .collection(className: LiveKtvMusic.TABLE)
-                .document(id: self.id)
-                .delete(delegate: AgoraDocumentReferenceDelegate(success: {
-                    single(.success(Result(success: true)))
-                }, failed: { _, message in
-                    single(.success(Result(success: false, message: message)))
-                }))
-            return Disposables.create()
-        }.asObservable()
-    }
-
-    static func delete(roomId: String) -> Observable<Result<Void>> {
-        return Single.create { single in
-            LiveKtvMusic.manager
-                .getRoom(id: roomId)
-                .collection(className: LiveKtvMusic.TABLE)
-                .delete(delegate: AgoraDocumentReferenceDelegate(success: {
-                    single(.success(Result(success: true)))
-                }, failed: { _, message in
-                    single(.success(Result(success: false, message: message)))
-                }))
-
-            return Disposables.create()
-        }.asObservable()
-    }
-
-    static func delete(roomId: String, userId: String) -> Observable<Result<Void>> {
-        return Single.create { single in
-            LiveKtvMusic.manager
-                .getRoom(id: roomId)
-                .collection(className: LiveKtvMusic.TABLE)
-                .document()
-                .whereEqual(key: LiveKtvMusic.USER, value: userId)
-                .delete(delegate: AgoraDocumentReferenceDelegate(success: {
-                    single(.success(Result(success: true)))
-                }, failed: { _, message in
-                    single(.success(Result(success: false, message: message)))
-                }))
-
-            return Disposables.create()
-        }.asObservable()
     }
 }

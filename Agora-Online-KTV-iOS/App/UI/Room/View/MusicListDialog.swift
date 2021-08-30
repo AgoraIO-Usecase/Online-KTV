@@ -21,13 +21,13 @@ private class OrderMusicCell: UITableViewCell {
     var music: LocalMusic! {
         didSet {
             nameView.text = "\(music.name)-\(music.singer)"
-            let url = URL(string: music.poster)!
-            let data: NSData! = NSData(contentsOf: url)
-            if data != nil {
-                coverView.image = UIImage(data: data as Data, scale: 1)
-            }
+//            let url = URL(string: music.poster)!
+//            let data: NSData! = NSData(contentsOf: url)
+//            if data != nil {
+//                coverView.image = UIImage(data: data as Data, scale: 1)
+//            }
 
-            orderButton.isEnabled = !delegate.isOrdered(music: music)
+//            orderButton.isEnabled = !delegate.isOrdered(music: music)
             orderButton.backgroundColor = orderButton.isEnabled ? UIColor(hex: Colors.Blue) : UIColor(hex: Colors.Blue).withAlphaComponent(0.3)
         }
     }
@@ -373,14 +373,14 @@ private class HeaderView: UIView {
     var index: Int = 0 {
         didSet {
             if index == 0 {
-                lable0.titleLabel?.textColor = UIColor(hex: Colors.DialogTitle)
-                lable1.textColor = UIColor(hex: Colors.Gray)
+//                lable0.titleLabel?.textColor = UIColor(hex: Colors.DialogTitle)
+//                lable1.textColor = UIColor(hex: Colors.Gray)
                 lable2.textColor = UIColor(hex: Colors.Gray)
                 view0.isHidden = false
                 view1.isHidden = true
             } else {
-                lable0.titleLabel?.textColor = UIColor(hex: Colors.Gray)
-                lable1.textColor = UIColor(hex: Colors.DialogTitle)
+//                lable0.titleLabel?.textColor = UIColor(hex: Colors.Gray)
+//                lable1.textColor = UIColor(hex: Colors.DialogTitle)
                 lable2.textColor = UIColor(hex: Colors.DialogTitle)
                 view0.isHidden = true
                 view1.isHidden = false
@@ -388,13 +388,13 @@ private class HeaderView: UIView {
         }
     }
 
-    private var lable0: UIButton = {
-        let view = UIButton()
-        view.titleLabel?.textColor = UIColor(hex: Colors.DialogTitle)
-        view.titleLabel?.font = UIFont.systemFont(ofSize: 14)
-        view.setTitle("点歌", for: .normal)
-        return view
-    }()
+//    private var lable0: UIButton = {
+//        let view = UIButton()
+//        view.titleLabel?.textColor = UIColor(hex: Colors.DialogTitle)
+//        view.titleLabel?.font = UIFont.systemFont(ofSize: 14)
+//        view.setTitle("点歌", for: .normal)
+//        return view
+//    }()
 
     private var view0: UIView = {
         let view = UIView()
@@ -402,14 +402,6 @@ private class HeaderView: UIView {
         view.height(constant: 3)
             .width(constant: 54)
             .active()
-        return view
-    }()
-
-    private var lable1: UILabel = {
-        let view = UILabel()
-        view.textColor = UIColor(hex: Colors.DialogTitle)
-        view.font = UIFont.systemFont(ofSize: 14)
-        view.text = "已点"
         return view
     }()
 
@@ -432,47 +424,9 @@ private class HeaderView: UIView {
 
     init() {
         super.init(frame: .zero)
-        addSubview(lable0)
-        addSubview(view0)
-        view0.marginLeading(anchor: leadingAnchor, constant: 0)
-            .marginBottom(anchor: bottomAnchor, constant: 0)
-            .active()
-        lable0.height(constant: 48)
-            .centerX(anchor: view0.centerXAnchor)
-            .centerY(anchor: centerYAnchor)
-            .active()
-
-        addSubview(view1)
-        let view = UIView()
-        view.addSubview(lable1)
-        view.addSubview(lable2)
-        lable1.marginLeading(anchor: view.leadingAnchor)
-            .marginTop(anchor: view.topAnchor)
-            .marginBottom(anchor: view.bottomAnchor)
-            .active()
-        lable2.marginLeading(anchor: lable1.trailingAnchor, constant: 3)
-            .marginTop(anchor: view.topAnchor, constant: 15)
-            .marginTrailing(anchor: view.trailingAnchor)
-            .active()
-        addSubview(view)
-
-        view1.marginLeading(anchor: view0.trailingAnchor, constant: 60)
-            .marginTrailing(anchor: trailingAnchor)
-            .marginBottom(anchor: bottomAnchor, constant: 0)
-            .active()
-        view.height(constant: 48)
-            .centerX(anchor: view1.centerXAnchor)
-            .centerY(anchor: centerYAnchor)
-            .active()
-
-        lable0.addTarget(self, action: #selector(onSelect(sender:)), for: .touchUpInside)
-        view.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(onSelect(sender:))))
     }
 
-    @objc func onSelect(sender: Any) {
-        index = sender as! NSObject == lable0 ? 0 : 1
-        delegate?.onSelect(index: index)
-    }
+    @objc func onSelect(sender _: Any) {}
 
     @available(*, unavailable)
     required init?(coder _: NSCoder) {
@@ -484,11 +438,8 @@ class MusicListDialog: Dialog, UIScrollViewDelegate, HeaderViewDelegate, SearchV
     weak var delegate: RoomController! {
         didSet {
             scrollView.contentSize.width = delegate.view.bounds.width * 2
-            // localMusicList.bounds = CGRect(x: 0, y: 0, width: delegate.view.bounds.width, height: 300)
             localMusicList.roomDelegate = delegate
             localMusicList.reloadData()
-            liveMusicList.roomDelegate = delegate
-            liveMusicList.reloadData()
         }
     }
 
@@ -521,11 +472,6 @@ class MusicListDialog: Dialog, UIScrollViewDelegate, HeaderViewDelegate, SearchV
         view.textAlignment = .center
         view.textColor = UIColor(hex: "#7e7e7e")
         view.font = UIFont.systemFont(ofSize: 14)
-        return view
-    }()
-
-    private var liveMusicList: LiveMusicList = {
-        let view = LiveMusicList()
         return view
     }()
 
@@ -581,12 +527,6 @@ class MusicListDialog: Dialog, UIScrollViewDelegate, HeaderViewDelegate, SearchV
             .height(equalTo: scrollView.heightAnchor, constant: -16 * 2 - 32)
             .active()
 
-        scrollView.addSubview(liveMusicList)
-        liveMusicList.marginLeading(anchor: localMusicList.trailingAnchor)
-            .width(equalTo: scrollView.widthAnchor)
-            .height(equalTo: scrollView.heightAnchor)
-            .active()
-
         scrollView.delegate = self
         header.delegate = self
         searchView.delegate = self
@@ -613,27 +553,8 @@ class MusicListDialog: Dialog, UIScrollViewDelegate, HeaderViewDelegate, SearchV
         }
     }
 
-    func onSearch(text: String) {
-        Logger.log(self, message: "onSearch \(text)", level: .info)
-        delegate.viewModel.search(music: text) { [unowned self] waiting in
-            self.show(processing: waiting, message: "歌曲搜索中")
-        } onSuccess: { [unowned self] list in
-            localMusicList.data = list
-            localMusicList.reloadData()
-            if list.count == 0 {
-                if emptyView.superview == nil {
-                    scrollView.addSubview(emptyView)
-                    emptyView.fill(view: localMusicList)
-                        .active()
-                }
-            } else {
-                if emptyView.superview != nil {
-                    emptyView.removeFromSuperview()
-                }
-            }
-        } onError: { [unowned self] message in
-            self.delegate.show(message: message, type: .error)
-        }
+    func onSearch(text _: String) {
+        localMusicList.data = musicsOnDevice
     }
 
     func show(delegate: RoomController) {
@@ -646,7 +567,11 @@ class MusicListDialog: Dialog, UIScrollViewDelegate, HeaderViewDelegate, SearchV
 
     func reload() {
         localMusicList.reloadData()
-        liveMusicList.reloadData()
         header.count = delegate.viewModel.musicList.count
     }
 }
+
+let musicsOnDevice = [LocalMusic(id: "001", name: "七里香", path: "https://webdemo.agora.io/ktv/001.mp3", lrcPath: "https://webdemo.agora.io/ktv/001.xml", singer: "周杰伦", poster: ""),
+                      LocalMusic(id: "002", name: "后来", path: "https://webdemo.agora.io/ktv/002.mp3", lrcPath: "https://webdemo.agora.io/ktv/002.xml", singer: "刘若英", poster: ""),
+                      LocalMusic(id: "003", name: "我怀念的", path: "https://webdemo.agora.io/ktv/003.mp3", lrcPath: "https://webdemo.agora.io/ktv/003.xml", singer: "孙燕姿", poster: ""),
+                      LocalMusic(id: "004", name: "突然好想你", path: "https://webdemo.agora.io/ktv/004.mp3", lrcPath: "https://webdemo.agora.io/ktv/004.xml", singer: "五月天", poster: "")]

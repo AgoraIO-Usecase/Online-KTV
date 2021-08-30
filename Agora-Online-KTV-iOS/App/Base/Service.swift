@@ -29,7 +29,7 @@ protocol IRoomManager {
 
     func changeRoomMV(mv: String) -> Observable<Result<Void>>
     func subscribeRoom() -> Observable<Result<LiveKtvRoom>>
-    func subscribeMembers() -> Observable<Result<[LiveKtvMember]>>
+    func subscribeMembers() -> Observable<Result<LiveKtvMember>>
 
     func play(music: LocalMusic) -> Observable<Result<Void>>
     func seekMusic(position: TimeInterval)

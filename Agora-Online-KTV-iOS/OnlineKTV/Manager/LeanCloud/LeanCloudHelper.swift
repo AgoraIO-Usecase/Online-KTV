@@ -4,7 +4,7 @@
 //
 //  Created by XC on 2021/6/1.
 //
-#if LEANCLOUD
+#if false
     import Core
     import Foundation
     import LeanCloud

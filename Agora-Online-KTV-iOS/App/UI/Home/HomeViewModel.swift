@@ -15,7 +15,7 @@ import RxSwift
 class HomeViewModel {
     private let disposeBag = DisposeBag()
     private let manager = RoomManager.shared()
-    private(set) var roomList: [LiveKtvRoom] = []
+    private(set) var roomList: [LiveKtvRoom] = LiveKtvRoom.getDefaultList()
     private var scheduler = SerialDispatchQueueScheduler(internalSerialQueueName: "io")
 
     func account() -> User? {
@@ -49,26 +49,10 @@ class HomeViewModel {
     func refreshRoomList(
         onWaiting: @escaping (Bool) -> Void,
         onSuccess: @escaping () -> Void,
-        onError: @escaping (String) -> Void
+        onError _: @escaping (String) -> Void
     ) {
-        // _dataSource()
-        manager.getRooms()
-            .observe(on: MainScheduler.instance)
-            .do(onSubscribe: {
-                onWaiting(true)
-            }, onDispose: {
-                onWaiting(false)
-            })
-            .subscribe(onNext: { result in
-                if result.success {
-                    self.roomList.removeAll()
-                    self.roomList.append(contentsOf: result.data ?? [])
-                    onSuccess()
-                } else {
-                    onError(result.message ?? "unknown error".localized)
-                }
-            })
-            .disposed(by: disposeBag)
+        onWaiting(false)
+        onSuccess()
     }
 
     func join(room: LiveKtvRoom,

@@ -15,41 +15,19 @@ protocol IAppTarget {
     func getAppMainViewController() -> UIViewController
 }
 
-#if LEANCLOUD
-    class LeanCloudAppTarget: IAppTarget {
-        func initTarget() {
-            Database.initConfig()
-            _ = InjectionService.shared
-                .register(ISyncManager.self, instance: LeanCloudSyncManager())
-                .register(IUserManager.self, instance: LeanCloudUserManager())
-        }
-
-        func getAppMainViewController() -> UIViewController {
-            return LiveKtvHomeController.instance()
-        }
+class AppTarget: IAppTarget {
+    func initTarget() {
+        InjectionService.shared
+            .register(IUserManager.self, instance: LocalUserManager())
     }
 
-#elseif FIREBASE
-    class FirebaseAppTarget: IAppTarget {
-        func initTarget() {
-            Database.initConfig()
-            _ = InjectionService.shared
-                .register(ISyncManager.self, instance: FirebaseSyncManager())
-                .register(IUserManager.self, instance: FirebaseUserManager())
-        }
-
-        func getAppMainViewController() -> UIViewController {
-            return LiveKtvHomeController.instance()
-        }
+    func getAppMainViewController() -> UIViewController {
+        return LiveKtvHomeController.instance()
     }
-#endif
+}
 
 enum AppTargets {
-    #if LEANCLOUD
-        private static let target: IAppTarget = LeanCloudAppTarget()
-    #elseif FIREBASE
-        private static let target: IAppTarget = FirebaseAppTarget()
-    #endif
+    private static let target: IAppTarget = AppTarget()
 
     static func initTarget() {
         target.initTarget()

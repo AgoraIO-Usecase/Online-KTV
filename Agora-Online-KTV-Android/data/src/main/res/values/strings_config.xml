@@ -12,7 +12,4 @@
     <!-- You will need to deploy your own token server for production release -->
     <!-- Leave this value empty if Security keys/Token is not enabled for your project -->
     <string name="rtm_token" translatable="false"></string>
-    <string name="leancloud_app_id" translatable="false"></string>
-    <string name="leancloud_app_key" translatable="false"></string>
-    <string name="leancloud_server_url" translatable="false"></string>
 </resources>

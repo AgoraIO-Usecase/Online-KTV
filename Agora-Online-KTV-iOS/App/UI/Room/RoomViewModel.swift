@@ -70,7 +70,8 @@ class RoomViewModel {
     private(set) var memberList: [LiveKtvMember] = []
     private(set) var musicList: [LiveKtvMusic] = []
 
-    private var lrcMusicCache = [String: LrcMusic]()
+//    private var lrcMusicCache = [String: LrcMusic]()
+    private var lrcMusicCache = LrcMusic.getDefultList()
 
     func subcribeRoomEvent() {
         manager.subscribeRoom()
@@ -94,8 +95,18 @@ class RoomViewModel {
             .subscribe(onNext: { [unowned self] result in
                 self.delegate?.onMuted(mute: muted)
                 if result.success {
-                    if let list = result.data {
-                        self.memberList = list
+                    if let member = result.data {
+                        member.roomId = room.id
+                        var isContain = false
+                        for item in self.memberList {
+                            if item.id == member.id {
+                                item.role = member.role
+                                isContain = true
+                            }
+                        }
+                        if !isContain {
+                            self.memberList.append(member)
+                        }
                         self.delegate?.onMemberListChanged()
                     }
                 } else {
@@ -125,18 +136,7 @@ class RoomViewModel {
                 }
             }
             .observe(on: MainScheduler.instance)
-            .subscribe(onNext: { [unowned self] result in
-                if result.success {
-                    if let localMusic = result.data, localMusic.id == self.playingMusic?.musicId, !self.isLocalMusicPlaying(music: localMusic) {
-                        self.play(music: localMusic) { [unowned self] waiting in
-                            self.delegate.show(processing: waiting)
-                        } onSuccess: {} onError: { [unowned self] message in
-                            self.delegate.onError(message: message)
-                        }
-                    }
-                } else {
-                    self.delegate?.onError(message: result.message)
-                }
+            .subscribe(onNext: { [unowned self] _ in
             })
             .disposed(by: disposeBag)
 
@@ -144,6 +144,16 @@ class RoomViewModel {
             .subscribe(onNext: { [unowned self] result in
                 if result.success {
                     if let state = result.data {
+                        guard let music = lrcMusicCache[state.musicId] else {
+                            return
+                        }
+                        let localMusic = LocalMusic(id: music.id!, name: music.name!, path: music.song, lrcPath: music.lrc, singer: music.singer!, poster: music.poster!)
+                        if state.state == .playing {
+                            self.musicList = [LiveKtvMusic(id: localMusic.id, userId: getUserId(streamId: state.uid), roomId: self.room.id, name: localMusic.name, musicId: localMusic.id, singer: localMusic.singer, poster: localMusic.poster)]
+                        } else {
+                            self.musicList = []
+                        }
+                        self.delegate?.onPlayListChanged()
                         self.delegate?.onMusic(state: state)
                     }
                 } else {
@@ -151,6 +161,15 @@ class RoomViewModel {
                 }
             })
             .disposed(by: disposeBag)
+    }
+
+    private func getUserId(streamId: UInt) -> String {
+        for item in memberList {
+            if item.streamId == streamId {
+                return item.userId
+            }
+        }
+        return "0"
     }
 
     private func play(music: LocalMusic,
@@ -194,7 +213,7 @@ class RoomViewModel {
                         data.name = music.name
                         data.singer = music.singer
                         data.poster = music.poster
-                        self?.lrcMusicCache[music.musicId] = data
+//                        self?.lrcMusicCache[music.musicId] = data
                     }
                     return result
                 }
@@ -324,6 +343,8 @@ class RoomViewModel {
             })
             .subscribe { result in
                 if result.success {
+                    self.room.mv = LiveKtvRoom.getMV(local: mv)
+                    self.delegate.onRoomUpdate()
                     onSuccess()
                 } else {
                     onError(result.message ?? "unknown error".localized)
@@ -335,27 +356,18 @@ class RoomViewModel {
     }
 
     func order(music: LocalMusic,
-               onWaiting: @escaping (Bool) -> Void,
+               onWaiting _: @escaping (Bool) -> Void,
                onSuccess: @escaping () -> Void,
-               onError: @escaping (String) -> Void)
+               onError _: @escaping (String) -> Void)
     {
-        member.orderMusic(id: music.id, name: music.name, singer: music.singer, poster: music.poster)
-            .observe(on: MainScheduler.instance)
-            .do(onSubscribe: {
-                onWaiting(true)
-            }, onDispose: {
-                onWaiting(false)
-            })
-            .subscribe { result in
-                if result.success {
-                    onSuccess()
-                } else {
-                    onError(result.message ?? "unknown error".localized)
-                }
-            } onDisposed: {
-                onWaiting(false)
-            }
-            .disposed(by: disposeBag)
+        musicList = [LiveKtvMusic(id: music.id, userId: account.id, roomId: room.id, name: music.name, musicId: music.id, singer: music.singer, poster: music.poster)]
+        delegate.onPlayListChanged()
+        play(music: music) { [unowned self] waiting in
+            self.delegate.show(processing: waiting)
+        } onSuccess: {} onError: { [unowned self] message in
+            self.delegate.onError(message: message)
+        }
+        onSuccess()
     }
 
     func kickSpeaker(member: LiveKtvMember,
@@ -506,8 +518,4 @@ class RoomViewModel {
             }
             .disposed(by: disposeBag)
     }
-
-//    func _musicDataSource(music: String) -> Observable<Result<[LocalMusic]>> {
-//        return Observable.just(Result(success: true, data: music.isEmpty ? localMusicManager.localMusicList : [])).delay(DispatchTimeInterval.seconds(5), scheduler: scheduler)
-//    }
 }

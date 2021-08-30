@@ -7,20 +7,16 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		2286E14579B4C41428ADC844 /* Pods_OnlineKTV_Firebase.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B761F18FE8145F50224BD9B /* Pods_OnlineKTV_Firebase.framework */; };
 		3080660D297D9239CC1F3C8A /* Pods_LrcView.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C1A6B7D5EC88E0E3F8BDBBFB /* Pods_LrcView.framework */; };
 		570997CB265756EC00B87998 /* AppDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 570997CA265756EC00B87998 /* AppDataManager.swift */; };
 		571AA46E2629862700B82B35 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 571AA46D2629862700B82B35 /* AppDelegate.swift */; };
 		571AA4702629862700B82B35 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 571AA46F2629862700B82B35 /* SceneDelegate.swift */; };
 		571AA47A2629862800B82B35 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 571AA4792629862800B82B35 /* Assets.xcassets */; };
 		571AA47D2629862800B82B35 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 571AA47B2629862800B82B35 /* LaunchScreen.storyboard */; };
-		57233DBA267C98080066004B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5791A95D267AF2FB00A02B30 /* Main.storyboard */; };
 		574C9CA12668B62100822A95 /* ServiceLocator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 574C9CA02668B62100822A95 /* ServiceLocator.swift */; };
 		574C9CB4266A0B4300822A95 /* LiveKtv.h in Headers */ = {isa = PBXBuildFile; fileRef = 574C9CB2266A0B4300822A95 /* LiveKtv.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		574C9CB7266A0B4300822A95 /* app.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 574C9CB0266A0B4200822A95 /* app.framework */; };
 		574C9CB8266A0B4300822A95 /* app.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 574C9CB0266A0B4200822A95 /* app.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		574C9CBC266A0B7E00822A95 /* app.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 574C9CB0266A0B4200822A95 /* app.framework */; };
-		574C9CBD266A0B7E00822A95 /* app.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 574C9CB0266A0B4200822A95 /* app.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		574C9CC0266A0BDB00822A95 /* Core.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5757D048262D834700B4A785 /* Core.framework */; };
 		574C9CCA266A0C4300822A95 /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = 574C9CC9266A0C4300822A95 /* Model.swift */; };
 		574C9CCC266A1E7E00822A95 /* Media.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 574C9CCB266A1E7E00822A95 /* Media.xcassets */; };
@@ -49,9 +45,6 @@
 		5757D165262DB9DB00B4A785 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 5757D163262DB9DB00B4A785 /* Model.xcdatamodeld */; };
 		5757D21F262EB8F300B4A785 /* ActivityIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5757D21E262EB8F300B4A785 /* ActivityIndicator.swift */; };
 		5762F7E026568019003B042D /* AppTargets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5762F7DC26567BAA003B042D /* AppTargets.swift */; };
-		5762F7E12656801C003B042D /* AppTargets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5762F7DC26567BAA003B042D /* AppTargets.swift */; };
-		5762F80426568446003B042D /* Core.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5757D048262D834700B4A785 /* Core.framework */; };
-		5762F80526568446003B042D /* Core.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 5757D048262D834700B4A785 /* Core.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		5764BB91266DCD9F00293B73 /* Icon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5764BB90266DCD9F00293B73 /* Icon.swift */; };
 		5764BB94266DD0B500293B73 /* CreateRoomController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5764BB93266DD0B500293B73 /* CreateRoomController.swift */; };
 		5764BB97266DF6A700293B73 /* Header.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5764BB96266DF6A700293B73 /* Header.swift */; };
@@ -76,38 +69,21 @@
 		5764BBC22671F79500293B73 /* PlayerSettingDialog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5764BBC12671F79500293B73 /* PlayerSettingDialog.swift */; };
 		5764BBC42672034900293B73 /* SelectMVDialog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5764BBC32672034900293B73 /* SelectMVDialog.swift */; };
 		5764BBC626723F1200293B73 /* LiveKtvMusic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5764BBC526723F1200293B73 /* LiveKtvMusic.swift */; };
-		5782AC8C26958EED00B4162A /* 004.xml in Resources */ = {isa = PBXBuildFile; fileRef = 5782AC8B26958EED00B4162A /* 004.xml */; };
-		5782AC8D2695A76300B4162A /* 004.xml in Resources */ = {isa = PBXBuildFile; fileRef = 5782AC8B26958EED00B4162A /* 004.xml */; };
-		5782AC91269C144200B4162A /* 005.xml in Resources */ = {isa = PBXBuildFile; fileRef = 5782AC90269C144200B4162A /* 005.xml */; };
-		5782AC93269C145100B4162A /* 001.xml in Resources */ = {isa = PBXBuildFile; fileRef = 5782AC92269C145100B4162A /* 001.xml */; };
-		5782AC95269C4B0200B4162A /* 003.xml in Resources */ = {isa = PBXBuildFile; fileRef = 5782AC94269C4B0200B4162A /* 003.xml */; };
 		5783FE942664B571000B39F3 /* SyncManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5783FE932664B571000B39F3 /* SyncManager.swift */; };
-		5783FEA62666250B000B39F3 /* SyncManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5783FEA52666250B000B39F3 /* SyncManager.swift */; };
-		5783FEA926662555000B39F3 /* SyncManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5783FEA72666253D000B39F3 /* SyncManager.swift */; };
 		5783FEAB26662859000B39F3 /* UserManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5783FEAA26662859000B39F3 /* UserManager.swift */; };
-		5783FEB026662D0B000B39F3 /* LeanCloudHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5783FEAE26662C37000B39F3 /* LeanCloudHelper.swift */; };
 		5783FEBF2667338E000B39F3 /* UserManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5783FEAC2666299A000B39F3 /* UserManager.swift */; };
-		5783FEDB26678197000B39F3 /* UserManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5783FEC526673A0B000B39F3 /* UserManager.swift */; };
-		5783FEDC26678340000B39F3 /* FirebaseHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5783FEC2266738AC000B39F3 /* FirebaseHelper.swift */; };
 		578545462689CF0B00605ABE /* Dialog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 578545452689CF0B00605ABE /* Dialog.swift */; };
 		5791A95C2678D89800A02B30 /* MusicListDialog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5791A95B2678D89800A02B30 /* MusicListDialog.swift */; };
 		5791A95E267AF2FB00A02B30 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5791A95D267AF2FB00A02B30 /* Main.storyboard */; };
 		57AC4627268B202500A62DD1 /* DownloadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57AC4626268B202500A62DD1 /* DownloadManager.swift */; };
-		57E8D504264A2C03007001BC /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 571AA46D2629862700B82B35 /* AppDelegate.swift */; };
-		57E8D505264A2C03007001BC /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 571AA46F2629862700B82B35 /* SceneDelegate.swift */; };
-		57E8D50E264A2C03007001BC /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 571AA47B2629862800B82B35 /* LaunchScreen.storyboard */; };
-		57E8D50F264A2C03007001BC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 571AA4792629862800B82B35 /* Assets.xcassets */; };
 		57E8D545264A31B2007001BC /* Core.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5757D048262D834700B4A785 /* Core.framework */; };
 		57E8D546264A31B2007001BC /* Core.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 5757D048262D834700B4A785 /* Core.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		57E8D61B264A6A57007001BC /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 57E8D60C264A5904007001BC /* GoogleService-Info.plist */; };
-		57E8D621264A6FDC007001BC /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 57E8D624264A6FDC007001BC /* Localizable.strings */; };
 		57E8D62A264A7306007001BC /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 57E8D624264A6FDC007001BC /* Localizable.strings */; };
 		57F6396D263000C300B45C0B /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 57F6396F263000C300B45C0B /* Localizable.strings */; };
 		57F639732630015200B45C0B /* Media.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 57F639722630015200B45C0B /* Media.xcassets */; };
 		57F639D926304ACE00B45C0B /* RoundButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F639D826304ACE00B45C0B /* RoundButton.swift */; };
 		57FFD42426A02A0200668BE0 /* ColorThief.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57FFD42326A02A0200668BE0 /* ColorThief.swift */; };
 		57FFD42626A02DEA00668BE0 /* MMCQ.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57FFD42526A02DEA00668BE0 /* MMCQ.swift */; };
-		6B7246CCC6D98958270A218F /* Pods_OnlineKTV_LeanCloud.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55CA5154BEFE30CEC188B4E6 /* Pods_OnlineKTV_LeanCloud.framework */; };
 		761402B6C292295B451C235C /* Pods_Core.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A0D7AE253FD40BFF3FC44E37 /* Pods_Core.framework */; };
 		8B0C3A3226BE7E12004C7F27 /* Util.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B0C3A3126BE7E12004C7F27 /* Util.swift */; };
 		8B0C3A3326BE7F10004C7F27 /* LrcView.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BBB784C26BE6C1B00096F8E /* LrcView.framework */; };
@@ -122,6 +98,7 @@
 		8BBB785B26BE6CE500096F8E /* LocalMusicManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5764BBE02673512F00293B73 /* LocalMusicManager.swift */; };
 		8BBB785C26BE6CEE00096F8E /* MusicLyricView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5764BBE52673AE1F00293B73 /* MusicLyricView.swift */; };
 		8DBFDF9E1F5B67064C73BC9C /* Pods_app.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D4C940726440F80BCBE3DFF6 /* Pods_app.framework */; };
+		FC5E2D4F47534D90DFE5FEE9 /* Pods_OnlineKTV.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A481C1D7058E6E0177BE3EA9 /* Pods_OnlineKTV.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -139,21 +116,7 @@
 			remoteGlobalIDString = 574C9CAF266A0B4200822A95;
 			remoteInfo = LiveKtv;
 		};
-		574C9CBE266A0B7E00822A95 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 571AA4622629862700B82B35 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 574C9CAF266A0B4200822A95;
-			remoteInfo = LiveKtv;
-		};
 		574C9CC2266A0BDB00822A95 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 571AA4622629862700B82B35 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 5757D047262D834700B4A785;
-			remoteInfo = Core;
-		};
-		5762F80626568446003B042D /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 571AA4622629862700B82B35 /* Project object */;
 			proxyType = 1;
@@ -190,22 +153,11 @@
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		57E8D512264A2C03007001BC /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				574C9CBD266A0B7E00822A95 /* app.framework in Embed Frameworks */,
-				5762F80526568446003B042D /* Core.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		0A48224293C2DDD919082C2E /* Pods-Scene-Examples_Firebase.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Scene-Examples_Firebase.debug.xcconfig"; path = "Target Support Files/Pods-Scene-Examples_Firebase/Pods-Scene-Examples_Firebase.debug.xcconfig"; sourceTree = "<group>"; };
+		101713F09F66FF7CC81EAD54 /* Pods-OnlineKTV.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OnlineKTV.debug.xcconfig"; path = "Target Support Files/Pods-OnlineKTV/Pods-OnlineKTV.debug.xcconfig"; sourceTree = "<group>"; };
 		12B2800E60E55F24FD5B656C /* Pods-Core.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Core.release.xcconfig"; path = "Target Support Files/Pods-Core/Pods-Core.release.xcconfig"; sourceTree = "<group>"; };
 		14F32E28B2836AA08824DB69 /* Pods-LiveKtv.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-LiveKtv.debug.xcconfig"; path = "Target Support Files/Pods-LiveKtv/Pods-LiveKtv.debug.xcconfig"; sourceTree = "<group>"; };
 		15A2E68AA95F4351506F2576 /* Pods-InteractivePodcast_Firebase.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-InteractivePodcast_Firebase.release.xcconfig"; path = "Target Support Files/Pods-InteractivePodcast_Firebase/Pods-InteractivePodcast_Firebase.release.xcconfig"; sourceTree = "<group>"; };
@@ -218,9 +170,8 @@
 		51F8C0547106EBD253E46381 /* Pods-InteractivePodcast_Firebase.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-InteractivePodcast_Firebase.debug.xcconfig"; path = "Target Support Files/Pods-InteractivePodcast_Firebase/Pods-InteractivePodcast_Firebase.debug.xcconfig"; sourceTree = "<group>"; };
 		527096D4B407DA1FE7C4F5D4 /* Pods-Core_Firebase.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Core_Firebase.debug.xcconfig"; path = "Target Support Files/Pods-Core_Firebase/Pods-Core_Firebase.debug.xcconfig"; sourceTree = "<group>"; };
 		53A21D478558F81DF5D75531 /* Pods-Database_LeanCloud.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Database_LeanCloud.release.xcconfig"; path = "Target Support Files/Pods-Database_LeanCloud/Pods-Database_LeanCloud.release.xcconfig"; sourceTree = "<group>"; };
-		55CA5154BEFE30CEC188B4E6 /* Pods_OnlineKTV_LeanCloud.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_OnlineKTV_LeanCloud.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		570997CA265756EC00B87998 /* AppDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDataManager.swift; sourceTree = "<group>"; };
-		571AA46A2629862700B82B35 /* OnlineKTV_LeanCloud.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OnlineKTV_LeanCloud.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		571AA46A2629862700B82B35 /* OnlineKTV.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OnlineKTV.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		571AA46D2629862700B82B35 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		571AA46F2629862700B82B35 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		571AA4792629862800B82B35 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -291,25 +242,14 @@
 		5764BBE326735D9900293B73 /* Lyric.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lyric.swift; sourceTree = "<group>"; };
 		5764BBE52673AE1F00293B73 /* MusicLyricView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicLyricView.swift; sourceTree = "<group>"; };
 		5782AC892695597500B4162A /* MiguLyric.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiguLyric.swift; sourceTree = "<group>"; };
-		5782AC8B26958EED00B4162A /* 004.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = 004.xml; sourceTree = "<group>"; };
 		5782AC8E2695CA7D00B4162A /* LrcSentence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LrcSentence.swift; sourceTree = "<group>"; };
-		5782AC90269C144200B4162A /* 005.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = 005.xml; sourceTree = "<group>"; };
-		5782AC92269C145100B4162A /* 001.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = 001.xml; sourceTree = "<group>"; };
-		5782AC94269C4B0200B4162A /* 003.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = 003.xml; sourceTree = "<group>"; };
 		5783FE932664B571000B39F3 /* SyncManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncManager.swift; sourceTree = "<group>"; };
-		5783FEA52666250B000B39F3 /* SyncManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncManager.swift; sourceTree = "<group>"; };
-		5783FEA72666253D000B39F3 /* SyncManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncManager.swift; sourceTree = "<group>"; };
 		5783FEAA26662859000B39F3 /* UserManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserManager.swift; sourceTree = "<group>"; };
 		5783FEAC2666299A000B39F3 /* UserManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserManager.swift; sourceTree = "<group>"; };
-		5783FEAE26662C37000B39F3 /* LeanCloudHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeanCloudHelper.swift; sourceTree = "<group>"; };
-		5783FEC2266738AC000B39F3 /* FirebaseHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseHelper.swift; sourceTree = "<group>"; };
-		5783FEC526673A0B000B39F3 /* UserManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserManager.swift; sourceTree = "<group>"; };
 		578545452689CF0B00605ABE /* Dialog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dialog.swift; sourceTree = "<group>"; };
 		5791A95B2678D89800A02B30 /* MusicListDialog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicListDialog.swift; sourceTree = "<group>"; };
 		5791A95D267AF2FB00A02B30 /* Main.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		57AC4626268B202500A62DD1 /* DownloadManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadManager.swift; sourceTree = "<group>"; };
-		57E8D519264A2C03007001BC /* OnlineKTV_Firebase.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OnlineKTV_Firebase.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		57E8D60C264A5904007001BC /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = SOURCE_ROOT; };
 		57E8D623264A6FDC007001BC /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		57F6396E263000C300B45C0B /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		57F639722630015200B45C0B /* Media.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Media.xcassets; sourceTree = "<group>"; };
@@ -318,6 +258,7 @@
 		57FFD42326A02A0200668BE0 /* ColorThief.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorThief.swift; sourceTree = "<group>"; };
 		57FFD42526A02DEA00668BE0 /* MMCQ.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMCQ.swift; sourceTree = "<group>"; };
 		5E10D1E8C56ADBA341AB43AE /* Pods-Core_LeanCloud.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Core_LeanCloud.debug.xcconfig"; path = "Target Support Files/Pods-Core_LeanCloud/Pods-Core_LeanCloud.debug.xcconfig"; sourceTree = "<group>"; };
+		5E8148FAFC53C28953DEB44B /* Pods-OnlineKTV.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OnlineKTV.release.xcconfig"; path = "Target Support Files/Pods-OnlineKTV/Pods-OnlineKTV.release.xcconfig"; sourceTree = "<group>"; };
 		5F8E2FB0C8FCBF6C320DEE8A /* Pods-OnlineKTV_LeanCloud.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OnlineKTV_LeanCloud.debug.xcconfig"; path = "Target Support Files/Pods-OnlineKTV_LeanCloud/Pods-OnlineKTV_LeanCloud.debug.xcconfig"; sourceTree = "<group>"; };
 		62FCFC75A3DE87EC24840504 /* Pods-OnlineKTV_Firebase.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OnlineKTV_Firebase.release.xcconfig"; path = "Target Support Files/Pods-OnlineKTV_Firebase/Pods-OnlineKTV_Firebase.release.xcconfig"; sourceTree = "<group>"; };
 		6D2AB6714D68EC1998AFC756 /* Pods-InteractivePodcast_LeanCloud.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-InteractivePodcast_LeanCloud.debug.xcconfig"; path = "Target Support Files/Pods-InteractivePodcast_LeanCloud/Pods-InteractivePodcast_LeanCloud.debug.xcconfig"; sourceTree = "<group>"; };
@@ -338,6 +279,7 @@
 		A0D7AE253FD40BFF3FC44E37 /* Pods_Core.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Core.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A289AA6F7379CBD4C64ABF0F /* Pods-LrcView.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-LrcView.release.xcconfig"; path = "Target Support Files/Pods-LrcView/Pods-LrcView.release.xcconfig"; sourceTree = "<group>"; };
 		A3BBB0EA41A6E941399791B8 /* Pods-Database_Firebase.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Database_Firebase.release.xcconfig"; path = "Target Support Files/Pods-Database_Firebase/Pods-Database_Firebase.release.xcconfig"; sourceTree = "<group>"; };
+		A481C1D7058E6E0177BE3EA9 /* Pods_OnlineKTV.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_OnlineKTV.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A5D93A8BC9FA018DF820EFB2 /* Pods-Database_Firebase.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Database_Firebase.debug.xcconfig"; path = "Target Support Files/Pods-Database_Firebase/Pods-Database_Firebase.debug.xcconfig"; sourceTree = "<group>"; };
 		B0FD9DDB0223C8305338ED51 /* Pods_BlindDate_Firebase.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_BlindDate_Firebase.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B463897AA0F897B9B5481F21 /* Pods-LrcView.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-LrcView.debug.xcconfig"; path = "Target Support Files/Pods-LrcView/Pods-LrcView.debug.xcconfig"; sourceTree = "<group>"; };
@@ -365,7 +307,7 @@
 				574C9CB7266A0B4300822A95 /* app.framework in Frameworks */,
 				8BBB785326BE6C1B00096F8E /* LrcView.framework in Frameworks */,
 				57E8D545264A31B2007001BC /* Core.framework in Frameworks */,
-				6B7246CCC6D98958270A218F /* Pods_OnlineKTV_LeanCloud.framework in Frameworks */,
+				FC5E2D4F47534D90DFE5FEE9 /* Pods_OnlineKTV.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -384,16 +326,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				761402B6C292295B451C235C /* Pods_Core.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		57E8D508264A2C03007001BC /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				574C9CBC266A0B7E00822A95 /* app.framework in Frameworks */,
-				5762F80426568446003B042D /* Core.framework in Frameworks */,
-				2286E14579B4C41428ADC844 /* Pods_OnlineKTV_Firebase.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -424,9 +356,8 @@
 		571AA46B2629862700B82B35 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				571AA46A2629862700B82B35 /* OnlineKTV_LeanCloud.app */,
+				571AA46A2629862700B82B35 /* OnlineKTV.app */,
 				5757D048262D834700B4A785 /* Core.framework */,
-				57E8D519264A2C03007001BC /* OnlineKTV_Firebase.app */,
 				574C9CB0266A0B4200822A95 /* app.framework */,
 				8BBB784C26BE6C1B00096F8E /* LrcView.framework */,
 			);
@@ -436,14 +367,12 @@
 		571AA46C2629862700B82B35 /* OnlineKTV */ = {
 			isa = PBXGroup;
 			children = (
-				5764BBD52673505100293B73 /* Res */,
 				5783FE952664B741000B39F3 /* Manager */,
 				571AA46D2629862700B82B35 /* AppDelegate.swift */,
 				571AA46F2629862700B82B35 /* SceneDelegate.swift */,
 				571AA4792629862800B82B35 /* Assets.xcassets */,
 				571AA47B2629862800B82B35 /* LaunchScreen.storyboard */,
 				571AA47E2629862800B82B35 /* Info.plist */,
-				57E8D60C264A5904007001BC /* GoogleService-Info.plist */,
 				57E8D624264A6FDC007001BC /* Localizable.strings */,
 				5762F7DC26567BAA003B042D /* AppTargets.swift */,
 				5791A95D267AF2FB00A02B30 /* Main.storyboard */,
@@ -644,7 +573,6 @@
 		5764BBA9266F1D1900293B73 /* Manager */ = {
 			isa = PBXGroup;
 			children = (
-				5764BBE226735D8000293B73 /* Music */,
 				5764BBAA266F1D2D00293B73 /* RtcServer.swift */,
 				5764BBAC266F1DA000293B73 /* RoomManager.swift */,
 			);
@@ -659,51 +587,12 @@
 			path = View;
 			sourceTree = "<group>";
 		};
-		5764BBD52673505100293B73 /* Res */ = {
-			isa = PBXGroup;
-			children = (
-				5782AC92269C145100B4162A /* 001.xml */,
-				5782AC90269C144200B4162A /* 005.xml */,
-				5782AC8B26958EED00B4162A /* 004.xml */,
-				5782AC94269C4B0200B4162A /* 003.xml */,
-			);
-			path = Res;
-			sourceTree = SOURCE_ROOT;
-		};
-		5764BBE226735D8000293B73 /* Music */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Music;
-			sourceTree = "<group>";
-		};
 		5783FE952664B741000B39F3 /* Manager */ = {
 			isa = PBXGroup;
 			children = (
-				5783FEA42666249A000B39F3 /* Firebase */,
-				5783FEA326662488000B39F3 /* LeanCloud */,
+				5783FEAC2666299A000B39F3 /* UserManager.swift */,
 			);
 			path = Manager;
-			sourceTree = "<group>";
-		};
-		5783FEA326662488000B39F3 /* LeanCloud */ = {
-			isa = PBXGroup;
-			children = (
-				5783FEA52666250B000B39F3 /* SyncManager.swift */,
-				5783FEAC2666299A000B39F3 /* UserManager.swift */,
-				5783FEAE26662C37000B39F3 /* LeanCloudHelper.swift */,
-			);
-			path = LeanCloud;
-			sourceTree = "<group>";
-		};
-		5783FEA42666249A000B39F3 /* Firebase */ = {
-			isa = PBXGroup;
-			children = (
-				5783FEA72666253D000B39F3 /* SyncManager.swift */,
-				5783FEC2266738AC000B39F3 /* FirebaseHelper.swift */,
-				5783FEC526673A0B000B39F3 /* UserManager.swift */,
-			);
-			path = Firebase;
 			sourceTree = "<group>";
 		};
 		8BBB784D26BE6C1B00096F8E /* LrcView */ = {
@@ -760,6 +649,8 @@
 				6EBE036E339C16D90188E502 /* Pods-app.release.xcconfig */,
 				B463897AA0F897B9B5481F21 /* Pods-LrcView.debug.xcconfig */,
 				A289AA6F7379CBD4C64ABF0F /* Pods-LrcView.release.xcconfig */,
+				101713F09F66FF7CC81EAD54 /* Pods-OnlineKTV.debug.xcconfig */,
+				5E8148FAFC53C28953DEB44B /* Pods-OnlineKTV.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -779,9 +670,9 @@
 				2F2E9D9950E2E75E750E77D4 /* Pods_Database_Firebase.framework */,
 				2A8F295F68F52286E70D8202 /* Pods_Database_LeanCloud.framework */,
 				3B761F18FE8145F50224BD9B /* Pods_OnlineKTV_Firebase.framework */,
-				55CA5154BEFE30CEC188B4E6 /* Pods_OnlineKTV_LeanCloud.framework */,
 				D4C940726440F80BCBE3DFF6 /* Pods_app.framework */,
 				C1A6B7D5EC88E0E3F8BDBBFB /* Pods_LrcView.framework */,
+				A481C1D7058E6E0177BE3EA9 /* Pods_OnlineKTV.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -816,9 +707,9 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		571AA4692629862700B82B35 /* OnlineKTV_LeanCloud */ = {
+		571AA4692629862700B82B35 /* OnlineKTV */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 571AA4812629862800B82B35 /* Build configuration list for PBXNativeTarget "OnlineKTV_LeanCloud" */;
+			buildConfigurationList = 571AA4812629862800B82B35 /* Build configuration list for PBXNativeTarget "OnlineKTV" */;
 			buildPhases = (
 				E312B446358EE334A7931BBB /* [CP] Check Pods Manifest.lock */,
 				571AA4662629862700B82B35 /* Sources */,
@@ -835,9 +726,9 @@
 				574C9CB6266A0B4300822A95 /* PBXTargetDependency */,
 				8BBB785226BE6C1B00096F8E /* PBXTargetDependency */,
 			);
-			name = OnlineKTV_LeanCloud;
+			name = OnlineKTV;
 			productName = "Scene-Examples";
-			productReference = 571AA46A2629862700B82B35 /* OnlineKTV_LeanCloud.app */;
+			productReference = 571AA46A2629862700B82B35 /* OnlineKTV.app */;
 			productType = "com.apple.product-type.application";
 		};
 		574C9CAF266A0B4200822A95 /* app */ = {
@@ -879,29 +770,6 @@
 			productName = Core;
 			productReference = 5757D048262D834700B4A785 /* Core.framework */;
 			productType = "com.apple.product-type.framework";
-		};
-		57E8D4F8264A2C03007001BC /* OnlineKTV_Firebase */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 57E8D516264A2C03007001BC /* Build configuration list for PBXNativeTarget "OnlineKTV_Firebase" */;
-			buildPhases = (
-				57E8D4FF264A2C03007001BC /* [CP] Check Pods Manifest.lock */,
-				57E8D500264A2C03007001BC /* Sources */,
-				57E8D508264A2C03007001BC /* Frameworks */,
-				57E8D50D264A2C03007001BC /* Resources */,
-				57E8D511264A2C03007001BC /* [CP] Embed Pods Frameworks */,
-				57E8D512264A2C03007001BC /* Embed Frameworks */,
-				574C9CE0266A7C3400822A95 /* ShellScript */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				5762F80726568446003B042D /* PBXTargetDependency */,
-				574C9CBF266A0B7E00822A95 /* PBXTargetDependency */,
-			);
-			name = OnlineKTV_Firebase;
-			productName = "Scene-Examples";
-			productReference = 57E8D519264A2C03007001BC /* OnlineKTV_Firebase.app */;
-			productType = "com.apple.product-type.application";
 		};
 		8BBB784B26BE6C1B00096F8E /* LrcView */ = {
 			isa = PBXNativeTarget;
@@ -961,8 +829,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				571AA4692629862700B82B35 /* OnlineKTV_LeanCloud */,
-				57E8D4F8264A2C03007001BC /* OnlineKTV_Firebase */,
+				571AA4692629862700B82B35 /* OnlineKTV */,
 				5757D047262D834700B4A785 /* Core */,
 				574C9CAF266A0B4200822A95 /* app */,
 				8BBB784B26BE6C1B00096F8E /* LrcView */,
@@ -975,13 +842,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5782AC8D2695A76300B4162A /* 004.xml in Resources */,
-				5782AC95269C4B0200B4162A /* 003.xml in Resources */,
 				57E8D62A264A7306007001BC /* Localizable.strings in Resources */,
-				5782AC93269C145100B4162A /* 001.xml in Resources */,
 				571AA47D2629862800B82B35 /* LaunchScreen.storyboard in Resources */,
 				571AA47A2629862800B82B35 /* Assets.xcassets in Resources */,
-				5782AC91269C144200B4162A /* 005.xml in Resources */,
 				5791A95E267AF2FB00A02B30 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -992,7 +855,6 @@
 			files = (
 				574C9CCC266A1E7E00822A95 /* Media.xcassets in Resources */,
 				574C9CD9266A2B1900822A95 /* Localizable.strings in Resources */,
-				5782AC8C26958EED00B4162A /* 004.xml in Resources */,
 				574C9CCE266A24C600822A95 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1003,18 +865,6 @@
 			files = (
 				57F639732630015200B45C0B /* Media.xcassets in Resources */,
 				57F6396D263000C300B45C0B /* Localizable.strings in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		57E8D50D264A2C03007001BC /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				57E8D621264A6FDC007001BC /* Localizable.strings in Resources */,
-				57233DBA267C98080066004B /* Main.storyboard in Resources */,
-				57E8D61B264A6A57007001BC /* GoogleService-Info.plist in Resources */,
-				57E8D50E264A2C03007001BC /* LaunchScreen.storyboard in Resources */,
-				57E8D50F264A2C03007001BC /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1089,77 +939,21 @@
 			shellPath = /bin/sh;
 			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n\"${PODS_ROOT}/SwiftFormat/CommandLineTool/swiftformat\" . --exclude Pods,Generated\n";
 		};
-		574C9CE0266A7C3400822A95 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n\"${PODS_ROOT}/SwiftFormat/CommandLineTool/swiftformat\" . --exclude Pods,Generated\n";
-		};
-		57E8D4FF264A2C03007001BC /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-OnlineKTV_Firebase-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		57E8D511264A2C03007001BC /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-OnlineKTV_Firebase/Pods-OnlineKTV_Firebase-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-OnlineKTV_Firebase/Pods-OnlineKTV_Firebase-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-OnlineKTV_Firebase/Pods-OnlineKTV_Firebase-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 		C0376A113C16BCE26A0D86BE /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-OnlineKTV_LeanCloud/Pods-OnlineKTV_LeanCloud-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-OnlineKTV/Pods-OnlineKTV-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-OnlineKTV_LeanCloud/Pods-OnlineKTV_LeanCloud-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-OnlineKTV/Pods-OnlineKTV-frameworks-${CONFIGURATION}-output-files.xcfilelist",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-OnlineKTV_LeanCloud/Pods-OnlineKTV_LeanCloud-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-OnlineKTV/Pods-OnlineKTV-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		E312B446358EE334A7931BBB /* [CP] Check Pods Manifest.lock */ = {
@@ -1177,7 +971,7 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-OnlineKTV_LeanCloud-checkManifestLockResult.txt",
+				"$(DERIVED_FILE_DIR)/Pods-OnlineKTV-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -1213,11 +1007,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5783FEB026662D0B000B39F3 /* LeanCloudHelper.swift in Sources */,
 				5783FEBF2667338E000B39F3 /* UserManager.swift in Sources */,
 				571AA46E2629862700B82B35 /* AppDelegate.swift in Sources */,
 				571AA4702629862700B82B35 /* SceneDelegate.swift in Sources */,
-				5783FEA62666250B000B39F3 /* SyncManager.swift in Sources */,
 				5762F7E026568019003B042D /* AppTargets.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1292,19 +1084,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		57E8D500264A2C03007001BC /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				5783FEDB26678197000B39F3 /* UserManager.swift in Sources */,
-				57E8D504264A2C03007001BC /* AppDelegate.swift in Sources */,
-				57E8D505264A2C03007001BC /* SceneDelegate.swift in Sources */,
-				5783FEDC26678340000B39F3 /* FirebaseHelper.swift in Sources */,
-				5762F7E12656801C003B042D /* AppTargets.swift in Sources */,
-				5783FEA926662555000B39F3 /* SyncManager.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		8BBB784826BE6C1B00096F8E /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1333,20 +1112,10 @@
 			target = 574C9CAF266A0B4200822A95 /* app */;
 			targetProxy = 574C9CB5266A0B4300822A95 /* PBXContainerItemProxy */;
 		};
-		574C9CBF266A0B7E00822A95 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 574C9CAF266A0B4200822A95 /* app */;
-			targetProxy = 574C9CBE266A0B7E00822A95 /* PBXContainerItemProxy */;
-		};
 		574C9CC3266A0BDB00822A95 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 5757D047262D834700B4A785 /* Core */;
 			targetProxy = 574C9CC2266A0BDB00822A95 /* PBXContainerItemProxy */;
-		};
-		5762F80726568446003B042D /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 5757D047262D834700B4A785 /* Core */;
-			targetProxy = 5762F80626568446003B042D /* PBXContainerItemProxy */;
 		};
 		8B0C3A3626BE7F10004C7F27 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -1518,7 +1287,7 @@
 		};
 		571AA4822629862800B82B35 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 5F8E2FB0C8FCBF6C320DEE8A /* Pods-OnlineKTV_LeanCloud.debug.xcconfig */;
+			baseConfigurationReference = 101713F09F66FF7CC81EAD54 /* Pods-OnlineKTV.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = "$(inherited)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -1534,7 +1303,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 3.4.200;
-				OTHER_SWIFT_FLAGS = "$(inherited) -D COCOAPODS -DLEANCLOUD";
+				OTHER_SWIFT_FLAGS = "$(inherited) -D COCOAPODS";
 				PRODUCT_BUNDLE_IDENTIFIER = io.agora.OnlineKTV;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1545,7 +1314,7 @@
 		};
 		571AA4832629862800B82B35 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = FDC8A807C5564B30AE7560A9 /* Pods-OnlineKTV_LeanCloud.release.xcconfig */;
+			baseConfigurationReference = 5E8148FAFC53C28953DEB44B /* Pods-OnlineKTV.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = "$(inherited)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -1560,7 +1329,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 3.4.200;
-				OTHER_SWIFT_FLAGS = "$(inherited) -D COCOAPODS -DLEANCLOUD";
+				OTHER_SWIFT_FLAGS = "$(inherited) -D COCOAPODS";
 				PRODUCT_BUNDLE_IDENTIFIER = io.agora.OnlineKTV;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1711,56 +1480,6 @@
 			};
 			name = Release;
 		};
-		57E8D517264A2C03007001BC /* Debug */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 9CE9588A4C98EFF802BB1A4E /* Pods-OnlineKTV_Firebase.debug.xcconfig */;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = "$(inherited)";
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Manual;
-				DEVELOPMENT_TEAM = "";
-				INFOPLIST_FILE = "$(SRCROOT)/OnlineKTV/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				OTHER_SWIFT_FLAGS = "$(inherited) -D COCOAPODS -DFIREBASE";
-				PRODUCT_BUNDLE_IDENTIFIER = io.agora.OnlineKTV;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
-			};
-			name = Debug;
-		};
-		57E8D518264A2C03007001BC /* Release */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 62FCFC75A3DE87EC24840504 /* Pods-OnlineKTV_Firebase.release.xcconfig */;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = "$(inherited)";
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Manual;
-				DEVELOPMENT_TEAM = "";
-				INFOPLIST_FILE = "$(SRCROOT)/OnlineKTV/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				OTHER_SWIFT_FLAGS = "$(inherited) -D COCOAPODS -DFIREBASE";
-				PRODUCT_BUNDLE_IDENTIFIER = io.agora.OnlineKTV;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
-			};
-			name = Release;
-		};
 		8BBB785626BE6C1B00096F8E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = B463897AA0F897B9B5481F21 /* Pods-LrcView.debug.xcconfig */;
@@ -1835,7 +1554,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		571AA4812629862800B82B35 /* Build configuration list for PBXNativeTarget "OnlineKTV_LeanCloud" */ = {
+		571AA4812629862800B82B35 /* Build configuration list for PBXNativeTarget "OnlineKTV" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				571AA4822629862800B82B35 /* Debug */,
@@ -1858,15 +1577,6 @@
 			buildConfigurations = (
 				5757D052262D834700B4A785 /* Debug */,
 				5757D053262D834700B4A785 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		57E8D516264A2C03007001BC /* Build configuration list for PBXNativeTarget "OnlineKTV_Firebase" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				57E8D517264A2C03007001BC /* Debug */,
-				57E8D518264A2C03007001BC /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

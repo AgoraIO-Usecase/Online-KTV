@@ -23,13 +23,15 @@ class RtcMusicState {
     let streamId: Int
     let position: Int
     let duration: Int
+    let musicId: String
     let state: AgoraAudioMixingStateCode?
 
-    init(uid: UInt, streamId: Int, position: Int, duration: Int, state: AgoraAudioMixingStateCode?) {
+    init(uid: UInt, streamId: Int, position: Int, duration: Int, musicId: String, state: AgoraAudioMixingStateCode?) {
         self.uid = uid
         self.streamId = streamId
         self.position = position
         self.duration = duration
+        self.musicId = musicId
         self.state = state
     }
 }
@@ -41,6 +43,13 @@ private struct RtcMusicLrcMessage: Encodable, Decodable {
     let lrcId: String
     let duration: Int
     let time: Int
+    let state: Int
+}
+
+private struct RtcMemberMessage: Encodable, Decodable {
+    let cmd: String
+    let userId: String
+    let role: Int
 }
 
 private class RtcMusicPlayer: NSObject {
@@ -52,6 +61,7 @@ private class RtcMusicPlayer: NSObject {
     var streamId: Int = -1
     var uid: UInt = 0
     var music: LocalMusic?
+    var memberId: String?
     var position: Int = 0
     var duration: Int = 0
     var isPlaying: Bool = false
@@ -139,7 +149,7 @@ private class RtcMusicPlayer: NSObject {
     }
 
     func sendRtcMusicState(state: RtcMusicState) {
-        guard let music = music, let rtcEngine = rtcServer.rtcEngine else {
+        guard let rtcEngine = rtcServer.rtcEngine else {
             return
         }
         if streamId == -1 {
@@ -153,13 +163,15 @@ private class RtcMusicPlayer: NSObject {
             }
         }
         RtcMusicPlayer.msgId += 1
-        let msg = RtcMusicLrcMessage(msgId: RtcMusicPlayer.msgId, peerUid: uid, cmd: "setLrcTime", lrcId: music.id, duration: state.duration, time: state.position)
+        let msg = RtcMusicLrcMessage(msgId: RtcMusicPlayer.msgId, peerUid: uid, cmd: "setLrcTime", lrcId: state.musicId, duration: state.duration, time: state.position, state: state.state == .playing ? 1 : 0)
         let jsonEncoder = JSONEncoder()
         do {
             let jsonData = try jsonEncoder.encode(msg)
             let code = rtcEngine.sendStreamMessage(streamId, data: jsonData)
             if code != 0 {
                 Logger.log(self, message: "sendRtcMusicState error(\(code)", level: .error)
+            } else {
+                Logger.log(self, message: "send RtcMusicLrcMessage successful! \(String(describing: state.state))", level: .info)
             }
         } catch {
             Logger.log(self, message: error.localizedDescription, level: .error)
@@ -172,6 +184,7 @@ class RtcServer: NSObject {
     private var rtcMusicPlayer: RtcMusicPlayer?
     private let statePublisher: PublishRelay<Result<RtcServerStateType>> = PublishRelay()
     private let rtcMusicStatePublisher: PublishRelay<Result<RtcMusicState>> = PublishRelay()
+    private let membersPublisher: PublishRelay<Result<LiveKtvMember>> = PublishRelay()
 
     private(set) var uid: UInt = 0
     private(set) var channel: String?
@@ -191,16 +204,13 @@ class RtcServer: NSObject {
         return rtcMusicPlayer?.music
     }
 
+    var memberStreamId: Int = -1
+
     override init() {
         super.init()
         let config = AgoraRtcEngineConfig()
         config.appId = BuildConfig.AppId
-        #if LEANCLOUD
-            config.areaCode = AgoraAreaCode.CN.rawValue
-        #endif
-        #if FIREBASE
-            config.areaCode = AgoraAreaCode.GLOB.rawValue
-        #endif
+//        config.areaCode = AgoraAreaCode.CN.rawValue
         rtcEngine = AgoraRtcEngineKit.sharedEngine(with: config, delegate: self)
         if let engine = rtcEngine {
             engine.setChannelProfile(.liveBroadcasting)
@@ -266,6 +276,7 @@ class RtcServer: NSObject {
                 if let rtc = self.rtcEngine {
                     self.channel = nil
                     self.uid = 0
+                    self.memberStreamId = -1
                     self.members.removeAll()
                     self.statePublisher.accept(Result(success: true, data: RtcServerStateType.members))
                     Logger.log(message: "rtc leaveChannel", level: .info)
@@ -328,6 +339,10 @@ class RtcServer: NSObject {
         return rtcMusicStatePublisher.asObservable().observe(on: MainScheduler.instance)
     }
 
+    func onMemberListChanged() -> Observable<Result<LiveKtvMember>> {
+        return membersPublisher.asObservable().observe(on: MainScheduler.instance)
+    }
+
     func play(music: LocalMusic) -> Observable<Result<Void>> {
         if rtcMusicPlayer == nil {
             rtcMusicPlayer = RtcMusicPlayer(rtcServer: self)
@@ -369,7 +384,9 @@ class RtcServer: NSObject {
     func stopMusic() {
         enable(earloop: false)
         if let player = rtcMusicPlayer {
+            let state = RtcMusicState(uid: uid, streamId: 0, position: player.position, duration: player.duration, musicId: player.music?.id ?? "0", state: .stopped)
             player.stop()
+            player.sendRtcMusicState(state: state)
         }
     }
 
@@ -406,6 +423,36 @@ class RtcServer: NSObject {
             }
         } else {
             Logger.log(self, message: "not support switch origin", level: .error)
+        }
+    }
+
+    func sendMemberState(member: LiveKtvMember) {
+        guard let rtcEngine = rtcEngine else {
+            return
+        }
+        if memberStreamId == -1 {
+            let config = AgoraDataStreamConfig()
+            config.ordered = true
+            config.syncWithAudio = true
+            rtcEngine.createDataStream(&memberStreamId, config: config)
+            if memberStreamId == -1 {
+                Logger.log(self, message: "error streamId == -1", level: .error)
+                return
+            }
+        }
+        let msg = RtcMemberMessage(cmd: "syncMember", userId: member.id, role: member.role)
+        let jsonEncoder = JSONEncoder()
+        do {
+            let jsonData = try jsonEncoder.encode(msg)
+//            NSString(data: jsonData, encoding: String.Encoding.utf8.rawValue)
+            let code = rtcEngine.sendStreamMessage(memberStreamId, data: jsonData)
+            if code != 0 {
+                Logger.log(self, message: "sendMemberState error(\(code)", level: .error)
+            } else {
+                membersPublisher.accept(Result(success: true, data: member))
+            }
+        } catch {
+            Logger.log(self, message: error.localizedDescription, level: .error)
         }
     }
 }
@@ -456,7 +503,8 @@ extension RtcServer: AgoraRtcEngineDelegate {
         if let player = rtcMusicPlayer {
             player.position = position
             player.duration = Int(engine.getAudioMixingDuration())
-            let state = RtcMusicState(uid: uid, streamId: 0, position: player.position, duration: player.duration, state: player.state)
+
+            let state = RtcMusicState(uid: uid, streamId: 0, position: player.position, duration: player.duration, musicId: player.music!.id, state: player.state)
             player.sendRtcMusicState(state: state)
             rtcMusicStatePublisher.accept(Result(success: true, data: state))
         }
@@ -489,7 +537,7 @@ extension RtcServer: AgoraRtcEngineDelegate {
             default: break
             }
             if sync {
-                let state = RtcMusicState(uid: player.uid, streamId: 0, position: player.position, duration: player.duration, state: player.state)
+                let state = RtcMusicState(uid: player.uid, streamId: 0, position: player.position, duration: player.duration, musicId: player.music?.id ?? "", state: player.state)
                 rtcMusicStatePublisher.accept(Result(success: true, data: state))
             }
         }
@@ -512,13 +560,22 @@ extension RtcServer: AgoraRtcEngineDelegate {
             case "setLrcTime":
                 let duration = content["duration"] as! Int
                 let position = content["time"] as! Int
-                let state = RtcMusicState(uid: uid, streamId: streamId, position: position, duration: duration, state: .playing)
+                let musicId = content["lrcId"] as! String
+                let status = content["state"] as! Int
+                let state = RtcMusicState(uid: uid, streamId: streamId, position: position, duration: duration, musicId: musicId, state: status == 1 ? .playing : .stopped)
                 rtcMusicStatePublisher.accept(Result(success: true, data: state))
+            case "syncMember":
+                let member = LiveKtvMember(id: content["userId"] as! String, isMuted: false, isSelfMuted: false, role: content["role"] as! Int, roomId: "0", streamId: 0, userId: content["userId"] as! String)
+                membersPublisher.accept(Result(success: true, data: member))
             default: break
             }
         } catch {
             Logger.log(self, message: error.localizedDescription, level: .error)
         }
+    }
+
+    func rtcEngine(_: AgoraRtcEngineKit, didOccurStreamMessageErrorFromUid uid: UInt, streamId _: Int, error: Int, missed _: Int, cached _: Int) {
+        Logger.log(self, message: "didOccurStreamMessageErrorFromUid \(uid) \(error)", level: .info)
     }
 }
 

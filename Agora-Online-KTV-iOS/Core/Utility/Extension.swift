@@ -473,3 +473,12 @@ public extension UIColor {
         }
     }
 }
+
+public extension LrcMusic {
+    static func getDefultList() -> [String: LrcMusic] {
+        return ["001": LrcMusic(id: "001", name: "七里香", song: "https://webdemo.agora.io/ktv/001.mp3", lrc: "https://webdemo.agora.io/ktv/001.xml", singer: "周杰伦", poster: ""),
+                "002": LrcMusic(id: "002", name: "后来", song: "https://webdemo.agora.io/ktv/002.mp3", lrc: "https://webdemo.agora.io/ktv/002.xml", singer: "刘若英", poster: ""),
+                "003": LrcMusic(id: "003", name: "我怀念的", song: "https://webdemo.agora.io/ktv/003.mp3", lrc: "https://webdemo.agora.io/ktv/003.xml", singer: "孙燕姿", poster: ""),
+                "004": LrcMusic(id: "004", name: "突然好想你", song: "https://webdemo.agora.io/ktv/004.mp3", lrc: "https://webdemo.agora.io/ktv/004.xml", singer: "五月天", poster: "")]
+    }
+}

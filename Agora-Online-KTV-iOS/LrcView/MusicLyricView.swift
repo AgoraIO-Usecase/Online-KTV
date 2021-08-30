@@ -260,11 +260,6 @@ private class MusicLyricLabel: UILabel {
             if MusicLyricLabel.STYLE {
                 let _shadowOffset = shadowOffset
                 let _shadowColor = shadowColor
-                //            super.draw(rect)
-                //            context.setLineWidth(1)
-                //            context.setLineJoin(.round)
-                //            context.setTextDrawingMode(.stroke)
-                //            textColor = MusicLyricView.hightColor
                 shadowOffset = CGSize(width: 0, height: 1)
                 shadowColor = styleShadowColor
                 super.draw(rect)

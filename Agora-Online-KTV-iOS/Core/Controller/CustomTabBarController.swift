@@ -88,15 +88,6 @@ public class CustomTabBar: UITabBar {
         if customItems.count == 0 {
             return
         }
-//        let line = UIView()
-//        line.backgroundColor = UIColor(hex: "#DBDBDB")
-//        addSubview(line)
-//
-//        line.height(constant: 0.5 / UIScreen.main.scale)
-//            .marginTop(anchor: topAnchor)
-//            .marginLeading(anchor: leadingAnchor)
-//            .marginTrailing(anchor: trailingAnchor)
-//            .active()
 
         var horizontalConstraints = "H:|"
         let itemWidth: CGFloat = screenWidth / CGFloat(customItems.count)
@@ -125,8 +116,6 @@ open class CustomTabBarController: UITabBarController {
 
     override open func viewDidLoad() {
         super.viewDidLoad()
-        // edgesForExtendedLayout = UIRectEdge(rawValue: 0)
-        // tabBar.isHidden = true
         tabBar.backgroundColor = .clear
         setupView()
     }

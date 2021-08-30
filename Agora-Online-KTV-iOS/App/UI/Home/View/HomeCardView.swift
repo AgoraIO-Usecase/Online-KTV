@@ -89,7 +89,7 @@ final class HomeCardView: UICollectionViewCell {
         backgroundColor = UIColor.clear
 
         addSubview(cover)
-        addSubview(avatar)
+//        addSubview(avatar)
         addSubview(title)
 
         cover.fill(view: self)
@@ -97,12 +97,6 @@ final class HomeCardView: UICollectionViewCell {
 
         title.marginLeading(anchor: leadingAnchor, constant: HomeCardView.padding)
             .marginBottom(anchor: bottomAnchor, constant: HomeCardView.padding)
-            .active()
-
-        avatar.height(constant: 18)
-            .marginLeading(anchor: title.leadingAnchor, constant: HomeCardView.padding, relation: .greaterOrEqual)
-            .marginTrailing(anchor: trailingAnchor, constant: HomeCardView.padding)
-            .centerY(anchor: title.centerYAnchor)
             .active()
 
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(onTapCard)))

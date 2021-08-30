@@ -80,10 +80,6 @@ extension LiveKtvMember {
     static let STREAM_ID = "streamId"
     static let USER = "userId"
 
-    private static var manager: SyncManager {
-        SyncManager.shared
-    }
-
     static func get(object: IAgoraObject, roomId: String) throws -> LiveKtvMember {
         let id = try object.getId()
         let isMuted: Bool = (try object.getValue(key: LiveKtvMember.MUTED, type: Int.self) as? Int ?? 0) == 1
@@ -92,7 +88,6 @@ extension LiveKtvMember {
         let streamId: UInt = try object.getValue(key: LiveKtvMember.STREAM_ID, type: UInt.self) as! UInt
         let userId: String = try object.getValue(key: LiveKtvMember.USER, type: String.self) as! String
         let member = LiveKtvMember(id: id, isMuted: isMuted, isSelfMuted: isSelfMuted, role: role, roomId: roomId, streamId: streamId, userId: userId)
-        // member.isManager = member.userId == room.userId
         return member
     }
 
@@ -108,173 +103,8 @@ extension LiveKtvMember {
         return member
     }
 
-    static func delete(roomId: String) -> Observable<Result<Void>> {
-        return Single.create { single in
-            LiveKtvMember.manager
-                .getRoom(id: roomId)
-                .collection(className: LiveKtvMember.TABLE)
-                .delete(delegate: AgoraDocumentReferenceDelegate(success: {
-                    single(.success(Result(success: true)))
-                }, failed: { _, message in
-                    single(.success(Result(success: false, message: message)))
-                }))
-            return Disposables.create()
-        }.asObservable()
-    }
-
-    func delete() -> Observable<Result<Void>> {
-        return Single.create { single in
-            LiveKtvMember.manager
-                .getRoom(id: self.roomId)
-                .collection(className: LiveKtvMember.TABLE)
-                .document(id: self.id)
-                .delete(delegate: AgoraDocumentReferenceDelegate(success: {
-                    single(.success(Result(success: true)))
-                }, failed: { _, message in
-                    single(.success(Result(success: false, message: message)))
-                }))
-            return Disposables.create()
-        }.asObservable()
-    }
-
-    func join(room: LiveKtvRoom) -> Observable<Result<Void>> {
-        return Single.create { single in
-            self.streamId = 0
-            self.roomId = room.id
-            LiveKtvMember.manager
-                .getRoom(id: self.roomId)
-                .collection(className: LiveKtvMember.TABLE)
-                .get(delegate: AgoraObjectListDelegate(success: { result in
-                    do {
-                        let members = try result.map { object -> LiveKtvMember in
-                            try LiveKtvMember.get(object: object, roomId: self.roomId)
-                        }
-                        let member = members.first { member in
-                            member.userId == self.userId
-                        }
-                        if let member = member {
-                            self.id = member.id
-                            self.isMuted = member.isMuted
-                            self.isSelfMuted = member.isSelfMuted
-                            self.role = member.role
-                            single(.success(Result(success: true)))
-                        } else {
-                            LiveKtvMember.manager
-                                .getRoom(id: self.roomId)
-                                .collection(className: LiveKtvMember.TABLE)
-                                .add(data: self.toDictionary(), delegate: AgoraObjectDelegate(success: { object in
-                                    do {
-                                        self.id = try object.getId()
-                                        single(.success(Result(success: true)))
-                                    } catch {
-                                        single(.success(Result(success: false, message: error.localizedDescription)))
-                                    }
-                                }, failed: { _, message in
-                                    single(.success(Result(success: false, message: message)))
-                                }))
-                        }
-                    } catch {
-                        single(.success(Result(success: false, message: error.localizedDescription)))
-                    }
-                }, failed: { _, message in
-                    single(.success(Result(success: false, message: message)))
-                }))
-            return Disposables.create()
-        }.asObservable()
-    }
-
     func update(streamId: UInt) -> Observable<Result<Void>> {
-        return Single.create { single in
-            LiveKtvMember.manager
-                .getRoom(id: self.roomId)
-                .collection(className: LiveKtvMember.TABLE)
-                .document(id: self.id)
-                .update(data: [LiveKtvMember.STREAM_ID: streamId], delegate: AgoraObjectDelegate(success: { _ in
-                    self.streamId = streamId
-                    single(.success(Result<Void>(success: true)))
-                }, failed: { _, message in
-                    single(.success(Result<Void>(success: false, message: message)))
-                }))
-            return Disposables.create()
-        }.asObservable()
-    }
-
-    func leave() -> Observable<Result<Void>> {
-        if isManager {
-            return Observable.zip(
-                LiveKtvRoom.delete(roomId: roomId),
-                LiveKtvMember.delete(roomId: roomId),
-                LiveKtvMusic.delete(roomId: roomId)
-            ).map { args in
-                let (result0, result1, result2) = args
-                if result0.success, result1.success, result2.success {
-                    return result0
-                } else {
-                    return result0.success ? result1.success ? result2 : result1 : result0
-                }
-            }
-        } else {
-            return Observable.zip(
-                LiveKtvMusic.delete(roomId: roomId, userId: userId),
-                delete()
-            ).map { args in
-                let (result0, result1) = args
-                if result0.success, result1.success {
-                    return result0
-                } else {
-                    return result0.success ? result1 : result0
-                }
-            }
-        }
-    }
-
-    func selfMute(mute: Bool) -> Observable<Result<Void>> {
-        return Single.create { single in
-            LiveKtvMember.manager
-                .getRoom(id: self.roomId)
-                .collection(className: LiveKtvMember.TABLE)
-                .document(id: self.id)
-                .update(data: [LiveKtvMember.SELF_MUTED: mute ? 1 : 0], delegate: AgoraObjectDelegate(success: { _ in
-                    // self.isSelfMuted = true
-                    single(.success(Result<Void>(success: true)))
-                }, failed: { _, message in
-                    single(.success(Result<Void>(success: false, message: message)))
-                }))
-            return Disposables.create()
-        }.asObservable()
-    }
-
-    func asSpeaker() -> Observable<Result<Void>> {
-        return Single.create { single in
-            LiveKtvMember.manager
-                .getRoom(id: self.roomId)
-                .collection(className: LiveKtvMember.TABLE)
-                .document(id: self.id)
-                .update(data: [LiveKtvMember.ROLE: LiveKtvRoomRole.speaker.rawValue, LiveKtvMember.SELF_MUTED: 0, LiveKtvMember.MUTED: 0], delegate: AgoraObjectDelegate(success: { _ in
-                    single(.success(Result<Void>(success: true)))
-                }, failed: { _, message in
-                    single(.success(Result<Void>(success: false, message: message)))
-                }))
-            return Disposables.create()
-        }.asObservable()
-    }
-
-    func asListener() -> Observable<Result<Void>> {
-        return Single.create { single in
-            LiveKtvMember.manager
-                .getRoom(id: self.roomId)
-                .collection(className: LiveKtvMember.TABLE)
-                .document(id: self.id)
-                .update(data: [LiveKtvMember.ROLE: LiveKtvRoomRole.listener.rawValue, LiveKtvMember.SELF_MUTED: 0, LiveKtvMember.MUTED: 0], delegate: AgoraObjectDelegate(success: { _ in
-                    single(.success(Result<Void>(success: true)))
-                }, failed: { _, message in
-                    single(.success(Result<Void>(success: false, message: message)))
-                }))
-            return Disposables.create()
-        }.asObservable()
-    }
-
-    func orderMusic(id: String, name: String, singer: String, poster: String) -> Observable<Result<Void>> {
-        return LiveKtvMusic(id: "", userId: userId, roomId: roomId, name: name, musicId: id, singer: singer, poster: poster).order().map { $0.transform() }
+        self.streamId = streamId
+        return Observable.just(Result(success: true, data: nil))
     }
 }
