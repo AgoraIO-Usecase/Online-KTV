@@ -55,8 +55,10 @@ public class RoomSpeakerAdapter extends BaseRecyclerViewAdapter<AgoraMember, Roo
         int index = datas.indexOf(data);
         if (0 <= index && index < datas.size()) {
             datas.remove(data);
-            notifyItemChanged(index);
         }
+
+        //因为后面的需要往前面移动，所以直接进行全部更新
+        notifyDataSetChanged();
     }
 
     @Override
