@@ -130,7 +130,7 @@ private class LocalMusicList: UITableView, UITableViewDataSource, OrderMusicDele
     }
 
     func order(music: LocalMusic) {
-        roomDelegate?.viewModel.order(music: music) { [weak self] waiting in
+        roomDelegate?.viewModel.order(music: music, orderChorusMusic: orderChorusMusic) { [weak self] waiting in
             if let self = self {
                 self.roomDelegate?.show(processing: waiting)
             }
