@@ -150,7 +150,7 @@ class RoomViewModel {
                         let localMusic = LocalMusic(id: music.id!, name: music.name!, path: music.song, lrcPath: music.lrc, singer: music.singer!, poster: music.poster!)
                         if state.state == .playing {
                             self.musicList = [LiveKtvMusic(id: localMusic.id, userId: getUserId(streamId: state.uid), roomId: self.room.id, name: localMusic.name, musicId: localMusic.id, singer: localMusic.singer, poster: localMusic.poster)]
-                        } else {
+                        } else if state.state == .stopped {
                             self.musicList = []
                         }
                         self.delegate?.onPlayListChanged()

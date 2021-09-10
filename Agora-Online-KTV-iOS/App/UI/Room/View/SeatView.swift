@@ -30,7 +30,7 @@ class SeatView {
                 }
                 getUserDisposable?.dispose()
 
-                getUserDisposable = User.getUser(by: member.userId)
+                getUserDisposable = User.getUser(by: member.userId, avatar: member.avatar)
                     .observe(on: MainScheduler.instance)
                     .subscribe { [weak self] result in
                         guard let self = self else {

@@ -16,7 +16,7 @@ class ManageSpeakerDialog: Dialog {
     var model: LiveKtvMember! {
         didSet {
             getUserDisposable?.dispose()
-            getUserDisposable = User.getUser(by: model.userId)
+            getUserDisposable = User.getUser(by: model.userId, avatar: model.avatar)
                 .observe(on: MainScheduler.instance)
                 .subscribe { [weak self] result in
                     guard let self = self else {

@@ -50,6 +50,7 @@ private struct RtcMemberMessage: Encodable, Decodable {
     let cmd: String
     let userId: String
     let role: Int
+    let avatar: String
 }
 
 private class RtcMusicPlayer: NSObject {
@@ -167,6 +168,7 @@ private class RtcMusicPlayer: NSObject {
         let jsonEncoder = JSONEncoder()
         do {
             let jsonData = try jsonEncoder.encode(msg)
+            NSString(data: jsonData, encoding: String.Encoding.utf8.rawValue)
             let code = rtcEngine.sendStreamMessage(streamId, data: jsonData)
             if code != 0 {
                 Logger.log(self, message: "sendRtcMusicState error(\(code)", level: .error)
@@ -253,7 +255,7 @@ class RtcServer: NSObject {
         rtc.enable(inEarMonitoring: isEnableEarloop)
         setRecordingSignalVolume(value: recordingSignalVolume)
         return Single.create { single in
-            let code = rtc.joinChannel(byToken: BuildConfig.Token, channelId: channel, info: nil, uid: 0)
+            let code = rtc.joinChannel(byToken: BuildConfig.Token, channelId: channel, info: nil, uid: UInt(member.id) ?? 0)
             single(.success(code))
             return Disposables.create()
         }.asObservable().subscribe(on: MainScheduler.instance)
@@ -440,7 +442,7 @@ class RtcServer: NSObject {
                 return
             }
         }
-        let msg = RtcMemberMessage(cmd: "syncMember", userId: member.id, role: member.role)
+        let msg = RtcMemberMessage(cmd: "syncMember", userId: member.id, role: member.role, avatar: member.avatar)
         let jsonEncoder = JSONEncoder()
         do {
             let jsonData = try jsonEncoder.encode(msg)
@@ -565,7 +567,7 @@ extension RtcServer: AgoraRtcEngineDelegate {
                 let state = RtcMusicState(uid: uid, streamId: streamId, position: position, duration: duration, musicId: musicId, state: status == 1 ? .playing : .stopped)
                 rtcMusicStatePublisher.accept(Result(success: true, data: state))
             case "syncMember":
-                let member = LiveKtvMember(id: content["userId"] as! String, isMuted: false, isSelfMuted: false, role: content["role"] as! Int, roomId: "0", streamId: 0, userId: content["userId"] as! String)
+                let member = LiveKtvMember(id: content["userId"] as! String, isMuted: false, isSelfMuted: false, role: content["role"] as! Int, roomId: "0", streamId: 0, userId: content["userId"] as! String, avatar: content["avatar"] as! String)
                 membersPublisher.accept(Result(success: true, data: member))
             default: break
             }

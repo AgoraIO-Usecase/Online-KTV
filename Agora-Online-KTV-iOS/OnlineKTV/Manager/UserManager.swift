@@ -13,8 +13,8 @@ class LocalUserManager: IUserManager {
         Observable.just(Result(success: false, message: "empty result!"))
     }
 
-    func getUser(by userId: String) -> Observable<Result<User>> {
-        Observable.just(Result(success: true, data: User(id: userId, name: "", avatar: userId)))
+    func getUser(by userId: String, avatar: String) -> Observable<Result<User>> {
+        Observable.just(Result(success: true, data: User(id: userId, name: "", avatar: avatar)))
     }
 
     func update(user _: User, name _: String) -> Observable<Result<Void>> {
@@ -30,8 +30,8 @@ class LocalUserManager: IUserManager {
     }
 
     func randomUser() -> Observable<Result<User>> {
-        let id = Utils.randomAvatar()
-        let user = User(id: id, name: Utils.randomString(length: 8), avatar: id)
+        let id = UInt.random(in: 1 ... 99999)
+        let user = User(id: String(id), name: Utils.randomString(length: 8), avatar: Utils.randomAvatar())
         return Observable.just(Result(success: true, data: user))
     }
 }

@@ -24,11 +24,12 @@ class LiveKtvMember: Codable, IAgoraModel {
     public var roomId: String
     public var streamId: UInt
     public var userId: String
+    public var avatar: String
 
     public var isManager: Bool = false
     // public var isLocal: Bool = false
 
-    public init(id: String, isMuted: Bool, isSelfMuted: Bool, role: Int, roomId: String, streamId: UInt, userId: String) {
+    public init(id: String, isMuted: Bool, isSelfMuted: Bool, role: Int, roomId: String, streamId: UInt, userId: String, avatar: String) {
         self.id = id
         self.isMuted = isMuted
         self.isSelfMuted = isSelfMuted
@@ -36,6 +37,7 @@ class LiveKtvMember: Codable, IAgoraModel {
         self.roomId = roomId
         self.streamId = streamId
         self.userId = userId
+        self.avatar = avatar
     }
 
     public func isSpeaker() -> Bool {
@@ -79,6 +81,7 @@ extension LiveKtvMember {
     static let ROOM: String = "roomId"
     static let STREAM_ID = "streamId"
     static let USER = "userId"
+    static let AVATAR = "avatar"
 
     static func get(object: IAgoraObject, roomId: String) throws -> LiveKtvMember {
         let id = try object.getId()
@@ -87,7 +90,8 @@ extension LiveKtvMember {
         let role: Int = try object.getValue(key: LiveKtvMember.ROLE, type: Int.self) as! Int
         let streamId: UInt = try object.getValue(key: LiveKtvMember.STREAM_ID, type: UInt.self) as! UInt
         let userId: String = try object.getValue(key: LiveKtvMember.USER, type: String.self) as! String
-        let member = LiveKtvMember(id: id, isMuted: isMuted, isSelfMuted: isSelfMuted, role: role, roomId: roomId, streamId: streamId, userId: userId)
+        let avatar: String = try object.getValue(key: LiveKtvMember.AVATAR, type: String.self) as! String
+        let member = LiveKtvMember(id: id, isMuted: isMuted, isSelfMuted: isSelfMuted, role: role, roomId: roomId, streamId: streamId, userId: userId, avatar: avatar)
         return member
     }
 
@@ -98,7 +102,8 @@ extension LiveKtvMember {
         let role: Int = try object.getValue(key: LiveKtvMember.ROLE, type: Int.self) as! Int
         let streamId: UInt = try object.getValue(key: LiveKtvMember.STREAM_ID, type: UInt.self) as! UInt
         let userId: String = try object.getValue(key: LiveKtvMember.USER, type: String.self) as! String
-        let member = LiveKtvMember(id: id, isMuted: isMuted, isSelfMuted: isSelfMuted, role: role, roomId: room.id, streamId: streamId, userId: userId)
+        let avatar: String = try object.getValue(key: LiveKtvMember.AVATAR, type: String.self) as! String
+        let member = LiveKtvMember(id: id, isMuted: isMuted, isSelfMuted: isSelfMuted, role: role, roomId: room.id, streamId: streamId, userId: userId, avatar: avatar)
         member.isManager = member.userId == room.userId
         return member
     }

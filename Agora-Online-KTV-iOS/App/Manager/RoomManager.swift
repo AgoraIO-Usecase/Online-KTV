@@ -91,7 +91,7 @@ extension RoomManager: IRoomManager {
     func join(room: LiveKtvRoom) -> Observable<Result<LiveKtvRoom>> {
         if let user = account {
             if member == nil {
-                member = LiveKtvMember(id: user.avatar!, isMuted: false, isSelfMuted: false, role: LiveKtvRoomRole.listener.rawValue, roomId: room.id, streamId: 0, userId: user.avatar!)
+                member = LiveKtvMember(id: user.id, isMuted: false, isSelfMuted: false, role: LiveKtvRoomRole.listener.rawValue, roomId: room.id, streamId: 0, userId: user.id, avatar: user.avatar!)
             }
             guard let member = member else {
                 return Observable.just(Result(success: false, message: "member is nil!"))
