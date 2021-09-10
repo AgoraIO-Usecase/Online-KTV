@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.agora.data.Config;
+import com.agora.data.ExampleData;
 import com.agora.data.model.MusicModel;
 import com.agora.data.model.User;
 import com.google.gson.Gson;
@@ -21,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import cn.leancloud.LCCloud;
 import cn.leancloud.LCObject;
@@ -30,7 +32,9 @@ import io.reactivex.CompletableEmitter;
 import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
+import io.reactivex.Single;
 import io.reactivex.functions.Function;
+import io.reactivex.functions.Predicate;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -111,45 +115,25 @@ public class DataRepositroyImpl implements IDataRepositroy {
 
     @Override
     public Observable<List<MusicModel>> getMusics(@Nullable String searchKey) {
-        LCQuery<LCObject> mLCQuery = LCQuery.getQuery(MusicModel.TABLE_NAME)
-                .limit(500);
-        if (TextUtils.isEmpty(searchKey) == false) {
-            mLCQuery.whereContains(MusicModel.COLUMN_NAME, searchKey);
-        }
-        return mLCQuery.findInBackground()
-                .subscribeOn(Schedulers.io())
-                .flatMap(new Function<List<LCObject>, ObservableSource<List<MusicModel>>>() {
-                    @Override
-                    public ObservableSource<List<MusicModel>> apply(@NonNull List<LCObject> LCObjects) throws Exception {
-                        List<MusicModel> list = new ArrayList<>();
-                        for (LCObject object : LCObjects) {
-                            MusicModel item = mGson.fromJson(object.toJSONObject().toJSONString(), MusicModel.class);
-                            list.add(item);
-                        }
-                        return Observable.just(list);
-                    }
-                });
+        return Observable.just(ExampleData.exampleSongs);
     }
 
     @Override
     public Observable<MusicModel> getMusic(@NonNull String musicId) {
-        Map<String, Object> dicParameters = new HashMap<>();
-        dicParameters.put("id", musicId);
+        MusicModel musicModel = null;
 
-        return LCCloud.callFunctionWithCacheInBackground(
-                "getMusic",
-                dicParameters,
-                LCQuery.CachePolicy.CACHE_ELSE_NETWORK,
-                30000)
-                .flatMap(new Function<Object, ObservableSource<MusicModel>>() {
-                    @Override
-                    public ObservableSource<MusicModel> apply(@NonNull Object o) throws Exception {
-                        return Observable.just(mGson.fromJson(String.valueOf(o), MusicModel.class));
-                    }
-                });
+        for (MusicModel exampleSong : ExampleData.exampleSongs) {
+            if(exampleSong.getMusicId().equals(musicId)){
+                musicModel = exampleSong;
+                break;
+            }
+        }
+
+        assert musicModel != null;
+        return Observable.just(musicModel);
     }
 
-    private OkHttpClient okHttpClient = new OkHttpClient();
+    private final OkHttpClient okHttpClient = new OkHttpClient();
 
     @Override
     public Completable download(@NonNull File file, @NonNull String url) {

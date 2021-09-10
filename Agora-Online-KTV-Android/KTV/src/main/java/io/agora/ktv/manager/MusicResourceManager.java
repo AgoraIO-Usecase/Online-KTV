@@ -61,85 +61,69 @@ public final class MusicResourceManager {
         return DataRepositroy.Instance(mContext)
                 .getMusic(musicModel.getMusicId())
                 .firstOrError()
-                .flatMap(new Function<MusicModel, SingleSource<MemberMusicModel>>() {
-                    @Override
-                    public SingleSource<MemberMusicModel> apply(@NonNull MusicModel model) throws Exception {
-                        musicModel.setSong(model.getSong());
-                        musicModel.setLrc(model.getLrc());
+                .flatMap((Function<MusicModel, SingleSource<MemberMusicModel>>) model -> {
+                    musicModel.setSong(model.getSong());
+                    musicModel.setLrc(model.getLrc());
 
-                        File fileMusic = new File(resourceRoot, musicModel.getMusicId());
-                        File fileLrc;
+                    File fileMusic = new File(resourceRoot, musicModel.getMusicId());
+                    File fileLrc;
 
+                    if (model.getLrc().endsWith("zip")) {
+                        fileLrc = new File(resourceRoot, musicModel.getMusicId() + ".zip");
+                    } else if (model.getLrc().endsWith("xml")) {
+                        fileLrc = new File(resourceRoot, musicModel.getMusicId() + ".xml");
+                    } else if (model.getLrc().endsWith("lrc")) {
+                        fileLrc = new File(resourceRoot, musicModel.getMusicId() + ".lrc");
+                    } else {
+                        return Single.error(new Throwable("未知歌词格式"));
+                    }
+
+                    musicModel.setFileMusic(fileMusic);
+                    musicModel.setFileLrc(fileLrc);
+
+                    mLogger.i("prepareMusic down %s", musicModel);
+                    if (onlyLrc) {
+                        Completable mCompletable = DataRepositroy.Instance(mContext).download(fileLrc, musicModel.getLrc());
                         if (model.getLrc().endsWith("zip")) {
-                            fileLrc = new File(resourceRoot, musicModel.getMusicId() + ".zip");
-                        } else if (model.getLrc().endsWith("xml")) {
-                            fileLrc = new File(resourceRoot, musicModel.getMusicId() + ".xml");
-                        } else if (model.getLrc().endsWith("lrc")) {
-                            fileLrc = new File(resourceRoot, musicModel.getMusicId() + ".lrc");
-                        } else {
-                            return Single.error(new Throwable("未知歌词格式"));
+                            mCompletable = mCompletable.andThen(Completable.create(new CompletableOnSubscribe() {
+                                @Override
+                                public void subscribe(@NonNull CompletableEmitter emitter) throws Exception {
+                                    File fileLrcNew = new File(resourceRoot, musicModel.getMusicId() + ".xml");
+                                    unzipLrc(fileLrc, fileLrcNew);
+                                    musicModel.setFileLrc(fileLrcNew);
+                                    emitter.onComplete();
+                                }
+                            }));
                         }
 
-                        musicModel.setFileMusic(fileMusic);
-                        musicModel.setFileLrc(fileLrc);
-
-                        mLogger.i("prepareMusic down %s", musicModel);
-                        if (onlyLrc) {
-                            Completable mCompletable = DataRepositroy.Instance(mContext).download(fileLrc, musicModel.getLrc());
-                            if (model.getLrc().endsWith("zip")) {
-                                mCompletable = mCompletable.andThen(Completable.create(new CompletableOnSubscribe() {
-                                    @Override
-                                    public void subscribe(@NonNull CompletableEmitter emitter) throws Exception {
-                                        File fileLrcNew = new File(resourceRoot, musicModel.getMusicId() + ".xml");
-                                        unzipLrc(fileLrc, fileLrcNew);
-                                        musicModel.setFileLrc(fileLrcNew);
-                                        emitter.onComplete();
-                                    }
-                                }));
-                            }
-
-                            return mCompletable.andThen(Single.just(musicModel));
-                        } else {
-                            Completable mCompletable = DataRepositroy.Instance(mContext).download(fileLrc, musicModel.getLrc());
-                            if (model.getLrc().endsWith("zip")) {
-                                mCompletable = mCompletable.andThen(Completable.create(new CompletableOnSubscribe() {
-                                    @Override
-                                    public void subscribe(@NonNull CompletableEmitter emitter) throws Exception {
-                                        File fileLrcNew = new File(resourceRoot, musicModel.getMusicId() + ".xml");
-                                        unzipLrc(fileLrc, fileLrcNew);
-                                        musicModel.setFileLrc(fileLrcNew);
-                                        emitter.onComplete();
-                                    }
-                                }));
-                            }
-
-                            return Completable.mergeArray(
-                                    DataRepositroy.Instance(mContext).download(fileMusic, musicModel.getSong()),
-                                    mCompletable)
-                                    .toSingle(new Callable<MemberMusicModel>() {
-                                        @Override
-                                        public MemberMusicModel call() throws Exception {
-                                            return musicModel;
-                                        }
-                                    });
+                        return mCompletable.andThen(Single.just(musicModel));
+                    } else {
+                        Completable mCompletable = DataRepositroy.Instance(mContext).download(fileLrc, musicModel.getLrc());
+                        if (model.getLrc().endsWith("zip")) {
+                            mCompletable = mCompletable.andThen(Completable.create(new CompletableOnSubscribe() {
+                                @Override
+                                public void subscribe(@NonNull CompletableEmitter emitter) throws Exception {
+                                    File fileLrcNew = new File(resourceRoot, musicModel.getMusicId() + ".xml");
+                                    unzipLrc(fileLrc, fileLrcNew);
+                                    musicModel.setFileLrc(fileLrcNew);
+                                    emitter.onComplete();
+                                }
+                            }));
                         }
+
+                        return Completable.mergeArray(
+                                DataRepositroy.Instance(mContext).download(fileMusic, musicModel.getSong()),
+                                mCompletable)
+                                .toSingle(new Callable<MemberMusicModel>() {
+                                    @Override
+                                    public MemberMusicModel call() throws Exception {
+                                        return musicModel;
+                                    }
+                                });
                     }
-                }).doOnSubscribe(new Consumer<Disposable>() {
-                    @Override
-                    public void accept(Disposable disposable) throws Exception {
-                        isPreparing = true;
-                    }
-                }).doOnSuccess(new Consumer<MemberMusicModel>() {
-                    @Override
-                    public void accept(MemberMusicModel musicModel) throws Exception {
-                        isPreparing = false;
-                    }
-                }).doOnError(new Consumer<Throwable>() {
-                    @Override
-                    public void accept(Throwable throwable) throws Exception {
-                        isPreparing = false;
-                        mLogger.e("prepareMusic error", throwable);
-                    }
+                }).doOnSubscribe(disposable -> isPreparing = true).doOnSuccess(musicModel1 -> isPreparing = false).doOnError(throwable -> {
+                    isPreparing = false;
+                    mLogger.e("prepareMusic error", throwable);
                 });
     }
 

@@ -61,6 +61,7 @@
             android:id="@+id/btCrateRoom"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:visibility="gone"
             android:layout_marginBottom="10dp"
             android:background="@mipmap/ktv_create"
             android:gravity="center"

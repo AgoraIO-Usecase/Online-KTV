@@ -18,7 +18,6 @@ import androidx.viewpager.widget.ViewPager;
 import io.agora.baselibrary.base.DataBindBaseDialog;
 import io.agora.ktv.R;
 import io.agora.ktv.databinding.KtvDialogChooseSongBinding;
-import io.agora.ktv.view.SongOrdersFragment;
 import io.agora.ktv.view.SongsFragment;
 
 /**
@@ -69,7 +68,6 @@ public class RoomChooseSongDialog extends DataBindBaseDialog<KtvDialogChooseSong
     }
 
     private SongsFragment mSongsFragment = SongsFragment.newInstance();
-    private SongOrdersFragment mSongOrdersFragment = SongOrdersFragment.newInstance();
 
     @Override
     public void iniData() {
@@ -77,17 +75,17 @@ public class RoomChooseSongDialog extends DataBindBaseDialog<KtvDialogChooseSong
 
             @Override
             public int getCount() {
-                return 2;
+                return 1;
             }
 
             @NonNull
             @Override
             public Fragment getItem(int position) {
-                if (position == 0) {
+//                if (position == 0) {
                     return mSongsFragment;
-                } else {
-                    return mSongOrdersFragment;
-                }
+//                } else {
+//                    return mSongOrdersFragment;
+//                }
             }
 
             @Nullable
@@ -100,8 +98,6 @@ public class RoomChooseSongDialog extends DataBindBaseDialog<KtvDialogChooseSong
                 }
             }
         });
-
-        mDataBinding.tabLayout.setupWithViewPager(mDataBinding.pager);
     }
 
     public void show(@NonNull FragmentManager manager) {
@@ -115,9 +111,6 @@ public class RoomChooseSongDialog extends DataBindBaseDialog<KtvDialogChooseSong
 
     @Override
     public void onPageSelected(int position) {
-        if (position == 1) {
-            mSongOrdersFragment.iniData();
-        }
     }
 
     @Override

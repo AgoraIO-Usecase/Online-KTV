@@ -38,10 +38,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".view.CreateRoomActivity"
-            android:launchMode="singleTask"
-            android:screenOrientation="portrait" />
+<!--        <activity-->
+<!--            android:name=".view.CreateRoomActivity"-->
+<!--            android:launchMode="singleTask"-->
+<!--            android:screenOrientation="portrait" />-->
         <activity
             android:name=".view.RoomListActivity"
             android:launchMode="singleTask"

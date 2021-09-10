@@ -8,6 +8,14 @@ import com.agora.data.sync.SyncManager;
 
 import java.util.HashMap;
 
+/**
+ * 猜测是将 {@link User} 与 {@link AgoraRoom} 关联的类
+ * 标识该用户所在的房间、streamId、角色
+ *
+ * {@link #roomId User#userId} 与 {@link #userId}相同 《==》 {@link AgoraMember.Role#Owner}
+ * 否则 role = {@link AgoraMember.Role#Listener}
+ * 用户主动上麦 《==》role = {@link AgoraMember.Role#Speaker}
+ */
 public class AgoraMember implements Parcelable {
     public static final String TABLE_NAME = "MEMBER_KTV";
 

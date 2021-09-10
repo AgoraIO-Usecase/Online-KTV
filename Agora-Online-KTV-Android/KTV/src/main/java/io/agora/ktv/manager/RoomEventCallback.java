@@ -23,14 +23,12 @@ public interface RoomEventCallback {
     /**
      * 用户加入房间
      *
-     * @param member
      */
     void onMemberJoin(@NonNull AgoraMember member);
 
     /**
      * 用户离开房间，不包括房主
      *
-     * @param member
      */
     void onMemberLeave(@NonNull AgoraMember member);
 

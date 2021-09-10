@@ -55,8 +55,10 @@ public class RoomSpeakerAdapter extends BaseRecyclerViewAdapter<AgoraMember, Roo
         int index = datas.indexOf(data);
         if (0 <= index && index < datas.size()) {
             datas.remove(data);
-            notifyItemChanged(index);
         }
+
+        //因为后面的需要往前面移动，所以直接进行全部更新
+        notifyDataSetChanged();
     }
 
     @Override
@@ -97,13 +99,6 @@ public class RoomSpeakerAdapter extends BaseRecyclerViewAdapter<AgoraMember, Roo
                     .into(holder.mDataBinding.ivHead);
         } else {
             holder.mDataBinding.ivHead.setImageResource(R.mipmap.default_head);
-        }
-
-        MemberMusicModel mMusicModel = RoomManager.Instance(mContext).getMusicModel();
-        if (mMusicModel != null) {
-            if (RoomManager.Instance(mContext).isSinger(item.getUserId())) {
-                holder.mDataBinding.tvName.setText(mContext.getString(R.string.ktv_room_sing1));
-            }
         }
     }
 
