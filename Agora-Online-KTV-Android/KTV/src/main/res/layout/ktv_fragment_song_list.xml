@@ -11,6 +11,7 @@
         <LinearLayout
             android:id="@+id/llSearch"
             android:layout_width="0dp"
+            android:visibility="gone"
             android:layout_height="wrap_content"
             android:background="@drawable/ktv_shape_dialog_search_input_background"
             android:gravity="center"
@@ -48,6 +49,7 @@
         </LinearLayout>
 
         <TextView
+            android:visibility="gone"
             android:id="@+id/tvSearch"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

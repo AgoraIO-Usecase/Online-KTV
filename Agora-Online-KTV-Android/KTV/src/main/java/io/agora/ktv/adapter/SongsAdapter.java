@@ -54,13 +54,8 @@ public class SongsAdapter extends BaseRecyclerViewAdapter<MusicModel, SongsAdapt
                 .apply(RequestOptions.bitmapTransform(new RoundedCorners(10)))
                 .into(holder.mDataBinding.iv);
 
-        if (RoomManager.Instance(context).isInMusicOrderList(item)) {
-            holder.mDataBinding.btChooseSong.setEnabled(false);
-            holder.mDataBinding.btChooseSong.setText(R.string.ktv_room_choosed_song);
-        } else {
             holder.mDataBinding.btChooseSong.setEnabled(true);
             holder.mDataBinding.btChooseSong.setText(R.string.ktv_room_choose_song);
-        }
     }
 
     class ViewHolder extends BaseRecyclerViewAdapter.BaseViewHolder<KtvItemChooseSongListBinding> {

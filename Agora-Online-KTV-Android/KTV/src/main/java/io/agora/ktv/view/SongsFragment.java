@@ -1,11 +1,13 @@
 package io.agora.ktv.view;
 
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.agora.data.ExampleData;
 import com.agora.data.manager.UserManager;
 import com.agora.data.model.AgoraRoom;
 import com.agora.data.model.MusicModel;
@@ -37,7 +39,7 @@ import io.reactivex.disposables.Disposable;
  * @author chenhengfei(Aslanchen)
  * @date 2021/6/15
  */
-public class SongsFragment extends DataBindBaseFragment<KtvFragmentSongListBinding> implements View.OnClickListener, OnItemClickListener<MusicModel> {
+public class SongsFragment extends DataBindBaseFragment<KtvFragmentSongListBinding> implements OnItemClickListener<MusicModel> {
 
     public static SongsFragment newInstance() {
         SongsFragment mFragment = new SongsFragment();
@@ -63,8 +65,6 @@ public class SongsFragment extends DataBindBaseFragment<KtvFragmentSongListBindi
 
     @Override
     public void iniListener() {
-        mDataBinding.ivClear.setOnClickListener(this);
-        mDataBinding.tvSearch.setOnClickListener(this);
     }
 
     @Override
@@ -82,31 +82,7 @@ public class SongsFragment extends DataBindBaseFragment<KtvFragmentSongListBindi
     }
 
     private void loadMusics(String searchKey) {
-        DataRepositroy.Instance(requireContext())
-                .getMusics(searchKey)
-                .observeOn(AndroidSchedulers.mainThread())
-                .compose(mLifecycleProvider.bindToLifecycle())
-                .subscribe(new Observer<List<MusicModel>>() {
-                    @Override
-                    public void onSubscribe(@NonNull Disposable d) {
-
-                    }
-
-                    @Override
-                    public void onNext(@NonNull List<MusicModel> musicModels) {
-                        onLoadMusics(musicModels);
-                    }
-
-                    @Override
-                    public void onError(@NonNull Throwable e) {
-                        ToastUtile.toastShort(requireContext(), e.getMessage());
-                    }
-
-                    @Override
-                    public void onComplete() {
-
-                    }
-                });
+        onLoadMusics(ExampleData.exampleSongs);
     }
 
     private void onLoadMusics(List<MusicModel> list) {
@@ -125,50 +101,19 @@ public class SongsFragment extends DataBindBaseFragment<KtvFragmentSongListBindi
             return;
         }
 
-        User mUser = UserManager.Instance(requireContext()).getUserLiveData().getValue();
+        User mUser = UserManager.Instance().getUserLiveData().getValue();
         if (mUser == null) {
             return;
         }
 
-//        if (RoomManager.Instance(requireContext()).isInMusicOrderList(data)) {
-//            mAdapter.notifyItemChanged(position);
-//            return;
-//        }
-
         MemberMusicModel model = new MemberMusicModel(data);
         model.setRoomId(mRoom);
         model.setUserId(mUser.getObjectId());
-        SyncManager.Instance()
-                .getRoom(mRoom.getId())
-                .collection(MemberMusicModel.TABLE_NAME)
-                .add(model.toHashMap(), new SyncManager.DataItemCallback() {
-                    @Override
-                    public void onSuccess(AgoraObject result) {
-                        MemberMusicModel musicModel = result.toObject(MemberMusicModel.class);
-                        musicModel.setId(result.getId());
+        model.setId(data.getMusicId());
+        model.setMusicId(data.getMusicId());
 
-                        RoomManager.Instance(requireContext()).onMusicAdd(musicModel);
-                        mAdapter.notifyItemChanged(position);
-                    }
-
-                    @Override
-                    public void onFail(AgoraException exception) {
-                        ToastUtile.toastShort(requireContext(), exception.getMessage());
-                    }
-                });
+        RoomManager.Instance(requireContext()).onMusicChanged(model);
+        requireActivity().onBackPressed();
     }
 
-    @Override
-    public void onClick(View v) {
-        if (v == mDataBinding.ivClear) {
-            mDataBinding.etSearchKey.setText("");
-        } else if (v == mDataBinding.tvSearch) {
-            doSearch();
-        }
-    }
-
-    private void doSearch() {
-        String key = mDataBinding.etSearchKey.getText().toString().trim();
-        loadMusics(key);
-    }
 }

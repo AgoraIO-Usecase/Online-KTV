@@ -44,9 +44,9 @@ public final class SyncManager implements ISyncManager {
         return mConverter;
     }
 
-    public RoomReference getRoom(String id) {
-        return new RoomReference(id);
-    }
+//    public RoomReference getRoom(String id) {
+//        return new RoomReference(id);
+//    }
 
     public CollectionReference collection(String key) {
         return new CollectionReference(null, key);

@@ -1,7 +1,6 @@
 package io.agora.ktv.view;
 
 import android.Manifest;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
@@ -14,9 +13,7 @@ import com.agora.data.manager.UserManager;
 import com.agora.data.model.AgoraRoom;
 import com.agora.data.model.User;
 import com.agora.data.observer.DataObserver;
-import com.agora.data.provider.AgoraObject;
 import com.agora.data.provider.DataRepositroy;
-import com.agora.data.sync.AgoraException;
 import com.agora.data.sync.SyncManager;
 
 import java.util.List;
@@ -75,21 +72,16 @@ public class RoomListActivity extends DataBindBaseActivity<KtvActivityRoomListBi
 
     @Override
     protected void iniData() {
-        UserManager.Instance(this).setupDataRepositroy(DataRepositroy.Instance(this));
+        UserManager.Instance().setupDataRepositroy(DataRepositroy.Instance(this));
 
         showEmptyStatus();
 
-        mDataBinding.swipeRefreshLayout.post(new Runnable() {
-            @Override
-            public void run() {
-                login();
-            }
-        });
+        mDataBinding.swipeRefreshLayout.post(this::login);
     }
 
     private void login() {
         mDataBinding.swipeRefreshLayout.setRefreshing(true);
-        UserManager.Instance(this)
+        UserManager.Instance()
                 .loginIn()
                 .observeOn(AndroidSchedulers.mainThread())
                 .compose(mLifecycleProvider.bindToLifecycle())
@@ -107,8 +99,6 @@ public class RoomListActivity extends DataBindBaseActivity<KtvActivityRoomListBi
     }
 
     private void loadRooms() {
-        mAdapter.clear();
-
         SyncManager.Instance()
                 .getRooms()
                 .observeOn(AndroidSchedulers.mainThread())
@@ -153,23 +143,8 @@ public class RoomListActivity extends DataBindBaseActivity<KtvActivityRoomListBi
 
     @Override
     public void onClick(View v) {
-        if (!UserManager.Instance(this).isLogin()) {
+        if (!UserManager.Instance().isLogin()) {
             login();
-            return;
-        }
-
-        if (v.getId() == R.id.btCrateRoom) {
-            gotoCreateRoom();
-        }
-    }
-
-    private void gotoCreateRoom() {
-        if (EasyPermissions.hasPermissions(this, PERMISSTION)) {
-            Intent intent = CreateRoomActivity.newIntent(RoomListActivity.this);
-            startActivity(intent);
-        } else {
-            EasyPermissions.requestPermissions(this, getString(R.string.ktv_error_permisstion),
-                    TAG_PERMISSTION_REQUESTCODE, PERMISSTION);
         }
     }
 
@@ -188,30 +163,7 @@ public class RoomListActivity extends DataBindBaseActivity<KtvActivityRoomListBi
         if (!EasyPermissions.hasPermissions(this, PERMISSTION)) {
             EasyPermissions.requestPermissions(this, getString(R.string.ktv_error_permisstion),
                     TAG_PERMISSTION_REQUESTCODE, PERMISSTION);
-            return;
         }
-
-        mDataBinding.list.setEnabled(false);
-        SyncManager.Instance()
-                .getRoom(data.getId())
-                .get(new SyncManager.DataItemCallback() {
-                    @Override
-                    public void onSuccess(AgoraObject LCObject) {
-                        AgoraRoom mRoom = LCObject.toObject(AgoraRoom.class);
-                        mRoom.setId(LCObject.getId());
-
-                        Intent intent = RoomActivity.newIntent(RoomListActivity.this, mRoom);
-                        startActivity(intent);
-                        mDataBinding.list.setEnabled(true);
-                    }
-
-                    @Override
-                    public void onFail(AgoraException exception) {
-                        mAdapter.deleteItem(position);
-                        mDataBinding.list.setEnabled(true);
-                        ToastUtile.toastShort(RoomListActivity.this, "房间不存在");
-                    }
-                });
     }
 
     @Override

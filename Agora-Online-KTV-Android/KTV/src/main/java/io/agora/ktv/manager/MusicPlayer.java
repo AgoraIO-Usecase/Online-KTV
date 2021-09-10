@@ -5,10 +5,14 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.util.Log;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 
+import com.agora.data.manager.UserManager;
+import com.agora.data.model.AgoraMember;
+import com.agora.data.model.User;
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
 
@@ -19,6 +23,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.agora.ktv.R;
 import io.agora.ktv.bean.MemberMusicModel;
 import io.agora.rtc.Constants;
 import io.agora.rtc.IRtcEngineEventHandler;
@@ -35,7 +40,7 @@ public class MusicPlayer extends IRtcEngineEventHandler {
     private boolean mStopSyncLrc = true;
     private Thread mSyncLrcThread;
 
-    private boolean mStopDisplayLrc = true;
+    private boolean mStopDisplayLrc = false;
     private Thread mDisplayThread;
 
     private static volatile long mRecvedPlayPosition = 0;
@@ -48,12 +53,14 @@ public class MusicPlayer extends IRtcEngineEventHandler {
 
     private Callback mCallback;
 
+    private int mStreamId = -1;
+
     protected static final int ACTION_UPDATE_TIME = 100;
     protected static final int ACTION_ONMUSIC_OPENING = ACTION_UPDATE_TIME + 1;
     protected static final int ACTION_ON_MUSIC_OPENCOMPLETED = ACTION_ONMUSIC_OPENING + 1;
     protected static final int ACTION_ON_MUSIC_OPENERROR = ACTION_ON_MUSIC_OPENCOMPLETED + 1;
-    protected static final int ACTION_ON_MUSIC_PLAING = ACTION_ON_MUSIC_OPENERROR + 1;
-    protected static final int ACTION_ON_MUSIC_PAUSE = ACTION_ON_MUSIC_PLAING + 1;
+    protected static final int ACTION_ON_MUSIC_PLAYING = ACTION_ON_MUSIC_OPENERROR + 1;
+    protected static final int ACTION_ON_MUSIC_PAUSE = ACTION_ON_MUSIC_PLAYING + 1;
     protected static final int ACTION_ON_MUSIC_STOP = ACTION_ON_MUSIC_PAUSE + 1;
     protected static final int ACTION_ON_MUSIC_COMPLETED = ACTION_ON_MUSIC_STOP + 1;
     protected static final int ACTION_ON_RECEIVED_COUNT_DOWN = ACTION_ON_MUSIC_COMPLETED + 1;
@@ -100,9 +107,9 @@ public class MusicPlayer extends IRtcEngineEventHandler {
                 if (mCallback != null) {
                     mCallback.onMusicOpenError((int) msg.obj);
                 }
-            } else if (msg.what == ACTION_ON_MUSIC_PLAING) {
+            } else if (msg.what == ACTION_ON_MUSIC_PLAYING) {
                 if (mCallback != null) {
-                    mCallback.onMusicPlaing();
+                    mCallback.onMusicPlaying();
                 }
             } else if (msg.what == ACTION_ON_MUSIC_PAUSE) {
                 if (mCallback != null) {
@@ -157,7 +164,7 @@ public class MusicPlayer extends IRtcEngineEventHandler {
     }
 
     public void playByListener(@NonNull MemberMusicModel mMusicModel) {
-        onMusicPlaingByListener();
+        onMusicPlayingByListener();
         MusicPlayer.mMusicModel = mMusicModel;
         startDisplayLrc();
     }
@@ -173,24 +180,24 @@ public class MusicPlayer extends IRtcEngineEventHandler {
             return -2;
         }
 
-        if (!mStopDisplayLrc) {
-            mLogger.e("play: current player is recving remote streams, abort playing");
-            return -3;
-        }
+//        if (!mStopDisplayLrc) {
+//            mLogger.e("play: current player is recving remote streams, abort playing");
+//            return -3;
+//        }
 
         File fileMusic = mMusicModel.getFileMusic();
-        if (fileMusic.exists() == false) {
+        if (!fileMusic.exists()) {
             mLogger.e("play: fileMusic is not exists");
             return -4;
         }
 
         File fileLrc = mMusicModel.getFileLrc();
-        if (fileLrc.exists() == false) {
+        if (!fileLrc.exists()) {
             mLogger.e("play: fileLrc is not exists");
             return -5;
         }
 
-        stopDisplayLrc();
+//        stopDisplayLrc();
 
         mAudioTracksCount = 0;
         mAudioTrackIndex = 1;
@@ -202,16 +209,14 @@ public class MusicPlayer extends IRtcEngineEventHandler {
         return 0;
     }
 
-    protected void play() {
-
-    }
-
     public void stop() {
         mLogger.i("stop() called");
         if (mStatus == Status.IDLE) {
             return;
         }
 
+        if(mMusicModel!=null)
+            sendSyncLrc(mMusicModel.getMusicId(), mRtcEngine.getAudioMixingDuration(),mRtcEngine.getAudioMixingCurrentPosition(),false);
         mRtcEngine.stopAudioMixing();
     }
 
@@ -285,7 +290,6 @@ public class MusicPlayer extends IRtcEngineEventHandler {
     }
 
     private void startDisplayLrc() {
-        mStopDisplayLrc = false;
         mDisplayThread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -325,25 +329,30 @@ public class MusicPlayer extends IRtcEngineEventHandler {
         }
     }
 
-    private void startSyncLrc(String lrcId, long duration) {
+    private void startSyncLrc() {
         mSyncLrcThread = new Thread(new Runnable() {
-            int mStreamId = -1;
 
             @Override
             public void run() {
-                mLogger.i("startSyncLrc: " + lrcId);
                 DataStreamConfig cfg = new DataStreamConfig();
                 cfg.syncWithAudio = false;
                 cfg.ordered = false;
                 mStreamId = mRtcEngine.createDataStream(cfg);
 
                 mStopSyncLrc = false;
-                while (!mStopSyncLrc && mStatus.isAtLeast(Status.Started)) {
-                    if (mStatus == Status.Started) {
+                while (!mStopSyncLrc) {
+                    User user = UserManager.Instance().getUserLiveData().getValue();
+                    if (user==null) return;
+                    if (mStatus == Status.Started && mMusicModel!=null && mMusicModel.getUserId().equals(user.getObjectId())) {
                         mRecvedPlayPosition = mRtcEngine.getAudioMixingCurrentPosition();
                         mLastRecvPlayPosTime = System.currentTimeMillis();
 
-                        sendSyncLrc(lrcId, duration, mRecvedPlayPosition);
+                        sendSyncLrc(mMusicModel.getMusicId(), mRtcEngine.getAudioMixingDuration(), mRecvedPlayPosition,mMusicModel!=null);
+
+                    }
+                    AgoraMember member = RoomManager.Instance(mContext).getMine();
+                    if (member != null) {
+                        sendSyncMember(member.getUserId(), member.getRole(), member.getUser().getAvatar());
                     }
 
                     try {
@@ -353,21 +362,31 @@ public class MusicPlayer extends IRtcEngineEventHandler {
                     }
                 }
             }
-
-            private void sendSyncLrc(String lrcId, long duration, long time) {
-                Map<String, Object> msg = new HashMap<>();
-                msg.put("cmd", "setLrcTime");
-                msg.put("lrcId", lrcId);
-                msg.put("duration", duration);
-                msg.put("time", time);//ms
-                JSONObject jsonMsg = new JSONObject(msg);
-                mRtcEngine.sendStreamMessage(mStreamId, jsonMsg.toString().getBytes());
-            }
         });
         mSyncLrcThread.setName("Thread-SyncLrc");
         mSyncLrcThread.start();
     }
+    public void sendSyncLrc(String lrcId, long duration, long time,boolean shouldPlay) {
+        mLogger.d("sendSyncLrc"+lrcId);
+        Map<String, Object> msg = new HashMap<>();
+        msg.put("cmd", "setLrcTime");
+        msg.put("lrcId", lrcId);
+        msg.put("duration", duration);
+        msg.put("time", time);//ms
+        msg.put("state", shouldPlay ? 1 : 0);
+        JSONObject jsonMsg = new JSONObject(msg);
+        mRtcEngine.sendStreamMessage(mStreamId, jsonMsg.toString().getBytes());
+    }
 
+    public void sendSyncMember(String userId, AgoraMember.Role role,String avatar) {
+        Map<String, Object> msg = new HashMap<>();
+        msg.put("cmd", "syncMember");
+        msg.put("userId", userId);
+        msg.put("role", role.getValue());
+        msg.put("avatar", avatar);
+        JSONObject jsonMsg = new JSONObject(msg);
+        mRtcEngine.sendStreamMessage(mStreamId, jsonMsg.toString().getBytes());
+    }
     private void stopSyncLrc() {
         mStopSyncLrc = true;
         if (mSyncLrcThread != null) {
@@ -379,8 +398,8 @@ public class MusicPlayer extends IRtcEngineEventHandler {
         }
     }
 
-    private void startPublish() {
-        startSyncLrc(mMusicModel.getMusicId(), mRtcEngine.getAudioMixingDuration());
+    public void startPublish() {
+        startSyncLrc();
     }
 
     private void stopPublish() {
@@ -393,10 +412,6 @@ public class MusicPlayer extends IRtcEngineEventHandler {
         mAudioTracksCount = 2;
     }
 
-    public boolean isPlaying() {
-        return mStatus.isAtLeast(Status.Started);
-    }
-
     @Override
     public void onStreamMessage(int uid, int streamId, byte[] data) {
         JSONObject jsonMsg;
@@ -404,10 +419,9 @@ public class MusicPlayer extends IRtcEngineEventHandler {
             String strMsg = new String(data);
             jsonMsg = new JSONObject(strMsg);
 
-            if (mStatus.isAtLeast(Status.Started))
-                return;
-
-            if (jsonMsg.getString("cmd").equals("setLrcTime")) {
+            if (mStatus.value < Status.Started.value) return;
+            String cmd = jsonMsg.getString("cmd");
+            if (cmd.equals("setLrcTime") && mMusicModel!=null) {
                 long position = jsonMsg.getLong("time");
                 if (position == 0) {
                     mHandler.obtainMessage(ACTION_ON_RECEIVED_PLAY, uid).sendToTarget();
@@ -440,7 +454,7 @@ public class MusicPlayer extends IRtcEngineEventHandler {
             if (mStatus == Status.IDLE) {
                 onMusicOpenCompleted();
             }
-            onMusicPlaing();
+            onMusicPlaying();
         } else if (state == Constants.MEDIA_ENGINE_AUDIO_EVENT_MIXING_PAUSED) {
             onMusicPause();
         } else if (state == Constants.MEDIA_ENGINE_AUDIO_EVENT_MIXING_STOPPED) {
@@ -473,21 +487,21 @@ public class MusicPlayer extends IRtcEngineEventHandler {
         mHandler.obtainMessage(ACTION_ON_MUSIC_OPENERROR, error).sendToTarget();
     }
 
-    protected void onMusicPlaingByListener() {
-        mLogger.i("onMusicPlaingByListener() called");
+    protected void onMusicPlayingByListener() {
+        mLogger.i("onMusicPlayingByListener() called");
         mStatus = Status.Started;
 
-        mHandler.obtainMessage(ACTION_ON_MUSIC_PLAING).sendToTarget();
+        mHandler.obtainMessage(ACTION_ON_MUSIC_PLAYING).sendToTarget();
     }
 
-    private void onMusicPlaing() {
-        mLogger.i("onMusicPlaing() called");
+    private void onMusicPlaying() {
+        mLogger.i("onMusicPlaying() called");
         mStatus = Status.Started;
 
-        if (mStopSyncLrc)
-            startPublish();
+//        if (mStopSyncLrc)
+//            startPublish();
 
-        mHandler.obtainMessage(ACTION_ON_MUSIC_PLAING).sendToTarget();
+        mHandler.obtainMessage(ACTION_ON_MUSIC_PLAYING).sendToTarget();
     }
 
     private void onMusicPause() {
@@ -501,8 +515,8 @@ public class MusicPlayer extends IRtcEngineEventHandler {
         mLogger.i("onMusicStop() called");
         mStatus = Status.Stopped;
 
-        stopDisplayLrc();
-        stopPublish();
+//        stopDisplayLrc();
+//        stopPublish();
         reset();
 
         mHandler.obtainMessage(ACTION_ON_MUSIC_STOP).sendToTarget();
@@ -510,14 +524,15 @@ public class MusicPlayer extends IRtcEngineEventHandler {
 
     private void onMusicCompleted() {
         mLogger.i("onMusicCompleted() called");
-        stopDisplayLrc();
-        stopPublish();
+//        stopDisplayLrc();
+//        stopPublish();
         reset();
 
         mHandler.obtainMessage(ACTION_ON_MUSIC_COMPLETED).sendToTarget();
     }
 
     public void destory() {
+        stopDisplayLrc();
         mLogger.i("destory() called");
         mRtcEngine.removeHandler(this);
         mCallback = null;
@@ -571,7 +586,7 @@ public class MusicPlayer extends IRtcEngineEventHandler {
         /**
          * 正在播放
          */
-        void onMusicPlaing();
+        void onMusicPlaying();
 
         /**
          * 暂停

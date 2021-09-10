@@ -55,7 +55,7 @@ class LrcLoadMiguUtils {
             parser.setInput(in, null);
             parser.nextTag();
             Song mSong = readLrc(parser);
-            if (mSong == null || mSong.midi == null || mSong.midi.paragraphs == null) {
+            if (mSong.midi == null || mSong.midi.paragraphs == null) {
                 return null;
             }
 
@@ -109,7 +109,9 @@ class LrcLoadMiguUtils {
             } else if (name.equals("singer")) {
                 general.singer = readText(parser);
             } else if (name.equals("type")) {
-                general.type = Integer.parseInt(readText(parser));
+                String p = readText(parser);
+                if (!p.isEmpty())
+                    general.type = Integer.parseInt(p);
             } else if (name.equals("mode_type")) {
                 general.mode_type = readText(parser);
             } else {
@@ -194,7 +196,7 @@ class LrcLoadMiguUtils {
         tone.end = (long) (Float.parseFloat(parser.getAttributeValue(null, "end")) * 1000L);
         String t = parser.getAttributeValue(null, "pitch");
         int pitch = 0;
-        if (t != null) {
+        if (t != null && !t.isEmpty()) {
             pitch = Integer.parseInt(t);
         }
         tone.pitch = pitch;

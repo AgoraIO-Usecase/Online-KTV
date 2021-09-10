@@ -3,12 +3,16 @@ package com.agora.data.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.agora.data.ExampleData;
 import com.agora.data.R;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Random;
 
+/**
+ *
+ */
 public class AgoraRoom implements Parcelable {
     public static final String TABLE_NAME = "AGORA_ROOM";
 
@@ -133,49 +137,25 @@ public class AgoraRoom implements Parcelable {
     }
 
     public int getCoverRes() {
-        if ("1".equals(cover)) {
-            return R.mipmap.icon_room_cover1;
-        } else if ("2".equals(cover)) {
-            return R.mipmap.icon_room_cover2;
-        } else if ("3".equals(cover)) {
-            return R.mipmap.icon_room_cover3;
-        } else if ("4".equals(cover)) {
-            return R.mipmap.icon_room_cover4;
-        } else if ("5".equals(cover)) {
-            return R.mipmap.icon_room_cover5;
-        } else if ("6".equals(cover)) {
-            return R.mipmap.icon_room_cover6;
-        } else if ("7".equals(cover)) {
-            return R.mipmap.icon_room_cover7;
-        } else if ("8".equals(cover)) {
-            return R.mipmap.icon_room_cover8;
-        } else if ("9".equals(cover)) {
-            return R.mipmap.icon_room_cover9;
+        int index = 0;
+        try {
+            index = Integer.parseInt(cover);
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
         }
-        return R.mipmap.icon_room_cover1;
+        if(index >= ExampleData.exampleCovers.size()|| index < 0) index = 0;
+        return ExampleData.exampleCovers.get(index);
     }
 
     public int getMVRes() {
-        if ("1".equals(mv)) {
-            return R.mipmap.ktv_music_background1;
-        } else if ("2".equals(mv)) {
-            return R.mipmap.ktv_music_background2;
-        } else if ("3".equals(mv)) {
-            return R.mipmap.ktv_music_background3;
-        } else if ("4".equals(mv)) {
-            return R.mipmap.ktv_music_background4;
-        } else if ("5".equals(mv)) {
-            return R.mipmap.ktv_music_background5;
-        } else if ("6".equals(mv)) {
-            return R.mipmap.ktv_music_background6;
-        } else if ("7".equals(mv)) {
-            return R.mipmap.ktv_music_background7;
-        } else if ("8".equals(mv)) {
-            return R.mipmap.ktv_music_background8;
-        } else if ("9".equals(mv)) {
-            return R.mipmap.ktv_music_background9;
+        int index = 0;
+        try {
+            index = Integer.parseInt(cover);
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
         }
-        return R.mipmap.ktv_music_background1;
+        if(index >= ExampleData.exampleBackgrounds.size()|| index < 0) index = 0;
+        return ExampleData.exampleBackgrounds.get(index);
     }
 
     @Override

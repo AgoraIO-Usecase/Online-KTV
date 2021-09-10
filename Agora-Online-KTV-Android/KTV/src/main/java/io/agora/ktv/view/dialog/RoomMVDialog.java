@@ -13,6 +13,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.GridLayoutManager;
 
+import com.agora.data.ExampleData;
 import com.agora.data.model.AgoraRoom;
 import com.agora.data.provider.AgoraObject;
 import com.agora.data.sync.AgoraException;
@@ -35,7 +36,7 @@ import io.agora.ktv.widget.SpaceItemDecoration;
  *
  * @author chenhengfei@agora.io
  */
-public class RoomMVDialog extends DataBindBaseDialog<KtvDialogMvBinding> implements OnItemClickListener<MVAdapter.MVModel> {
+public class RoomMVDialog extends DataBindBaseDialog<KtvDialogMvBinding> implements OnItemClickListener<Integer> {
     private static final String TAG = RoomMVDialog.class.getSimpleName();
 
     private static final String TAG_MV_INDEX = "mvIndex";
@@ -74,18 +75,8 @@ public class RoomMVDialog extends DataBindBaseDialog<KtvDialogMvBinding> impleme
 
     @Override
     public void iniView() {
-        List<MVAdapter.MVModel> list = new ArrayList<>();
-        list.add(new MVAdapter.MVModel(R.mipmap.ktv_music_background1));
-        list.add(new MVAdapter.MVModel(R.mipmap.ktv_music_background2));
-        list.add(new MVAdapter.MVModel(R.mipmap.ktv_music_background3));
-        list.add(new MVAdapter.MVModel(R.mipmap.ktv_music_background4));
-        list.add(new MVAdapter.MVModel(R.mipmap.ktv_music_background5));
-        list.add(new MVAdapter.MVModel(R.mipmap.ktv_music_background6));
-        list.add(new MVAdapter.MVModel(R.mipmap.ktv_music_background7));
-        list.add(new MVAdapter.MVModel(R.mipmap.ktv_music_background8));
-        list.add(new MVAdapter.MVModel(R.mipmap.ktv_music_background9));
 
-        mAdapter = new MVAdapter(list, this);
+        mAdapter = new MVAdapter(ExampleData.exampleBackgrounds, this);
         mDataBinding.rvList.setLayoutManager(new GridLayoutManager(requireContext(), 3));
         mDataBinding.rvList.setAdapter(mAdapter);
         mDataBinding.rvList.addItemDecoration(new SpaceItemDecoration(requireContext()));
@@ -108,7 +99,7 @@ public class RoomMVDialog extends DataBindBaseDialog<KtvDialogMvBinding> impleme
     }
 
     @Override
-    public void onItemClick(@NonNull MVAdapter.MVModel data, View view, int position, long id) {
+    public void onItemClick(@NonNull Integer data, View view, int position, long id) {
         AgoraRoom mRoom = RoomManager.Instance(requireContext()).getRoom();
         if (mRoom == null) {
             dismiss();
@@ -116,19 +107,7 @@ public class RoomMVDialog extends DataBindBaseDialog<KtvDialogMvBinding> impleme
         }
 
         mAdapter.setSelectIndex(position);
-        SyncManager.Instance()
-                .getRoom(mRoom.getId())
-                .update(AgoraRoom.COLUMN_MV, String.valueOf(position + 1), new SyncManager.DataItemCallback() {
-                    @Override
-                    public void onSuccess(AgoraObject result) {
-
-                    }
-
-                    @Override
-                    public void onFail(AgoraException exception) {
-                        ToastUtile.toastShort(requireContext(), exception.getMessage());
-                    }
-                });
+        ExampleData.updateBackgroundImage(position);
     }
 
     @Override

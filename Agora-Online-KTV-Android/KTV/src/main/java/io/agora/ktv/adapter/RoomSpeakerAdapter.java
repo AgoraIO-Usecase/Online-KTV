@@ -100,13 +100,6 @@ public class RoomSpeakerAdapter extends BaseRecyclerViewAdapter<AgoraMember, Roo
         } else {
             holder.mDataBinding.ivHead.setImageResource(R.mipmap.default_head);
         }
-
-        MemberMusicModel mMusicModel = RoomManager.Instance(mContext).getMusicModel();
-        if (mMusicModel != null) {
-            if (RoomManager.Instance(mContext).isSinger(item.getUserId())) {
-                holder.mDataBinding.tvName.setText(mContext.getString(R.string.ktv_room_sing1));
-            }
-        }
     }
 
     class ViewHolder extends BaseRecyclerViewAdapter.BaseViewHolder<KtvItemRoomSpeakerBinding> {

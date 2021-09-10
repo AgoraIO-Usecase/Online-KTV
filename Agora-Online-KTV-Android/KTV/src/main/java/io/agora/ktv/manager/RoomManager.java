@@ -1,38 +1,23 @@
 package io.agora.ktv.manager;
 
 import android.content.Context;
-import android.os.Handler;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.util.ObjectsCompat;
 
-import com.agora.data.BaseError;
+import com.agora.data.ExampleData;
 import com.agora.data.R;
 import com.agora.data.manager.UserManager;
 import com.agora.data.model.AgoraMember;
 import com.agora.data.model.AgoraRoom;
-import com.agora.data.model.MusicModel;
 import com.agora.data.model.User;
-import com.agora.data.observer.DataObserver;
-import com.agora.data.provider.AgoraObject;
-import com.agora.data.provider.DataRepositroy;
-import com.agora.data.sync.AgoraException;
-import com.agora.data.sync.DocumentReference;
-import com.agora.data.sync.OrderBy;
-import com.agora.data.sync.Query;
-import com.agora.data.sync.SyncManager;
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import io.agora.ktv.bean.MemberMusicModel;
 import io.agora.rtc.Constants;
@@ -42,8 +27,6 @@ import io.agora.rtc.RtcEngineConfig;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
-import io.reactivex.SingleOnSubscribe;
-import io.reactivex.functions.Consumer;
 
 /**
  * 房间控制
@@ -51,6 +34,7 @@ import io.reactivex.functions.Consumer;
  * @author chenhengfei(Aslanchen)
  * @date 2021/06/01
  */
+@SuppressWarnings("ALL")
 public final class RoomManager {
     private final Logger.Builder mLogger = XLog.tag("RoomManager");
     private final Logger.Builder mLoggerRTC = XLog.tag("RTC");
@@ -60,7 +44,7 @@ public final class RoomManager {
     private Context mContext;
     private final MainThreadDispatch mMainThreadDispatch = new MainThreadDispatch();
 
-    private final Map<String, AgoraMember> memberHashMap = new ConcurrentHashMap<>();
+//    private final Map<String, AgoraMember> memberHashMap = new ConcurrentHashMap<>();
 
     private volatile static AgoraRoom mRoom;
     private volatile static AgoraMember owner;
@@ -73,7 +57,7 @@ public final class RoomManager {
     /**
      * 唱歌人的UserId
      */
-    private final List<String> singers = new ArrayList<>();
+//    private final List<String> singers = new ArrayList<>();
 
     private IRtcEngineEventHandler mIRtcEngineEventHandler = new IRtcEngineEventHandler() {
 
@@ -108,6 +92,19 @@ public final class RoomManager {
         }
 
         @Override
+        public void onUserOffline(int uid, int reason) {
+            mLoggerRTC.i("onUserOffline() " + uid);
+            super.onUserOffline(uid, reason);
+            User user = new User();
+            user.setObjectId(String.valueOf(uid));
+
+            AgoraMember member = new AgoraMember();
+            member.setId(user.getObjectId());
+
+            mMainThreadDispatch.onMemberLeave(member);
+        }
+
+        @Override
         public void onLeaveChannel(RtcStats stats) {
             super.onLeaveChannel(stats);
             mLoggerRTC.i("onLeaveChannel() called with: stats = [%s]", stats);
@@ -119,19 +116,34 @@ public final class RoomManager {
             try {
                 String strMsg = new String(data);
                 jsonMsg = new JSONObject(strMsg);
-                if (mMusicModel == null)
-                    return;
 
-                if (jsonMsg.getString("cmd").equals("setLrcTime")) {
-                    if (!jsonMsg.getString("lrcId").equals(mMusicModel.getMusicId())) {
-                        return;
+                String cmd = jsonMsg.getString("cmd");
+
+                mLoggerRTC.d(jsonMsg);
+                if (cmd == null) return;
+
+                if (cmd.equals("setLrcTime") ) {
+                    // 当前不在播放，或者远端更换歌曲 《==》播放远端歌曲
+                    String musicId = jsonMsg.getString("lrcId");
+                    if (mMusicModel == null ||(jsonMsg.getInt("state") == 1 && mMusicModel.getUserId().equals(mMusicModel.getUserId())
+                            && !mMusicModel.getMusicId().equals(musicId))) {
+                        mMusicModel = new MemberMusicModel(musicId);
+                        mMusicModel.setId(musicId);
+                        mMusicModel.setUserId(String.valueOf(uid));
+                        onMusicChanged(mMusicModel);
+                    }else if(jsonMsg.getInt("state") == 0 && mMusicModel.getUserId().equals(mMusicModel.getUserId())){
+                        onMusicChanged(null);
                     }
+                } else if (cmd.equals("syncMember")) {
+                    AgoraMember member = new AgoraMember();
+                    User user = new User();
+                    user.setAvatar(jsonMsg.getString("avatar"));
+                    user.setObjectId(jsonMsg.getString("userId"));
 
-                    long total = jsonMsg.getLong("duration");
-                    long cur = jsonMsg.getLong("time");
-                    mMainThreadDispatch.onMusicProgress(total, cur);
-                } else if (jsonMsg.getString("cmd").equals("musicStopped")) {
-//                    stopDisplayLrc();
+                    member.setId(user.getObjectId());
+                    member.setUser(user);
+                    member.setRole(AgoraMember.Role.parse(jsonMsg.getInt("role")));
+                    mMainThreadDispatch.onMemberJoin(member);
                 }
             } catch (JSONException exp) {
                 exp.printStackTrace();
@@ -184,14 +196,6 @@ public final class RoomManager {
         return instance;
     }
 
-    public void loadMemberStatus() {
-        for (AgoraMember value : memberHashMap.values()) {
-            if (value.getRole() == AgoraMember.Role.Speaker) {
-                onMemberRoleChanged(value);
-            }
-        }
-    }
-
     public boolean isOwner() {
         return ObjectsCompat.equals(getOwner(), getMine());
     }
@@ -211,9 +215,9 @@ public final class RoomManager {
         return mMine;
     }
 
-    public boolean isSinger(String userId) {
-        return singers.contains(userId);
-    }
+//    public boolean isSinger(String userId) {
+//        return singers.contains(userId);
+//    }
 
     public void addRoomEventCallback(@NonNull RoomEventCallback callback) {
         mMainThreadDispatch.addRoomEventCallback(callback);
@@ -221,33 +225,6 @@ public final class RoomManager {
 
     public void removeRoomEventCallback(@NonNull RoomEventCallback callback) {
         mMainThreadDispatch.removeRoomEventCallback(callback);
-    }
-
-    private void onMemberJoin(@NonNull AgoraMember member) {
-        mLogger.i("onMemberJoin() called with: member = [%s]", member);
-        memberHashMap.put(member.getId(), member);
-        mMainThreadDispatch.onMemberJoin(member);
-
-        DataRepositroy.Instance(mContext)
-                .getUser(member.getUserId())
-                .subscribe(new DataObserver<User>(mContext) {
-                    @Override
-                    public void handleError(@NonNull BaseError e) {
-
-                    }
-
-                    @Override
-                    public void handleSuccess(@NonNull User user) {
-                        member.setUser(user);
-                        mMainThreadDispatch.onMemberJoin(member);
-                    }
-                });
-    }
-
-    private void onMemberLeave(@NonNull AgoraMember member) {
-        mLogger.i("onMemberLeave() called with: member = [%s]", member);
-        mMainThreadDispatch.onMemberLeave(member);
-        memberHashMap.remove(member.getId());
     }
 
     private void onMemberRoleChanged(@NonNull AgoraMember member) {
@@ -260,385 +237,70 @@ public final class RoomManager {
         mMainThreadDispatch.onAudioStatusChanged(isMine, member);
     }
 
-    public void onMusicAdd(MemberMusicModel model) {
-        mLogger.i("onMusicAdd() called with: model = [%s]", model);
-        synchronized (musicObject) {
-            if (musics.contains(model)) {
-                return;
-            }
-
-            musics.add(model);
-
-            mMainThreadDispatch.onMusicAdd(model);
-
-            if (mMusicModel == null) {
-                onMusicChanged(musics.get(0));
-            }
-        }
-    }
-
+    /**
+     * 歌曲被删除
+     * <p>
+     * 1. 从 musics 移除该歌曲
+     * 2. 如果删除成功，回调相应事件
+     */
     private void onMusicDelete(MemberMusicModel model) {
         mLogger.i("onMusicDelete() called with: model = [%s]", model);
-        musics.remove(model);
-        mMainThreadDispatch.onMusicDelete(model);
-
-        if (musics.size() > 0) {
-            onMusicChanged(musics.get(0));
-        } else {
+        if (mMusicModel != null && mMusicModel.getMusicId().equals(model.getMusicId())) {
+            mMusicModel = null;
             onMusicEmpty();
         }
+        mMainThreadDispatch.onMusicDelete(model);
     }
 
     public void onMusicEmpty() {
         mLogger.i("onMusicEmpty() called");
         mMusicModel = null;
-        singers.clear();
-        musics.clear();
         mMainThreadDispatch.onMusicEmpty();
     }
 
     public void onMusicChanged(MemberMusicModel model) {
         mLogger.i("onMusicChanged() called with: model = [%s]", model);
         mMusicModel = model;
-
-        singers.add(model.getUserId());
-
         mMainThreadDispatch.onMusicChanged(model);
     }
 
-    private SyncManager.EventListener mRoomEvent = new SyncManager.EventListener() {
-
-        @Override
-        public void onCreated(AgoraObject item) {
-
-        }
-
-        @Override
-        public void onUpdated(AgoraObject item) {
-            AgoraRoom room = item.toObject(AgoraRoom.class);
-            room.setId(item.getId());
-
-            if (ObjectsCompat.equals(room, mRoom)) {
-                mRoom = room;
-                mMainThreadDispatch.onRoomInfoChanged(mRoom);
-            }
-        }
-
-        @Override
-        public void onDeleted(String objectId) {
-
-        }
-
-        @Override
-        public void onSubscribeError(AgoraException ex) {
-            mLogger.e("mRoomEvent() called with: ex = [%s]", String.valueOf(ex));
-            if (ex.getCode() == AgoraException.ERROR_LEANCLOULD_OVER_COUNT) {
-                mMainThreadDispatch.onRoomError(ex.getCode(), "LeanCloud异常，超过开发版应用的每天限额，请购买商业版");
-            } else {
-                mMainThreadDispatch.onRoomError(ex.getCode(), String.format("LeanCloud异常，错误码：%s", ex.getCode()));
-            }
-        }
-    };
-
-    public void subcribeRoomEvent() {
-        SyncManager.Instance()
-                .getRoom(mRoom.getId())
-                .query(new Query().whereEqualTo(AgoraRoom.COLUMN_ID, mRoom.getId()))
-                .subcribe(mRoomEvent);
-    }
-
-    private SyncManager.EventListener mMemberEvent = new SyncManager.EventListener() {
-        @Override
-        public void onCreated(AgoraObject item) {
-            AgoraMember member = item.toObject(AgoraMember.class);
-            member.setId(item.getId());
-            member.setRoomId(mRoom);
-
-            onMemberJoin(member);
-        }
-
-        @Override
-        public void onUpdated(AgoraObject item) {
-            AgoraMember memberRemote = item.toObject(AgoraMember.class);
-            memberRemote.setId(item.getId());
-            memberRemote.setRoomId(mRoom);
-
-            AgoraMember memberLocal = memberHashMap.get(memberRemote.getId());
-            if (memberLocal != null && memberLocal.getRole() != memberRemote.getRole()) {
-                memberLocal.setRole(memberRemote.getRole());
-                onMemberRoleChanged(memberLocal);
-            }
-
-            if (memberLocal != null && memberLocal.getIsSelfMuted() != memberRemote.getIsSelfMuted()) {
-                memberLocal.setIsSelfMuted(memberRemote.getIsSelfMuted());
-                onAudioStatusChanged(true, memberLocal);
-            }
-        }
-
-        @Override
-        public void onDeleted(String objectId) {
-            AgoraMember member = memberHashMap.get(objectId);
-            if (member == null) {
-                return;
-            }
-            onMemberLeave(member);
-        }
-
-        @Override
-        public void onSubscribeError(AgoraException ex) {
-            mLogger.e("mMemberEvent() called with: ex = [%s]", String.valueOf(ex));
-            if (ex.getCode() == AgoraException.ERROR_LEANCLOULD_OVER_COUNT) {
-                mMainThreadDispatch.onRoomError(ex.getCode(), "LeanCloud异常，超过开发版应用的每天限额，请购买商业版");
-            } else {
-                mMainThreadDispatch.onRoomError(ex.getCode(), String.format("LeanCloud异常，错误码：%s", ex.getCode()));
-            }
-        }
-    };
-
-    public void subcribeMemberEvent() {
-        DocumentReference dcRoom = SyncManager.Instance()
-                .collection(AgoraRoom.TABLE_NAME)
-                .document(mRoom.getId());
-
-        SyncManager.Instance()
-                .getRoom(mRoom.getId())
-                .collection(AgoraMember.TABLE_NAME)
-                .query(new Query().whereEqualTo(AgoraMember.COLUMN_ROOMID, dcRoom))
-                .subcribe(mMemberEvent);
-    }
-
-    private SyncManager.EventListener mMusicEvent = new SyncManager.EventListener() {
-        @Override
-        public void onCreated(AgoraObject item) {
-            MemberMusicModel data = item.toObject(MemberMusicModel.class);
-            data.setId(item.getId());
-            onMusicAdd(data);
-        }
-
-        @Override
-        public void onUpdated(AgoraObject item) {
-
-        }
-
-        @Override
-        public void onDeleted(String objectId) {
-            synchronized (musicObject) {
-                MemberMusicModel musicLocal = null;
-                for (MemberMusicModel music : musics) {
-                    if (ObjectsCompat.equals(objectId, music.getId())) {
-                        musicLocal = music;
-                        break;
-                    }
-                }
-
-                if (musicLocal == null) {
-                    return;
-                }
-
-                onMusicDelete(musicLocal);
-            }
-        }
-
-        @Override
-        public void onSubscribeError(AgoraException ex) {
-            mLogger.e("mMusicEvent() called with: ex = [%s]", String.valueOf(ex));
-            if (ex.getCode() == AgoraException.ERROR_LEANCLOULD_OVER_COUNT) {
-                mMainThreadDispatch.onRoomError(ex.getCode(), "LeanCloud异常，超过开发版应用的每天限额，请购买商业版");
-            } else {
-                mMainThreadDispatch.onRoomError(ex.getCode(), String.format("LeanCloud异常，错误码：%s", ex.getCode()));
-            }
-        }
-    };
-
-    public void subcribeMusicEvent() {
-        DocumentReference drRoom = SyncManager.Instance()
-                .collection(AgoraRoom.TABLE_NAME)
-                .document(mRoom.getId());
-
-        SyncManager.Instance()
-                .getRoom(mRoom.getId())
-                .collection(MemberMusicModel.TABLE_NAME)
-                .query(new Query().whereEqualTo(AgoraMember.COLUMN_ROOMID, drRoom))
-                .subcribe(mMusicEvent);
-    }
-
     private final static Object musicObject = new Object();
-    private volatile List<MemberMusicModel> musics = new ArrayList<>();
-
-    public Single<List<MemberMusicModel>> getMusicOrderList() {
-        return Single.create(new SingleOnSubscribe<List<MemberMusicModel>>() {
-            @Override
-            public void subscribe(@NonNull SingleEmitter<List<MemberMusicModel>> emitter) throws Exception {
-                DocumentReference drRoom = SyncManager.Instance()
-                        .collection(AgoraRoom.TABLE_NAME)
-                        .document(mRoom.getId());
-
-                SyncManager.Instance()
-                        .getRoom(mRoom.getId())
-                        .collection(MemberMusicModel.TABLE_NAME)
-                        .query(new Query()
-                                .orderBy(OrderBy.getInstance(OrderBy.Direction.ASCENDING, MemberMusicModel.COLUMN_CREATE))
-                                .whereEqualTo(MemberMusicModel.COLUMN_ROOMID, drRoom))
-                        .get(new SyncManager.DataListCallback() {
-                            @Override
-                            public void onSuccess(List<AgoraObject> results) {
-                                List<MemberMusicModel> items = new ArrayList<>();
-                                for (AgoraObject result : results) {
-                                    MemberMusicModel item = result.toObject(MemberMusicModel.class);
-                                    item.setRoomId(mRoom);
-                                    item.setId(result.getId());
-                                    items.add(item);
-                                }
-                                emitter.onSuccess(items);
-                            }
-
-                            @Override
-                            public void onFail(AgoraException exception) {
-                                emitter.onError(exception);
-                            }
-                        });
-            }
-        }).doOnSuccess(new Consumer<List<MemberMusicModel>>() {
-            @Override
-            public void accept(List<MemberMusicModel> musicModels) throws Exception {
-                synchronized (musicObject) {
-                    musics = musicModels;
-                }
-            }
-        });
-    }
 
     @Nullable
     public MemberMusicModel getMusicModel() {
         return mMusicModel;
     }
 
-    public List<MemberMusicModel> getMusics() {
-        return musics;
-    }
-
-    public boolean isInMusicOrderList(MusicModel item) {
-        for (MemberMusicModel music : musics) {
-            if (ObjectsCompat.equals(music.getMusicId(), item.getMusicId())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private Single<AgoraMember> preJoinAddMember(AgoraRoom room, AgoraMember member) {
-        return Single.create((SingleOnSubscribe<AgoraMember>) emitter -> {
-            mLogger.i("preJoinAddMember() called with: room = [%s], member = [%s]", room, member);
-            SyncManager.Instance()
-                    .getRoom(room.getId())
-                    .collection(AgoraMember.TABLE_NAME)
-                    .query(new Query().whereEqualTo(AgoraMember.COLUMN_USERID, member.getUserId()))
-                    .get(new SyncManager.DataListCallback() {
-                        @Override
-                        public void onSuccess(List<AgoraObject> result) {
-                            if (result == null || result.size() <= 0) {
-                                SyncManager.Instance()
-                                        .getRoom(room.getId())
-                                        .collection(AgoraMember.TABLE_NAME)
-                                        .add(member.toHashMap(), new SyncManager.DataItemCallback() {
-                                            @Override
-                                            public void onSuccess(AgoraObject result) {
-                                                AgoraMember memberTemp = result.toObject(AgoraMember.class);
-                                                AgoraObject roomObject = (AgoraObject) result.get(AgoraMember.COLUMN_ROOMID);
-
-                                                AgoraRoom mRoom = roomObject.toObject(AgoraRoom.class);
-                                                mRoom.setId(roomObject.getId());
-
-                                                memberTemp.setId(result.getId());
-                                                memberTemp.setRoomId(room);
-                                                memberTemp.setUser(member.getUser());
-                                                emitter.onSuccess(memberTemp);
-                                            }
-
-                                            @Override
-                                            public void onFail(AgoraException exception) {
-                                                emitter.onError(exception);
-                                            }
-                                        });
-                                return;
-                            }
-
-                            AgoraObject resultFirst = result.get(0);
-                            AgoraMember memberTemp = resultFirst.toObject(AgoraMember.class);
-                            AgoraObject roomObject = (AgoraObject) resultFirst.get(AgoraMember.COLUMN_ROOMID);
-
-                            AgoraRoom mRoom = roomObject.toObject(AgoraRoom.class);
-                            mRoom.setId(roomObject.getId());
-
-                            memberTemp.setId(resultFirst.getId());
-                            memberTemp.setRoomId(room);
-                            memberTemp.setUser(member.getUser());
-                            emitter.onSuccess(memberTemp);
-                        }
-
-                        @Override
-                        public void onFail(AgoraException exception) {
-                            emitter.onError(exception);
-                        }
-                    });
-        });
-    }
-
     public Completable joinRoom(AgoraRoom room) {
-        this.mRoom = room;
+        mRoom = room;
 
-        User mUser = UserManager.Instance(mContext).getUserLiveData().getValue();
+        User mUser = UserManager.Instance().getUserLiveData().getValue();
         if (mUser == null) {
             return Completable.error(new NullPointerException("mUser is empty"));
         }
 
         mMine = new AgoraMember();
         mMine.setRoomId(mRoom);
+        mMine.setId(mUser.getObjectId());
         mMine.setUserId(mUser.getObjectId());
         mMine.setUser(mUser);
+        mMine.setRole(AgoraMember.Role.Listener);
 
-        if (ObjectsCompat.equals(mUser.getObjectId(), mRoom.getUserId())) {
-            mMine.setRole(AgoraMember.Role.Owner);
-        } else {
-            mMine.setRole(AgoraMember.Role.Listener);
+        try {
+            ExampleData.updateBackgroundImage(Integer.parseInt(mRoom.getMv()));
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
         }
 
-        return preJoinAddMember(mRoom, mMine).doOnSuccess(member -> mMine = member).ignoreElement()
-                .andThen(preJoinSyncMembers().ignoreElement())
-                .andThen(joinRTC().doOnSuccess(uid -> {
-                    Long streamId = uid & 0xffffffffL;
-                    mMine.setStreamId(streamId);
-                }).ignoreElement())
-                .andThen(updateMineStreamId())
+        return Completable.complete().andThen(joinRTC().doOnSuccess(uid -> {
+            Long streamId = uid & 0xffffffffL;
+            mMine.setStreamId(streamId);
+        }).ignoreElement())
                 .doOnComplete(() -> onJoinRoom());
     }
 
     private void onJoinRoom() {
         mMusicModel = null;
-
-        //LeanCloud连续订阅会有问题，需要做延迟
-        subcribeRoomEvent();
-
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (mRoom == null) {
-                    return;
-                }
-                subcribeMemberEvent();
-            }
-        }, 200L);
-
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (mRoom == null) {
-                    return;
-                }
-                subcribeMusicEvent();
-            }
-        }, 400L);
     }
 
     private SingleEmitter<Integer> emitterJoinRTC = null;
@@ -657,7 +319,7 @@ public final class RoomManager {
             }
 
             mLoggerRTC.i("joinRTC() called with: results = [%s]", mRoom);
-            int ret = getRtcEngine().joinChannel("", mRoom.getId(), null, 0);
+            int ret = getRtcEngine().joinChannel("", mRoom.getChannelName(), null, Integer.parseInt(mMine.getId()));
             if (ret != Constants.ERR_OK) {
                 mLoggerRTC.e("joinRTC() called error " + ret);
                 emitter.onError(new Exception("join rtc room error " + ret));
@@ -666,218 +328,25 @@ public final class RoomManager {
         });
     }
 
-    private Single<List<AgoraMember>> preJoinSyncMembers() {
-        return Single.create(emitter -> {
-            mLogger.i("preJoinSyncMembers() called");
-
-            DocumentReference dcRoom = SyncManager.Instance()
-                    .collection(AgoraRoom.TABLE_NAME)
-                    .document(mRoom.getId());
-
-            SyncManager.Instance()
-                    .getRoom(mRoom.getId())
-                    .collection(AgoraMember.TABLE_NAME)
-                    .query(new Query().whereEqualTo(AgoraMember.COLUMN_ROOMID, dcRoom))
-                    .get(new SyncManager.DataListCallback() {
-                        @Override
-                        public void onSuccess(List<AgoraObject> results) {
-                            List<AgoraMember> members = new ArrayList<>();
-                            for (AgoraObject result : results) {
-                                final AgoraMember member = result.toObject(AgoraMember.class);
-                                member.setId(result.getId());
-                                member.setRoomId(mRoom);
-                                members.add(member);
-
-                                memberHashMap.put(member.getId(), member);
-
-                                if (ObjectsCompat.equals(member, mMine)) {
-                                    mMine = member;
-                                    User mUser = UserManager.Instance(mContext).getUserLiveData().getValue();
-                                    mMine.setUser(mUser);
-                                }
-
-                                if (ObjectsCompat.equals(member.getUserId(), mRoom.getUserId())) {
-                                    owner = member;
-                                }
-
-                                DataRepositroy.Instance(mContext)
-                                        .getUser(member.getUserId())
-                                        .subscribe(new DataObserver<User>(mContext) {
-                                            @Override
-                                            public void handleError(@NonNull BaseError e) {
-
-                                            }
-
-                                            @Override
-                                            public void handleSuccess(@NonNull User user) {
-                                                member.setUser(user);
-                                            }
-                                        });
-                            }
-                            emitter.onSuccess(members);
-                        }
-
-                        @Override
-                        public void onFail(AgoraException exception) {
-                            emitter.onError(exception);
-                        }
-                    });
-        });
-    }
-
-    private Completable updateMineStreamId() {
-        return Completable.create(emitter ->
-                {
-                    mLogger.d("updateMineStreamId() called with mMine= [%s]", mMine);
-                    SyncManager.Instance()
-                            .getRoom(mRoom.getId())
-                            .collection(AgoraMember.TABLE_NAME)
-                            .document(mMine.getId())
-                            .update(AgoraMember.COLUMN_STREAMID, mMine.getStreamId(), new SyncManager.DataItemCallback() {
-                                @Override
-                                public void onSuccess(AgoraObject result) {
-                                    emitter.onComplete();
-                                }
-
-                                @Override
-                                public void onFail(AgoraException exception) {
-                                    emitter.onError(exception);
-                                }
-                            });
-                }
-        );
-    }
-
     public Completable leaveRoom() {
         mLogger.i("leaveRoom() called");
         if (mRoom == null) {
             return Completable.complete();
         }
 
-        SyncManager.Instance().unsubcribe(mRoomEvent);
-        SyncManager.Instance().unsubcribe(mMemberEvent);
-        SyncManager.Instance().unsubcribe(mMusicEvent);
-
         mLoggerRTC.i("leaveChannel() called");
         getRtcEngine().leaveChannel();
 
-        memberHashMap.clear();
-        singers.clear();
-
-        if (ObjectsCompat.equals(mMine, owner)) {
-            //房主退出
-            return Completable.create(emitter ->
-            {
-                DocumentReference dcRoom = SyncManager.Instance()
-                        .collection(AgoraRoom.TABLE_NAME)
-                        .document(mRoom.getId());
-                SyncManager.Instance()
-                        .collection(AgoraMember.TABLE_NAME)
-                        .query(new Query().whereEqualTo(AgoraMember.COLUMN_ROOMID, dcRoom))
-                        .delete(new SyncManager.Callback() {
-                            @Override
-                            public void onSuccess() {
-                                emitter.onComplete();
-                            }
-
-                            @Override
-                            public void onFail(AgoraException exception) {
-                                emitter.onError(exception);
-                            }
-                        });
-
-                SyncManager.Instance()
-                        .getRoom(mRoom.getId())
-                        .delete(new SyncManager.Callback() {
-                            @Override
-                            public void onSuccess() {
-                                emitter.onComplete();
-                            }
-
-                            @Override
-                            public void onFail(AgoraException exception) {
-                                emitter.onError(exception);
-                            }
-                        });
-            }).doOnComplete(() -> {
-                mRoom = null;
-                mMine = null;
-                owner = null;
-            });
-        } else {
-            //观众退出
-            return Completable.create(emitter ->
-                    SyncManager.Instance()
-                            .getRoom(mRoom.getId())
-                            .collection(AgoraMember.TABLE_NAME)
-                            .document(mMine.getId())
-                            .delete(new SyncManager.Callback() {
-                                @Override
-                                public void onSuccess() {
-                                    emitter.onComplete();
-                                }
-
-                                @Override
-                                public void onFail(AgoraException exception) {
-                                    emitter.onError(exception);
-                                }
-                            }))
-                    .doOnComplete(() -> {
-                        mRoom = null;
-                        mMine = null;
-                        owner = null;
-                    });
-        }
+        mRoom = null;
+        mMine = null;
+        owner = null;
+        return Completable.complete();
     }
 
     public Completable toggleSelfAudio(boolean isMute) {
-        if (mRoom == null) {
-            return Completable.complete();
-        }
-
-        AgoraMember mMine = getMine();
-        if (mMine == null) {
-            return Completable.complete();
-        }
-
-        return Completable.create(emitter ->
-                SyncManager.Instance()
-                        .getRoom(mRoom.getId())
-                        .collection(AgoraMember.TABLE_NAME)
-                        .document(mMine.getId())
-                        .update(AgoraMember.COLUMN_ISSELFAUDIOMUTED, isMute ? 1 : 0, new SyncManager.DataItemCallback() {
-                            @Override
-                            public void onSuccess(AgoraObject result) {
-                                emitter.onComplete();
-                            }
-
-                            @Override
-                            public void onFail(AgoraException exception) {
-                                emitter.onError(exception);
-                            }
-                        }));
-    }
-
-    public Completable changeRole(AgoraMember member, int role) {
-        if (mRoom == null) {
-            return Completable.complete();
-        }
-
-        return Completable.create(emitter ->
-                SyncManager.Instance()
-                        .getRoom(mRoom.getId())
-                        .collection(AgoraMember.TABLE_NAME)
-                        .document(member.getId())
-                        .update(AgoraMember.COLUMN_ROLE, role, new SyncManager.DataItemCallback() {
-                            @Override
-                            public void onSuccess(AgoraObject result) {
-                                emitter.onComplete();
-                            }
-
-                            @Override
-                            public void onFail(AgoraException exception) {
-                                emitter.onError(exception);
-                            }
-                        }));
+        int mute = 0;
+        if (isMute) mute = 1;
+        mMine.setIsSelfMuted(mute);
+        return Completable.complete();
     }
 }

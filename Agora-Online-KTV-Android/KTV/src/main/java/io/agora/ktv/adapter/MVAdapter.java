@@ -19,11 +19,11 @@ import io.agora.ktv.databinding.KtvItemMvBinding;
  *
  * @author chenhengfei@agora.io
  */
-public class MVAdapter extends BaseRecyclerViewAdapter<MVAdapter.MVModel, MVAdapter.ViewHolder> {
+public class MVAdapter extends BaseRecyclerViewAdapter<Integer, MVAdapter.ViewHolder> {
 
     private int selectIndex = -1;
 
-    public MVAdapter(@Nullable List<MVModel> datas, @Nullable Object listener) {
+    public MVAdapter(@Nullable List<Integer> datas, @Nullable Object listener) {
         super(datas, listener);
     }
 
@@ -39,7 +39,7 @@ public class MVAdapter extends BaseRecyclerViewAdapter<MVAdapter.MVModel, MVAdap
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        MVModel item = getItemData(position);
+        Integer item = getItemData(position);
         if (item == null) {
             return;
         }
@@ -53,7 +53,7 @@ public class MVAdapter extends BaseRecyclerViewAdapter<MVAdapter.MVModel, MVAdap
         }
 
         Glide.with(holder.itemView)
-                .load(item.resId)
+                .load(item)
                 .into(holder.mDataBinding.iv);
     }
 
@@ -69,19 +69,4 @@ public class MVAdapter extends BaseRecyclerViewAdapter<MVAdapter.MVModel, MVAdap
         notifyDataSetChanged();
     }
 
-    public static class MVModel {
-        private int resId;
-
-        public MVModel(int resId) {
-            this.resId = resId;
-        }
-
-        public int getResId() {
-            return resId;
-        }
-
-        public void setResId(int resId) {
-            this.resId = resId;
-        }
-    }
 }
