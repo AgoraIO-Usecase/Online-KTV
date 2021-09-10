@@ -8,8 +8,4 @@
     <!-- You will need to deploy your own token server for production release -->
     <!-- Leave this value empty if Security keys/Token is not enabled for your project -->
     <string name="token" translatable="false"></string>
-    <!-- Obtain a temp Access Token at https://dashboard.agora.io -->
-    <!-- You will need to deploy your own token server for production release -->
-    <!-- Leave this value empty if Security keys/Token is not enabled for your project -->
-    <string name="rtm_token" translatable="false"></string>
 </resources>
