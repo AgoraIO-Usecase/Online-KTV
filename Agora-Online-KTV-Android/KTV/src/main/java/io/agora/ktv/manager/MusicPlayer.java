@@ -210,13 +210,10 @@ public class MusicPlayer extends IRtcEngineEventHandler {
     }
 
     public void stop() {
-        mLogger.i("stop() called");
+        mLogger.i("stop()  called");
         if (mStatus == Status.IDLE) {
             return;
         }
-
-        if(mMusicModel!=null)
-            sendSyncLrc(mMusicModel.getMusicId(), mRtcEngine.getAudioMixingDuration(),mRtcEngine.getAudioMixingCurrentPosition(),false);
         mRtcEngine.stopAudioMixing();
     }
 
@@ -367,7 +364,6 @@ public class MusicPlayer extends IRtcEngineEventHandler {
         mSyncLrcThread.start();
     }
     public void sendSyncLrc(String lrcId, long duration, long time,boolean shouldPlay) {
-        mLogger.d("sendSyncLrc"+lrcId);
         Map<String, Object> msg = new HashMap<>();
         msg.put("cmd", "setLrcTime");
         msg.put("lrcId", lrcId);
