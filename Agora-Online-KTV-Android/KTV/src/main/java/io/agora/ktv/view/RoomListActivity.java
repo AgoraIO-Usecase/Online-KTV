@@ -1,6 +1,7 @@
 package io.agora.ktv.view;
 
 import android.Manifest;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
@@ -9,6 +10,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.agora.data.BaseError;
+import com.agora.data.ExampleData;
 import com.agora.data.manager.UserManager;
 import com.agora.data.model.AgoraRoom;
 import com.agora.data.model.User;
@@ -163,7 +165,13 @@ public class RoomListActivity extends DataBindBaseActivity<KtvActivityRoomListBi
         if (!EasyPermissions.hasPermissions(this, PERMISSTION)) {
             EasyPermissions.requestPermissions(this, getString(R.string.ktv_error_permisstion),
                     TAG_PERMISSTION_REQUESTCODE, PERMISSTION);
+            return;
         }
+
+        AgoraRoom mRoom = ExampleData.exampleRooms.get(position);
+        Intent intent = new Intent(this,RoomActivity.class);
+        intent.putExtra(RoomActivity.TAG_ROOM, mRoom);
+        startActivity(intent);
     }
 
     @Override

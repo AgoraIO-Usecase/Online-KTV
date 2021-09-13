@@ -123,16 +123,27 @@ public final class RoomManager {
                 if (cmd == null) return;
 
                 if (cmd.equals("setLrcTime") ) {
-                    // 当前不在播放，或者远端更换歌曲 《==》播放远端歌曲
                     String musicId = jsonMsg.getString("lrcId");
-                    if (mMusicModel == null ||(jsonMsg.getInt("state") == 1 && mMusicModel.getUserId().equals(mMusicModel.getUserId())
-                            && !mMusicModel.getMusicId().equals(musicId))) {
+                    if (musicId.isEmpty()) return;
+                    String remoteUserId = null;
+                    try {
+                        remoteUserId = String.valueOf(uid);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    if (remoteUserId == null) return;
+                    boolean shouldPlay = jsonMsg.getInt("state") == 1;
+                    // 当前不在播放 || 远端更换歌曲 《==》播放远端歌曲
+                    if((mMusicModel == null && shouldPlay) ||
+                            (mMusicModel != null && !mMusicModel.getMusicId().equals(musicId) && mMusicModel.getUserId().equals(remoteUserId))
+                    && shouldPlay) {
                         mMusicModel = new MemberMusicModel(musicId);
                         mMusicModel.setId(musicId);
-                        mMusicModel.setUserId(String.valueOf(uid));
+                        mMusicModel.setUserId(remoteUserId);
                         onMusicChanged(mMusicModel);
-                    }else if(jsonMsg.getInt("state") == 0 && mMusicModel.getUserId().equals(mMusicModel.getUserId())){
-                        onMusicChanged(null);
+                        // 远端切歌
+                    }else if(jsonMsg.getInt("state") == 0 && mMusicModel.getUserId().equals(remoteUserId)){
+                        onMusicEmpty();
                     }
                 } else if (cmd.equals("syncMember")) {
                     AgoraMember member = new AgoraMember();
@@ -237,31 +248,16 @@ public final class RoomManager {
         mMainThreadDispatch.onAudioStatusChanged(isMine, member);
     }
 
-    /**
-     * 歌曲被删除
-     * <p>
-     * 1. 从 musics 移除该歌曲
-     * 2. 如果删除成功，回调相应事件
-     */
-    private void onMusicDelete(MemberMusicModel model) {
-        mLogger.i("onMusicDelete() called with: model = [%s]", model);
-        if (mMusicModel != null && mMusicModel.getMusicId().equals(model.getMusicId())) {
-            mMusicModel = null;
-            onMusicEmpty();
-        }
-        mMainThreadDispatch.onMusicDelete(model);
-    }
-
     public void onMusicEmpty() {
         mLogger.i("onMusicEmpty() called");
-        mMusicModel = null;
         mMainThreadDispatch.onMusicEmpty();
+        mMusicModel = null;
     }
 
     public void onMusicChanged(MemberMusicModel model) {
         mLogger.i("onMusicChanged() called with: model = [%s]", model);
         mMusicModel = model;
-        mMainThreadDispatch.onMusicChanged(model);
+        mMainThreadDispatch.onMusicChanged(mMusicModel);
     }
 
     private final static Object musicObject = new Object();
