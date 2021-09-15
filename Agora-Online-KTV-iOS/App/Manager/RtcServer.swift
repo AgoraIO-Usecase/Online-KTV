@@ -391,6 +391,7 @@ class RtcServer: NSObject {
 
     func setPlayoutVolume(value: Float) {
         rtcEngine?.adjustAudioMixingPlayoutVolume(Int(value * 400))
+        rtcEngine?.adjustAudioMixingPublishVolume(Int(value * 400))
     }
 
     func isSupportSwitchOriginMusic() -> Bool {
