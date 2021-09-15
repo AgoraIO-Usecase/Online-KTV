@@ -8,23 +8,14 @@
 #### 注册Agora
 前往 [Agora官网](https://console.agora.io/) 注册项目，生产appId，然后替换 **Config.swift** 中 **AppId**。
 
+#### 获取Agora SDK
+目前版本需要特殊版SDK才能运行，请联系您的技术支持或者 sales@agora.io 获取SDK。
+
 ##### 注册Leancloud
 1. 前往 [Leancloud官网](https://www.leancloud.cn/) 注册项目，生产 appId、appKey、server_url。
 - 替换 **Config.swift** 中 **LeanCloudAppId**、**LeanCloudAppKey**、**LeanCloudServerUrl**。
 2. 启用LiveQuery，前往 [Leancloud控制台](https://www.leancloud.cn/)，打开**数据存储**-**服务设置**-**启用 LiveQuery**。
-3. 安装 [Python](https://www.python.org/)，如果已经安装请忽略。
-4. Python安装之后，控制台执行以下命令。
-```
-pip install leancloud
-或者
-pip3 install leancloud
-```
-5. Terminal 中执行文件 [LeanCloudHelp.py](./LeanCloudHelp.py)。
-```
-python ./LeanCloudHelp.py
-或者
-python3 ./LeanCloudHelp.py
-```
+
 #### 运行示例项目
 1. 在iOS项目路径下，使用 "pod install" 命令去链接所有需要依赖的库。
 2. 最后使用 Xcode 打开 OnlineKtv.xcworkspace，连接 iPhone／iPad 测试设备，设置有效的开发者签名后即可运行。
