@@ -45,7 +45,6 @@
 		5757D0E2262DAFDA00B4A785 /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5757D0E1262DAFDA00B4A785 /* Config.swift */; };
 		5757D105262DB18300B4A785 /* WaterfallLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5757D104262DB18300B4A785 /* WaterfallLayout.swift */; };
 		5757D123262DB25400B4A785 /* BaseModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5757D122262DB25400B4A785 /* BaseModel.swift */; };
-		5757D160262DB96900B4A785 /* CoreDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5757D15F262DB96900B4A785 /* CoreDataManager.swift */; };
 		5757D165262DB9DB00B4A785 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 5757D163262DB9DB00B4A785 /* Model.xcdatamodeld */; };
 		5757D21F262EB8F300B4A785 /* ActivityIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5757D21E262EB8F300B4A785 /* ActivityIndicator.swift */; };
 		5762F7E026568019003B042D /* AppTargets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5762F7DC26567BAA003B042D /* AppTargets.swift */; };
@@ -263,7 +262,6 @@
 		5757D104262DB18300B4A785 /* WaterfallLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaterfallLayout.swift; sourceTree = "<group>"; };
 		5757D122262DB25400B4A785 /* BaseModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseModel.swift; sourceTree = "<group>"; };
 		5757D155262DB79E00B4A785 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/LaunchScreen.strings"; sourceTree = "<group>"; };
-		5757D15F262DB96900B4A785 /* CoreDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataManager.swift; sourceTree = "<group>"; };
 		5757D164262DB9DB00B4A785 /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
 		5757D21E262EB8F300B4A785 /* ActivityIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityIndicator.swift; sourceTree = "<group>"; };
 		5762F7DC26567BAA003B042D /* AppTargets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTargets.swift; sourceTree = "<group>"; };
@@ -602,7 +600,6 @@
 		5757D10C262DB1E300B4A785 /* Manager */ = {
 			isa = PBXGroup;
 			children = (
-				5757D15F262DB96900B4A785 /* CoreDataManager.swift */,
 				570997CA265756EC00B87998 /* AppDataManager.swift */,
 				5783FE932664B571000B39F3 /* SyncManager.swift */,
 				5783FEAA26662859000B39F3 /* UserManager.swift */,
@@ -1309,7 +1306,6 @@
 				5757D0C0262DAD8D00B4A785 /* BaseViewController.swift in Sources */,
 				5757D072262D8E5600B4A785 /* Logger.swift in Sources */,
 				5757D05D262D84AA00B4A785 /* Notification.swift in Sources */,
-				5757D160262DB96900B4A785 /* CoreDataManager.swift in Sources */,
 				5783FE942664B571000B39F3 /* SyncManager.swift in Sources */,
 				57AC4627268B202500A62DD1 /* DownloadManager.swift in Sources */,
 				5757D060262D84AF00B4A785 /* NotificationView.swift in Sources */,

@@ -47,22 +47,27 @@ extension RoomManager: IRoomManager {
 
     func getAccount() -> Observable<Result<User>> {
         if account == nil {
-            let user = AppDataManager.getAccount()
-            if user != nil {
-                return User.getUser(by: user!.id).map { result in
-                    if result.success {
-                        self.account = result.data!
-                    }
-                    return result
-                }
-            } else {
-                return User.randomUser().flatMap { result in
-                    result.onSuccess {
-                        self.account = result.data!
-                        return AppDataManager.saveAccount(user: result.data!)
-                    }
+//            let user = AppDataManager.getAccount()
+//            if user != nil {
+//                return User.getUser(by: user!.id).map { result in
+//                    if result.success {
+//                        self.account = result.data!
+//                    } else {
+//                        // create a new user using same avatar
+//                        let user = User(id: user!.id, name: user!.name, avatar: user?.avatar)
+//                        self.account = user
+            ////                        User.create(user: user)
+//                    }
+//                    return Result(success: true, data: self.account)
+//                }
+//            }
+            return User.randomUser().flatMap { result in
+                result.onSuccess {
+                    self.account = result.data!
+                    return AppDataManager.saveAccount(user: result.data!)
                 }
             }
+
         } else {
             return Observable.just(Result(success: true, data: account))
         }
