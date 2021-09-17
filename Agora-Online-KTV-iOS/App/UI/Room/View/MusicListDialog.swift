@@ -8,6 +8,7 @@
 import Core
 import Foundation
 import LrcView
+import SDWebImage
 import UIKit
 
 protocol OrderMusicDelegate: AnyObject {
@@ -17,16 +18,19 @@ protocol OrderMusicDelegate: AnyObject {
 }
 
 private class OrderMusicCell: UITableViewCell {
+    static var defaultPoster: UIImage? = UIImage(named: "bg", in: Utils.bundle, with: nil)
     weak var delegate: OrderMusicDelegate!
     var music: LocalMusic! {
         didSet {
             nameView.text = "\(music.name)-\(music.singer)"
-            let url = URL(string: music.poster)!
-            let data: NSData! = NSData(contentsOf: url)
-            if data != nil {
-                coverView.image = UIImage(data: data as Data, scale: 1)
-            }
-
+//          NOTE: poster url is currently not available from migu
+//            let url = URL(string: music.poster)!
+//            coverView.sd_setImage(with: url) { [weak self] image, _, _, url in
+//                if let weakself = self {
+//                    Logger.log(message: "url: \(url)", level: .info)
+//                    weakself.coverView.image = image
+//                }
+//            }
             orderButton.isEnabled = !delegate.isOrdered(music: music)
             orderButton.backgroundColor = orderButton.isEnabled ? UIColor(hex: Colors.Blue) : UIColor(hex: Colors.Blue).withAlphaComponent(0.3)
         }
@@ -35,7 +39,7 @@ private class OrderMusicCell: UITableViewCell {
     private var coverView: UIImageView = {
         let view = RoundImageView()
         view.radius = 8
-        view.image = UIImage(named: "bg", in: Utils.bundle, with: nil)
+        view.image = OrderMusicCell.defaultPoster
         return view
     }()
 
@@ -92,7 +96,7 @@ private class OrderMusicCell: UITableViewCell {
     }
 }
 
-private class LocalMusicList: UITableView, UITableViewDataSource, OrderMusicDelegate {
+private class LocalMusicList: UITableView, UITableViewDataSource, UITableViewDelegate, OrderMusicDelegate {
     weak var roomDelegate: RoomController?
     fileprivate var orderChorusMusic = false
     var data: [LocalMusic] = []
@@ -102,6 +106,7 @@ private class LocalMusicList: UITableView, UITableViewDataSource, OrderMusicDele
         register(OrderMusicCell.self, forCellReuseIdentifier: NSStringFromClass(OrderMusicCell.self))
         scrollsToTop = false
         dataSource = self
+        delegate = self
         allowsSelection = false
     }
 
@@ -123,6 +128,11 @@ private class LocalMusicList: UITableView, UITableViewDataSource, OrderMusicDele
         cell.delegate = self
         cell.music = data[indexPath.row]
         return cell
+    }
+
+    func tableView(_: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt _: IndexPath) {
+        guard let orderMusicCell: OrderMusicCell = cell as? OrderMusicCell else { return }
+        orderMusicCell.imageView?.sd_cancelCurrentImageLoad()
     }
 
     func isOrdered(music: LocalMusic) -> Bool {

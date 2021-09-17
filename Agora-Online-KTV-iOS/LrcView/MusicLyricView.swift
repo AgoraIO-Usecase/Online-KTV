@@ -574,6 +574,8 @@ public class MusicLyricView: UIView, UITableViewDataSource, UITableViewDelegate 
             cell.selectedBackgroundView = UIView()
         }
         cell.backgroundColor = .clear
+        cell.selectionStyle = .none
+
         let lyricsCount = lyrics?.count ?? 0
         let index = indexPath.row - Distance
         let current = lyricIndex + Distance
