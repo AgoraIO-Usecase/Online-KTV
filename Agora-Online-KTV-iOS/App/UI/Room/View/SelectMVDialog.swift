@@ -185,7 +185,9 @@ extension SelectMVDialog: UICollectionViewDataSource {
     }
 
     public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let card: MVCardView = collectionView.dequeueReusableCell(withReuseIdentifier: NSStringFromClass(MVCardView.self), for: indexPath) as! MVCardView
+        guard let card: MVCardView = collectionView.dequeueReusableCell(withReuseIdentifier: NSStringFromClass(MVCardView.self), for: indexPath) as? MVCardView else {
+            return UICollectionViewCell()
+        }
         card.delegate = self
         card.mv = mvList[indexPath.item]
         card.isSelected = card.mv == selectMV

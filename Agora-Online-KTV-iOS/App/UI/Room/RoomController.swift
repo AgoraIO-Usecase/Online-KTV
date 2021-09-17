@@ -386,10 +386,9 @@ class RoomController: BaseViewContoller, DialogDelegate {
         Logger.log(self, message: "deinit", level: .info)
     }
 
-    public static func instance() -> RoomController {
+    public static func instance() -> RoomController? {
         let storyBoard = UIStoryboard(name: "Main", bundle: Utils.bundle)
-        let controller = storyBoard.instantiateViewController(withIdentifier: "RoomController") as! RoomController
-        return controller
+        return storyBoard.instantiateViewController(withIdentifier: "RoomController") as? RoomController
     }
 }
 

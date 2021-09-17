@@ -60,13 +60,15 @@ class CreateRoomController: BaseViewContoller {
     }
 
     @objc func onTapCreateRoomView() {
+        guard let room = RoomController.instance() else { return }
+
         viewModel.create(with: roomName, cover: roomCover) { [weak self] waiting in
             guard let self = self else { return }
             self.show(processing: waiting)
         } onSuccess: { [weak self] in
             guard let self = self else { return }
             self.show(message: "创建歌房成功", type: .done)
-            self.navigationController?.replaceTopViewController(with: RoomController.instance(), animated: true)
+            self.navigationController?.replaceTopViewController(with: room, animated: true)
         } onError: { [weak self] message in
             Logger.log(message: message, level: .error)
             guard let self = self else { return }
@@ -83,9 +85,8 @@ class CreateRoomController: BaseViewContoller {
         Logger.log(self, message: "deinit", level: .info)
     }
 
-    public static func instance() -> CreateRoomController {
+    public static func instance() -> CreateRoomController? {
         let storyBoard = UIStoryboard(name: "Main", bundle: Utils.bundle)
-        let controller = storyBoard.instantiateViewController(withIdentifier: "CreateRoomController") as! CreateRoomController
-        return controller
+        return storyBoard.instantiateViewController(withIdentifier: "CreateRoomController") as? CreateRoomController
     }
 }

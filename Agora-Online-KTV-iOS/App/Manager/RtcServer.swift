@@ -432,11 +432,9 @@ extension RtcServer: AgoraRtcEngineDelegate {
 //            return
 //        }
         do {
-            let content: NSDictionary = try JSONSerialization.jsonObject(with: data, options: .mutableContainers) as! NSDictionary
-            let cmd: String? = content["cmd"] as? String
-            guard let cmd = cmd else {
-                return
-            }
+            guard let content: NSDictionary = try JSONSerialization.jsonObject(with: data, options: .mutableContainers) as? NSDictionary,
+                  let cmd: String = content["cmd"] as? String else { return }
+
             var state: RtcMusicState?
 
             switch cmd {
@@ -447,8 +445,9 @@ extension RtcServer: AgoraRtcEngineDelegate {
                 let position = content["time"] as? Int ?? -1
                 state = RtcMusicState(uid: uid, streamId: getOrderedDataStreamId(), position: position, duration: duration, state: .playing, type: .position)
             case "countdown":
-                let position = content["time"] as! Int
-                state = RtcMusicState(uid: uid, streamId: getDataStreamId(), position: position, duration: position, state: .idle, type: .countdown)
+                if let position = content["time"] as? Int {
+                    state = RtcMusicState(uid: uid, streamId: getDataStreamId(), position: position, duration: position, state: .idle, type: .countdown)
+                }
             default:
                 state = nil
             }

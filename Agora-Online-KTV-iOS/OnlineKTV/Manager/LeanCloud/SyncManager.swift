@@ -33,8 +33,12 @@
             } else if type == UInt.self {
                 return object.get(key)?.uintValue
             } else if type == AgoraDocumentReference.self {
-                let obj = object.get(key) as! LCObject
-                return AgoraDocumentReference(parent: nil, id: obj.objectId!.stringValue!)
+                if let obj = object.get(key) as? LCObject,
+                   let objectId = obj.objectId,
+                   let stringId = objectId.stringValue
+                {
+                    return AgoraDocumentReference(parent: nil, id: stringId)
+                }
             }
             return nil
         }
@@ -218,11 +222,10 @@
                     for eqs in reference.whereEQ {
                         let key = eqs.key
                         let value = eqs.value
-                        if value is AgoraDocumentReference {
-                            let ref: AgoraDocumentReference = value as! AgoraDocumentReference
+                        if let ref = value as? AgoraDocumentReference {
                             try query.where(key, .equalTo(LCObject(className: ref.className, objectId: ref.id)))
-                        } else {
-                            try query.where(key, .equalTo(value as! LCValueConvertible))
+                        } else if let ref = value as? LCValueConvertible {
+                            try query.where(key, .equalTo(ref))
                         }
                     }
                     query.find(completionQueue: Database.completionQueue, completion: { result in
@@ -290,10 +293,13 @@
                     let key = eqs.key
                     let value = eqs.value
                     if value is AgoraDocumentReference {
-                        let ref: AgoraDocumentReference = value as! AgoraDocumentReference
-                        try query.where(key, .equalTo(LCObject(className: ref.className, objectId: ref.id)))
+                        if let ref: AgoraDocumentReference = value as? AgoraDocumentReference {
+                            try query.where(key, .equalTo(LCObject(className: ref.className, objectId: ref.id)))
+                        }
                     } else {
-                        try query.where(key, .equalTo(value as! LCValueConvertible))
+                        if let ref = value as? LCValueConvertible {
+                            try query.where(key, .equalTo(ref))
+                        }
                     }
                 }
                 if let parent = reference.parent {

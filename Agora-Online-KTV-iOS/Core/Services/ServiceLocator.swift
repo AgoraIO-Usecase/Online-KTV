@@ -42,7 +42,7 @@ final class AnyServiceFactory {
     }
 
     func resolve<ServiceType>(_ resolver: Resolver) -> ServiceType {
-        return _resolve(resolver) as! ServiceType
+        return _resolve(resolver) as! ServiceType // swiftlint:disable:this force_cast
     }
 
     func supports<ServiceType>(_ type: ServiceType.Type) -> Bool {

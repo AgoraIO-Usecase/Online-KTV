@@ -117,7 +117,9 @@ private class LocalMusicList: UITableView, UITableViewDataSource, OrderMusicDele
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell: OrderMusicCell = tableView.dequeueReusableCell(withIdentifier: NSStringFromClass(OrderMusicCell.self), for: indexPath) as! OrderMusicCell
+        guard let cell: OrderMusicCell = tableView.dequeueReusableCell(withIdentifier: NSStringFromClass(OrderMusicCell.self), for: indexPath) as? OrderMusicCell else {
+            return OrderMusicCell(style: .default, reuseIdentifier: NSStringFromClass(OrderMusicCell.self))
+        }
         cell.delegate = self
         cell.music = data[indexPath.row]
         return cell
@@ -265,7 +267,9 @@ private class LiveMusicList: UITableView, UITableViewDataSource, OrderMusicDeleg
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell: LiveMusicCell = tableView.dequeueReusableCell(withIdentifier: NSStringFromClass(LiveMusicCell.self), for: indexPath) as! LiveMusicCell
+        guard let cell: LiveMusicCell = tableView.dequeueReusableCell(withIdentifier: NSStringFromClass(LiveMusicCell.self), for: indexPath) as? LiveMusicCell else {
+            return LiveMusicCell(style: .default, reuseIdentifier: NSStringFromClass(LiveMusicCell.self))
+        }
         cell.delegate = self
         cell.music = roomDelegate!.viewModel.musicList[indexPath.row]
         cell.index = indexPath.row
@@ -469,8 +473,8 @@ private class HeaderView: UIView {
         view.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(onSelect(sender:))))
     }
 
-    @objc func onSelect(sender: Any) {
-        index = sender as! NSObject == lable0 ? 0 : 1
+    @objc func onSelect(sender: UIButton) {
+        index = sender == lable0 ? 0 : 1
         delegate?.onSelect(index: index)
     }
 

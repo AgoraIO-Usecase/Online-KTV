@@ -103,14 +103,17 @@ extension LiveKtvMusic {
 
     static func get(object: IAgoraObject, room: LiveKtvRoom) throws -> LiveKtvMusic {
         let id = try object.getId()
-        let name: String = try object.getValue(key: LiveKtvMusic.NAME, type: String.self) as! String
-        let music: String = try object.getValue(key: LiveKtvMusic.MUSIC_ID, type: String.self) as! String
-        let singer: String = try object.getValue(key: LiveKtvMusic.SINGER, type: String.self) as! String
-        let poster: String = try object.getValue(key: LiveKtvMusic.POSTER, type: String.self) as! String
         let roomId = room.id
+        guard let name: String = try object.getValue(key: LiveKtvMusic.NAME, type: String.self) as? String,
+              let music: String = try object.getValue(key: LiveKtvMusic.MUSIC_ID, type: String.self) as? String,
+              let singer: String = try object.getValue(key: LiveKtvMusic.SINGER, type: String.self) as? String,
+              let poster: String = try object.getValue(key: LiveKtvMusic.POSTER, type: String.self) as? String,
+              let userId: String = try object.getValue(key: LiveKtvMusic.USER, type: String.self) as? String
+        else {
+            throw AgoraError(message: "invalid LiveKtvMusic data \(id) \(roomId)")
+        }
 
         let type: Int = try object.getValue(key: LiveKtvMusic.TYPE, type: Int.self) as? Int ?? LiveKtvMusic.NORMAL
-        let userId: String = try object.getValue(key: LiveKtvMusic.USER, type: String.self) as! String
         let userStatus: Int? = try object.getValue(key: LiveKtvMusic.USER_STATUS, type: Int.self) as? Int
         let userbgId: UInt? = try object.getValue(key: LiveKtvMusic.USER_BG_ID, type: UInt.self) as? UInt
         let user1Id: String? = try object.getValue(key: LiveKtvMusic.USER1, type: String.self) as? String

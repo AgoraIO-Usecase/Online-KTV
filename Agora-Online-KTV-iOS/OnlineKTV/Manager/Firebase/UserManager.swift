@@ -14,8 +14,8 @@
     class FirebaseUserManager: IUserManager {
         static func from(object: DocumentSnapshot) throws -> User {
             let data = object.data()!
-            let name: String = data[User.NAME] as! String
-            let avatar: String = data[User.AVATAR] as! String
+            let name: String = data[User.NAME] as? String ?? ""
+            let avatar: String = data[User.AVATAR] as? String ?? ""
             return User(id: object.documentID, name: name, avatar: avatar)
         }
 

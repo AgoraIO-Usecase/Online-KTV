@@ -99,7 +99,8 @@ public class LiveKtvHomeController: BaseViewContoller {
     }
 
     @objc func onTapCreateRoomButton() {
-        navigationController?.pushViewController(CreateRoomController.instance(), animated: true)
+        guard let instance = CreateRoomController.instance() else { return }
+        navigationController?.pushViewController(instance, animated: true)
     }
 
     @objc func onRefresh() {
@@ -149,10 +150,9 @@ public class LiveKtvHomeController: BaseViewContoller {
         Logger.log(self, message: "deinit", level: .info)
     }
 
-    public static func instance() -> LiveKtvHomeController {
+    public static func instance() -> LiveKtvHomeController? {
         let storyBoard = UIStoryboard(name: "Main", bundle: Utils.bundle)
-        let controller = storyBoard.instantiateViewController(withIdentifier: "HomeController") as! LiveKtvHomeController
-        return controller
+        return storyBoard.instantiateViewController(withIdentifier: "HomeController") as? LiveKtvHomeController
     }
 }
 
@@ -162,7 +162,10 @@ extension LiveKtvHomeController: UICollectionViewDataSource {
     }
 
     public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let card: HomeCardView = collectionView.dequeueReusableCell(withReuseIdentifier: NSStringFromClass(HomeCardView.self), for: indexPath) as! HomeCardView
+        guard let card: HomeCardView = collectionView.dequeueReusableCell(withReuseIdentifier: NSStringFromClass(HomeCardView.self), for: indexPath) as? HomeCardView else {
+            let cell = HomeCardView()
+            return cell
+        }
         card.delegate = self
         card.room = viewModel.roomList[indexPath.item]
         return card
@@ -186,12 +189,12 @@ extension LiveKtvHomeController: WaterfallLayoutDelegate {
 
 extension LiveKtvHomeController: HomeCardDelegate {
     func onTapCard(with room: LiveKtvRoom) {
+        guard let controller = RoomController.instance() else { return }
         viewModel.join(room: room) { [weak self] waiting in
             guard let self = self else { return }
             self.show(processing: waiting)
         } onSuccess: { [weak self] in
             guard let self = self else { return }
-            let controller = RoomController.instance()
             self.navigationController?.pushViewController(controller, animated: true)
         } onError: { [weak self] message in
             guard let self = self else { return }

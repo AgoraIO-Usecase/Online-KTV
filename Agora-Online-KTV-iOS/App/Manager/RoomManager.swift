@@ -56,7 +56,7 @@ extension RoomManager: IRoomManager {
 //                        // create a new user using same avatar
 //                        let user = User(id: user!.id, name: user!.name, avatar: user?.avatar)
 //                        self.account = user
-            ////                        User.create(user: user)
+//                        User.create(user: user)
 //                    }
 //                    return Result(success: true, data: self.account)
 //                }

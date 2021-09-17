@@ -302,7 +302,7 @@ public extension UITableView {
         })
     }
 
-    func scroll(to: scrollsTo, animated: Bool) {
+    func scroll(to: ScrollsTo, animated: Bool) {
         DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(300)) {
             let numberOfSections = self.numberOfSections
             let numberOfRows = self.numberOfRows(inSection: numberOfSections - 1)
@@ -321,7 +321,7 @@ public extension UITableView {
         }
     }
 
-    enum scrollsTo {
+    enum ScrollsTo {
         case top, bottom
     }
 }
@@ -342,10 +342,12 @@ extension UIWindow {
 
     class func getVisibleViewControllerFrom(_ vc: UIViewController) -> UIViewController {
         if vc.isKind(of: UINavigationController.self) {
-            let navigationController = vc as! UINavigationController
-            return UIWindow.getVisibleViewControllerFrom(navigationController.visibleViewController!)
+            // TODO:
+            let navigationController = vc as! UINavigationController // swiftlint:disable:this force_cast
+            return UIWindow.getVisibleViewControllerFrom(navigationController.visibleViewController!) // swiftlint:disable:this force_cast
         } else if vc.isKind(of: UITabBarController.self) {
-            let tabBarController = vc as! UITabBarController
+            // TODO:
+            let tabBarController = vc as! UITabBarController // swiftlint:disable:this force_cast
             return UIWindow.getVisibleViewControllerFrom(tabBarController.selectedViewController!)
         } else {
             if let presentedViewController = vc.presentedViewController {

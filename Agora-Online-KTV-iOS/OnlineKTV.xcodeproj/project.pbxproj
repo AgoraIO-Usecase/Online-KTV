@@ -32,7 +32,6 @@
 		574C9CDD266A41AE00822A95 /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 574C9CDC266A41AE00822A95 /* HomeViewModel.swift */; };
 		5757D04C262D834700B4A785 /* Core.h in Headers */ = {isa = PBXBuildFile; fileRef = 5757D04A262D834700B4A785 /* Core.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5757D057262D83C900B4A785 /* CustomTabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5757D056262D83C900B4A785 /* CustomTabBarController.swift */; };
-		5757D05A262D841400B4A785 /* Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5757D059262D841400B4A785 /* Extension.swift */; };
 		5757D05D262D84AA00B4A785 /* Notification.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5757D05C262D84AA00B4A785 /* Notification.swift */; };
 		5757D060262D84AF00B4A785 /* NotificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5757D05F262D84AF00B4A785 /* NotificationView.swift */; };
 		5757D063262D84E400B4A785 /* Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5757D062262D84E400B4A785 /* Colors.swift */; };
@@ -45,7 +44,6 @@
 		5757D0E2262DAFDA00B4A785 /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5757D0E1262DAFDA00B4A785 /* Config.swift */; };
 		5757D105262DB18300B4A785 /* WaterfallLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5757D104262DB18300B4A785 /* WaterfallLayout.swift */; };
 		5757D123262DB25400B4A785 /* BaseModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5757D122262DB25400B4A785 /* BaseModel.swift */; };
-		5757D165262DB9DB00B4A785 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 5757D163262DB9DB00B4A785 /* Model.xcdatamodeld */; };
 		5757D21F262EB8F300B4A785 /* ActivityIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5757D21E262EB8F300B4A785 /* ActivityIndicator.swift */; };
 		5762F7E026568019003B042D /* AppTargets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5762F7DC26567BAA003B042D /* AppTargets.swift */; };
 		5762F7E12656801C003B042D /* AppTargets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5762F7DC26567BAA003B042D /* AppTargets.swift */; };
@@ -112,6 +110,7 @@
 		57FFD42E26A971F300668BE0 /* machWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 57FFD42D26A971F300668BE0 /* machWrapper.mm */; };
 		6B7246CCC6D98958270A218F /* Pods_OnlineKTV_LeanCloud.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55CA5154BEFE30CEC188B4E6 /* Pods_OnlineKTV_LeanCloud.framework */; };
 		761402B6C292295B451C235C /* Pods_Core.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A0D7AE253FD40BFF3FC44E37 /* Pods_Core.framework */; };
+		7F25CE3C26F48B4B0008302F /* Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5757D059262D841400B4A785 /* Extension.swift */; };
 		8B0C3A3226BE7E12004C7F27 /* Util.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B0C3A3126BE7E12004C7F27 /* Util.swift */; };
 		8B0C3A3326BE7F10004C7F27 /* LrcView.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BBB784C26BE6C1B00096F8E /* LrcView.framework */; };
 		8B0C3A3826BE8A98004C7F27 /* Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B0C3A3726BE8A98004C7F27 /* Extension.swift */; };
@@ -262,7 +261,6 @@
 		5757D104262DB18300B4A785 /* WaterfallLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaterfallLayout.swift; sourceTree = "<group>"; };
 		5757D122262DB25400B4A785 /* BaseModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseModel.swift; sourceTree = "<group>"; };
 		5757D155262DB79E00B4A785 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/LaunchScreen.strings"; sourceTree = "<group>"; };
-		5757D164262DB9DB00B4A785 /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
 		5757D21E262EB8F300B4A785 /* ActivityIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityIndicator.swift; sourceTree = "<group>"; };
 		5762F7DC26567BAA003B042D /* AppTargets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTargets.swift; sourceTree = "<group>"; };
 		5764BB90266DCD9F00293B73 /* Icon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Icon.swift; sourceTree = "<group>"; };
@@ -576,7 +574,6 @@
 				5757D04B262D834700B4A785 /* Info.plist */,
 				5757D04A262D834700B4A785 /* Core.h */,
 				5757D0E1262DAFDA00B4A785 /* Config.swift */,
-				5757D163262DB9DB00B4A785 /* Model.xcdatamodeld */,
 				57F6396F263000C300B45C0B /* Localizable.strings */,
 				57F639722630015200B45C0B /* Media.xcassets */,
 			);
@@ -633,7 +630,6 @@
 				5764BB9F266E4C3000293B73 /* RoundImageView.swift */,
 				5764BBB92670842700293B73 /* CenterNotification.swift */,
 				5764BBBD2670BAD000293B73 /* AlertDialog.swift */,
-				5764BBE52673AE1F00293B73 /* MusicLyricView.swift */,
 				578545452689CF0B00605ABE /* Dialog.swift */,
 			);
 			path = View;
@@ -687,10 +683,6 @@
 		5764BBE226735D8000293B73 /* Music */ = {
 			isa = PBXGroup;
 			children = (
-				5764BBE02673512F00293B73 /* LocalMusicManager.swift */,
-				5764BBE326735D9900293B73 /* Lyric.swift */,
-				5782AC892695597500B4162A /* MiguLyric.swift */,
-				5782AC8E2695CA7D00B4162A /* LrcSentence.swift */,
 			);
 			path = Music;
 			sourceTree = "<group>";
@@ -845,6 +837,7 @@
 				571AA4682629862700B82B35 /* Resources */,
 				C0376A113C16BCE26A0D86BE /* [CP] Embed Pods Frameworks */,
 				5757D030262D81C600B4A785 /* Embed Frameworks */,
+				7F25CD6826F45EBA0008302F /* ShellScript */,
 				574C9CDF266A7BE800822A95 /* ShellScript */,
 			);
 			buildRules = (
@@ -868,7 +861,6 @@
 				574C9CAC266A0B4200822A95 /* Sources */,
 				574C9CAD266A0B4200822A95 /* Frameworks */,
 				574C9CAE266A0B4200822A95 /* Resources */,
-				574C9CC4266A0BDB00822A95 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -1165,6 +1157,23 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-OnlineKTV_Firebase/Pods-OnlineKTV_Firebase-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
+		7F25CD6826F45EBA0008302F /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if which swiftlint >/dev/null; then\n  swiftlint --config ${PROJECT_DIR}/.swiftlint.yml\nelse\n  echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
+		};
 		C0376A113C16BCE26A0D86BE /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -1287,6 +1296,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7F25CE3C26F48B4B0008302F /* Extension.swift in Sources */,
 				5757D123262DB25400B4A785 /* BaseModel.swift in Sources */,
 				5757D057262D83C900B4A785 /* CustomTabBarController.swift in Sources */,
 				5757D0DE262DAF9900B4A785 /* BaseUICollectionViewCell.swift in Sources */,
@@ -1300,8 +1310,6 @@
 				5757D0E2262DAFDA00B4A785 /* Config.swift in Sources */,
 				57FFD42426A02A0200668BE0 /* ColorThief.swift in Sources */,
 				5783FEAB26662859000B39F3 /* UserManager.swift in Sources */,
-				5757D05A262D841400B4A785 /* Extension.swift in Sources */,
-				5757D165262DB9DB00B4A785 /* Model.xcdatamodeld in Sources */,
 				5757D105262DB18300B4A785 /* WaterfallLayout.swift in Sources */,
 				5757D0C0262DAD8D00B4A785 /* BaseViewController.swift in Sources */,
 				5757D072262D8E5600B4A785 /* Logger.swift in Sources */,
@@ -1617,8 +1625,8 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SKIP_INSTALL = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = "App/app-Bridging-Header.h";
 				SUPPORTS_MACCATALYST = NO;
+				SWIFT_OBJC_BRIDGING_HEADER = "App/app-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1653,8 +1661,8 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SKIP_INSTALL = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = "App/app-Bridging-Header.h";
 				SUPPORTS_MACCATALYST = NO;
+				SWIFT_OBJC_BRIDGING_HEADER = "App/app-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
@@ -1905,19 +1913,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCVersionGroup section */
-		5757D163262DB9DB00B4A785 /* Model.xcdatamodeld */ = {
-			isa = XCVersionGroup;
-			children = (
-				5757D164262DB9DB00B4A785 /* Model.xcdatamodel */,
-			);
-			currentVersion = 5757D164262DB9DB00B4A785 /* Model.xcdatamodel */;
-			path = Model.xcdatamodeld;
-			sourceTree = "<group>";
-			versionGroupType = wrapper.xcdatamodel;
-		};
-/* End XCVersionGroup section */
 	};
 	rootObject = 571AA4622629862700B82B35 /* Project object */;
 }

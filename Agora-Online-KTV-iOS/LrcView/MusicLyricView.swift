@@ -568,7 +568,7 @@ public class MusicLyricView: UIView, UITableViewDataSource, UITableViewDelegate 
     }
 
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell: MusicLyricCell = tableView.dequeueReusableCell(withIdentifier: NSStringFromClass(MusicLyricCell.self), for: indexPath) as! MusicLyricCell
+        guard let cell: MusicLyricCell = tableView.dequeueReusableCell(withIdentifier: NSStringFromClass(MusicLyricCell.self), for: indexPath) as? MusicLyricCell else { return MusicLyricCell(style: .default, reuseIdentifier: NSStringFromClass(MusicLyricCell.self)) }
         cell.lyricLabel.textColor = normalLyricTextColor
         if cell.selectedBackgroundView == nil {
             cell.selectedBackgroundView = UIView()

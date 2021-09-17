@@ -1,0 +1,17 @@
+disabled_rules: # rule identifiers turned on by default to exclude from running
+  - colon
+  - comma
+  - trailing_whitespace
+  - opening_brace
+  - identifier_name
+  - line_length
+  - redundant_void_return
+  - type_body_length
+  - inclusive_language
+  - file_length
+  - trailing_comma
+  - function_body_length
+  - cyclomatic_complexity
+  - class_delegate_protocol
+excluded: # paths to ignore during linting. Takes precedence over `included`.
+  - Pods
