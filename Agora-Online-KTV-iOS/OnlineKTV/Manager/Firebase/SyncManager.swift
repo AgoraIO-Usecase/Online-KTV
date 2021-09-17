@@ -32,8 +32,9 @@
             } else if type == UInt.self {
                 return data[key] as? UInt
             } else if type == AgoraDocumentReference.self {
-                let obj = data[key] as! DocumentReference
-                return AgoraDocumentReference(parent: nil, id: obj.documentID)
+                if let obj = data[key] as? DocumentReference {
+                    return AgoraDocumentReference(parent: nil, id: obj.documentID)
+                }
             }
             return nil
         }
@@ -211,8 +212,7 @@
                 for eqs in reference.whereEQ {
                     let key = eqs.key
                     let value = eqs.value
-                    if value is AgoraDocumentReference {
-                        let ref: AgoraDocumentReference = value as! AgoraDocumentReference
+                    if let ref = value as? AgoraDocumentReference {
                         query = query.whereField(key, isEqualTo: Database.document(table: ref.className, id: ref.id))
                     } else {
                         query = query.whereField(key, isEqualTo: value)
@@ -274,8 +274,7 @@
                 for eqs in reference.whereEQ {
                     let key = eqs.key
                     let value = eqs.value
-                    if value is AgoraDocumentReference {
-                        let ref: AgoraDocumentReference = value as! AgoraDocumentReference
+                    if let ref as? AgoraDocumentReference {
                         query = query.whereField(key, isEqualTo: Database.document(table: ref.className, id: ref.id))
                     } else {
                         query = query.whereField(key, isEqualTo: value)

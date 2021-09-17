@@ -12,7 +12,7 @@ import UIKit
 
 protocol IAppTarget {
     func initTarget() -> Void
-    func getAppMainViewController() -> UIViewController
+    func getAppMainViewController() -> UIViewController?
 }
 
 #if LEANCLOUD
@@ -24,7 +24,7 @@ protocol IAppTarget {
                 .register(IUserManager.self, instance: LeanCloudUserManager())
         }
 
-        func getAppMainViewController() -> UIViewController {
+        func getAppMainViewController() -> UIViewController? {
             return LiveKtvHomeController.instance()
         }
     }
@@ -38,7 +38,7 @@ protocol IAppTarget {
                 .register(IUserManager.self, instance: FirebaseUserManager())
         }
 
-        func getAppMainViewController() -> UIViewController {
+        func getAppMainViewController() -> UIViewController? {
             return LiveKtvHomeController.instance()
         }
     }
@@ -55,7 +55,7 @@ enum AppTargets {
         target.initTarget()
     }
 
-    static func getAppMainViewController() -> UIViewController {
+    static func getAppMainViewController() -> UIViewController? {
         target.getAppMainViewController()
     }
 }

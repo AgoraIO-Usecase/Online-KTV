@@ -94,7 +94,7 @@
                 LCEngine.run("getMusic", parameters: ["id": id], completionQueue: Database.completionQueue) { result in
                     switch result {
                     case let .success(value: value):
-                        if let results = value as! String? {
+                        if let results = value as? String {
                             do {
                                 let data: LrcMusic = try JSONDecoder().decode(LrcMusic.self, from: Data(results.utf8))
                                 single(.success(Result(success: true, data: data)))

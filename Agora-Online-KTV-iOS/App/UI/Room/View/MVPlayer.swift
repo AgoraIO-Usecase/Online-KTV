@@ -31,8 +31,7 @@ private class ChorusMasterView: UIView {
     // sec
     var time: TimeInterval? {
         didSet {
-            let time = time ?? 0
-            tipsView.text = "等待加入合唱 \(Utils.format(time: time))"
+            tipsView.text = "等待加入合唱 \(Utils.format(time: time ?? 0))"
         }
     }
 
@@ -117,8 +116,8 @@ private class ChorusFollowerView: UIView {
     // sec
     var time: TimeInterval? {
         didSet {
-            let time = time ?? 0
-            tipsView.text = "抢麦倒计时 \(Utils.format(time: time))"
+//            let time = time ?? 0
+            tipsView.text = "抢麦倒计时 \(Utils.format(time: time ?? 0))"
         }
     }
 

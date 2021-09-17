@@ -90,22 +90,24 @@ extension LiveKtvRoom {
 
     static func get(object: IAgoraObject, check: Bool = false) throws -> LiveKtvRoom {
         let id = try object.getId()
-        let ownerId = try object.getValue(key: LiveKtvRoom.OWNER_ID, type: String.self) as! String
-        let name = try object.getValue(key: LiveKtvRoom.NAME, type: String.self) as! String
-        let cover = try object.getValue(key: LiveKtvRoom.COVER, type: String.self) as? String
-        let mv = try object.getValue(key: LiveKtvRoom.MV, type: String.self) as? String
-        let createdAt = try object.getValue(key: "createdAt", type: Date.self) as? Date
-        if check, CHECK_TIME_UP {
-            if let createdAt = createdAt {
+        if let ownerId = try object.getValue(key: LiveKtvRoom.OWNER_ID, type: String.self) as? String,
+           let name = try object.getValue(key: LiveKtvRoom.NAME, type: String.self) as? String,
+           let cover = try object.getValue(key: LiveKtvRoom.COVER, type: String.self) as? String,
+           let mv = try object.getValue(key: LiveKtvRoom.MV, type: String.self) as? String,
+           let createdAt = try object.getValue(key: "createdAt", type: Date.self) as? Date
+        {
+            if check, CHECK_TIME_UP {
                 let passTime = Date().timeIntervalSince1970 - createdAt.timeIntervalSince1970
                 if passTime >= TIME_UP {
                     throw AgoraError(message: "当前房间直播时间超时！")
                 }
             }
+            let room = LiveKtvRoom(id: id, userId: ownerId, channelName: name, cover: cover, mv: mv)
+            room.createdAt = createdAt
+            return room
         }
-        let room = LiveKtvRoom(id: id, userId: ownerId, channelName: name, cover: cover, mv: mv)
-        room.createdAt = createdAt
-        return room
+
+        throw AgoraError(message: "非法房间数据")
     }
 
     static func create(room: LiveKtvRoom) -> Observable<Result<String>> {
