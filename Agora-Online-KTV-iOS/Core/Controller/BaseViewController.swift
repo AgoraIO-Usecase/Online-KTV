@@ -425,46 +425,54 @@ open class BaseViewContoller: UIViewController {
                    relation: UIView.Relation = .equal,
                    onDismiss: (() -> Void)? = nil) -> Single<Bool>
     {
-        return Single.create { [unowned self] single in
-            let completion = { finish in
-                single(.success(finish))
+        return Single.create { [weak self] single in
+            if let weakself = self {
+                let completion = { finish in
+                    single(.success(finish))
+                }
+                weakself.show(dialog: dialog, style: style, padding: padding, relation: relation, completion: completion, onDismiss: onDismiss)
             }
-            self.show(dialog: dialog, style: style, padding: padding, relation: relation, completion: completion, onDismiss: onDismiss)
             return Disposables.create()
         }
         .subscribe(on: MainScheduler.instance)
     }
 
     open func dismiss(dialog: UIView) -> Single<Bool> {
-        return Single.create { [unowned self] single in
-            let completion = { finish in
-                single(.success(finish))
+        return Single.create { [weak self] single in
+            if let weakself = self {
+                let completion = { finish in
+                    single(.success(finish))
+                }
+                weakself.dismiss(dialog: dialog, completion: completion)
             }
-            self.dismiss(dialog: dialog, completion: completion)
             return Disposables.create()
         }
         .subscribe(on: MainScheduler.instance)
     }
 
     open func dismiss() -> Single<Bool> {
-        return Single.create { [unowned self] single in
-            let completion = { finish in
-                single(.success(finish))
+        return Single.create { [weak self] single in
+            if let weakself = self {
+                let completion = { finish in
+                    single(.success(finish))
+                }
+                weakself.dismiss(completion: completion)
             }
-            self.dismiss(completion: completion)
             return Disposables.create()
         }
     }
 
     open func showAlert(title: String, message: String) -> Observable<Bool> {
-        return Single.create { [unowned self] single in
-            let onCancel = {
-                single(.success(false))
+        return Single.create { [weak self] single in
+            if let weakself = self {
+                let onCancel = {
+                    single(.success(false))
+                }
+                let onOk = {
+                    single(.success(true))
+                }
+                weakself.showAlert(title: title, message: message, onCancel: onCancel, onOk: onOk)
             }
-            let onOk = {
-                single(.success(true))
-            }
-            self.showAlert(title: title, message: message, onCancel: onCancel, onOk: onOk)
             return Disposables.create()
         }
         .subscribe(on: MainScheduler.instance)
@@ -472,11 +480,13 @@ open class BaseViewContoller: UIViewController {
     }
 
     open func pop() -> Single<Bool> {
-        return Single.create { [unowned self] single in
-            let completion = { finish in
-                single(.success(finish))
+        return Single.create { [weak self] single in
+            if let weakself = self {
+                let completion = { finish in
+                    single(.success(finish))
+                }
+                weakself.pop(completion: completion)
             }
-            self.pop(completion: completion)
             return Disposables.create()
         }
     }

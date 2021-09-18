@@ -537,10 +537,12 @@ class MVPlayer: NSObject {
                         if localMusic.id == self.delegate.viewModel.playingMusic?.musicId,
                            !self.delegate.viewModel.isLocalMusicPlaying(music: localMusic)
                         {
-                            self.delegate.viewModel.play(music: localMusic) { [unowned self] waiting in
-                                self.delegate.show(processing: waiting)
-                            } onSuccess: {} onError: { [unowned self] message in
-                                self.delegate.onError(message: message)
+                            self.delegate.viewModel.play(music: localMusic) { [weak self] waiting in
+                                guard let weakself = self else { return }
+                                weakself.delegate.show(processing: waiting)
+                            } onSuccess: {} onError: { [weak self] message in
+                                guard let weakself = self else { return }
+                                weakself.delegate.onError(message: message)
                             }
                         }
                     } onError: { [weak self] message in
@@ -663,12 +665,15 @@ class MVPlayer: NSObject {
                         originSettingView.setOn(true, animated: true)
                     }
                     if let music = music {
-                        delegate.viewModel.end(music: music) { [unowned self] waiting in
-                            delegate.show(processing: waiting)
-                        } onSuccess: { [unowned self] in
-                            self.music = nil
-                        } onError: { [unowned self] message in
-                            delegate.show(message: message, type: .error)
+                        delegate.viewModel.end(music: music) { [weak self] waiting in
+                            guard let weakself = self else { return }
+                            weakself.delegate.show(processing: waiting)
+                        } onSuccess: { [weak self] in
+                            guard let weakself = self else { return }
+                            weakself.music = nil
+                        } onError: { [weak self] message in
+                            guard let weakself = self else { return }
+                            weakself.delegate.show(message: message, type: .error)
                         }
                     }
                 default: break
@@ -699,18 +704,23 @@ class MVPlayer: NSObject {
 
     @objc func onSwitchMusic() {
         let alert = AlertDialog(title: "切歌".localized, message: "终止当前歌曲的演唱？".localized)
-        alert.cancelAction = { [unowned self] in
-            self.delegate.dismiss(dialog: alert, completion: nil)
+        alert.cancelAction = { [weak self] in
+            guard let weakself = self else { return }
+            weakself.delegate.dismiss(dialog: alert, completion: nil)
         }
-        alert.okAction = { [unowned self] in
-            self.delegate.dismiss(dialog: alert, completion: nil)
-            if let music = music {
-                delegate.viewModel.end(music: music) { [unowned self] waiting in
-                    delegate.show(processing: waiting)
-                } onSuccess: { [unowned self] in
-                    self.music = nil
-                } onError: { [unowned self] message in
-                    delegate.show(message: message, type: .error)
+        alert.okAction = { [weak self] in
+            guard let weakself = self else { return }
+            weakself.delegate.dismiss(dialog: alert, completion: nil)
+            if let music = weakself.music {
+                weakself.delegate.viewModel.end(music: music) { [weak self] waiting in
+                    guard let weakself = self else { return }
+                    weakself.delegate.show(processing: waiting)
+                } onSuccess: { [weak self] in
+                    guard let weakself = self else { return }
+                    weakself.music = nil
+                } onError: { [weak self] message in
+                    guard let weakself = self else { return }
+                    weakself.delegate.show(message: message, type: .error)
                 }
             }
         }

@@ -341,17 +341,17 @@ extension UIWindow {
     }
 
     class func getVisibleViewControllerFrom(_ vc: UIViewController) -> UIViewController {
-        if vc.isKind(of: UINavigationController.self) {
-            // TODO:
-            let navigationController = vc as! UINavigationController // swiftlint:disable:this force_cast
-            return UIWindow.getVisibleViewControllerFrom(navigationController.visibleViewController!) // swiftlint:disable:this force_cast
-        } else if vc.isKind(of: UITabBarController.self) {
-            // TODO:
-            let tabBarController = vc as! UITabBarController // swiftlint:disable:this force_cast
-            return UIWindow.getVisibleViewControllerFrom(tabBarController.selectedViewController!) // swiftlint:disable:this force_cast
+        if let navigationController = vc as? UINavigationController,
+           let visibleViewController = navigationController.visibleViewController
+        {
+            return UIWindow.getVisibleViewControllerFrom(visibleViewController)
+        } else if let tabBarController = vc as? UITabBarController,
+                  let selectedViewController = tabBarController.selectedViewController
+        {
+            return UIWindow.getVisibleViewControllerFrom(selectedViewController)
         } else {
             if let presentedViewController = vc.presentedViewController {
-                return UIWindow.getVisibleViewControllerFrom(presentedViewController.presentedViewController!)
+                return UIWindow.getVisibleViewControllerFrom(presentedViewController)
             } else {
                 return vc
             }

@@ -233,20 +233,23 @@ extension LiveKtvRoom {
     }
 
     func subscribeMembers() -> Observable<Result<[LiveKtvMember]>> {
-        return Observable<Result<Void>>.create { [unowned self] observer -> Disposable in
-            let handler = LiveKtvRoom.manager
-                .getRoom(id: self.id)
-                .collection(className: LiveKtvMember.TABLE)
-                .document()
-                .subscribe(delegate: AgoraSyncManagerEventDelegate(onEvent: { _ in
-                    observer.onNext(Result<Void>(success: true))
-                }, failed: { _, message in
-                    observer.onNext(Result<Void>(success: false, message: message))
-                    // observer.onCompleted()
-                }))
-            return Disposables.create {
-                handler.unsubscribe()
+        return Observable<Result<Void>>.create { [weak self] observer -> Disposable in
+            if let weakself = self {
+                let handler = LiveKtvRoom.manager
+                    .getRoom(id: weakself.id)
+                    .collection(className: LiveKtvMember.TABLE)
+                    .document()
+                    .subscribe(delegate: AgoraSyncManagerEventDelegate(onEvent: { _ in
+                        observer.onNext(Result<Void>(success: true))
+                    }, failed: { _, message in
+                        observer.onNext(Result<Void>(success: false, message: message))
+                        // observer.onCompleted()
+                    }))
+                return Disposables.create {
+                    handler.unsubscribe()
+                }
             }
+            return Disposables.create()
         }
         .startWith(Result<Void>(success: true))
         .flatMap { [unowned self] result -> Observable<Result<[LiveKtvMember]>> in
@@ -255,20 +258,23 @@ extension LiveKtvRoom {
     }
 
     func subscribeMusicList() -> Observable<Result<[LiveKtvMusic]>> {
-        return Observable<Result<Void>>.create { [unowned self] observer -> Disposable in
-            let handler = LiveKtvRoom.manager
-                .getRoom(id: self.id)
-                .collection(className: LiveKtvMusic.TABLE)
-                .document()
-                .subscribe(delegate: AgoraSyncManagerEventDelegate(onEvent: { _ in
-                    observer.onNext(Result<Void>(success: true))
-                }, failed: { _, message in
-                    observer.onNext(Result<Void>(success: false, message: message))
-                    // observer.onCompleted()
-                }))
-            return Disposables.create {
-                handler.unsubscribe()
+        return Observable<Result<Void>>.create { [weak self] observer -> Disposable in
+            if let weakself = self {
+                let handler = LiveKtvRoom.manager
+                    .getRoom(id: weakself.id)
+                    .collection(className: LiveKtvMusic.TABLE)
+                    .document()
+                    .subscribe(delegate: AgoraSyncManagerEventDelegate(onEvent: { _ in
+                        observer.onNext(Result<Void>(success: true))
+                    }, failed: { _, message in
+                        observer.onNext(Result<Void>(success: false, message: message))
+                        // observer.onCompleted()
+                    }))
+                return Disposables.create {
+                    handler.unsubscribe()
+                }
             }
+            return Disposables.create()
         }
         .startWith(Result<Void>(success: true))
         .flatMap { [unowned self] result -> Observable<Result<[LiveKtvMusic]>> in
@@ -277,36 +283,39 @@ extension LiveKtvRoom {
     }
 
     func subscribe() -> Observable<Result<LiveKtvRoom>> {
-        return Observable.create { [unowned self] observer -> Disposable in
-            let handler = LiveKtvRoom.manager
-                .getRoom(id: self.id)
-                .subscribe(delegate: AgoraSyncManagerEventDelegate(onEvent: { event in
-                    do {
-                        switch event {
-                        case let .create(object: object):
-                            observer.onNext(Result<LiveKtvRoom>(success: true, data: try LiveKtvRoom.get(object: object)))
-                        case let .update(object: object):
-                            let room = try LiveKtvRoom.get(object: object)
-                            self.channelName = room.channelName
-                            self.cover = room.cover
-                            self.mv = room.mv
-                            observer.onNext(Result<LiveKtvRoom>(success: true, data: room))
-                        case let .delete(id: id):
-                            Logger.log(self, message: "(\(id)) delete", level: .info)
-                            observer.onNext(Result<LiveKtvRoom>(success: true, data: nil))
-                        case .subscribed:
-                            observer.onNext(Result<LiveKtvRoom>(success: true, data: self))
+        return Observable.create { [weak self] observer -> Disposable in
+            if let weakself = self {
+                let handler = LiveKtvRoom.manager
+                    .getRoom(id: weakself.id)
+                    .subscribe(delegate: AgoraSyncManagerEventDelegate(onEvent: { event in
+                        do {
+                            switch event {
+                            case let .create(object: object):
+                                observer.onNext(Result<LiveKtvRoom>(success: true, data: try LiveKtvRoom.get(object: object)))
+                            case let .update(object: object):
+                                let room = try LiveKtvRoom.get(object: object)
+                                weakself.channelName = room.channelName
+                                weakself.cover = room.cover
+                                weakself.mv = room.mv
+                                observer.onNext(Result<LiveKtvRoom>(success: true, data: room))
+                            case let .delete(id: id):
+                                Logger.log(weakself, message: "(\(id)) delete", level: .info)
+                                observer.onNext(Result<LiveKtvRoom>(success: true, data: nil))
+                            case .subscribed:
+                                observer.onNext(Result<LiveKtvRoom>(success: true, data: self))
+                            }
+                        } catch {
+                            observer.onNext(Result<LiveKtvRoom>(success: false, message: error.localizedDescription))
                         }
-                    } catch {
-                        observer.onNext(Result<LiveKtvRoom>(success: false, message: error.localizedDescription))
-                    }
-                }, failed: { _, message in
-                    observer.onNext(Result<LiveKtvRoom>(success: false, message: message))
-                    observer.onCompleted()
-                }))
-            return Disposables.create {
-                handler.unsubscribe()
+                    }, failed: { _, message in
+                        observer.onNext(Result<LiveKtvRoom>(success: false, message: message))
+                        observer.onCompleted()
+                    }))
+                return Disposables.create {
+                    handler.unsubscribe()
+                }
             }
+            return Disposables.create()
         }.startWith(Result(success: true, data: self))
     }
 
