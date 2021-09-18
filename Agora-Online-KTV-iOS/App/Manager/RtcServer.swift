@@ -50,12 +50,7 @@ class RtcServer: NSObject {
         super.init()
         let config = AgoraRtcEngineConfig()
         config.appId = BuildConfig.AppId
-        #if LEANCLOUD
-            config.areaCode = AgoraAreaCode.CN.rawValue
-        #endif
-        #if FIREBASE
-            config.areaCode = AgoraAreaCode.GLOB.rawValue
-        #endif
+        config.audioScenario = .chorus
         rtcEngine = AgoraRtcEngineKit.sharedEngine(with: config, delegate: self)
         if let engine = rtcEngine {
             engine.setChannelProfile(.liveBroadcasting)

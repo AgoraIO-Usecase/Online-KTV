@@ -436,7 +436,7 @@ class RtcChorusMusicPlayer: AbstractRtcMusicPlayer {
                 rtc.muteRemoteAudioStream(uid, mute: true)
                 if isFollower() {
                     rtc.muteRemoteAudioStream(option.masterMusicUid, mute: true)
-
+                    player.adjustPlayoutVolume(50)
                     let mediaOption = AgoraRtcChannelMediaOptions()
                     mediaOption.clientRoleType = AgoraRtcIntOptional.of(Int32(AgoraClientRole.broadcaster.rawValue))
                     mediaOption.publishCameraTrack = AgoraRtcBoolOptional.of(false)
