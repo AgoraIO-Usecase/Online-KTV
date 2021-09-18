@@ -122,27 +122,29 @@ class RtcServer: NSObject {
     }
 
     func leaveChannel() -> Observable<Result<Void>> {
-        return Single.create { [unowned self] single in
-            if isJoinChannel {
-                if let rtc = self.rtcEngine {
-                    self.dataStreamId = -1
-                    self.orderedDataStreamId = -1
-                    self.channel = nil
-                    self.uid = 0
-                    self.members.removeAll()
-                    self.statePublisher.accept(Result(success: true, data: RtcServerStateType.members))
-                    Logger.log(message: "rtc leaveChannel", level: .info)
-                    let code = rtc.leaveChannel { _ in
-                        single(.success(Result(success: true)))
-                    }
-                    if code != 0 {
-                        single(.success(Result(success: false, message: "leaveChannel error code:\(code) !")))
+        return Single.create { [weak self] single in
+            if let weakself = self {
+                if weakself.isJoinChannel {
+                    if let rtc = weakself.rtcEngine {
+                        weakself.dataStreamId = -1
+                        weakself.orderedDataStreamId = -1
+                        weakself.channel = nil
+                        weakself.uid = 0
+                        weakself.members.removeAll()
+                        weakself.statePublisher.accept(Result(success: true, data: RtcServerStateType.members))
+                        Logger.log(message: "rtc leaveChannel", level: .info)
+                        let code = rtc.leaveChannel { _ in
+                            single(.success(Result(success: true)))
+                        }
+                        if code != 0 {
+                            single(.success(Result(success: false, message: "leaveChannel error code:\(code) !")))
+                        }
+                    } else {
+                        single(.success(Result(success: false, message: "rtcEngine is nil!")))
                     }
                 } else {
-                    single(.success(Result(success: false, message: "rtcEngine is nil!")))
+                    single(.success(Result(success: true)))
                 }
-            } else {
-                single(.success(Result(success: true)))
             }
 
             return Disposables.create()
@@ -172,10 +174,11 @@ class RtcServer: NSObject {
                 state.data == RtcServerStateType.members
             }
             .startWith(Result(success: true, data: RtcServerStateType.members))
-            .map { [unowned self] _ in
+            .map { [weak self] _ in
                 var speakers = [UInt: Bool]()
-                self.members.forEach { member in
-                    speakers[member] = self.speakers[member] ?? true
+                guard let weakself = self else { return speakers }
+                weakself.members.forEach { member in
+                    speakers[member] = weakself.speakers[member] ?? true
                 }
                 return speakers
             }

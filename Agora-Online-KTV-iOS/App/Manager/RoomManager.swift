@@ -205,12 +205,14 @@ extension RoomManager: IRoomManager {
             room.subscribeMembers(),
             rtcServer.onSpeakersChanged()
         )
-        .filter { [unowned self] _ in
-            self.rtcServer.isJoinChannel
+        .filter { [weak self] _ in
+            guard let weakself = self else { return false }
+            return weakself.rtcServer.isJoinChannel
         }
         .throttle(RxTimeInterval.milliseconds(20), latest: true, scheduler: scheduler)
-        .map { [unowned self] args -> Result<[LiveKtvMember]> in
+        .map { [weak self] args -> Result<[LiveKtvMember]> in
             let (result, _) = args
+            guard let weakself = self else { return result }
             if result.success {
                 if let list = result.data {
                     // order members list
@@ -231,17 +233,17 @@ extension RoomManager: IRoomManager {
                     }
                     // sync local user status
                     let findCurrentUser = list.first { member in
-                        member.id == self.member?.id
+                        member.id == weakself.member?.id
                     }
-                    if let me = findCurrentUser, let old = member {
+                    if let me = findCurrentUser, let old = weakself.member {
                         old.isSelfMuted = me.isSelfMuted
                         old.isMuted = me.isMuted
                         old.role = me.role
                         if me.toLiveKtvRoomRole() == .listener {
-                            rtcServer.stopMusic()
+                            weakself.rtcServer.stopMusic()
                         }
-                        self.rtcServer.setClientRole(me.role != LiveKtvRoomRole.listener.rawValue ? .broadcaster : .audience, self.setting.audienceLatency)
-                        self.rtcServer.muteLocalMicrophone(mute: me.isMuted || me.isSelfMuted)
+                        weakself.rtcServer.setClientRole(me.role != LiveKtvRoomRole.listener.rawValue ? .broadcaster : .audience, weakself.setting.audienceLatency)
+                        weakself.rtcServer.muteLocalMicrophone(mute: me.isMuted || me.isSelfMuted)
                     }
                     return Result(success: true, data: list)
                 }
@@ -255,8 +257,9 @@ extension RoomManager: IRoomManager {
             return Observable.just(Result(success: false, message: "room is nil!"))
         }
         return room.subscribeMusicList()
-            .filter { [unowned self] _ in
-                self.rtcServer.isJoinChannel
+            .filter { [weak self] _ in
+                guard let weakself = self else { return false }
+                return weakself.rtcServer.isJoinChannel
             }
             .throttle(RxTimeInterval.milliseconds(20), latest: true, scheduler: scheduler)
     }

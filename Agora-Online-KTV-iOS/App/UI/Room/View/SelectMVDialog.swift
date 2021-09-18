@@ -69,13 +69,16 @@ private class MVCardView: UICollectionViewCell {
 
     @objc func onTapCard() {
         if let viewModel = delegate?.delegate.viewModel {
-            viewModel.changeRoomMV(mv: mv) { [unowned self] waiting in
-                self.delegate?.delegate.show(processing: waiting)
-            } onSuccess: { [unowned self] in
-                self.delegate?.selectMV = mv
-                self.delegate?.listView.reloadData()
-            } onError: { [unowned self] message in
-                self.delegate?.delegate.show(message: message, type: .error)
+            viewModel.changeRoomMV(mv: mv) { [weak self] waiting in
+                guard let weakself = self else { return }
+                weakself.delegate?.delegate.show(processing: waiting)
+            } onSuccess: { [weak self] in
+                guard let weakself = self else { return }
+                weakself.delegate?.selectMV = weakself.mv
+                weakself.delegate?.listView.reloadData()
+            } onError: { [weak self] message in
+                guard let weakself = self else { return }
+                weakself.delegate?.delegate.show(message: message, type: .error)
             }
         }
     }

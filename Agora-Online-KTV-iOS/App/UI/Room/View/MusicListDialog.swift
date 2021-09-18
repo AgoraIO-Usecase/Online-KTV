@@ -629,24 +629,27 @@ class MusicListDialog: Dialog, UIScrollViewDelegate, HeaderViewDelegate, SearchV
 
     func onSearch(text: String) {
         Logger.log(self, message: "onSearch \(text)", level: .info)
-        delegate.viewModel.search(music: text) { [unowned self] waiting in
-            self.show(processing: waiting, message: "歌曲搜索中")
-        } onSuccess: { [unowned self] list in
-            localMusicList.data = list
-            localMusicList.reloadData()
+        delegate.viewModel.search(music: text) { [weak self] waiting in
+            guard let weakself = self else { return }
+            weakself.show(processing: waiting, message: "歌曲搜索中")
+        } onSuccess: { [weak self] list in
+            guard let weakself = self else { return }
+            weakself.localMusicList.data = list
+            weakself.localMusicList.reloadData()
             if list.count == 0 {
-                if emptyView.superview == nil {
-                    scrollView.addSubview(emptyView)
-                    emptyView.fill(view: localMusicList)
+                if weakself.emptyView.superview == nil {
+                    weakself.scrollView.addSubview(weakself.emptyView)
+                    weakself.emptyView.fill(view: weakself.localMusicList)
                         .active()
                 }
             } else {
-                if emptyView.superview != nil {
-                    emptyView.removeFromSuperview()
+                if weakself.emptyView.superview != nil {
+                    weakself.emptyView.removeFromSuperview()
                 }
             }
-        } onError: { [unowned self] message in
-            self.delegate.show(message: message, type: .error)
+        } onError: { [weak self] message in
+            guard let weakself = self else { return }
+            weakself.delegate.show(message: message, type: .error)
         }
     }
 

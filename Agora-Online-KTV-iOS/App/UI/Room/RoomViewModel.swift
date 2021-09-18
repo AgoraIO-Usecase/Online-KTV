@@ -75,56 +75,60 @@ class RoomViewModel {
     func subcribeRoomEvent() {
         manager.subscribeRoom()
             .observe(on: MainScheduler.instance)
-            .subscribe(onNext: { [unowned self] result in
+            .subscribe(onNext: { [weak self] result in
+                guard let weakself = self else { return }
                 if !result.success {
-                    self.delegate?.onError(message: result.message)
+                    weakself.delegate?.onError(message: result.message)
                 } else if result.data == nil {
                     if let message = result.message {
-                        self.delegate?.onError(message: message)
+                        weakself.delegate?.onError(message: message)
                     }
-                    self.delegate?.onRoomClosed()
+                    weakself.delegate?.onRoomClosed()
                 } else {
-                    self.delegate?.onRoomUpdate()
+                    weakself.delegate?.onRoomUpdate()
                 }
             })
             .disposed(by: disposeBag)
 
         manager.subscribeMembers()
             .observe(on: MainScheduler.instance)
-            .subscribe(onNext: { [unowned self] result in
-                self.delegate?.onMuted(mute: muted)
+            .subscribe(onNext: { [weak self] result in
+                guard let weakself = self else { return }
+                weakself.delegate?.onMuted(mute: weakself.muted)
                 if result.success {
                     if let list = result.data {
-                        self.memberList = list
-                        self.delegate?.onMemberListChanged()
+                        weakself.memberList = list
+                        weakself.delegate?.onMemberListChanged()
                     }
                 } else {
-                    self.delegate?.onError(message: result.message)
+                    weakself.delegate?.onError(message: result.message)
                 }
             })
             .disposed(by: disposeBag)
 
         manager.subscribeMusicList()
             .observe(on: MainScheduler.instance)
-            .subscribe(onNext: { [unowned self] result in
+            .subscribe(onNext: { [weak self] result in
+                guard let weakself = self else { return }
                 if result.success {
                     let list = result.data ?? []
-                    self.musicList = list
-                    self.delegate?.onPlayListChanged()
+                    weakself.musicList = list
+                    weakself.delegate?.onPlayListChanged()
                 } else {
-                    self.delegate?.onError(message: result.message)
+                    weakself.delegate?.onError(message: result.message)
                 }
             })
             .disposed(by: disposeBag)
 
         manager.subscribeRtcMusicState()
-            .subscribe(onNext: { [unowned self] result in
+            .subscribe(onNext: { [weak self] result in
+                guard let weakself = self else { return }
                 if result.success {
                     if let state = result.data {
-                        self.delegate?.onMusic(state: state)
+                        weakself.delegate?.onMusic(state: state)
                     }
                 } else {
-                    self.delegate?.onError(message: result.message)
+                    weakself.delegate?.onError(message: result.message)
                 }
             })
             .disposed(by: disposeBag)
@@ -137,9 +141,10 @@ class RoomViewModel {
               onError: @escaping (String) -> Void)
     {
         manager.handsUp()
-            .flatMap { [unowned self] result in
-                result.onSuccess {
-                    self.manager.play(music: music, option: option)
+            .flatMap { [weak self] result -> Observable<Result<Void>> in
+                guard let weakself = self else { return Observable.empty() }
+                return result.onSuccess {
+                    weakself.manager.play(music: music, option: option)
                 }
             }
             .observe(on: MainScheduler.instance)
@@ -398,9 +403,10 @@ class RoomViewModel {
                            onError: @escaping (String) -> Void)
     {
         manager.initChorusMusicPlayer()
-            .concatMap { [unowned self] result -> Observable<Result<Void>> in
-                result.onSuccess {
-                    self.member.setPlayMusicReady(music: music, uid: result.data!)
+            .concatMap { [weak self] result -> Observable<Result<Void>> in
+                guard let weakself = self else { return Observable.empty() }
+                return result.onSuccess {
+                    weakself.member.setPlayMusicReady(music: music, uid: result.data!)
                 }
             }
             .observe(on: MainScheduler.instance)
@@ -544,10 +550,11 @@ class RoomViewModel {
     func selfMute(mute: Bool) {
         delegate?.onMuted(mute: mute)
         manager.closeMicrophone(close: mute)
-            .subscribe(onNext: { [unowned self] result in
+            .subscribe(onNext: { [weak self] result in
+                guard let weakself = self else { return }
                 if !result.success {
-                    self.delegate?.onMuted(mute: self.muted)
-                    self.delegate?.onError(message: result.message)
+                    weakself.delegate?.onMuted(mute: weakself.muted)
+                    weakself.delegate?.onError(message: result.message)
                 }
             })
             .disposed(by: disposeBag)
