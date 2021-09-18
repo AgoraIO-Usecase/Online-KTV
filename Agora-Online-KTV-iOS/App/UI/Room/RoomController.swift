@@ -355,12 +355,14 @@ class RoomController: BaseViewContoller, DialogDelegate {
     @objc func onTapCloseButton() {
         if viewModel.member.isManager {
             let alert = AlertDialog(title: "Close room".localized, message: "Leaving the room ends the session and removes everyone".localized)
-            alert.cancelAction = { [unowned self] in
-                self.dismiss(dialog: alert, completion: nil)
+            alert.cancelAction = { [weak self] in
+                guard let weakself = self else { return }
+                weakself.dismiss(dialog: alert, completion: nil)
             }
-            alert.okAction = { [unowned self] in
-                self.dismiss(dialog: alert, completion: nil)
-                self.leaveRoom()
+            alert.okAction = { [weak self] in
+                guard let weakself = self else { return }
+                weakself.dismiss(dialog: alert, completion: nil)
+                weakself.leaveRoom()
             }
             show(dialog: alert, style: .center, padding: 27, relation: .greaterOrEqual, completion: nil)
         } else {
@@ -369,12 +371,15 @@ class RoomController: BaseViewContoller, DialogDelegate {
     }
 
     private func leaveRoom() {
-        viewModel.leaveRoom { [unowned self] waiting in
-            self.show(processing: waiting)
-        } onSuccess: { [unowned self] in
-            self.dismiss(completion: nil)
-        } onError: { [unowned self] message in
-            self.show(message: message, type: .error)
+        viewModel.leaveRoom { [weak self] waiting in
+            guard let weakself = self else { return }
+            weakself.show(processing: waiting)
+        } onSuccess: { [weak self] in
+            guard let weakself = self else { return }
+            weakself.dismiss(completion: nil)
+        } onError: { [weak self] message in
+            guard let weakself = self else { return }
+            weakself.show(message: message, type: .error)
         }
     }
 
@@ -440,10 +445,12 @@ extension RoomController: RoomControlDelegate {
                 }
             }
         } else if !viewModel.isSpeaker, view.member == nil {
-            viewModel.handsUp { [unowned self] waiting in
-                self.show(processing: waiting)
-            } onSuccess: {} onError: { [unowned self] message in
-                self.show(message: message, type: .error)
+            viewModel.handsUp { [weak self] waiting in
+                guard let weakself = self else { return }
+                weakself.show(processing: waiting)
+            } onSuccess: {} onError: { [weak self] message in
+                guard let weakself = self else { return }
+                weakself.show(message: message, type: .error)
             }
         }
     }
