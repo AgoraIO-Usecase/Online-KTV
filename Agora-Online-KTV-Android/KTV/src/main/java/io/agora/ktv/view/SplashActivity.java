@@ -4,8 +4,10 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import io.agora.baselibrary.base.DataBindBaseActivity;
+import io.agora.ktv.AppApplication;
 import io.agora.ktv.R;
 import io.agora.ktv.databinding.KtvActivitySplashBinding;
 
@@ -16,6 +18,13 @@ import io.agora.ktv.databinding.KtvActivitySplashBinding;
  * @author chenhengfei@agora.io
  */
 public class SplashActivity extends DataBindBaseActivity<KtvActivitySplashBinding> {
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        if ((getIntent().getFlags() & Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT) != 0)
+            finish();
+        super.onCreate(savedInstanceState);
+    }
 
     @Override
     protected void iniBundle(@NonNull Bundle bundle) {
