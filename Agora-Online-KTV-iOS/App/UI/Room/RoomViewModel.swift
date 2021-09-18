@@ -141,9 +141,10 @@ class RoomViewModel {
               onError: @escaping (String) -> Void)
     {
         manager.handsUp()
-            .flatMap { [unowned self] result in
-                result.onSuccess {
-                    self.manager.play(music: music, option: option)
+            .flatMap { [weak self] result -> Observable<Result<Void>> in
+                guard let weakself = self else { return Observable.empty() }
+                return result.onSuccess {
+                    weakself.manager.play(music: music, option: option)
                 }
             }
             .observe(on: MainScheduler.instance)
@@ -402,9 +403,10 @@ class RoomViewModel {
                            onError: @escaping (String) -> Void)
     {
         manager.initChorusMusicPlayer()
-            .concatMap { [unowned self] result -> Observable<Result<Void>> in
-                result.onSuccess {
-                    self.member.setPlayMusicReady(music: music, uid: result.data!)
+            .concatMap { [weak self] result -> Observable<Result<Void>> in
+                guard let weakself = self else { return Observable.empty() }
+                return result.onSuccess {
+                    weakself.member.setPlayMusicReady(music: music, uid: result.data!)
                 }
             }
             .observe(on: MainScheduler.instance)

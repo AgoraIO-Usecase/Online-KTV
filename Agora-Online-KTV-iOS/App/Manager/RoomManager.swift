@@ -212,7 +212,7 @@ extension RoomManager: IRoomManager {
         .throttle(RxTimeInterval.milliseconds(20), latest: true, scheduler: scheduler)
         .map { [weak self] args -> Result<[LiveKtvMember]> in
             let (result, _) = args
-            guard let weakself = self else {return result}
+            guard let weakself = self else { return result }
             if result.success {
                 if let list = result.data {
                     // order members list

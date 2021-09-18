@@ -252,8 +252,9 @@ extension LiveKtvRoom {
             return Disposables.create()
         }
         .startWith(Result<Void>(success: true))
-        .flatMap { [unowned self] result -> Observable<Result<[LiveKtvMember]>> in
-            result.onSuccess { self.getMembers() }
+        .flatMap { [weak self] result -> Observable<Result<[LiveKtvMember]>> in
+            guard let weakself = self else { return Observable.empty() }
+            return result.onSuccess { weakself.getMembers() }
         }
     }
 
@@ -277,8 +278,9 @@ extension LiveKtvRoom {
             return Disposables.create()
         }
         .startWith(Result<Void>(success: true))
-        .flatMap { [unowned self] result -> Observable<Result<[LiveKtvMusic]>> in
-            result.onSuccess { self.getMusicList() }
+        .flatMap { [weak self] result -> Observable<Result<[LiveKtvMusic]>> in
+            guard let weakself = self else { return Observable.empty() }
+            return result.onSuccess { weakself.getMusicList() }
         }
     }
 

@@ -54,8 +54,9 @@ open class BaseViewContoller: UIViewController {
                 mask.onTap().rx.event.asObservable(),
                 cancelSignal.asObservable(),
             ])
-                .concatMap { [unowned self] _ in
-                    self.dismiss(dialog: dialog)
+                .concatMap { [weak self] _ -> Single<Bool> in
+                    guard let weakself = self else { return Observable.empty().asSingle() }
+                    return weakself.dismiss(dialog: dialog)
                 }
                 .subscribe()
                 .disposed(by: disposeBag)
