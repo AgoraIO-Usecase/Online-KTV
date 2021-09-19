@@ -167,11 +167,7 @@ public final class RoomManager {
         config.mAppId = appid;
         config.mEventHandler = mIRtcEngineEventHandler;
         config.mChannelProfile = Constants.CHANNEL_PROFILE_LIVE_BROADCASTING;
-//        if (Config.isLeanCloud()) {
-//            config.mAreaCode = RtcEngineConfig.AreaCode.AREA_CODE_CN;
-//        } else {
-//            config.mAreaCode = RtcEngineConfig.AreaCode.AREA_CODE_GLOB;
-//        }
+        config.mAudioScenario = Constants.AUDIO_SCENARIO_CHORUS;
 
         try {
             mRtcEngine = (RtcEngineEx) RtcEngine.create(config);

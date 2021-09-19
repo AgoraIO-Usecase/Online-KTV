@@ -461,6 +461,7 @@ class RtcChorusMusicPlayer: AbstractRtcMusicPlayer {
                     mediaOption.autoSubscribeAudio = AgoraRtcBoolOptional.of(false)
                     mediaOption.publishAudioTrack = AgoraRtcBoolOptional.of(false)
                     mediaOption.publishMediaPlayerAudioTrack = AgoraRtcBoolOptional.of(true)
+                    mediaOption.enableAudioRecordingOrPlayout = AgoraRtcBoolOptional.of(false)
                     rtc.updateChannelEx(with: mediaOption, connectionId: UInt(connectionId))
                 }
                 if player.open(music.path, startPos: 0) == 0 {

@@ -98,7 +98,10 @@ public class CreateRoomActivity extends DataBindBaseActivity<KtvActivityCreateRo
     }
 
     private void radomRoomName() {
-        String name = "Room " + String.valueOf(new Random().nextInt(999999));
+        String[] names = getResources().getStringArray(R.array.ktv_roomName);
+        int randomIndex = (int) (Math.random() * names.length);
+//        String name = "Room " + String.valueOf(new Random().nextInt(999999));
+        String name = names[randomIndex];
         mDataBinding.tvName.setText(name);
     }
 

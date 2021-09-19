@@ -777,6 +777,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
         }
 
         if (mMusicPlayer != null) {
+            mMusicPlayer.selectAudioTrack(1);
             mMusicPlayer.stop();
         }
 

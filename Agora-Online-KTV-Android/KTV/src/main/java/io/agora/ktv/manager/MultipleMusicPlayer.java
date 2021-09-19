@@ -63,9 +63,9 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
 
     public MultipleMusicPlayer(Context mContext, int role, IMediaPlayer mPlayer) {
         super(mContext, role, mPlayer);
-        //TODO 替换成合唱 AUDIO_SCENARIO_CHORUS
-        RoomManager.Instance(mContext).getRtcEngine().setAudioProfile(Constants.AUDIO_SCENARIO_DEFAULT);
+        RoomManager.Instance(mContext).getRtcEngine().setAudioProfile(Constants.AUDIO_PROFILE_MUSIC_STANDARD);
         RoomManager.Instance(mContext).addRoomEventCallback(mRoomEventCallback);
+        this.mPlayer.adjustPlayoutVolume(80);
     }
 
     @Override
@@ -166,6 +166,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
         options.publishMediaPlayerId = mPlayer.getMediaPlayerId();
         if (ObjectsCompat.equals(musicModelReady.getUserId(), mUser.getObjectId())) {
             options.publishMediaPlayerAudioTrack = true;
+            options.enableAudioRecordingOrPlayout = false;
         } else if (ObjectsCompat.equals(musicModelReady.getUser1Id(), mUser.getObjectId())) {
             options.publishMediaPlayerAudioTrack = false;
         }
