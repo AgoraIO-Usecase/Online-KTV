@@ -127,7 +127,7 @@ public class PitchView extends View {
 
         List<LrcEntryData> entrys = lrcData.entrys;
         float currentPX = this.mCurrentTime * widthPerSecond;
-        float x = dotPointX - currentPX;
+        float x = dotPointX * 1.3f - currentPX;
         float y = 0;
         float widthTone = 0;
         float mItemHeight = getHeight() / (float) (realPitchMax - realPitchMin);//高度
