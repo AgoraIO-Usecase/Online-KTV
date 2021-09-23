@@ -315,6 +315,8 @@ class RtcServer: NSObject {
         if isSupportSwitchOriginMusic() {
             if let player = rtcMusicPlayer {
                 player.originMusic(enable: enable)
+                let mode = enable ? 1 : 0
+                player.sendMusicPlayMode(mode: mode)
             } else {
                 Logger.log(self, message: "rtcMusicPlayer is nil", level: .error)
             }

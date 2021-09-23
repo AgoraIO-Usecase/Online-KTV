@@ -61,6 +61,12 @@ struct RtcTestDelayMessage: Encodable, Decodable {
     let time: String
 }
 
+struct PlayModeMessage: Encodable, Decodable {
+    let uid: Int
+    let mode: Int
+    var cmd: String = "changeOrigle"
+}
+
 struct RtcCheckTestDelayMessage: Encodable, Decodable {
     let msgId: Int
     let peerUid: UInt
@@ -95,6 +101,7 @@ protocol IRtcMusicPlayer {
     func stop()
     func destory()
     func sendRtcMusicStreamMessage(state: RtcMusicState)
+    func sendMusicPlayMode(mode: Int)
     func sendCountdown(time: Int)
 
     func didChangedTo(position: Int)
@@ -103,6 +110,13 @@ protocol IRtcMusicPlayer {
 }
 
 class AbstractRtcMusicPlayer: NSObject, IRtcMusicPlayer /* , AgoraRtcMediaPlayerAudioFrameDelegate */ {
+    func sendMusicPlayMode(mode: Int) {
+        Logger.log(self, message: "changeOrigle", level: .info)
+        AbstractRtcMusicPlayer.msgId += 1
+        let msg = PlayModeMessage(uid: Int(rtcServer.uid), mode: mode)
+        sendRtcStreamMessage(msg: msg)
+    }
+
     static var msgId: Int = 0
     weak var rtcServer: RtcServer!
 
@@ -168,6 +182,7 @@ class AbstractRtcMusicPlayer: NSObject, IRtcMusicPlayer /* , AgoraRtcMediaPlayer
 
     func adjustPlayoutVolume(value: Int32) {
         player?.adjustPlayoutVolume(value)
+        player?.adjustPublishSignalVolume(value)
     }
 
     func originMusic(enable: Bool) {
@@ -598,6 +613,10 @@ class RtcChorusMusicPlayer: AbstractRtcMusicPlayer {
             if isFollower(), option.masterUid == uid {
                 // follower receive message from master
                 switch cmd {
+                case "changeOrigle":
+                    if let mode = data["mode"] as? Int {
+                        originMusic(enable: mode == 1)
+                    }
                 case "replyTestDelay":
                     if let testDelayTime = data["testDelayTime"] as? String,
                        let time = data["time"] as? String,
