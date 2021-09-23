@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.AdapterView;
 import android.widget.CompoundButton;
 import android.widget.SeekBar;
 
@@ -23,16 +24,18 @@ import io.agora.ktv.databinding.KtvDialogMusicSettingBinding;
  *
  * @author chenhengfei@agora.io
  */
-public class MusicSettingDialog extends DataBindBaseDialog<KtvDialogMusicSettingBinding> implements View.OnClickListener, CompoundButton.OnCheckedChangeListener, SeekBar.OnSeekBarChangeListener {
+public class MusicSettingDialog extends DataBindBaseDialog<KtvDialogMusicSettingBinding> implements View.OnClickListener, CompoundButton.OnCheckedChangeListener, SeekBar.OnSeekBarChangeListener, AdapterView.OnItemSelectedListener {
     private static final String TAG = MusicSettingDialog.class.getSimpleName();
 
     private static final String TAG_EAR = "ear";
     private static final String TAG_MIC_VOL = "mic_vol";
     private static final String TAG_MUSIC_VOL = "music_vol";
+    private static final String TAG_AUDIO_EFFECT = "audio_effect";
 
     private boolean isEar;
     private int volMic;
     private int volMusic;
+    private int effect;
 
     @Nullable
     @Override
@@ -58,6 +61,7 @@ public class MusicSettingDialog extends DataBindBaseDialog<KtvDialogMusicSetting
         isEar = bundle.getBoolean(TAG_EAR);
         volMic = bundle.getInt(TAG_MIC_VOL);
         volMusic = bundle.getInt(TAG_MUSIC_VOL);
+        effect = bundle.getInt(TAG_AUDIO_EFFECT);
     }
 
     @Override
@@ -83,6 +87,7 @@ public class MusicSettingDialog extends DataBindBaseDialog<KtvDialogMusicSetting
         mDataBinding.switchEar.setOnCheckedChangeListener(this);
         mDataBinding.sbVol1.setOnSeekBarChangeListener(this);
         mDataBinding.sbVol2.setOnSeekBarChangeListener(this);
+        mDataBinding.ctrlEffect.setOnItemSelectedListener(this);
     }
 
     public void show(@NonNull FragmentManager manager, boolean isEar, int volMic, int volMusic, Callback mCallback) {
@@ -129,11 +134,24 @@ public class MusicSettingDialog extends DataBindBaseDialog<KtvDialogMusicSetting
 
     private Callback mCallback;
 
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        effect = position;
+        mCallback.onEffectChanged(effect);
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
+    }
+
     public interface Callback {
         void onEarChanged(boolean isEar);
 
         void onMicVolChanged(int vol);
 
         void onMusicVolChanged(int vol);
+
+        void onEffectChanged(int effect);
     }
 }

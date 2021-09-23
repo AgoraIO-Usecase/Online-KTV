@@ -81,5 +81,30 @@
                 android:progress="50" />
         </LinearLayout>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/ktv_music_menu_dialog_effect"
+                android:textColor="#9BA2AB" />
+
+            <Spinner
+                android:id="@+id/ctrlEffect"
+                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:entries="@array/ktv_audioPreset"
+                android:hint="请选择"
+                android:spinnerMode="dropdown" />
+
+        </LinearLayout>
+
     </LinearLayout>
 </layout>

@@ -55,4 +55,5 @@
     <string name="ktv_music_menu_dialog_ear">Headphone Foldback</string>
     <string name="ktv_music_menu_dialog_vol1">Vocal volume</string>
     <string name="ktv_music_menu_dialog_vol2">Music volume</string>
+    <string name="ktv_music_menu_dialog_effect">Effects</string>
 </resources>

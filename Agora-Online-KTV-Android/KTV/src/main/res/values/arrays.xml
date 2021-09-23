@@ -8,4 +8,16 @@
         <item>早安序曲</item>
         <item>风情万种的歌房</item>
     </string-array>
+
+    <string-array name="ktv_audioPreset">
+        <item>原声</item>
+        <item>KTV</item>
+        <item>演唱会</item>
+        <item>录音棚</item>
+        <item>留声机</item>
+        <item>空旷</item>
+        <item>空灵</item>
+        <item>流行</item>
+        <item>RnB</item>
+    </string-array>
 </resources>

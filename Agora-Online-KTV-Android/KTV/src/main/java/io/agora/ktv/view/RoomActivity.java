@@ -753,7 +753,36 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
                 RoomActivity.this.volMusic = vol;
                 mMusicPlayer.setMusicVolume(vol);
             }
+
+            @Override
+            public void onEffectChanged(int effect) {
+                RoomManager.Instance(RoomActivity.this).getRtcEngine().setAudioEffectPreset(getEffectIndex(effect));
+            }
         });
+    }
+
+    private int getEffectIndex(int index) {
+        switch (index){
+            case 0:
+                return Constants.AUDIO_EFFECT_OFF;
+            case 1:
+                return Constants.AUDIO_REVERB_FX_KTV;
+            case 2:
+                return Constants.AUDIO_REVERB_FX_VOCAL_CONCERT;
+            case 3:
+                return Constants.AUDIO_REVERB_FX_STUDIO;
+            case 4:
+                return Constants.AUDIO_REVERB_FX_PHONOGRAPH;
+            case 5:
+                return Constants.ROOM_ACOUSTICS_SPACIAL;
+            case 6:
+                return Constants.ROOM_ACOUSTICS_ETHEREAL;
+            case 7:
+                return Constants.STYLE_TRANSFORMATION_POPULAR;
+            case 8:
+                return Constants.STYLE_TRANSFORMATION_RNB;
+        }
+        return Constants.AUDIO_EFFECT_OFF;
     }
 
     private void showChangeMusicDialog() {
