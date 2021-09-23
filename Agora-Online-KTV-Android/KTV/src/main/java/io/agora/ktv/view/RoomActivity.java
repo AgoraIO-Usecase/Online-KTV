@@ -42,6 +42,7 @@ import io.agora.ktv.manager.MultipleMusicPlayer;
 import io.agora.ktv.manager.RoomManager;
 import io.agora.ktv.manager.SimpleRoomEventCallback;
 import io.agora.ktv.manager.SingleMusicPlayer;
+import io.agora.ktv.service.MyForegroundService;
 import io.agora.ktv.view.dialog.MusicSettingDialog;
 import io.agora.ktv.view.dialog.RoomChooseSongDialog;
 import io.agora.ktv.view.dialog.RoomMVDialog;
@@ -289,6 +290,10 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
         mRoomSpeakerAdapter = new RoomSpeakerAdapter(new ArrayList<>(), this);
         mDataBinding.rvSpeakers.setLayoutManager(new GridLayoutManager(this, 4));
         mDataBinding.rvSpeakers.setAdapter(mRoomSpeakerAdapter);
+
+        Intent intent = new Intent(this, MyForegroundService.class);
+        intent.setAction(MyForegroundService.ACTION_START_FOREGROUND_SERVICE);
+        this.startService(intent);
     }
 
     @Override
@@ -960,6 +965,10 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
 
     @Override
     protected void onDestroy() {
+        Intent intent = new Intent(this, MyForegroundService.class);
+        intent.setAction(MyForegroundService.ACTION_STOP_FOREGROUND_SERVICE);
+        stopService(intent);
+
         if (mPlayer != null) {
             mPlayer.destroy();
             mPlayer = null;
