@@ -324,7 +324,7 @@ class MVPlayer: NSObject {
                                     timer = nil
                                     status = .downloadChorusMusic
                                 }
-                            } else if music.user1Id != nil, oldValue?.user1Id == nil {
+                            } else if music.user1Id != nil, oldValue?.user1Id == nil || oldValue?.user1Id == "" {
                                 if music.user1Id != member.userId {
                                     // listener
                                     listenerOnPlayMusicChange()

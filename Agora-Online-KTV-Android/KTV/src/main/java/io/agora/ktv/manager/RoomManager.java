@@ -659,7 +659,8 @@ public final class RoomManager {
             SyncManager.Instance()
                     .getRoom(room.getId())
                     .collection(AgoraMember.TABLE_NAME)
-                    .query(new Query().whereEqualTo(AgoraMember.COLUMN_USERID, member.getUserId()))
+                    .query(new Query().whereEqualTo(AgoraMember.COLUMN_USERID, member.getUserId())
+                                        .whereEqualTo(AgoraMember.COLUMN_ROOMID, room.getId()))
                     .get(new SyncManager.DataListCallback() {
                         @Override
                         public void onSuccess(List<AgoraObject> result) {
@@ -775,6 +776,9 @@ public final class RoomManager {
             emitterJoinRTC = emitter;
             getRtcEngine().setChannelProfile(Constants.CHANNEL_PROFILE_LIVE_BROADCASTING);
             getRtcEngine().enableAudio();
+            getRtcEngine().setParameters("{\"rtc.audio.opensl.mode\":0}");
+            getRtcEngine().setParameters("{\"rtc.audio_fec\":[3,2]}");
+            getRtcEngine().setParameters("{\"rtc.audio_resend\":false}");
             if (ObjectsCompat.equals(mMine, owner)) {
                 getRtcEngine().setClientRole(Constants.CLIENT_ROLE_BROADCASTER);
             } else if (mMine.getRole() == AgoraMember.Role.Speaker) {

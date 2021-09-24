@@ -33,6 +33,7 @@ class RtcServer: NSObject {
     private(set) var isEnableBeauty: Bool = false
     private(set) var isEnableEarloop: Bool = false
     private(set) var recordingSignalVolume: Float = 100 / 400
+    private(set) var musicVolume: Float = 100 / 400
 
     private var orderedDataStreamId: Int = -1
     private var dataStreamId: Int = -1
@@ -299,11 +300,12 @@ class RtcServer: NSObject {
     }
 
     func getPlayoutVolume() -> Float {
-        return Float(rtcMusicPlayer?.getPlayoutVolume() ?? 0) / 400
+        return musicVolume
     }
 
     func setPlayoutVolume(value: Float) {
-        rtcMusicPlayer?.adjustPlayoutVolume(value: Int32(value * 400))
+        musicVolume = value
+        rtcMusicPlayer?.adjustPlayoutVolume(value: Int32(musicVolume * 400))
     }
 
     func isSupportSwitchOriginMusic() -> Bool {

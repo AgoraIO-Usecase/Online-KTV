@@ -894,12 +894,6 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
 
         mRoomSpeakerAdapter.notifyDataSetChanged();
 
-        if (music.getType() == MemberMusicModel.SingType.Single) {
-            RoomManager.Instance(this).getRtcEngine().setChannelProfile(Constants.CHANNEL_PROFILE_LIVE_BROADCASTING);
-        } else if (music.getType() == MemberMusicModel.SingType.Chorus) {
-            RoomManager.Instance(this).getRtcEngine().setChannelProfile(Constants.CHANNEL_PROFILE_LIVE_BROADCASTING_2);
-        }
-
         User mUser = UserManager.Instance(this).getUserLiveData().getValue();
         if (mUser == null) {
             return;

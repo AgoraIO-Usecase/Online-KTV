@@ -32,6 +32,9 @@ public class RoomSpeakerAdapter extends BaseRecyclerViewAdapter<AgoraMember, Roo
 
     @Override
     public void addItem(@NonNull AgoraMember data) {
+        if(data == null){
+            return;
+        }
         if (datas == null) {
             datas = new ArrayList<>();
         }

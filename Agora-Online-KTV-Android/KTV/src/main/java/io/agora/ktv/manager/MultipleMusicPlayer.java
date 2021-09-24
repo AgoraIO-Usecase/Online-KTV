@@ -66,6 +66,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
         RoomManager.Instance(mContext).getRtcEngine().setAudioProfile(Constants.AUDIO_PROFILE_MUSIC_STANDARD);
         RoomManager.Instance(mContext).addRoomEventCallback(mRoomEventCallback);
         this.mPlayer.adjustPlayoutVolume(80);
+        this.selectAudioTrack(1);
     }
 
     @Override

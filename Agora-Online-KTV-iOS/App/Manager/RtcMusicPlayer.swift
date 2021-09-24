@@ -181,8 +181,8 @@ class AbstractRtcMusicPlayer: NSObject, IRtcMusicPlayer /* , AgoraRtcMediaPlayer
     }
 
     func adjustPlayoutVolume(value: Int32) {
-        player?.adjustPlayoutVolume(value)
         player?.adjustPublishSignalVolume(value)
+        player?.adjustPlayoutVolume(value)
     }
 
     func originMusic(enable: Bool) {
@@ -405,11 +405,9 @@ class RtcChorusMusicPlayer: AbstractRtcMusicPlayer {
                 player.stop()
             }
             originMusic(enable: false)
-//            rtc.setParameters("{\"rtc.audio_fec\":[3,2]}")
-//            rtc.setParameters("{\"rtc.audio_resend\":false}")
-//            rtc.setParameters("{\"rtc.audio.max_neteq_packets\":2}")
-//            rtc.setParameters("{\"rtc.audio.max_target_delay\":20}")
-//            rtc.setAudioProfile(.musicHighQualityStereo, scenario: .chorus)
+            rtc.setParameters("{\"rtc.audio_fec\":[3,2]}")
+            rtc.setParameters("{\"rtc.audio_resend\":false}")
+            rtc.setParameters("{\"rtc.audio.opensl.mode\":0}")
 
             if connectionId == 0 {
                 let option = AgoraRtcChannelMediaOptions()
@@ -451,7 +449,7 @@ class RtcChorusMusicPlayer: AbstractRtcMusicPlayer {
                 rtc.muteRemoteAudioStream(uid, mute: true)
                 if isFollower() {
                     rtc.muteRemoteAudioStream(option.masterMusicUid, mute: true)
-                    player.adjustPlayoutVolume(50)
+                    player.adjustPlayoutVolume(70)
                     let mediaOption = AgoraRtcChannelMediaOptions()
                     mediaOption.clientRoleType = AgoraRtcIntOptional.of(Int32(AgoraClientRole.broadcaster.rawValue))
                     mediaOption.publishCameraTrack = AgoraRtcBoolOptional.of(false)
@@ -576,7 +574,7 @@ class RtcChorusMusicPlayer: AbstractRtcMusicPlayer {
     private var needSeek = false
     private var waitting = false
     private let delayPlayTime = 1000
-    private let MAX_DELAY_MS = 40
+    private let MAX_DELAY_MS = 400
 
     private func initDelay() {
         delayWithBrod = 0
@@ -621,32 +619,28 @@ class RtcChorusMusicPlayer: AbstractRtcMusicPlayer {
                     if let testDelayTime = data["testDelayTime"] as? String,
                        let time = data["time"] as? String,
                        let start = CLongLong(testDelayTime),
-                       let brodTs = CLongLong(time),
-                       let iPosition = data["position"] as? Int
+                       let position = Int64(time)
                     {
-                        let position = CLongLong(iPosition)
+//                        let position = CLongLong(iPosition)
                         let now = CLongLong(round(Date().timeIntervalSince1970 * 1000))
 
                         delay = (now - start) / 2
-                        delayWithBrod = brodTs - now + delay
+                        delayWithBrod = position + delay
                         if needSeek, player.getPlayerState() == .playing {
-                            let expLocalTs = brodTs - position - delayWithBrod
+//                            let expLocalTs = brodTs - position - delayWithBrod
                             let localPosition = CLongLong(player.getPosition())
-                            let diff = now - localPosition - expLocalTs
+                            let diff = localPosition - delayWithBrod
                             if abs(diff) > MAX_DELAY_MS {
-                                let expSeek = now - expLocalTs + seekTime
-                                lastExpectLocalPosition = expSeek
-                                lastSeekTime = now
-                                player.seek(toPosition: Int(expSeek))
+//                                let expSeek = now - expLocalTs + seekTime
+//                                lastExpectLocalPosition = expSeek
+//                                lastSeekTime = now
+                                player.seek(toPosition: Int(delayWithBrod))
                                 Logger.log(self, message: "checkTestDelay:\(delay) seekTime:\(seekTime) diff:\(diff)", level: .info)
                             }
                         }
                     }
                 case "setLrcTime":
-                    if let position = data["time"] as? Int,
-                       let ts = data["ts"] as? String,
-                       let brodTs = CLongLong(ts)
-                    {
+                    if let position = data["time"] as? Int {
                         let now = CLongLong(round(Date().timeIntervalSince1970 * 1000))
                         if position < 0 {
                             if player.getPlayerState() == .playing {
@@ -664,7 +658,7 @@ class RtcChorusMusicPlayer: AbstractRtcMusicPlayer {
                                 player.resume()
                             }
                         } else {
-                            let expLocalTs = brodTs - CLongLong(position) - delayWithBrod
+//                            let expLocalTs = brodTs - CLongLong(position) - delayWithBrod
                             if player.getPlayerState() == .playing {
                                 let localPosition = CLongLong(player.getPosition())
                                 if lastSeekTime != 0 {
@@ -672,13 +666,13 @@ class RtcChorusMusicPlayer: AbstractRtcMusicPlayer {
                                     lastSeekTime = 0
                                     lastExpectLocalPosition = 0
                                 }
-                                if abs(Int(now - localPosition - expLocalTs)) > MAX_DELAY_MS {
+                                if abs(Int(CLongLong(position) - localPosition)) > MAX_DELAY_MS {
                                     needSeek = true
                                 }
                             } else if player.getPlayerState() == .openCompleted {
                                 if !waitting {
                                     waitting = true
-                                    player.seek(toPosition: Int(now - expLocalTs))
+                                    player.seek(toPosition: position)
                                     player.play()
                                     waitting = false
                                 }
@@ -687,6 +681,7 @@ class RtcChorusMusicPlayer: AbstractRtcMusicPlayer {
                             }
                         }
                     }
+                    return false
                 // sentTestDelayMessage()
                 default:
                     break

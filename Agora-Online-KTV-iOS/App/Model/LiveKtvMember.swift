@@ -300,7 +300,7 @@ extension LiveKtvMember {
                     .getRoom(id: music.roomId)
                     .collection(className: LiveKtvMusic.TABLE)
                     .document(id: music.id)
-                    .update(data: [LiveKtvMusic.USER1: id], delegate: AgoraObjectDelegate(success: { _ in
+                    .update(data: [LiveKtvMusic.USER1: id, LiveKtvMusic.APPLY_USER1_ID: ""], delegate: AgoraObjectDelegate(success: { _ in
                         single(.success(Result(success: true)))
                     }, failed: { _, message in
                         single(.success(Result(success: false, message: message)))
