@@ -728,19 +728,19 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
         }
 
         if (ObjectsCompat.equals(mMemberMusicModel.getUserId(), mUser.getObjectId())) {
-            sendChangeOrigle(i);
+            sendTrackMode(i);
         }
     }
 
-    public void sendChangeOrigle(int mode) {
+    public void sendTrackMode(int mode) {
         Map<String, Object> msg = new HashMap<>();
-        msg.put("cmd", "changeOrigle");
+        msg.put("cmd", "TrackMode");
         msg.put("mode", mode);
         JSONObject jsonMsg = new JSONObject(msg);
         int streamId = RoomManager.Instance(mContext).getStreamId();
         int ret = RoomManager.Instance(mContext).getRtcEngine().sendStreamMessage(streamId, jsonMsg.toString().getBytes());
         if (ret < 0) {
-            mLogger.e("sendChangeOrigle() sendStreamMessage called returned: ret = [%s]", ret);
+            mLogger.e("sendTrackMode() sendStreamMessage called returned: ret = [%s]", ret);
         }
     }
 }

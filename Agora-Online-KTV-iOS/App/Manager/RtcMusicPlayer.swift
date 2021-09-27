@@ -64,7 +64,7 @@ struct RtcTestDelayMessage: Encodable, Decodable {
 struct PlayModeMessage: Encodable, Decodable {
     let uid: Int
     let mode: Int
-    var cmd: String = "changeOrigle"
+    var cmd: String = "TrackMode"
 }
 
 struct RtcCheckTestDelayMessage: Encodable, Decodable {
@@ -111,7 +111,7 @@ protocol IRtcMusicPlayer {
 
 class AbstractRtcMusicPlayer: NSObject, IRtcMusicPlayer /* , AgoraRtcMediaPlayerAudioFrameDelegate */ {
     func sendMusicPlayMode(mode: Int) {
-        Logger.log(self, message: "changeOrigle", level: .info)
+        Logger.log(self, message: "TrackMode", level: .info)
         AbstractRtcMusicPlayer.msgId += 1
         let msg = PlayModeMessage(uid: Int(rtcServer.uid), mode: mode)
         sendRtcStreamMessage(msg: msg)
@@ -240,6 +240,8 @@ class AbstractRtcMusicPlayer: NSObject, IRtcMusicPlayer /* , AgoraRtcMediaPlayer
         let jsonEncoder = JSONEncoder()
         do {
             let jsonData = try jsonEncoder.encode(msg)
+            let str = NSString(data: jsonData, encoding: String.Encoding.utf8.rawValue)
+            Logger.log(message: "xn: \(str ?? "")", level: .info)
             let code = rtcEngine.sendStreamMessage(streamId, data: jsonData)
             if code != 0 {
                 Logger.log(self, message: "sendRtcStreamMessage error(\(code)", level: .error)
@@ -611,7 +613,7 @@ class RtcChorusMusicPlayer: AbstractRtcMusicPlayer {
             if isFollower(), option.masterUid == uid {
                 // follower receive message from master
                 switch cmd {
-                case "changeOrigle":
+                case "TrackMode":
                     if let mode = data["mode"] as? Int {
                         originMusic(enable: mode == 1)
                     }

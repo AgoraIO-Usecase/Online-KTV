@@ -487,7 +487,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
                 Message message = Message.obtain(mHandler, ACTION_ON_RECEIVED_REPLAY_TEST_DELAY);
                 message.setData(bundle);
                 message.sendToTarget();
-            } else if (jsonMsg.getString("cmd").equals("changeOrigle")) {
+            } else if (jsonMsg.getString("cmd").equals("TrackMode")) {
                 int mode = jsonMsg.getInt("mode");
                 Bundle bundle = new Bundle();
                 bundle.putInt("uid", uid);
