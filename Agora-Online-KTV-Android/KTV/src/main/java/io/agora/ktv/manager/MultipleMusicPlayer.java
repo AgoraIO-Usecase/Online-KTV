@@ -170,6 +170,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
             options.enableAudioRecordingOrPlayout = false;
         } else if (ObjectsCompat.equals(musicModelReady.getUser1Id(), mUser.getObjectId())) {
             options.publishMediaPlayerAudioTrack = false;
+            options.enableAudioRecordingOrPlayout = false;
         }
 
         int uid = 0;
