@@ -187,10 +187,10 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
     }
 
     protected int open(@NonNull MemberMusicModel mMusicModel) {
-        if (mRole != Constants.CLIENT_ROLE_BROADCASTER) {
-            mLogger.e("open error: current role is not broadcaster, abort playing");
-            return -1;
-        }
+//        if (mRole != Constants.CLIENT_ROLE_BROADCASTER) {
+//            mLogger.e("open error: current role is not broadcaster, abort playing");
+//            return -1;
+//        }
 
         if (mStatus.isAtLeast(Status.Opened)) {
             mLogger.e("open error: current player is in playing state already, abort playing");
