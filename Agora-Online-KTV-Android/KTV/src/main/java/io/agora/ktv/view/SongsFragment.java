@@ -126,7 +126,7 @@ public class SongsFragment extends DataBindBaseFragment<KtvFragmentSongListBindi
             return;
         }
 
-        User mUser = UserManager.Instance(requireContext()).getUserLiveData().getValue();
+        User mUser = UserManager.Instance().getUserLiveData().getValue();
         if (mUser == null) {
             return;
         }

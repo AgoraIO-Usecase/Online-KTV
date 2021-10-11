@@ -37,15 +37,10 @@ public final class SyncManager implements ISyncManager {
 
     public void init(Context mContext) {
         mISyncManager = new DataSyncImpl(mContext);
-        mConverter = new GsonConverter();
     }
 
     public static GsonConverter getConverter() {
         return mConverter;
-    }
-
-    public static void setConverter(GsonConverter mConverter) {
-        SyncManager.mConverter = mConverter;
     }
 
     public RoomReference getRoom(String id) {
@@ -57,8 +52,8 @@ public final class SyncManager implements ISyncManager {
     }
 
     @Override
-    public Observable<AgoraRoom> creatRoom(AgoraRoom room) {
-        return mISyncManager.creatRoom(room);
+    public Observable<AgoraRoom> createRoom(AgoraRoom room) {
+        return mISyncManager.createRoom(room);
     }
 
     @Override

@@ -106,7 +106,7 @@ public class CreateRoomActivity extends DataBindBaseActivity<KtvActivityCreateRo
     }
 
     private void createRoom() {
-        User mUser = UserManager.Instance(this).getUserLiveData().getValue();
+        User mUser = UserManager.Instance().getUserLiveData().getValue();
         if (mUser == null) {
             return;
         }
@@ -122,7 +122,7 @@ public class CreateRoomActivity extends DataBindBaseActivity<KtvActivityCreateRo
 
         mDataBinding.btCreate.setEnabled(false);
         SyncManager.Instance()
-                .creatRoom(mRoom)
+                .createRoom(mRoom)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<AgoraRoom>() {
                     @Override

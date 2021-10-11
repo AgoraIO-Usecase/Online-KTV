@@ -5,6 +5,7 @@ import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 
+import com.agora.data.ExampleData;
 import com.agora.data.R;
 import com.agora.data.model.AgoraRoom;
 import com.agora.data.sync.AgoraException;
@@ -44,7 +45,7 @@ import io.reactivex.schedulers.Schedulers;
 
 public class DataSyncImpl implements ISyncManager {
 
-    private Gson mGson = new Gson();
+    private final Gson mGson = new Gson();
 
     public DataSyncImpl(Context mContext) {
         if (BuildConfig.DEBUG) {
@@ -66,7 +67,7 @@ public class DataSyncImpl implements ISyncManager {
     }
 
     @Override
-    public Observable<AgoraRoom> creatRoom(AgoraRoom room) {
+    public Observable<AgoraRoom> createRoom(AgoraRoom room) {
         LCObject mLCObject = new LCObject(AgoraRoom.TABLE_NAME);
         Map<String, Object> datas = room.toHashMap();
         for (Map.Entry<String, Object> entry : datas.entrySet()) {
@@ -93,32 +94,7 @@ public class DataSyncImpl implements ISyncManager {
 
     @Override
     public Observable<List<AgoraRoom>> getRooms() {
-        Date date = new Date();
-        date.setTime(System.currentTimeMillis() - (24 * 60 * 60 * 1000));
-
-        LCQuery<LCObject> mLCQuery = LCQuery.getQuery(AgoraRoom.TABLE_NAME);
-        mLCQuery.whereGreaterThanOrEqualTo(AgoraRoom.COLUMN_CREATEDAT, date);
-        mLCQuery.orderByDescending(AgoraRoom.COLUMN_CREATEDAT);
-        return mLCQuery.findInBackground()
-                .subscribeOn(Schedulers.io())
-                .map(new Function<List<LCObject>, List<AgoraRoom>>() {
-                    @Override
-                    public List<AgoraRoom> apply(@NonNull List<LCObject> LCObjects) throws Exception {
-                        List<AgoraRoom> rooms = new ArrayList<>();
-                        for (LCObject object : LCObjects) {
-                            AgoraRoom room = mGson.fromJson(object.toJSONObject().toJSONString(), AgoraRoom.class);
-                            room.setId(object.getObjectId());
-                            rooms.add(room);
-                        }
-                        return rooms;
-                    }
-                })
-                .onErrorResumeNext(new Function<Throwable, ObservableSource<? extends List<AgoraRoom>>>() {
-                    @Override
-                    public ObservableSource<? extends List<AgoraRoom>> apply(@NonNull Throwable throwable) throws Exception {
-                        return Observable.error(new AgoraException(throwable));
-                    }
-                });
+        return Observable.just(ExampleData.exampleRooms);
     }
 
     @Override

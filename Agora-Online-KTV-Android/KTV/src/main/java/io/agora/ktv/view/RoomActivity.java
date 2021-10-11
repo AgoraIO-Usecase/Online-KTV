@@ -66,7 +66,7 @@ import jp.wasabeef.glide.transformations.BlurTransformation;
  * @author chenhengfei@agora.io
  */
 public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> implements View.OnClickListener, OnItemClickListener<AgoraMember> {
-    private static final String TAG_ROOM = "room";
+    public static final String TAG_ROOM = "room";
 
     public static Intent newIntent(Context context, AgoraRoom mRoom) {
         Intent intent = new Intent(context, RoomActivity.class);
@@ -367,7 +367,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
 
     @Override
     protected void iniData() {
-        User mUser = UserManager.Instance(this).getUserLiveData().getValue();
+        User mUser = UserManager.Instance().getUserLiveData().getValue();
         if (mUser == null) {
             ToastUtile.toastShort(this, "please login in");
             finish();
@@ -439,7 +439,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
     }
 
     private void closeJoinRoomDialog() {
-        if (dialogJoinRoom == null || dialogJoinRoom.isShowing() == false) {
+        if (dialogJoinRoom == null || !dialogJoinRoom.isShowing()) {
             return;
         }
 
@@ -518,7 +518,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
             return;
         }
 
-        User mUser = UserManager.Instance(this).getUserLiveData().getValue();
+        User mUser = UserManager.Instance().getUserLiveData().getValue();
         if (mUser == null) {
             return;
         }
@@ -923,7 +923,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
 
         mRoomSpeakerAdapter.notifyDataSetChanged();
 
-        User mUser = UserManager.Instance(this).getUserLiveData().getValue();
+        User mUser = UserManager.Instance().getUserLiveData().getValue();
         if (mUser == null) {
             return;
         }

@@ -8,7 +8,7 @@ import java.util.List;
 import io.reactivex.Observable;
 
 public interface ISyncManager {
-    Observable<AgoraRoom> creatRoom(AgoraRoom room);
+    Observable<AgoraRoom> createRoom(AgoraRoom room);
 
     Observable<List<AgoraRoom>> getRooms();
 

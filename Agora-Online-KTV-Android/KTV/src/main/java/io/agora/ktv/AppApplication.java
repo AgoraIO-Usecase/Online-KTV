@@ -1,18 +1,22 @@
 package io.agora.ktv;
 
+import android.app.Application;
 import android.util.Log;
 
-import com.agora.data.AgoraApplication;
 import com.agora.data.sync.SyncManager;
+import com.elvishew.xlog.LogLevel;
+import com.elvishew.xlog.XLog;
 
 import io.agora.rtc2.RtcEngine;
 
-public class AppApplication extends AgoraApplication {
+public class AppApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
 
-        SyncManager.setConverter(new MyGsonConverter());
+        XLog.init(LogLevel.ALL);
+
+        SyncManager.Instance().init(this);
         Log.d("APP", "SDK Version: " + RtcEngine.getSdkVersion());
     }
 }
