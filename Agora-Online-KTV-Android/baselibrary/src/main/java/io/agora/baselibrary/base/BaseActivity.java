@@ -2,7 +2,6 @@ package io.agora.baselibrary.base;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -40,12 +39,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
         titleBar = findViewById(R.id.titleBar);
         if (titleBar != null) {
-            titleBar.setNavigationOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    navigationOnClickListener();
-                }
-            });
+            titleBar.setNavigationOnClickListener(v -> navigationOnClickListener());
         }
 
         iniView();

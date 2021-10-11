@@ -8,10 +8,6 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
-import androidx.lifecycle.Lifecycle;
-
-import com.trello.lifecycle2.android.lifecycle.AndroidLifecycle;
-import com.trello.rxlifecycle3.LifecycleProvider;
 
 import pub.devrel.easypermissions.EasyPermissions;
 import pub.devrel.easypermissions.EasyPermissions.PermissionCallbacks;
@@ -22,8 +18,6 @@ import pub.devrel.easypermissions.EasyPermissions.PermissionCallbacks;
  * @author chenhengfei@agora.io
  */
 public abstract class BaseDialogFragment extends DialogFragment {
-
-    protected final LifecycleProvider<Lifecycle.Event> mLifecycleProvider = AndroidLifecycle.createLifecycleProvider(this);
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {

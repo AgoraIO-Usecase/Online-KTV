@@ -15,7 +15,7 @@ import io.agora.ktv.bean.MemberMusicModel;
  * @date 2021/7/20
  */
 public class MyGsonConverter extends GsonConverter {
-    private Gson mGson = new GsonBuilder()
+    private final Gson mGson = new GsonBuilder()
             .registerTypeAdapter(AgoraMember.Role.class, new EnumRoleSerializer())
             .registerTypeAdapter(MemberMusicModel.SingType.class, new EnumMusicTypeSerializer())
             .registerTypeAdapter(MemberMusicModel.UserStatus.class, new EnumMusicUserStatusSerializer())
