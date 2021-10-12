@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Base application theme. -->
     <style name="ktv_AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -7,23 +7,20 @@
         <item name="colorAccent">@color/ktv_colorAccent</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+
+        <item name="android:statusBarColor" tools:targetApi="lollipop">@android:color/transparent</item>
+        <item name="android:navigationBarColor" tools:targetApi="lollipop">@android:color/transparent</item>
+        <item name="android:enforceStatusBarContrast" tools:targetApi="q">false</item>
+        <item name="android:enforceNavigationBarContrast" tools:targetApi="q">false</item>
+        <item name="android:windowBackground">@color/ktv_colorPrimaryDark</item>
     </style>
 
-    <style name="ktv_style_titlebar" parent="@style/style_titlebar">
-        <item name="android:id">@id/titleBar</item>
-        <item name="android:theme">@style/toolbar_theme</item>
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:minHeight">?attr/actionBarSize</item>
-        <item name="titleTextColor">@color/ktv_title</item>
-        <item name="ct_color_title">@color/ktv_title</item>
-        <item name="ct_icon_back">@mipmap/ktv_back</item>
-        <item name="ct_showback">true</item>
-        <item name="android:background">@color/ktv_colorPrimary</item>
+    <style name="ktv_roundStyle">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
     </style>
-
-    <style name="ktv_Dialog.Waiting" parent="Theme.AppCompat.Dialog">
-        <item name="android:windowBackground">@android:color/transparent</item>
-        <item name="android:backgroundDimEnabled">false</item>
+    <style name="ktv_cornerMediumStyle">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">12dp</item>
     </style>
 </resources>

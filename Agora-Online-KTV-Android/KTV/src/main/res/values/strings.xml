@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources translatable="false">
+<resources xmlns:tools="http://schemas.android.com/tools" translatable="false">
     <string name="ktv_app_name">KTV</string>
 
     <string name="ktv_ok">OK</string>
@@ -56,4 +56,11 @@
     <string name="ktv_music_menu_dialog_vol1">Vocal volume</string>
     <string name="ktv_music_menu_dialog_vol2">Music volume</string>
     <string name="ktv_music_menu_dialog_effect">Effects</string>
+
+
+    <string name="ktv_permission_alert">Sure to request Required permission？</string>
+    <string name="ktv_permission_refused">Necessary permissions to run this function have not been granted.</string>
+
+
+    <string name="song_and_singer" translatable="false" tools:ignore="ResourceName">%s - %s</string>
 </resources>

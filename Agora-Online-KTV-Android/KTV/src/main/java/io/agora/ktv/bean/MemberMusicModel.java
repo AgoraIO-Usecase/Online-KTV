@@ -176,26 +176,6 @@ public class MemberMusicModel implements Parcelable {
         }
     };
 
-    public HashMap<String, Object> toHashMap() {
-        DocumentReference drRoom = SyncManager.Instance()
-                .collection(AgoraRoom.TABLE_NAME)
-                .document(roomId.getId());
-
-        HashMap<String, Object> datas = new HashMap<>();
-        datas.put(COLUMN_NAME, name);
-        datas.put(COLUMN_SINGER, singer);
-        datas.put(COLUMN_POSTER, poster);
-        datas.put(COLUMN_ROOMID, drRoom);
-        datas.put(COLUMN_MUSICID, musicId);
-        datas.put(COLUMN_TYPE, type.value);
-        datas.put(COLUMN_USERID, userId);
-        datas.put(COLUMN_USERSTATUS, UserStatus.Idle.value);
-        datas.put(COLUMN_USER1ID, "");
-        datas.put(COLUMN_USER1STATUS, UserStatus.Idle.value);
-        datas.put(COLUMN_APPLYUSERID, "");
-        return datas;
-    }
-
     public String getId() {
         return id;
     }

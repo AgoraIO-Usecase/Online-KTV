@@ -17,6 +17,7 @@ public class AppApplication extends Application {
         XLog.init(LogLevel.ALL);
 
         SyncManager.Instance().init(this);
+        SyncManager.setConverter(new MyGsonConverter());
         Log.d("APP", "SDK Version: " + RtcEngine.getSdkVersion());
     }
 }

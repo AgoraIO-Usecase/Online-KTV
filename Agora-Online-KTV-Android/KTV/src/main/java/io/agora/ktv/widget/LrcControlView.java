@@ -10,7 +10,6 @@ import android.widget.FrameLayout;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.databinding.DataBindingUtil;
 
 import io.agora.ktv.R;
 import io.agora.ktv.bean.MemberMusicModel;
@@ -46,13 +45,11 @@ public class LrcControlView extends FrameLayout implements View.OnClickListener 
     private OnLrcActionListener mOnLrcActionListener;
 
     public LrcControlView(@NonNull Context context) {
-        super(context);
-        init(context);
+        this(context, null);
     }
 
     public LrcControlView(@NonNull Context context, @Nullable AttributeSet attrs) {
-        super(context, attrs);
-        init(context);
+        this(context, attrs, 0);
     }
 
     public LrcControlView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
@@ -61,7 +58,8 @@ public class LrcControlView extends FrameLayout implements View.OnClickListener 
     }
 
     private void init(Context context) {
-        mDataBinding = DataBindingUtil.inflate(LayoutInflater.from(context), R.layout.ktv_layout_lrc_control_view, this, true);
+        mDataBinding = KtvLayoutLrcControlViewBinding.inflate(LayoutInflater.from(context),this, true);
+//        mDataBinding = DataBindingUtil.inflate(LayoutInflater.from(context), R.layout.ktv_layout_lrc_control_view, this, true);
 
         mDataBinding.ilIDLE.getRoot().setVisibility(View.VISIBLE);
         mDataBinding.ilActive.getRoot().setVisibility(View.GONE);
@@ -271,20 +269,20 @@ public class LrcControlView extends FrameLayout implements View.OnClickListener 
     }
 
     public interface OnLrcActionListener extends LrcView.OnActionListener {
-        void onSwitchOriginalClick();
+        default void onSwitchOriginalClick(){ }
 
-        void onMenuClick();
+        default void onMenuClick() { }
 
-        void onPlayClick();
+        default void onPlayClick() { }
 
-        void onChangeMusicClick();
+        default void onChangeMusicClick() { }
 
-        void onStartSing();
+        default void onStartSing() { }
 
-        void onJoinChorus();
+        default void onJoinChorus() { }
 
-        void onWaitTimeOut();
+        default void onWaitTimeOut() { }
 
-        void onCountTime(int time);
+        default void onCountTime(int time) { }
     }
 }

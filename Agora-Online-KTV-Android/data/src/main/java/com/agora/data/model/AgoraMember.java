@@ -101,21 +101,6 @@ public class AgoraMember implements Parcelable {
         }
     };
 
-    public HashMap<String, Object> toHashMap() {
-        DocumentReference drRoom = SyncManager.Instance()
-                .collection(AgoraRoom.TABLE_NAME)
-                .document(roomId.getId());
-
-        HashMap<String, Object> datas = new HashMap<>();
-        datas.put(COLUMN_ROOMID, drRoom);
-        datas.put(COLUMN_STREAMID, streamId);
-        datas.put(COLUMN_USERID, userId);
-        datas.put(COLUMN_ROLE, role.value);
-        datas.put(COLUMN_ISAUDIOMUTED, isMuted);
-        datas.put(COLUMN_ISSELFAUDIOMUTED, isSelfMuted);
-        return datas;
-    }
-
     public AgoraRoom getRoomId() {
         return roomId;
     }

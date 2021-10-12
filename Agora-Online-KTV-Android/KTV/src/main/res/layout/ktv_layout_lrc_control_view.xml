@@ -1,51 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/transparent">
 
-    <FrameLayout
+    <include
+        android:id="@+id/ilIDLE"
+        layout="@layout/ktv_layout_lrc_idle"
+        android:visibility="gone" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/clActive"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@android:color/transparent">
+        android:background="@mipmap/ktv_music_background1"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/tvMusicName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:drawableStart="@mipmap/ktv_room_music_name"
+            android:drawablePadding="4dp"
+            android:gravity="center"
+            android:textColor="@android:color/white"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <include
-            android:id="@+id/ilIDLE"
-            layout="@layout/ktv_layout_lrc_idle"
+            android:id="@+id/ilChorus"
+            layout="@layout/ktv_layout_lrc_chorus"
             android:visibility="gone" />
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/clActive"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@mipmap/ktv_music_background1"
-            android:visibility="gone">
+        <include
+            android:id="@+id/ilPrepare"
+            layout="@layout/ktv_layout_lrc_prepare"
+            android:visibility="gone" />
 
-            <TextView
-                android:id="@+id/tvMusicName"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:drawableStart="@mipmap/ktv_room_music_name"
-                android:drawablePadding="4dp"
-                android:gravity="center"
-                android:textColor="@android:color/white"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <include
-                android:id="@+id/ilChorus"
-                layout="@layout/ktv_layout_lrc_chorus"
-                android:visibility="gone" />
-
-            <include
-                android:id="@+id/ilPrepare"
-                layout="@layout/ktv_layout_lrc_prepare"
-                android:visibility="gone" />
-
-            <include
-                android:id="@+id/ilActive"
-                layout="@layout/ktv_layout_lrc_active"
-                android:visibility="gone" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </FrameLayout>
-</layout>
+        <include
+            android:id="@+id/ilActive"
+            layout="@layout/ktv_layout_lrc_active"
+            android:visibility="gone" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</FrameLayout>

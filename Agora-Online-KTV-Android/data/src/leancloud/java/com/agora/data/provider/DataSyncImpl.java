@@ -471,7 +471,7 @@ public class DataSyncImpl implements ISyncManager {
     private HashMap<SyncManager.EventListener, LCLiveQuery> events = new HashMap<>();
 
     @Override
-    public void subcribe(DocumentReference reference, SyncManager.EventListener listener) {
+    public void subscribe(DocumentReference reference, SyncManager.EventListener listener) {
         if (reference instanceof RoomReference) {
             LCQuery<LCObject> query = createLCQuery(AgoraRoom.TABLE_NAME, reference.getQuery());
             LCLiveQuery mLCLiveQuery = LCLiveQuery.initWithQuery(query);
@@ -553,7 +553,7 @@ public class DataSyncImpl implements ISyncManager {
     }
 
     @Override
-    public void subcribe(CollectionReference reference, SyncManager.EventListener listener) {
+    public void subscribe(CollectionReference reference, SyncManager.EventListener listener) {
         String collectionKey = reference.getKey();
         LCQuery<LCObject> query = createLCQuery(collectionKey, reference.getQuery());
         LCLiveQuery mLCLiveQuery = LCLiveQuery.initWithQuery(query);
@@ -596,7 +596,7 @@ public class DataSyncImpl implements ISyncManager {
     }
 
     @Override
-    public void unsubcribe(SyncManager.EventListener listener) {
+    public void unsubscribe(SyncManager.EventListener listener) {
         if (events.get(listener) != null) {
             events.get(listener).unsubscribeInBackground(new LCLiveQuerySubscribeCallback() {
                 @Override

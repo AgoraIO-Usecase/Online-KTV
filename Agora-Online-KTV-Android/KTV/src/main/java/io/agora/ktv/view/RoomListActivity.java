@@ -2,15 +2,18 @@ package io.agora.ktv.view;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 
 import com.agora.data.BaseError;
-import com.agora.data.ExampleData;
 import com.agora.data.manager.UserManager;
 import com.agora.data.model.AgoraRoom;
 import com.agora.data.model.User;
@@ -18,70 +21,90 @@ import com.agora.data.observer.DataObserver;
 import com.agora.data.provider.DataRepositroy;
 import com.agora.data.sync.SyncManager;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import io.agora.baselibrary.base.DataBindBaseActivity;
+import io.agora.baselibrary.base.BaseActivity;
+import io.agora.baselibrary.base.BaseRecyclerViewAdapter;
 import io.agora.baselibrary.base.OnItemClickListener;
-import io.agora.baselibrary.util.ToastUtile;
+import io.agora.baselibrary.util.ToastUtil;
 import io.agora.ktv.R;
-import io.agora.ktv.adapter.RoomListAdapter;
+import io.agora.ktv.adapter.RoomHolder;
 import io.agora.ktv.databinding.KtvActivityRoomListBinding;
-import io.agora.ktv.widget.SpaceItemDecoration;
+import io.agora.ktv.databinding.KtvItemRoomListBinding;
+import io.agora.ktv.widget.GridDecoration;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import pub.devrel.easypermissions.EasyPermissions;
 
 /**
- * 房间列表
- *
+ * Remember, this room list uses the R.mipmap.cover_xxx
  * @author chenhengfei@agora.io
  */
-public class RoomListActivity extends DataBindBaseActivity<KtvActivityRoomListBinding> implements View.OnClickListener,
-        OnItemClickListener<AgoraRoom>, SwipeRefreshLayout.OnRefreshListener {
+public class RoomListActivity extends BaseActivity<KtvActivityRoomListBinding> {
+    public static String key = "ROOM";
 
-    private static final int TAG_PERMISSTION_REQUESTCODE = 1000;
-    private static final String[] PERMISSTION = new String[]{
+    private static final String[] PERMISSIONS = new String[]{
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.RECORD_AUDIO};
 
-    private RoomListAdapter mAdapter;
+    private BaseRecyclerViewAdapter<KtvItemRoomListBinding, AgoraRoom, RoomHolder> mAdapter;
+
+    ActivityResultLauncher<String[]> requestPermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), res -> {
+        List<String> permissionsRefused = new ArrayList<>();
+        for (String s : res.keySet()) {
+            if (Boolean.TRUE != res.get(s))
+                permissionsRefused.add(s);
+        }
+        if (!permissionsRefused.isEmpty()) {
+            // Explain to the user that the feature is unavailable because the
+            // features requires a permission that the user has denied. At the
+            // same time, respect the user's decision. Don't link to system
+            // settings in an effort to convince the user to change their decision.
+            showPermissionAlertDialog(false);
+        } else {
+            // Permission is granted. Continue the action or workflow in your app.
+            toNextActivity();
+        }
+    });
 
     @Override
-    protected void iniBundle(@NonNull Bundle bundle) {
-
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        if ((getIntent().getFlags() & Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT) != 0)
+            finish();
+        else {
+            super.onCreate(savedInstanceState);
+            initView();
+            initData();
+        }
     }
 
-    @Override
-    protected int getLayoutId() {
-        return R.layout.ktv_activity_room_list;
+    protected void initView() {
+        mAdapter = new BaseRecyclerViewAdapter<>(null, new OnItemClickListener<AgoraRoom>() {
+            @Override
+            public void onItemClick(@NonNull AgoraRoom data, View view, int position, long id) {
+                showLoadingDialog();
+                mAdapter.selectedIndex = position;
+                handlePermissionStuff();
+            }
+        }, RoomHolder.class);
+
+        mBinding.list.setAdapter(mAdapter);
+        mBinding.list.addItemDecoration(new GridDecoration(2));
+        mBinding.swipeRefreshLayout.setOnRefreshListener(this::loadRooms);
     }
 
-    @Override
-    protected void iniView() {
-        mAdapter = new RoomListAdapter(null, this);
-        mDataBinding.list.setLayoutManager(new GridLayoutManager(this, 2));
-        mDataBinding.list.setAdapter(mAdapter);
-        mDataBinding.list.addItemDecoration(new SpaceItemDecoration(this));
-    }
-
-    @Override
-    protected void iniListener() {
-        mDataBinding.swipeRefreshLayout.setOnRefreshListener(this);
-    }
-
-    @Override
-    protected void iniData() {
+    protected void initData() {
         UserManager.Instance().setupDataRepository(DataRepositroy.Instance(this));
 
         showEmptyStatus();
 
-        mDataBinding.swipeRefreshLayout.post(this::login);
+        mBinding.swipeRefreshLayout.post(this::login);
     }
 
     private void login() {
-        mDataBinding.swipeRefreshLayout.setRefreshing(true);
+        mBinding.swipeRefreshLayout.setRefreshing(true);
         UserManager.Instance()
                 .loginIn()
                 .observeOn(AndroidSchedulers.mainThread())
@@ -112,18 +135,18 @@ public class RoomListActivity extends DataBindBaseActivity<KtvActivityRoomListBi
 
                     @Override
                     public void onNext(@NonNull List<AgoraRoom> agoraRooms) {
-                        mAdapter.setDatas(agoraRooms);
+                        mAdapter.setDataList(agoraRooms);
                     }
 
                     @Override
                     public void onError(@NonNull Throwable e) {
-                        mDataBinding.swipeRefreshLayout.setRefreshing(false);
-                        ToastUtile.toastShort(RoomListActivity.this, e.getMessage());
+                        mBinding.swipeRefreshLayout.setRefreshing(false);
+                        ToastUtil.toastShort(RoomListActivity.this, e.getMessage());
                     }
 
                     @Override
                     public void onComplete() {
-                        mDataBinding.swipeRefreshLayout.setRefreshing(false);
+                        mBinding.swipeRefreshLayout.setRefreshing(false);
 
                         if (mAdapter.getItemCount() <= 0) {
                             showEmptyStatus();
@@ -135,36 +158,70 @@ public class RoomListActivity extends DataBindBaseActivity<KtvActivityRoomListBi
     }
 
     private void showEmptyStatus() {
-        mDataBinding.viewEmptyAttRoomList.setVisibility(View.VISIBLE);
+        mBinding.viewEmptyAttRoomList.setVisibility(View.VISIBLE);
     }
 
     private void showDataStatus() {
-        mDataBinding.viewEmptyAttRoomList.setVisibility(View.GONE);
+        mBinding.viewEmptyAttRoomList.setVisibility(View.GONE);
     }
 
-    @Override
-    public void onClick(View v) {
-        if (!UserManager.Instance().isLogin()) {
-            login();
-        }
-    }
-
-    @Override
-    public void onItemClick(@NonNull AgoraRoom data, View view, int position, long id) {
-        if (!EasyPermissions.hasPermissions(this, PERMISSTION)) {
-            EasyPermissions.requestPermissions(this, getString(R.string.ktv_error_permisstion),
-                    TAG_PERMISSTION_REQUESTCODE, PERMISSTION);
+    /**
+     * @see <a href="https://developer.android.com/images/training/permissions/workflow-runtime.svg"/>
+     */
+    private void handlePermissionStuff() {
+        // 小于 M 无需控制
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            toNextActivity();
             return;
         }
 
-        AgoraRoom mRoom = ExampleData.exampleRooms.get(position);
-        Intent intent = new Intent(this,RoomActivity.class);
-        intent.putExtra(RoomActivity.TAG_ROOM, mRoom);
-        startActivity(intent);
-    }
+        // 检查权限是否通过
+        boolean needRequest = false;
+        for (String permission : PERMISSIONS) {
+            if (checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
+                needRequest = true;
+                break;
+            }
+        }
+        if (!needRequest) {
+            toNextActivity();
+            return;
+        }
 
-    @Override
-    public void onRefresh() {
-        loadRooms();
+        dismissLoading();
+
+        boolean requestDirectly = true;
+        for (String requiredPermission : PERMISSIONS)
+            if (shouldShowRequestPermissionRationale(requiredPermission)) {
+                requestDirectly = false;
+                break;
+            }
+        // 直接申请
+        if (requestDirectly) requestPermissionLauncher.launch(PERMISSIONS);
+            // 显示申请理由
+        else showPermissionAlertDialog(true);
+    }
+    private void showPermissionAlertDialog(boolean canRequest) {
+        if (canRequest)
+        new AlertDialog.Builder(this).setMessage(R.string.ktv_permission_alert).setNegativeButton(android.R.string.cancel, null)
+                .setPositiveButton(android.R.string.ok, ((dialogInterface, i) -> requestPermissionLauncher.launch(RoomListActivity.PERMISSIONS))).show();
+        else
+        new AlertDialog.Builder(this).setMessage(R.string.ktv_permission_refused)
+                .setPositiveButton(android.R.string.ok, null).show();
+    }
+    private void toNextActivity() {
+        AgoraRoom agoraRoom = null;
+        try {
+            agoraRoom = mAdapter.dataList.get(mAdapter.selectedIndex);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        dismissLoading();
+        if (agoraRoom != null) {
+            Intent intent = new Intent(this, RoomActivity.class);
+            intent.putExtra(RoomActivity.TAG_ROOM, agoraRoom);
+            startActivity(intent);
+        }
     }
 }

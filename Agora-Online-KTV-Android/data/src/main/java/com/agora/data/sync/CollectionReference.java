@@ -62,6 +62,6 @@ public class CollectionReference {
     }
 
     public void subcribe(SyncManager.EventListener listener) {
-        SyncManager.Instance().subcribe(this, listener);
+        SyncManager.Instance().subscribe(this, listener);
     }
 }

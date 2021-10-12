@@ -26,9 +26,9 @@ public interface ISyncManager {
 
     void update(DocumentReference reference, HashMap<String, Object> datas, SyncManager.DataItemCallback callback);
 
-    void subcribe(DocumentReference reference, SyncManager.EventListener listener);
+    void subscribe(DocumentReference reference, SyncManager.EventListener listener);
 
-    void subcribe(CollectionReference reference, SyncManager.EventListener listener);
+    void subscribe(CollectionReference reference, SyncManager.EventListener listener);
 
-    void unsubcribe(SyncManager.EventListener listener);
+    void unsubscribe(SyncManager.EventListener listener);
 }

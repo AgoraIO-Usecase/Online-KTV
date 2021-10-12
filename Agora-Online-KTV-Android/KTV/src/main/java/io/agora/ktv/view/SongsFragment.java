@@ -4,33 +4,17 @@ import android.os.Bundle;
 import android.view.View;
 
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.DividerItemDecoration;
 
-import com.agora.data.manager.UserManager;
-import com.agora.data.model.AgoraRoom;
+import com.agora.data.ExampleData;
 import com.agora.data.model.MusicModel;
-import com.agora.data.model.User;
-import com.agora.data.provider.AgoraObject;
-import com.agora.data.provider.DataRepositroy;
-import com.agora.data.sync.AgoraException;
-import com.agora.data.sync.SyncManager;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import io.agora.baselibrary.base.DataBindBaseFragment;
-import io.agora.baselibrary.base.OnItemClickListener;
-import io.agora.baselibrary.util.ToastUtile;
-import io.agora.ktv.R;
-import io.agora.ktv.adapter.SongsAdapter;
-import io.agora.ktv.bean.MemberMusicModel;
+import io.agora.baselibrary.base.BaseFragment;
+import io.agora.baselibrary.base.BaseRecyclerViewAdapter;
+import io.agora.ktv.adapter.ChooseSongViewHolder;
 import io.agora.ktv.databinding.KtvFragmentSongListBinding;
-import io.agora.ktv.manager.RoomManager;
-import io.agora.ktv.view.dialog.RoomChooseSongDialog;
-import io.agora.ktv.widget.SpaceItemDecoration;
-import io.reactivex.Observer;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
+import io.agora.ktv.databinding.KtvItemChooseSongListBinding;
 
 /**
  * 歌单列表
@@ -38,137 +22,47 @@ import io.reactivex.disposables.Disposable;
  * @author chenhengfei(Aslanchen)
  * @date 2021/6/15
  */
-public class SongsFragment extends DataBindBaseFragment<KtvFragmentSongListBinding> implements View.OnClickListener, OnItemClickListener<MusicModel> {
-
-    public static SongsFragment newInstance() {
-        SongsFragment mFragment = new SongsFragment();
-        return mFragment;
-    }
-
-    private SongsAdapter mAdapter;
+public class SongsFragment extends BaseFragment<KtvFragmentSongListBinding> {
+    private BaseRecyclerViewAdapter<KtvItemChooseSongListBinding, MusicModel, ChooseSongViewHolder> mAdapter;
 
     @Override
-    public void iniBundle(@NonNull Bundle bundle) {
-
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        initView();
+        initListener();
     }
 
-    @Override
-    public int getLayoutId() {
-        return R.layout.ktv_fragment_song_list;
-    }
-
-    @Override
-    public void iniView(View view) {
+    private void initView() {
+        mAdapter = new BaseRecyclerViewAdapter<>(null, ChooseSongViewHolder.class);
+        mBinding.list.addItemDecoration(new DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL));
+        mBinding.list.setAdapter(mAdapter);
 
     }
 
-    @Override
-    public void iniListener() {
-        mDataBinding.ivClear.setOnClickListener(this);
-        mDataBinding.tvSearch.setOnClickListener(this);
-    }
-
-    @Override
-    public void iniData() {
-        mAdapter = new SongsAdapter(new ArrayList<>(), this);
-        mDataBinding.list.setLayoutManager(new LinearLayoutManager(requireContext()));
-        mDataBinding.list.addItemDecoration(new SpaceItemDecoration(requireContext()));
-        mDataBinding.list.setAdapter(mAdapter);
-
-        mDataBinding.swipeRefreshLayout.setEnabled(false);
-
-        mDataBinding.llEmpty.setVisibility(View.GONE);
-
-        loadMusics(null);
+    private void initListener() {
+        mBinding.llEmpty.setOnClickListener(v-> {
+            mBinding.swipeRefreshLayout.setRefreshing(true);
+            loadMusics("");
+        });
+        mBinding.swipeRefreshLayout.setOnRefreshListener(() -> {
+            String filter = mBinding.searchViewSecSongList.getQuery().toString().trim();
+            loadMusics(filter);
+        });
     }
 
     private void loadMusics(String searchKey) {
-        DataRepositroy.Instance(requireContext())
-                .getMusics(searchKey)
-                .observeOn(AndroidSchedulers.mainThread())
-                .compose(mLifecycleProvider.bindToLifecycle())
-                .subscribe(new Observer<List<MusicModel>>() {
-                    @Override
-                    public void onSubscribe(@NonNull Disposable d) {
-
-                    }
-
-                    @Override
-                    public void onNext(@NonNull List<MusicModel> musicModels) {
-                        onLoadMusics(musicModels);
-                    }
-
-                    @Override
-                    public void onError(@NonNull Throwable e) {
-                        ToastUtile.toastShort(requireContext(), e.getMessage());
-                    }
-
-                    @Override
-                    public void onComplete() {
-
-                    }
-                });
-    }
-
-    private void onLoadMusics(List<MusicModel> list) {
-        if (list.isEmpty()) {
-            mDataBinding.llEmpty.setVisibility(View.VISIBLE);
-        } else {
-            mDataBinding.llEmpty.setVisibility(View.GONE);
+        mAdapter.dataList.clear();
+        if(searchKey.isEmpty())
+            mAdapter.dataList.addAll(ExampleData.exampleSongs);
+        else{
+            int size = ExampleData.exampleSongs.size();
+            MusicModel music;
+            for (int i = 0; i < size; i++) {
+                music = ExampleData.exampleSongs.get(i);
+                if(music.getName().contains(searchKey))
+                    mAdapter.dataList.add(music);
+            }
         }
-        mAdapter.setDatas(list);
-    }
-
-    @Override
-    public void onItemClick(@NonNull MusicModel data, View view, int position, long id) {
-        AgoraRoom mRoom = RoomManager.Instance(requireContext()).getRoom();
-        if (mRoom == null) {
-            return;
-        }
-
-        User mUser = UserManager.Instance().getUserLiveData().getValue();
-        if (mUser == null) {
-            return;
-        }
-
-        view.setEnabled(false);
-        MemberMusicModel model = new MemberMusicModel(data);
-        model.setRoomId(mRoom);
-        model.setUserId(mUser.getObjectId());
-        model.setType(RoomChooseSongDialog.mSingType);
-        SyncManager.Instance()
-                .getRoom(mRoom.getId())
-                .collection(MemberMusicModel.TABLE_NAME)
-                .add(model.toHashMap(), new SyncManager.DataItemCallback() {
-                    @Override
-                    public void onSuccess(AgoraObject result) {
-                        view.setEnabled(true);
-                        MemberMusicModel musicModel = result.toObject(MemberMusicModel.class);
-                        musicModel.setId(result.getId());
-
-                        RoomManager.Instance(requireContext()).onMusicAdd(musicModel);
-                        mAdapter.notifyItemChanged(position);
-                    }
-
-                    @Override
-                    public void onFail(AgoraException exception) {
-                        view.setEnabled(true);
-                        ToastUtile.toastShort(requireContext(), exception.getMessage());
-                    }
-                });
-    }
-
-    @Override
-    public void onClick(View v) {
-        if (v == mDataBinding.ivClear) {
-            mDataBinding.etSearchKey.setText("");
-        } else if (v == mDataBinding.tvSearch) {
-            doSearch();
-        }
-    }
-
-    private void doSearch() {
-        String key = mDataBinding.etSearchKey.getText().toString().trim();
-        loadMusics(key);
+        mAdapter.notifyDataSetChanged();
     }
 }

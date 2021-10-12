@@ -56,4 +56,8 @@
     <string name="ktv_music_menu_dialog_vol1">人声音量</string>
     <string name="ktv_music_menu_dialog_vol2">伴奏音量</string>
     <string name="ktv_music_menu_dialog_effect">效果</string>
+
+
+    <string name="ktv_permission_alert">缺少运行所需的必要权限，是否确认申请？</string>
+    <string name="ktv_permission_refused">运行此功能需要的必要权限未被授予。</string>
 </resources>

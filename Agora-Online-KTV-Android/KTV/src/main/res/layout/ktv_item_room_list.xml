@@ -1,33 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:app="http://schemas.android.com/apk/res-auto">
+<androidx.constraintlayout.widget.ConstraintLayout android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <io.agora.ktv.widget.SquareCardView xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:cardCornerRadius="10dp">
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/bgd_item_room_list"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:scaleType="fitXY"
+            app:shapeAppearance="@style/ktv_cornerMediumStyle"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@mipmap/icon_room_cover1" />
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <TextView
+            android:id="@+id/title_item_room_list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="10dp">
-
-            <ImageView
-                android:id="@+id/iv"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                app:layout_constraintDimensionRatio="1:1"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/tvName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="@android:color/white"
-                app:layout_constraintBottom_toBottomOf="@+id/iv"
-                app:layout_constraintEnd_toEndOf="@+id/iv"
-                app:layout_constraintStart_toStartOf="@+id/iv" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </io.agora.ktv.widget.SquareCardView>
-</layout>
+            android:padding="12dp"
+            tools:text="001"
+            android:textColor="@android:color/white"
+            app:layout_constraintBottom_toBottomOf="@+id/bgd_item_room_list"
+            app:layout_constraintEnd_toEndOf="@+id/bgd_item_room_list"
+            app:layout_constraintStart_toStartOf="@+id/bgd_item_room_list" />
+    </androidx.constraintlayout.widget.ConstraintLayout>

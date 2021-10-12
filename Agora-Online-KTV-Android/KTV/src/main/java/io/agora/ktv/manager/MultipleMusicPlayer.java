@@ -10,16 +10,13 @@ import com.agora.data.manager.UserManager;
 import com.agora.data.model.AgoraMember;
 import com.agora.data.model.AgoraRoom;
 import com.agora.data.model.User;
-import com.agora.data.provider.AgoraObject;
-import com.agora.data.sync.AgoraException;
-import com.agora.data.sync.SyncManager;
 
 import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import io.agora.baselibrary.util.ToastUtile;
+import io.agora.baselibrary.util.ToastUtil;
 import io.agora.ktv.R;
 import io.agora.ktv.bean.MemberMusicModel;
 import io.agora.mediaplayer.IMediaPlayer;
@@ -226,50 +223,6 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
         if (mRoom == null) {
             return;
         }
-
-        this.mUid = uid;
-        Long streamId = uid & 0xffffffffL;
-        if (ObjectsCompat.equals(musicModelReady.getUserId(), mUser.getObjectId())) {
-            HashMap<String, Object> maps = new HashMap<>();
-            maps.put(MemberMusicModel.COLUMN_USERSTATUS, MemberMusicModel.UserStatus.Ready.value);
-            maps.put(MemberMusicModel.COLUMN_USERBGID, streamId);
-
-            SyncManager.Instance()
-                    .getRoom(mRoom.getId())
-                    .collection(MemberMusicModel.TABLE_NAME)
-                    .document(musicModelReady.getId())
-                    .update(maps, new SyncManager.DataItemCallback() {
-                        @Override
-                        public void onSuccess(AgoraObject result) {
-
-                        }
-
-                        @Override
-                        public void onFail(AgoraException exception) {
-
-                        }
-                    });
-        } else if (ObjectsCompat.equals(musicModelReady.getUser1Id(), mUser.getObjectId())) {
-            HashMap<String, Object> maps = new HashMap<>();
-            maps.put(MemberMusicModel.COLUMN_USER1STATUS, MemberMusicModel.UserStatus.Ready.value);
-            maps.put(MemberMusicModel.COLUMN_USER1BGID, streamId);
-
-            SyncManager.Instance()
-                    .getRoom(mRoom.getId())
-                    .collection(MemberMusicModel.TABLE_NAME)
-                    .document(musicModelReady.getId())
-                    .update(maps, new SyncManager.DataItemCallback() {
-                        @Override
-                        public void onSuccess(AgoraObject result) {
-
-                        }
-
-                        @Override
-                        public void onFail(AgoraException exception) {
-
-                        }
-                    });
-        }
     }
 
     @Override
@@ -307,21 +260,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
         maps.put(MemberMusicModel.COLUMN_USER1ID, music.getApplyUser1Id());
         maps.put(MemberMusicModel.COLUMN_APPLYUSERID, "");
 
-        SyncManager.Instance()
-                .getRoom(mRoom.getId())
-                .collection(MemberMusicModel.TABLE_NAME)
-                .document(music.getId())
-                .update(maps, new SyncManager.DataItemCallback() {
-                    @Override
-                    public void onSuccess(AgoraObject result) {
-                        isApplyJoinChorus = false;
-                    }
-
-                    @Override
-                    public void onFail(AgoraException exception) {
-                        isApplyJoinChorus = false;
-                    }
-                });
+        // TODO
     }
 
     private void onMemberJoinedChorus(@NonNull MemberMusicModel music) {
@@ -359,7 +298,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
 
                         @Override
                         public void onError(@NonNull Throwable e) {
-                            ToastUtile.toastShort(mContext, R.string.ktv_lrc_load_fail);
+                            ToastUtil.toastShort(mContext, R.string.ktv_lrc_load_fail);
                         }
                     });
         }
@@ -440,7 +379,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
 
                         @Override
                         public void onError(@NonNull Throwable e) {
-                            ToastUtile.toastShort(mContext, R.string.ktv_lrc_load_fail);
+                            ToastUtil.toastShort(mContext, R.string.ktv_lrc_load_fail);
                         }
                     });
         }

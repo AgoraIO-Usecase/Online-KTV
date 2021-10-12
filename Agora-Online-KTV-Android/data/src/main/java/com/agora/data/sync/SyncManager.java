@@ -18,7 +18,7 @@ public final class SyncManager implements ISyncManager {
 
     private volatile static SyncManager instance;
 
-    private static GsonConverter mConverter = new GsonConverter();
+    private static GsonConverter mConverter;
 
     private SyncManager() {
     }
@@ -37,18 +37,15 @@ public final class SyncManager implements ISyncManager {
 
     public void init(Context mContext) {
         mISyncManager = new DataSyncImpl(mContext);
+        mConverter = new GsonConverter();
     }
 
     public static GsonConverter getConverter() {
         return mConverter;
     }
 
-    public RoomReference getRoom(String id) {
-        return new RoomReference(id);
-    }
-
-    public CollectionReference collection(String key) {
-        return new CollectionReference(null, key);
+    public static void setConverter(GsonConverter mConverter) {
+        SyncManager.mConverter = mConverter;
     }
 
     @Override
@@ -97,18 +94,18 @@ public final class SyncManager implements ISyncManager {
     }
 
     @Override
-    public void subcribe(DocumentReference reference, SyncManager.EventListener listener) {
-        mISyncManager.subcribe(reference, listener);
+    public void subscribe(DocumentReference reference, SyncManager.EventListener listener) {
+        mISyncManager.subscribe(reference, listener);
     }
 
     @Override
-    public void subcribe(CollectionReference reference, EventListener listener) {
-        mISyncManager.subcribe(reference, listener);
+    public void subscribe(CollectionReference reference, EventListener listener) {
+        mISyncManager.subscribe(reference, listener);
     }
 
     @Override
-    public void unsubcribe(SyncManager.EventListener listener) {
-        mISyncManager.unsubcribe(listener);
+    public void unsubscribe(SyncManager.EventListener listener) {
+        mISyncManager.unsubscribe(listener);
     }
 
     public interface EventListener {
