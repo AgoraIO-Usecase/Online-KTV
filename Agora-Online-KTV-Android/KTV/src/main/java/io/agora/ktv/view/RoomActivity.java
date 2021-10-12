@@ -25,6 +25,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
+import com.elvishew.xlog.XLog;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -762,7 +763,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
     }
 
     private int getEffectIndex(int index) {
-        switch (index){
+        switch (index) {
             case 0:
                 return Constants.AUDIO_EFFECT_OFF;
             case 1:
@@ -955,9 +956,13 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
             mMusicPlayer = new SingleMusicPlayer(this, role, mPlayer);
         } else if (music.getType() == MemberMusicModel.SingType.Chorus) {
             mDataBinding.lrcControlView.onWaitChorusStatus();
+            if (music != null && mMine != null) {
+                if (music.getUser1Id().equals(mMine.getUserId())) {
+                    role = Constants.CLIENT_ROLE_BROADCASTER;
+                }
+            }
             mMusicPlayer = new MultipleMusicPlayer(this, role, mPlayer);
         }
-
         mMusicPlayer.registerPlayerObserver(mMusicCallback);
         mMusicPlayer.prepare(music);
     }
