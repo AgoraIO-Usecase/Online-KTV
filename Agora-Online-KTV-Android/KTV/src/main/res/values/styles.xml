@@ -1,12 +1,17 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Base application theme. -->
-    <style name="ktv_AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="colorPrimary">@color/ktv_colorPrimary</item>
-        <item name="colorPrimaryDark">@color/ktv_colorPrimaryDark</item>
+    <style name="ktv_AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="colorPrimary">@color/ktv_colorAccent</item>
+        <item name="colorPrimaryDark">@color/ktv_colorAccent</item>
         <item name="colorAccent">@color/ktv_colorAccent</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+
+        <item name="android:editTextColor">@android:color/white</item>
+        <item name="android:textColorHint">@color/ktv_dialog_music_list_empty</item>
+        <item name="android:colorControlActivated" tools:targetApi="lollipop">@color/ktv_colorAccent</item>
+        <item name="android:colorControlHighlight" tools:targetApi="lollipop">@color/ktv_colorAccent</item>
 
         <item name="android:statusBarColor" tools:targetApi="lollipop">@android:color/transparent</item>
         <item name="android:navigationBarColor" tools:targetApi="lollipop">@android:color/transparent</item>

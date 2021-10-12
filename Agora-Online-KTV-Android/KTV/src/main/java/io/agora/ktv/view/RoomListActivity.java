@@ -14,6 +14,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 
 import com.agora.data.BaseError;
+import com.agora.data.ExampleData;
 import com.agora.data.manager.UserManager;
 import com.agora.data.model.AgoraRoom;
 import com.agora.data.model.User;
@@ -32,7 +33,7 @@ import io.agora.ktv.R;
 import io.agora.ktv.adapter.RoomHolder;
 import io.agora.ktv.databinding.KtvActivityRoomListBinding;
 import io.agora.ktv.databinding.KtvItemRoomListBinding;
-import io.agora.ktv.widget.GridDecoration;
+import io.agora.ktv.widget.DividerDecoration;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -91,7 +92,7 @@ public class RoomListActivity extends BaseActivity<KtvActivityRoomListBinding> {
         }, RoomHolder.class);
 
         mBinding.list.setAdapter(mAdapter);
-        mBinding.list.addItemDecoration(new GridDecoration(2));
+        mBinding.list.addItemDecoration(new DividerDecoration(2));
         mBinding.swipeRefreshLayout.setOnRefreshListener(this::loadRooms);
     }
 
@@ -219,6 +220,7 @@ public class RoomListActivity extends BaseActivity<KtvActivityRoomListBinding> {
 
         dismissLoading();
         if (agoraRoom != null) {
+            ExampleData.updateCoverImage(ExampleData.exampleBackgrounds.indexOf(agoraRoom.getMVRes()) - 1);
             Intent intent = new Intent(this, RoomActivity.class);
             intent.putExtra(RoomActivity.TAG_ROOM, agoraRoom);
             startActivity(intent);

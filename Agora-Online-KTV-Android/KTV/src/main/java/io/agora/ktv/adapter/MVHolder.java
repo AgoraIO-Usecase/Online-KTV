@@ -3,12 +3,11 @@ package io.agora.ktv.adapter;
 import android.view.View;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 
 import com.bumptech.glide.Glide;
 
 import io.agora.baselibrary.base.BaseRecyclerViewAdapter;
-import io.agora.ktv.R;
+import io.agora.baselibrary.util.KTVUtil;
 import io.agora.ktv.databinding.KtvItemMvBinding;
 
 /**
@@ -25,10 +24,10 @@ public class MVHolder extends BaseRecyclerViewAdapter.BaseViewHolder<KtvItemMvBi
     @Override
     public void binding(Integer data, int selectedIndex) {
         if (getAdapterPosition() == selectedIndex) {
-            mBinding.llRoot.setBackgroundColor(ContextCompat.getColor(mBinding.getRoot().getContext(), R.color.ktv_mv_selected));
+            mBinding.iv.setStrokeWidth(KTVUtil.dp2px(1));
             mBinding.ivSelected.setVisibility(View.VISIBLE);
         } else {
-            mBinding.llRoot.setBackground(null);
+            mBinding.iv.setStrokeWidth(0);
             mBinding.ivSelected.setVisibility(View.GONE);
         }
 

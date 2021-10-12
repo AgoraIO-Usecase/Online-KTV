@@ -13,9 +13,6 @@ import com.agora.data.manager.UserManager;
 import com.agora.data.model.AgoraMember;
 import com.agora.data.model.AgoraRoom;
 import com.agora.data.model.User;
-import com.agora.data.provider.AgoraObject;
-import com.agora.data.sync.AgoraException;
-import com.agora.data.sync.SyncManager;
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
 
@@ -27,7 +24,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import io.agora.baselibrary.util.ToastUtil;
 import io.agora.ktv.bean.MemberMusicModel;
+import io.agora.rtc2.ChannelMediaOptions;
 import io.agora.rtc2.Constants;
 import io.agora.rtc2.DataStreamConfig;
 import io.agora.rtc2.IRtcEngineEventHandler;
@@ -35,12 +34,13 @@ import io.agora.rtc2.RtcEngine;
 import io.agora.rtc2.RtcEngineConfig;
 import io.agora.rtc2.RtcEngineEx;
 import io.reactivex.Completable;
-import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 
 /**
  * 房间控制
+ * Manage all room related stuff, such as user join, user leave etc.
+ * In the mean time, it holds a Agora RtcEngine.
  *
  * @author chenhengfei(Aslanchen)
  * @date 2021/06/01
@@ -51,7 +51,6 @@ public final class RoomManager {
 
     private volatile static RoomManager instance;
 
-    private final Context mContext;
     private final MainThreadDispatch mMainThreadDispatch = new MainThreadDispatch();
 
     /**
@@ -138,19 +137,19 @@ public final class RoomManager {
     };
 
     private RoomManager(Context mContext) {
-        this.mContext = mContext;
-        iniRTC();
+        iniRTC(mContext);
     }
 
-    private void iniRTC() {
-        String appid = mContext.getString(R.string.app_id);
-        if (TextUtils.isEmpty(appid)) {
+    private void iniRTC(Context mContext) {
+        String APP_ID = mContext.getString(R.string.app_id);
+        if (TextUtils.isEmpty(APP_ID)) {
+            ToastUtil.toastShort(mContext, "please check \"strings_config.xml\"");
             throw new NullPointerException("please check \"strings_config.xml\"");
         }
 
         RtcEngineConfig config = new RtcEngineConfig();
         config.mContext = mContext;
-        config.mAppId = appid;
+        config.mAppId = APP_ID;
         config.mEventHandler = mIRtcEngineEventHandler;
         config.mChannelProfile = Constants.CHANNEL_PROFILE_LIVE_BROADCASTING;
         config.mAudioScenario = Constants.AUDIO_SCENARIO_CHORUS;
@@ -316,7 +315,7 @@ public final class RoomManager {
         mCurrentMember.setRole(AgoraMember.Role.Listener);
 
         try {
-            ExampleData.updateBackgroundImage(Integer.parseInt(mRoom.getMv()));
+            ExampleData.updateCoverImage(Integer.parseInt(mRoom.getMv()));
         } catch (NumberFormatException e) {
             e.printStackTrace();
         }
@@ -365,15 +364,19 @@ public final class RoomManager {
         return Completable.complete();
     }
 
-    public Completable toggleSelfAudio(boolean isMute) {
-        int mute = 0;
-        if (isMute) mute = 1;
-        mCurrentMember.setIsSelfMuted(mute);
+    public Completable toggleSelfAudio(boolean mute) {
+        mCurrentMember.setIsSelfMuted(mute?1:0);
+
+        if (getRtcEngine() != null) {
+            ChannelMediaOptions options = new ChannelMediaOptions();
+            options.publishAudioTrack = mute;
+            getRtcEngine().updateChannelMediaOptions(options);
+        }
         return Completable.complete();
     }
 
     public Completable changeRole(AgoraMember member, int role) {
-        mLogger.i("changeRole:"+role+member);
+        mLogger.i("changeRole:" + role + member);
         return Completable.complete();
     }
 }

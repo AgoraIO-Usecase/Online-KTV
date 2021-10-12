@@ -13,19 +13,19 @@ import io.agora.baselibrary.util.KTVUtil;
  *
  * @author chenhengfei@agora.io
  */
-public class GridDecoration extends RecyclerView.ItemDecoration {
+public class DividerDecoration extends RecyclerView.ItemDecoration {
 
     private final int gapHorizontal;
     private final int gapVertical;
     private final int spanCount;
 
-    public GridDecoration(int spanCount) {
+    public DividerDecoration(int spanCount) {
         gapHorizontal = (int) KTVUtil.dp2px(16);
         gapVertical = gapHorizontal;
         this.spanCount = spanCount;
     }
 
-    public GridDecoration(int spanCount, int gapHorizontal, int gapHeight) {
+    public DividerDecoration(int spanCount, int gapHorizontal, int gapHeight) {
         this.gapHorizontal = (int) KTVUtil.dp2px(gapHorizontal);
         this.gapVertical = (int) KTVUtil.dp2px(gapHeight);
         this.spanCount = spanCount;
@@ -35,15 +35,22 @@ public class GridDecoration extends RecyclerView.ItemDecoration {
     public void getItemOffsets(@NonNull Rect outRect, @NonNull View view, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
         super.getItemOffsets(outRect, view, parent, state);
         int index = parent.getChildAdapterPosition(view);
-        if(index%spanCount==0) {
+
+        if(spanCount == 1){
             outRect.left = gapHorizontal;
-            outRect.right = gapHorizontal /2;
-        }else if (index % spanCount == spanCount - 1){
-            outRect.left = gapHorizontal /2;
             outRect.right = gapHorizontal;
-        }else{
-            outRect.left = gapHorizontal /2;
-            outRect.right = gapHorizontal /2;
+        }else {
+
+            if (index % spanCount == 0) {
+                outRect.left = gapHorizontal;
+                outRect.right = gapHorizontal / 2;
+            } else if (index % spanCount == spanCount - 1) {
+                outRect.left = gapHorizontal / 2;
+                outRect.right = gapHorizontal;
+            } else {
+                outRect.left = gapHorizontal / 2;
+                outRect.right = gapHorizontal / 2;
+            }
         }
         outRect.top = gapVertical;
     }

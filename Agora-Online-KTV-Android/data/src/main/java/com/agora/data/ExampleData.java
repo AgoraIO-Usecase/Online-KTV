@@ -91,15 +91,15 @@ public class ExampleData {
     }
 
     /**
-     * 歌房背景图
+     * 歌房封面图
      */
-    private static final MutableLiveData<Integer> backgroundImage = new MutableLiveData<>(0);
+    private static final MutableLiveData<Integer> mvImage = new MutableLiveData<>(0);
 
-    public static LiveData<Integer> getBackgroundImage() {
-        return backgroundImage;
+    public static LiveData<Integer> getMvImage() {
+        return mvImage;
     }
 
-    public static void updateBackgroundImage(int index) {
-        backgroundImage.setValue(index);
+    public static void updateCoverImage(int index) {
+        mvImage.setValue(index);
     }
 }

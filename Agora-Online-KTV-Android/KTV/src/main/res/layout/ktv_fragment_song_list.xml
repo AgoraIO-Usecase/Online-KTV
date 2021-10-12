@@ -21,28 +21,28 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            app:iconifiedByDefault="false"
             android:background="@drawable/ktv_shape_dialog_search_input_background"
             app:closeIcon="@mipmap/ktv_dialog_search_clear"
+            app:iconifiedByDefault="false"
             app:queryHint="@string/ktv_dialog_music_list_search_hint"
             app:searchHintIcon="@mipmap/ktv_dialog_search"
             app:searchIcon="@mipmap/ktv_dialog_search" />
 
-        <TextView
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/tvSearch"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
-            android:background="@drawable/ktv_shape_dialog_search_background"
-            android:paddingHorizontal="15dp"
-            android:paddingVertical="6dp"
             android:text="@string/ktv_search"
+            android:textAllCaps="false"
             android:textColor="@color/ktv_title"
             app:layout_constraintBottom_toBottomOf="@+id/llSearch"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/llSearch"
-            app:layout_constraintTop_toTopOf="@+id/llSearch" />
-
+            app:layout_constraintTop_toTopOf="@+id/llSearch"
+            app:shapeAppearance="@style/ktv_roundStyle"
+            app:strokeColor="#FFC1C2C3" />
     </LinearLayout>
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -86,9 +86,10 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
     <androidx.constraintlayout.widget.Group
         android:id="@+id/group_sec_song_list"
-        app:constraint_referenced_ids="container_search_sec_song_list,tvTip"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        app:constraint_referenced_ids="container_search_sec_song_list,tvTip" />
 </androidx.constraintlayout.widget.ConstraintLayout>

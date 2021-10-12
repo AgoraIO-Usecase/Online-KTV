@@ -56,7 +56,7 @@ public class RoomChooseSongDialog extends BaseBottomSheetDialogFragment<KtvDialo
                 tab.setText(R.string.ktv_room_choose_song);
             else
                 tab.setText(R.string.ktv_room_choosed_song);
-        });
+        }).attach();
 //        mBinding.pager.setAdapter(new FragmentStatePagerAdapter(getChildFragmentManager(), FragmentStatePagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
 //
 //            @Override

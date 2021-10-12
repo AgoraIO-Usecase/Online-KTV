@@ -1,5 +1,6 @@
 package io.agora.ktv.view;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -12,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.util.ObjectsCompat;
 
+import com.agora.data.ExampleData;
 import com.agora.data.manager.UserManager;
 import com.agora.data.model.AgoraMember;
 import com.agora.data.model.AgoraRoom;
@@ -23,7 +25,6 @@ import com.bumptech.glide.request.transition.Transition;
 
 import java.io.File;
 import java.util.Arrays;
-import java.util.List;
 
 import io.agora.baselibrary.base.BaseActivity;
 import io.agora.baselibrary.base.BaseRecyclerViewAdapter;
@@ -48,7 +49,6 @@ import io.agora.ktv.widget.LrcControlView;
 import io.agora.lrcview.LrcLoadUtils;
 import io.agora.lrcview.bean.LrcData;
 import io.agora.mediaplayer.IMediaPlayer;
-import io.agora.rtc2.ChannelMediaOptions;
 import io.agora.rtc2.Constants;
 import io.reactivex.CompletableObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -334,6 +334,9 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> {
                 }
             }
         });
+
+
+        ExampleData.getMvImage().observe(this, index -> mBinding.lrcControlView.setLrcViewBackground(ExampleData.exampleBackgrounds.get(index)));
     }
 
     /**
@@ -496,38 +499,29 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> {
     }
 
     private void toggleMic(View v) {
-        AgoraMember mMine = RoomManager.Instance(this).getMine();
-        if (mMine == null) {
-            return;
+        AgoraMember temp = RoomManager.Instance(this).getMine();
+        if(temp != null) {
+            boolean mute = temp.getIsSelfMuted() == 0;
+            RoomManager.Instance(this)
+                    .toggleSelfAudio(mute)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new CompletableObserver() {
+                        @Override
+                        public void onSubscribe(@NonNull Disposable d) {
+
+                        }
+
+                        @Override
+                        public void onComplete() {
+                            mBinding.btnMicAttRoom.setImageResource(mute ? R.mipmap.ktv_room_unmic : R.mipmap.ktv_room_mic);
+                        }
+
+                        @Override
+                        public void onError(@NonNull Throwable e) {
+
+                        }
+                    });
         }
-
-        mBinding.btnMicAttRoom.setEnabled(false);
-        boolean newValue = mMine.getIsSelfMuted() == 0;
-        RoomManager.Instance(this)
-                .toggleSelfAudio(newValue)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new CompletableObserver() {
-                    @Override
-                    public void onSubscribe(@NonNull Disposable d) {
-
-                    }
-
-                    @Override
-                    public void onComplete() {
-                        mBinding.btnMicAttRoom.setEnabled(true);
-
-                        ChannelMediaOptions options = new ChannelMediaOptions();
-                        options.publishAudioTrack = !newValue;
-                        RoomManager.Instance(RoomActivity.this).getRtcEngine().updateChannelMediaOptions(options);
-
-                        mBinding.btnMicAttRoom.setImageResource(newValue ? R.mipmap.ktv_room_unmic : R.mipmap.ktv_room_mic);
-                    }
-
-                    @Override
-                    public void onError(@NonNull Throwable e) {
-
-                    }
-                });
     }
 
     private void toggleOriginal() {
@@ -604,19 +598,15 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> {
 
     private void requestSeatOn() {
         AgoraMember mMine = RoomManager.Instance(this).getMine();
-        if (mMine == null) {
-            return;
-        }
-
-        if (mMine.getRole() != AgoraMember.Role.Listener) {
-            return;
-        }
-        for (int i = 0; i < mRoomSpeakerAdapter.getItemCount(); i++) {
-            if(mRoomSpeakerAdapter.getItemData(i) == null) {
-                mMine.setRole(AgoraMember.Role.Speaker);
-                mRoomSpeakerAdapter.dataList.set(i, mMine);
-                mRoomSpeakerAdapter.notifyItemChanged(i);
-                break;
+        if (mMine != null && mMine.getRole() == AgoraMember.Role.Listener) {
+            for (int i = 0; i < mRoomSpeakerAdapter.getItemCount(); i++) {
+                if (mRoomSpeakerAdapter.getItemData(i) == null) {
+                    mMine.setRole(AgoraMember.Role.Speaker);
+                    mRoomSpeakerAdapter.dataList.set(i, mMine);
+                    mRoomSpeakerAdapter.notifyItemChanged(i);
+                    showOnSeatStatus();
+                    break;
+                }
             }
         }
     }
@@ -625,15 +615,15 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> {
 
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private void onMusicChanged(@NonNull MemberMusicModel music) {
         mBinding.lrcControlView.setMusic(music);
 
         mRoomSpeakerAdapter.notifyDataSetChanged();
 
         User mUser = UserManager.Instance().getUserLiveData().getValue();
-        if (mUser == null) {
+        if (mUser == null)
             return;
-        }
 
         if (ObjectsCompat.equals(music.getUserId(), mUser.getObjectId())) {
             mBinding.lrcControlView.setRole(LrcControlView.Role.Singer);

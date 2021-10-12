@@ -15,7 +15,9 @@ public class RoomHolder extends BaseRecyclerViewAdapter.BaseViewHolder<KtvItemRo
 
     @Override
     public void binding(AgoraRoom data, int selectedIndex) {
-        mBinding.bgdItemRoomList.setBackgroundResource(data.getCoverRes());
-        mBinding.titleItemRoomList.setText(data.getChannelName());
+        if (data != null) {
+            mBinding.bgdItemRoomList.setBackgroundResource(data.getCoverRes());
+            mBinding.titleItemRoomList.setText(data.getChannelName());
+        }
     }
 }

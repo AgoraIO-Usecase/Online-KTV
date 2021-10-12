@@ -6,7 +6,6 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentManager;
-import androidx.recyclerview.widget.GridLayoutManager;
 
 import com.agora.data.ExampleData;
 import com.agora.data.model.AgoraRoom;
@@ -18,7 +17,7 @@ import io.agora.ktv.adapter.MVHolder;
 import io.agora.ktv.databinding.KtvDialogMvBinding;
 import io.agora.ktv.databinding.KtvItemMvBinding;
 import io.agora.ktv.manager.RoomManager;
-import io.agora.ktv.widget.GridDecoration;
+import io.agora.ktv.widget.DividerDecoration;
 
 /**
  * 房间MV菜单
@@ -45,7 +44,7 @@ public class RoomMVDialog extends BaseBottomSheetDialogFragment<KtvDialogMvBindi
         }else mAdapter.selectedIndex = 0;
 
         mBinding.rvList.setAdapter(mAdapter);
-        mBinding.rvList.addItemDecoration(new GridDecoration(3));
+        mBinding.rvList.addItemDecoration(new DividerDecoration(3));
     }
 
     public void show(@NonNull FragmentManager manager, int index) {
@@ -62,8 +61,11 @@ public class RoomMVDialog extends BaseBottomSheetDialogFragment<KtvDialogMvBindi
             dismiss();
             return;
         }
+        int formerIndex = mAdapter.selectedIndex;
         mAdapter.selectedIndex = position;
-        ExampleData.updateBackgroundImage(position);
+        mAdapter.notifyItemChanged(formerIndex);
+        mAdapter.notifyItemChanged(position);
+        ExampleData.updateCoverImage(position);
     }
 
     @Override

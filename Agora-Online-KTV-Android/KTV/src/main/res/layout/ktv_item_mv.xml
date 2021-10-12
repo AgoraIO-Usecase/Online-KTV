@@ -1,18 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/llRoot"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <ImageView
+    <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/iv"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_margin="1dp"
+        android:layout_height="0dp"
+        app:strokeColor="@color/ktv_mv_selected"
         android:scaleType="centerCrop"
-        android:src="@mipmap/ktv_music_background1" />
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:src="@mipmap/ktv_music_background1" />
 
     <ImageView
         android:id="@+id/ivSelected"
@@ -22,4 +23,4 @@
         android:src="@mipmap/ktv_mv_selected"
         app:layout_constraintBottom_toBottomOf="parent" />
 
-</FrameLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
