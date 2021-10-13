@@ -23,7 +23,6 @@ public class KTVUtil {
         return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, Resources.getSystem().getDisplayMetrics());
     }
 
-
     public static <T> Class<T> getGenericClass(Class<?> clz, int index) {
         Type type = clz.getGenericSuperclass();
         if (type == null) return null;

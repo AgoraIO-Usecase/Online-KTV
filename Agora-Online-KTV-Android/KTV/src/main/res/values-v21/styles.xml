@@ -1,6 +1,6 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
 
-    <!-- Base application theme. -->
     <style name="ktv_AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="colorPrimary">@color/ktv_colorAccent</item>
         <item name="colorPrimaryDark">@color/ktv_colorAccent</item>
@@ -10,15 +10,11 @@
 
         <item name="android:editTextColor">@android:color/white</item>
         <item name="android:textColorHint">@color/ktv_dialog_music_list_empty</item>
-        <item name="android:windowBackground">@color/ktv_colorPrimaryDark</item>
-    </style>
+        <item name="android:colorControlActivated">@color/ktv_colorAccent</item>
+        <item name="android:colorControlHighlight">@color/ktv_colorAccent</item>
 
-    <style name="ktv_roundStyle">
-        <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">50%</item>
-    </style>
-    <style name="ktv_cornerMediumStyle">
-        <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">12dp</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowBackground">@color/ktv_colorPrimaryDark</item>
     </style>
 </resources>

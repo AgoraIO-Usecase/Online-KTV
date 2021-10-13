@@ -8,6 +8,7 @@ import com.bumptech.glide.Glide;
 
 import io.agora.baselibrary.base.BaseRecyclerViewAdapter;
 import io.agora.baselibrary.util.KTVUtil;
+import io.agora.ktv.MyUtil;
 import io.agora.ktv.databinding.KtvItemMvBinding;
 
 /**
@@ -24,11 +25,13 @@ public class MVHolder extends BaseRecyclerViewAdapter.BaseViewHolder<KtvItemMvBi
     @Override
     public void binding(Integer data, int selectedIndex) {
         if (getAdapterPosition() == selectedIndex) {
-            mBinding.iv.setStrokeWidth(KTVUtil.dp2px(1));
+            mBinding.iv.setStrokeWidth(1);
             mBinding.ivSelected.setVisibility(View.VISIBLE);
+            MyUtil.clearStateListAnimator(itemView);
         } else {
             mBinding.iv.setStrokeWidth(0);
             mBinding.ivSelected.setVisibility(View.GONE);
+            MyUtil.scaleOnTouch(itemView);
         }
 
         Glide.with(mBinding.getRoot())

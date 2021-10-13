@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="ktv_AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="colorPrimary">@color/ktv_colorAccent</item>
+        <item name="colorPrimaryDark">@color/ktv_colorAccent</item>
+        <item name="colorAccent">@color/ktv_colorAccent</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+
+        <item name="android:editTextColor">@android:color/white</item>
+        <item name="android:textColorHint">@color/ktv_dialog_music_list_empty</item>
+        <item name="android:colorControlActivated">@color/ktv_colorAccent</item>
+        <item name="android:colorControlHighlight">@color/ktv_colorAccent</item>
+
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:enforceStatusBarContrast">false</item>
+        <item name="android:enforceNavigationBarContrast">false</item>
+        <item name="android:windowBackground">@color/ktv_colorPrimaryDark</item>
+    </style>
+</resources>

@@ -9,10 +9,11 @@
         android:id="@+id/iv"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:strokeColor="@color/ktv_mv_selected"
-        android:scaleType="centerCrop"
         app:layout_constraintDimensionRatio="1:1"
+        android:scaleType="centerCrop"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:strokeColor="@color/ktv_mv_selected"
         tools:src="@mipmap/ktv_music_background1" />
 
     <ImageView
@@ -21,6 +22,6 @@
         android:layout_height="26dp"
         android:background="@color/ktv_mv_selected"
         android:src="@mipmap/ktv_mv_selected"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        app:layout_constraintBottom_toBottomOf="@id/iv" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

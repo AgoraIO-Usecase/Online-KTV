@@ -11,12 +11,17 @@ import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
 
 import io.agora.baselibrary.base.BaseRecyclerViewAdapter;
+import io.agora.ktv.MyUtil;
 import io.agora.ktv.R;
 import io.agora.ktv.databinding.KtvItemChooseSongListBinding;
 
+/**
+ * The holder of Item ChooseSong
+ */
 public class ChooseSongViewHolder extends BaseRecyclerViewAdapter.BaseViewHolder<KtvItemChooseSongListBinding, MusicModel> {
     public ChooseSongViewHolder(@NonNull KtvItemChooseSongListBinding mBinding) {
         super(mBinding);
+        MyUtil.scaleOnTouch(mBinding.btnItemSongList);
     }
 
     @Override

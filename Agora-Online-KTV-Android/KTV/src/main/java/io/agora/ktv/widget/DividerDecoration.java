@@ -41,16 +41,19 @@ public class DividerDecoration extends RecyclerView.ItemDecoration {
             outRect.right = gapHorizontal;
         }else {
 
-            if (index % spanCount == 0) {
-                outRect.left = gapHorizontal;
-                outRect.right = gapHorizontal / 2;
-            } else if (index % spanCount == spanCount - 1) {
-                outRect.left = gapHorizontal / 2;
-                outRect.right = gapHorizontal;
-            } else {
-                outRect.left = gapHorizontal / 2;
-                outRect.right = gapHorizontal / 2;
-            }
+//            if (index % spanCount == 0) {
+//                outRect.left = gapHorizontal;
+//                outRect.right = gapHorizontal / 2;
+//            } else if (index % spanCount == spanCount - 1) {
+//                outRect.left = gapHorizontal / 2;
+//                outRect.right = gapHorizontal;
+//            } else {
+//                outRect.left = gapHorizontal / 2;
+//                outRect.right = gapHorizontal / 2;
+//            }
+
+            outRect.left = gapHorizontal * (spanCount - index % spanCount)/spanCount;
+            outRect.right = gapHorizontal * (1 + index % spanCount)/spanCount;
         }
         outRect.top = gapVertical;
     }

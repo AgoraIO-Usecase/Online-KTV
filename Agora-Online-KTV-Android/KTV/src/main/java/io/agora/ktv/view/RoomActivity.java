@@ -30,6 +30,7 @@ import io.agora.baselibrary.base.BaseActivity;
 import io.agora.baselibrary.base.BaseRecyclerViewAdapter;
 import io.agora.baselibrary.base.OnItemClickListener;
 import io.agora.baselibrary.util.ToastUtil;
+import io.agora.ktv.MyUtil;
 import io.agora.ktv.R;
 import io.agora.ktv.adapter.RoomPeopleHolder;
 import io.agora.ktv.bean.MemberMusicModel;
@@ -246,7 +247,8 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> {
     }
 
     /**
-     * 1. init and attach recyclerview adapter
+     * 1. Init and attach recyclerview adapter
+     * 2. Animation stuff
      */
     protected void initView() {
         mRoomSpeakerAdapter = new BaseRecyclerViewAdapter<>( Arrays.asList(new AgoraMember[8]), new OnItemClickListener<AgoraMember>() {
@@ -257,6 +259,11 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> {
         }, RoomPeopleHolder.class);
 
         mBinding.recyclerViewAttRoom.setAdapter(mRoomSpeakerAdapter);
+
+        MyUtil.scaleOnTouch(mBinding.btnMicAttRoom);
+        MyUtil.scaleOnTouch(mBinding.btnChangeCoverAttRoom);
+        MyUtil.scaleOnTouch(mBinding.btnChorusAttRoom);
+        MyUtil.scaleOnTouch(mBinding.btnOrderSongAttRoom);
 
         // FIXME what is this for ?????
         Intent intent = new Intent(this, MyForegroundService.class);

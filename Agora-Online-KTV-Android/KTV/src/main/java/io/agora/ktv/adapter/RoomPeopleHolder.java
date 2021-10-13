@@ -9,6 +9,7 @@ import com.agora.data.model.User;
 import com.bumptech.glide.Glide;
 
 import io.agora.baselibrary.base.BaseRecyclerViewAdapter;
+import io.agora.ktv.MyUtil;
 import io.agora.ktv.R;
 import io.agora.ktv.bean.MemberMusicModel;
 import io.agora.ktv.databinding.KtvItemRoomSpeakerBinding;
@@ -26,10 +27,11 @@ public class RoomPeopleHolder extends BaseRecyclerViewAdapter.BaseViewHolder<Ktv
         // Default title
         mBinding.titleItemRoomSpeaker.setText(String.valueOf(getAdapterPosition() + 1));
 
-        if (member == null)
+        if (member == null) {
             mBinding.avatarItemRoomSpeaker.setImageResource(R.mipmap.ktv_room_speaker_default);
-        else {
-
+            MyUtil.scaleOnTouch(itemView);
+        }else {
+            MyUtil.clearStateListAnimator(itemView);
             // User's special avatar
             User mUser = member.getUser();
             if (mUser != null) {
