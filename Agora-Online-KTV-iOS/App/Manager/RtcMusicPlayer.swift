@@ -370,7 +370,7 @@ class RtcNormalMusicPlayer: AbstractRtcMusicPlayer {
             option.clientRoleType = AgoraRtcIntOptional.of(Int32(AgoraClientRole.broadcaster.rawValue))
             option.publishCameraTrack = AgoraRtcBoolOptional.of(false)
             option.autoSubscribeAudio = AgoraRtcBoolOptional.of(true)
-            option.enableAudioRecordingOrPlayout = AgoraRtcBoolOptional.of(true)
+            option.enableAudioRecordingOrPlayout = AgoraRtcBoolOptional.of(false)
             option.publishMediaPlayerAudioTrack = AgoraRtcBoolOptional.of(true)
             rtc.updateChannel(with: option)
 
@@ -417,6 +417,7 @@ class RtcChorusMusicPlayer: AbstractRtcMusicPlayer {
                 option.publishCameraTrack = AgoraRtcBoolOptional.of(false)
                 option.autoSubscribeAudio = AgoraRtcBoolOptional.of(false)
                 option.publishAudioTrack = AgoraRtcBoolOptional.of(false)
+                option.enableAudioRecordingOrPlayout = AgoraRtcBoolOptional.of(false)
                 // var connectionId: UInt = 0
                 let code = rtc.joinChannelEx(byToken: BuildConfig.Token, channelId: channelId, uid: 0, connectionId: &connectionId, delegate: nil, mediaOptions: option) { _, uid, _ in
                     // self.connectionId = connectionId
@@ -457,6 +458,7 @@ class RtcChorusMusicPlayer: AbstractRtcMusicPlayer {
                     mediaOption.publishCameraTrack = AgoraRtcBoolOptional.of(false)
                     mediaOption.autoSubscribeAudio = AgoraRtcBoolOptional.of(false)
                     mediaOption.publishAudioTrack = AgoraRtcBoolOptional.of(false)
+                    mediaOption.enableAudioRecordingOrPlayout = AgoraRtcBoolOptional.of(false)
                     rtc.updateChannelEx(with: mediaOption, connectionId: UInt(connectionId))
 
                     if let timer = timer {
