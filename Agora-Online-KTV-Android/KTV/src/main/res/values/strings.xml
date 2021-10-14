@@ -57,10 +57,15 @@
     <string name="ktv_music_menu_dialog_vol2">Music volume</string>
     <string name="ktv_music_menu_dialog_effect">Effects</string>
 
-
     <string name="ktv_permission_alert">Sure to request Required permission？</string>
     <string name="ktv_permission_refused">Necessary permissions to run this function have not been granted.</string>
 
+<!--    Content Description-->
+    <string name="ktv_toggle_mic">mute mic or not</string>
+    <string name="ktv_choose_cover">choose the cover you like</string>
+    <string name="ktv_chorus">chorus</string>
+    <string name="ktv_order_song">order song</string>
 
+<!--    String formatter-->
     <string name="song_and_singer" translatable="false" tools:ignore="ResourceName">%s - %s</string>
 </resources>

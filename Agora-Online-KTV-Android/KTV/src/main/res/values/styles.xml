@@ -11,14 +11,22 @@
         <item name="android:editTextColor">@android:color/white</item>
         <item name="android:textColorHint">@color/ktv_dialog_music_list_empty</item>
         <item name="android:windowBackground">@color/ktv_colorPrimaryDark</item>
+
     </style>
 
     <style name="ktv_roundStyle">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">50%</item>
     </style>
+
     <style name="ktv_cornerMediumStyle">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">12dp</item>
+    </style>
+
+    <style name="ktv_spinnerStyle" parent="Widget.AppCompat.Light.DropDownItem.Spinner">
+        <item name="android:paddingStart">0dp</item>
+        <item name="android:paddingEnd">0dp</item>
+        <item name="android:textColor">@android:color/white</item>
     </style>
 </resources>

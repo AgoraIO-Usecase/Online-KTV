@@ -44,6 +44,8 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:clickable="false"
+            android:focusable="false"
             android:text="@string/ktv_music_menu_dialog_vol1"
             android:textColor="#9BA2AB" />
 
@@ -54,7 +56,7 @@
             android:layout_marginStart="10dp"
             android:contentDescription="@string/ktv_music_menu_dialog_vol1"
             android:valueFrom="0"
-            android:valueTo="100"/>
+            android:valueTo="100" />
     </LinearLayout>
 
     <LinearLayout
@@ -67,6 +69,8 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:clickable="false"
+            android:focusable="false"
             android:text="@string/ktv_music_menu_dialog_vol2"
             android:textColor="#9BA2AB" />
 
@@ -75,8 +79,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
+            android:contentDescription="@string/ktv_music_menu_dialog_vol2"
             android:valueFrom="0"
-            android:valueTo="100"  />
+            android:valueTo="100" />
     </LinearLayout>
 
     <LinearLayout
@@ -94,13 +99,14 @@
 
         <Spinner
             android:id="@+id/ctrlEffect"
-            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:layout_marginStart="10dp"
             android:entries="@array/ktv_audioPreset"
-            android:hint="请选择"
-            android:spinnerMode="dropdown" />
+            android:popupBackground="@color/ktv_list_empty"
+            android:spinnerMode="dropdown"
+            android:theme="@style/ktv_spinnerStyle"
+            app:backgroundTint="@android:color/white" />
 
     </LinearLayout>
 

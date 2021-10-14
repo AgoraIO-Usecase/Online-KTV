@@ -1,8 +1,10 @@
 package io.agora.ktv.widget;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.CountDownTimer;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -15,6 +17,7 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.palette.graphics.Palette;
 
+import io.agora.baselibrary.util.KTVUtil;
 import io.agora.ktv.R;
 import io.agora.ktv.bean.MemberMusicModel;
 import io.agora.ktv.databinding.KtvLayoutLrcControlViewBinding;
@@ -124,12 +127,15 @@ public class LrcControlView extends FrameLayout implements View.OnClickListener 
             mDataBinding.ilChorus.tvWaitingTime.setText(
                     getContext().getString(R.string.ktv_room_time_wait_join_chorus, 0, 20));
             mDataBinding.ilChorus.btChorus.setText(R.string.ktv_music_chorus_start_now);
-            mDataBinding.ilChorus.btChorus.setBackgroundResource(R.drawable.ktv_shape_wait_chorus_button);
+            mDataBinding.ilChorus.btChorus.setStrokeWidth((int) KTVUtil.dp2px(1));
+            mDataBinding.ilChorus.btChorus.setBackgroundTintList(ColorStateList.valueOf(Color.TRANSPARENT));
+
         } else if (mRole == Role.Listener) {
             mDataBinding.ilChorus.tvWaitingTime.setText(
                     getContext().getString(R.string.ktv_room_time_join_chorus_, 0, 20));
             mDataBinding.ilChorus.btChorus.setText(R.string.ktv_music_join_chorus);
-            mDataBinding.ilChorus.btChorus.setBackgroundResource(R.drawable.ktv_shape_start_chorus_button);
+            mDataBinding.ilChorus.btChorus.setStrokeWidth(0);
+            mDataBinding.ilChorus.btChorus.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.ktv_colorAccent)));
         }
 
         if (mRole == Role.Singer) {

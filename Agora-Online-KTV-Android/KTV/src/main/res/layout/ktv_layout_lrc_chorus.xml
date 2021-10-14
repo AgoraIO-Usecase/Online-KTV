@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center"
@@ -23,17 +25,18 @@
         android:textColor="#CCFFFFFF"
         android:textSize="18sp" />
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btChorus"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:background="@drawable/ktv_shape_start_chorus_button"
-        android:gravity="center"
-        android:paddingStart="40dp"
-        android:paddingEnd="40dp"
-        android:text="@string/ktv_music_join_chorus"
+        android:textAllCaps="false"
         android:textColor="@android:color/white"
-        android:textSize="18sp" />
+        android:textSize="18sp"
+        app:shapeAppearance="@style/ktv_roundStyle"
+        app:strokeColor="@android:color/white"
+        app:strokeWidth="1dp"
+        tools:text="@string/ktv_music_join_chorus" />
 
 </LinearLayout>

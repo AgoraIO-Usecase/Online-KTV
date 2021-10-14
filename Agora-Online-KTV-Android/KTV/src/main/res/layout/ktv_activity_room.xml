@@ -19,8 +19,8 @@
         android:id="@+id/lrcControlView"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="20dp"
         android:layout_marginHorizontal="12dp"
+        android:layout_marginTop="20dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHeight_percent="0.45"
         app:layout_constraintStart_toStartOf="parent"
@@ -28,17 +28,16 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view_att_room"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginBottom="80dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="64dp"
         android:paddingHorizontal="12dp"
         app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/lrcControlView"
         app:spanCount="4"
+        tools:itemCount="8"
         tools:listitem="@layout/ktv_item_room_speaker" />
 
     <ImageButton
@@ -48,6 +47,7 @@
         android:layout_marginStart="12dp"
         android:layout_marginBottom="12dp"
         android:background="@null"
+        android:contentDescription="@string/ktv_toggle_mic"
         android:src="@mipmap/ktv_room_mic"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -58,6 +58,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
         android:background="@null"
+        android:contentDescription="@string/ktv_choose_cover"
         android:src="@mipmap/ktv_room_mv"
         app:layout_constraintBottom_toBottomOf="@+id/btn_mic_att_room"
         app:layout_constraintStart_toEndOf="@+id/btn_mic_att_room" />
@@ -68,9 +69,10 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="10dp"
         android:background="@null"
+        android:contentDescription="@string/ktv_chorus"
         android:src="@mipmap/ktv_chorus"
         app:layout_constraintEnd_toStartOf="@+id/btn_order_song_att_room"
-        app:layout_constraintTop_toTopOf="@+id/btn_order_song_att_room"/>
+        app:layout_constraintTop_toTopOf="@+id/btn_order_song_att_room" />
 
     <ImageButton
         android:id="@+id/btn_order_song_att_room"
@@ -78,6 +80,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="12dp"
         android:background="@null"
+        android:contentDescription="@string/ktv_order_song"
         android:orientation="horizontal"
         android:src="@mipmap/ktv_room_choose_song"
         app:layout_constraintBottom_toBottomOf="@+id/btn_mic_att_room"
@@ -99,5 +102,7 @@
         android:id="@+id/group_on_seat_att_room"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:constraint_referenced_ids="btn_mic_att_room,btn_change_cover_att_room,btn_chorus_att_room,btn_order_song_att_room" />
+        android:visibility="gone"
+        app:constraint_referenced_ids="btn_mic_att_room,btn_change_cover_att_room,btn_chorus_att_room,btn_order_song_att_room"
+        tools:visibility="visible" />
 </androidx.constraintlayout.widget.ConstraintLayout>

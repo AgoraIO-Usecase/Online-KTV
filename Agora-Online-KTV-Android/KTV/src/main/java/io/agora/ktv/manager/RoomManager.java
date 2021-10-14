@@ -20,6 +20,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -73,6 +74,8 @@ public final class RoomManager {
      */
     private final List<String> singers = new ArrayList<>();
 
+    private Thread syncMemberThread;
+
     private final IRtcEngineEventHandler mIRtcEngineEventHandler = new IRtcEngineEventHandler() {
 
         @Override
@@ -118,10 +121,17 @@ public final class RoomManager {
             try {
                 String strMsg = new String(data);
                 jsonMsg = new JSONObject(strMsg);
-                if (mMusicModel == null)
-                    return;
 
-                if (jsonMsg.getString("cmd").equals("setLrcTime")) {
+                String cmd = null;
+                try {
+                    cmd = jsonMsg.getString("cmd");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                if (cmd == null) return;
+
+                if (cmd.equals("setLrcTime")) {
                     if (!jsonMsg.getString("lrcId").equals(mMusicModel.getMusicId())) {
                         return;
                     }
@@ -129,6 +139,30 @@ public final class RoomManager {
                     long total = jsonMsg.getLong("duration");
                     long cur = jsonMsg.getLong("time");
                     mMainThreadDispatch.onMusicProgress(total, cur);
+                } else if (cmd.equals("syncMember")) {
+
+                    String userId = jsonMsg.getString("userId");
+                    int role = jsonMsg.getInt("role");
+
+                    // Add member
+                    if(memberHashMap.get(userId) == null){
+                        String avatar = jsonMsg.getString("avatar");
+                        AgoraMember member = new AgoraMember();
+                        User user = new User();
+                        user.setAvatar(avatar);
+                        user.setObjectId(userId);
+
+                        member.setId(user.getObjectId());
+                        member.setUser(user);
+                        member.setRole(AgoraMember.Role.parse(role));
+                        memberHashMap.put(userId, member);
+                        mMainThreadDispatch.onMemberJoin(member);
+                    }else if( role == AgoraMember.Role.Listener.getValue()){
+                        AgoraMember agoraMember = new AgoraMember();
+                        agoraMember.setId(userId);
+                        agoraMember.setUserId(userId);
+                        mMainThreadDispatch.onMemberLeave(agoraMember);
+                    }
                 }
             } catch (JSONException exp) {
                 exp.printStackTrace();
@@ -175,8 +209,8 @@ public final class RoomManager {
     public Integer getStreamId() {
         if (mStreamId == null) {
             DataStreamConfig cfg = new DataStreamConfig();
-            cfg.syncWithAudio = true;
-            cfg.ordered = true;
+            cfg.syncWithAudio = false;
+            cfg.ordered = false;
             mStreamId = getRtcEngine().createDataStream(cfg);
         }
         return mStreamId;
@@ -355,6 +389,7 @@ public final class RoomManager {
     }
 
     public Completable leaveRoom() {
+        stopSyncMember();
         mLogger.i("leaveRoom() called");
 
         mLoggerRTC.i("leaveChannel() called");
@@ -362,6 +397,7 @@ public final class RoomManager {
 
         mRoom = null;
         mCurrentMember = null;
+        instance = null;
         return Completable.complete();
     }
 
@@ -376,8 +412,44 @@ public final class RoomManager {
         return Completable.complete();
     }
 
-    public Completable changeRole(AgoraMember member, int role) {
-        mLogger.i("changeRole:" + role + member);
-        return Completable.complete();
+    public void changeCurrentRole(int role) {
+        getRtcEngine().setClientRole(role);
+    }
+
+    public void startSyncMember(){
+        if (syncMemberThread == null){
+            syncMemberThread = new Thread(() -> {
+                while (!syncMemberThread.isInterrupted()) {
+                    sendSyncMemberMsg();
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        break;
+                    }
+                }
+            });
+            syncMemberThread.start();
+        }
+    }
+
+    private void sendSyncMemberMsg(){
+        if( getRtcEngine() == null) return;
+        Map<String, Object> msg = new HashMap<>();
+        msg.put("cmd", "syncMember");
+        msg.put("userId", mCurrentMember.getUserId());
+        msg.put("role", mCurrentMember.getRole().getValue());
+        msg.put("avatar", mCurrentMember.getUser().getAvatar());
+        JSONObject jsonMsg = new JSONObject(msg);
+        int ret = getRtcEngine().sendStreamMessage(getStreamId(), jsonMsg.toString().getBytes());
+        if (ret < 0) {
+            mLogger.e("sendSyncLrc() sendStreamMessage called returned: ret = [%s]", ret);
+        }
+    }
+    public void stopSyncMember(){
+        if(syncMemberThread != null) {
+            syncMemberThread.interrupt();
+        }
+        mCurrentMember.setRole(AgoraMember.Role.Listener);
+        sendSyncMemberMsg();
     }
 }

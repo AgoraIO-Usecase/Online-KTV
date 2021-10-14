@@ -57,7 +57,12 @@
     <string name="ktv_music_menu_dialog_vol2">伴奏音量</string>
     <string name="ktv_music_menu_dialog_effect">效果</string>
 
-
     <string name="ktv_permission_alert">缺少运行所需的必要权限，是否确认申请？</string>
     <string name="ktv_permission_refused">运行此功能需要的必要权限未被授予。</string>
+
+    <!--    Content Description-->
+    <string name="ktv_toggle_mic">麦克风启用或静音</string>
+    <string name="ktv_choose_cover">选择你喜欢的歌曲封面</string>
+    <string name="ktv_chorus">合唱</string>
+    <string name="ktv_order_song">点歌</string>
 </resources>
