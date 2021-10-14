@@ -67,8 +67,8 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
     }
 
     @Override
-    public void destory() {
-        super.destory();
+    public void destroy() {
+        super.destroy();
 
         leaveChannelEX();
         stopNetTestTask();
@@ -373,7 +373,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
                         public void onSuccess(@NonNull MemberMusicModel musicModel) {
                             onResourceReady(musicModel);
 
-                            onMusicPlaingByListener();
+                            onMusicPlayingByListener();
                             playByListener(music);
                         }
 

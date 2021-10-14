@@ -131,38 +131,41 @@ public final class RoomManager {
 
                 if (cmd == null) return;
 
-                if (cmd.equals("setLrcTime")) {
-                    if (!jsonMsg.getString("lrcId").equals(mMusicModel.getMusicId())) {
-                        return;
-                    }
+                switch (cmd) {
+//                    case "setLrcTime":
+//                        if (!jsonMsg.getString("lrcId").equals(mMusicModel.getMusicId())) {
+//                            return;
+//                        }
+//
+//                        long total = jsonMsg.getLong("duration");
+//                        long cur = jsonMsg.getLong("time");
+//                        mMainThreadDispatch.onMusicProgress(total, cur);
+//                        break;
+                    case "syncMember":
 
-                    long total = jsonMsg.getLong("duration");
-                    long cur = jsonMsg.getLong("time");
-                    mMainThreadDispatch.onMusicProgress(total, cur);
-                } else if (cmd.equals("syncMember")) {
+                        String userId = jsonMsg.getString("userId");
+                        int role = jsonMsg.getInt("role");
 
-                    String userId = jsonMsg.getString("userId");
-                    int role = jsonMsg.getInt("role");
+                        AgoraMember tempMember = memberHashMap.get(userId);
 
-                    // Add member
-                    if(memberHashMap.get(userId) == null){
-                        String avatar = jsonMsg.getString("avatar");
-                        AgoraMember member = new AgoraMember();
-                        User user = new User();
-                        user.setAvatar(avatar);
-                        user.setObjectId(userId);
+                        // Add member
+                        if (tempMember == null) {
+                            String avatar = jsonMsg.getString("avatar");
+                            AgoraMember member = new AgoraMember();
+                            User user = new User();
+                            user.setAvatar(avatar);
+                            user.setObjectId(userId);
 
-                        member.setId(user.getObjectId());
-                        member.setUser(user);
-                        member.setRole(AgoraMember.Role.parse(role));
-                        memberHashMap.put(userId, member);
-                        mMainThreadDispatch.onMemberJoin(member);
-                    }else if( role == AgoraMember.Role.Listener.getValue()){
-                        AgoraMember agoraMember = new AgoraMember();
-                        agoraMember.setId(userId);
-                        agoraMember.setUserId(userId);
-                        mMainThreadDispatch.onMemberLeave(agoraMember);
-                    }
+                            member.setId(user.getObjectId());
+                            member.setUser(user);
+                            member.setRole(AgoraMember.Role.parse(role));
+                            memberHashMap.put(userId, member);
+                            mMainThreadDispatch.onMemberJoin(member);
+                        } else if (role == AgoraMember.Role.Listener.getValue()) {
+                            memberHashMap.remove(userId);
+                            mMainThreadDispatch.onMemberLeave(tempMember);
+                        }
+                        break;
                 }
             } catch (JSONException exp) {
                 exp.printStackTrace();
@@ -203,8 +206,6 @@ public final class RoomManager {
 
     /**
      * joinChannel之后只能创建5个，leaveChannel之后重置。
-     *
-     * @return
      */
     public Integer getStreamId() {
         if (mStreamId == null) {

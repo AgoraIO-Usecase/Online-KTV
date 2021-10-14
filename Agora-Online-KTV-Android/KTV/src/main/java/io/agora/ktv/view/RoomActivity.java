@@ -2,7 +2,6 @@ package io.agora.ktv.view;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -101,7 +100,7 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> {
         }
 
         @Override
-        public void onMusicPlaing() {
+        public void onMusicPlaying() {
             mBinding.lrcControlView.onPlayStatus();
         }
 
@@ -130,6 +129,7 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> {
 
         @Override
         public void onReceivedCountdown(int time) {
+            mBinding.lrcControlView.onWaitChorusStatus();
             mBinding.lrcControlView.setCountDown(time);
         }
     };
@@ -542,7 +542,7 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> {
         }
 
         if (mMusicPlayer.hasAccompaniment()) {
-            mMusicPlayer.toggleOrigle();
+            mMusicPlayer.toggleOriginal();
         } else {
             mBinding.lrcControlView.setSwitchOriginalChecked(true);
             ToastUtil.toastShort(this, R.string.ktv_error_cut);
@@ -647,7 +647,7 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> {
         // Step 2
         if (mMusicPlayer != null) {
             mMusicPlayer.stop();
-            mMusicPlayer.destory();
+            mMusicPlayer.destroy();
         }
 
         int role = Constants.CLIENT_ROLE_BROADCASTER;
@@ -676,7 +676,7 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> {
 
         if (mMusicPlayer != null) {
             mMusicPlayer.stop();
-            mMusicPlayer.destory();
+            mMusicPlayer.destroy();
             mMusicPlayer = null;
         }
     }
@@ -793,7 +793,7 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> {
         RoomManager.Instance(this).removeRoomEventCallback(mRoomEventCallback);
         if (mMusicPlayer != null) {
             mMusicPlayer.unregisterPlayerObserver();
-            mMusicPlayer.destory();
+            mMusicPlayer.destroy();
             mMusicPlayer = null;
         }
         super.onDestroy();

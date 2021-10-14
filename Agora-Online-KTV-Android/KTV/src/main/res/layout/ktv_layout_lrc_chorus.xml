@@ -33,6 +33,8 @@
         android:layout_marginTop="20dp"
         android:textAllCaps="false"
         android:textColor="@android:color/white"
+        android:insetTop="2dp"
+        android:insetBottom="2dp"
         android:textSize="18sp"
         app:shapeAppearance="@style/ktv_roundStyle"
         app:strokeColor="@android:color/white"

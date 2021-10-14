@@ -27,7 +27,6 @@ import io.agora.ktv.view.SongsFragment;
 
 /**
  * 点歌菜单
- *
  * @author chenhengfei@agora.io
  */
 public class RoomChooseSongDialog extends BaseBottomSheetDialogFragment<KtvDialogChooseSongBinding> {

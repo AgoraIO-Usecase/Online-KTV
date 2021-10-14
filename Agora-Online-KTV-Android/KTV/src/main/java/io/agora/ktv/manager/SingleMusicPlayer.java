@@ -53,51 +53,33 @@ public class SingleMusicPlayer extends BaseMusicPlayer {
 
         onPrepareResource();
 
-        if (ObjectsCompat.equals(music.getUserId(), mUser.getObjectId())) {
-            ResourceManager.Instance(mContext)
-                    .download(music, false)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new SingleObserver<MemberMusicModel>() {
-                        @Override
-                        public void onSubscribe(@NonNull Disposable d) {
-                        }
+        boolean singMyself = ObjectsCompat.equals(music.getUserId(), mUser.getObjectId());
+        // 点歌的是自己
+        ResourceManager.Instance(mContext)
+                .download(music, !singMyself)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new SingleObserver<MemberMusicModel>() {
+                    @Override
+                    public void onSubscribe(@NonNull Disposable d) {
+                    }
 
-                        @Override
-                        public void onSuccess(@NonNull MemberMusicModel musicModel) {
-                            onResourceReady(musicModel);
+                    @Override
+                    public void onSuccess(@NonNull MemberMusicModel musicModel) {
+                        onResourceReady(musicModel);
 
+                        if (singMyself) {
                             open(musicModel);
-                        }
-
-                        @Override
-                        public void onError(@NonNull Throwable e) {
-                            ToastUtil.toastShort(mContext, R.string.ktv_lrc_load_fail);
-                        }
-                    });
-        } else {
-            ResourceManager.Instance(mContext)
-                    .download(music, true)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new SingleObserver<MemberMusicModel>() {
-                        @Override
-                        public void onSubscribe(@NonNull Disposable d) {
-
-                        }
-
-                        @Override
-                        public void onSuccess(@NonNull MemberMusicModel musicModel) {
-                            onResourceReady(musicModel);
-
-                            onMusicPlaingByListener();
+                        } else {
+                            onMusicPlayingByListener();
                             playByListener(musicModel);
                         }
+                    }
 
-                        @Override
-                        public void onError(@NonNull Throwable e) {
-                            ToastUtil.toastShort(mContext, R.string.ktv_lrc_load_fail);
-                        }
-                    });
-        }
+                    @Override
+                    public void onError(@NonNull Throwable e) {
+                        ToastUtil.toastShort(mContext, R.string.ktv_lrc_load_fail);
+                    }
+                });
     }
 }

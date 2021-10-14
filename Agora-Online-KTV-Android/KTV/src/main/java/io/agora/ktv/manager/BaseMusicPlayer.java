@@ -44,7 +44,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
     private static volatile long mRecvedPlayPosition = 0;//播放器播放position，ms
     private static volatile Long mLastRecvPlayPosTime = null;
 
-    protected static volatile MemberMusicModel mMusicModel;
+    protected volatile MemberMusicModel mMusicModel;
 
     private Callback mCallback;
 
@@ -64,7 +64,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
     protected static final int ACTION_ON_RECEIVED_REPLAY_TEST_DELAY = ACTION_ON_RECEIVED_TEST_DELAY + 1;
     protected static final int ACTION_ON_RECEIVED_CHANGED_ORIGLE = ACTION_ON_RECEIVED_REPLAY_TEST_DELAY + 1;
 
-    protected static volatile Status mStatus = Status.IDLE;
+    public volatile Status mStatus = Status.IDLE;
 
     enum Status {
         IDLE(0), Opened(1), Started(2), Paused(3), Stopped(4);
@@ -102,7 +102,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
                 }
             } else if (msg.what == ACTION_ON_MUSIC_PLAING) {
                 if (mCallback != null) {
-                    mCallback.onMusicPlaing();
+                    mCallback.onMusicPlaying();
                 }
             } else if (msg.what == ACTION_ON_MUSIC_PAUSE) {
                 if (mCallback != null) {
@@ -182,7 +182,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
     public abstract void prepare(@NonNull MemberMusicModel music);
 
     public void playByListener(@NonNull MemberMusicModel mMusicModel) {
-        BaseMusicPlayer.mMusicModel = mMusicModel;
+        this.mMusicModel = mMusicModel;
         startDisplayLrc();
     }
 
@@ -203,13 +203,13 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
         }
 
         File fileMusic = mMusicModel.getFileMusic();
-        if (fileMusic.exists() == false) {
+        if (!fileMusic.exists()) {
             mLogger.e("open error: fileMusic is not exists");
             return -4;
         }
 
         File fileLrc = mMusicModel.getFileLrc();
-        if (fileLrc.exists() == false) {
+        if (!fileLrc.exists()) {
             mLogger.e("open error: fileLrc is not exists");
             return -5;
         }
@@ -221,7 +221,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
         stopDisplayLrc();
 
         mAudioTrackIndex = 1;
-        BaseMusicPlayer.mMusicModel = mMusicModel;
+        this.mMusicModel = mMusicModel;
         mLogger.i("open() called with: mMusicModel = [%s]", mMusicModel);
         mPlayer.open(fileMusic.getAbsolutePath(), 0);
         return 0;
@@ -303,7 +303,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
         return true;
     }
 
-    public void toggleOrigle() {
+    public void toggleOriginal() {
         if (mAudioTrackIndex == 0) {
             selectAudioTrack(1);
         } else {
@@ -312,6 +312,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
     }
 
     public void sendCountdown(int time) {
+        if (mMusicModel == null) return;
         Map<String, Object> msg = new HashMap<>();
         msg.put("cmd", "countdown");
         msg.put("time", time);
@@ -334,27 +335,24 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
 
     protected void startDisplayLrc() {
         mStopDisplayLrc = false;
-        mDisplayThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                long curTs = 0;
-                long curTime;
-                long offset;
-                while (!mStopDisplayLrc) {
-                    if (mLastRecvPlayPosTime != null) {
-                        curTime = System.currentTimeMillis();
-                        offset = curTime - mLastRecvPlayPosTime;
-                        if (offset <= 1000) {
-                            curTs = mRecvedPlayPosition + offset;
-                            mHandler.obtainMessage(ACTION_UPDATE_TIME, curTs).sendToTarget();
-                        }
+        mDisplayThread = new Thread(() -> {
+            long curTs = 0;
+            long curTime;
+            long offset;
+            while (!mStopDisplayLrc && !Thread.currentThread().isInterrupted()) {
+                if (mLastRecvPlayPosTime != null) {
+                    curTime = System.currentTimeMillis();
+                    offset = curTime - mLastRecvPlayPosTime;
+                    if (offset <= 1000) {
+                        curTs = mRecvedPlayPosition + offset;
+                        mHandler.obtainMessage(ACTION_UPDATE_TIME, curTs).sendToTarget();
                     }
+                }
 
-                    try {
-                        Thread.sleep(50);
-                    } catch (InterruptedException exp) {
-                        break;
-                    }
+                try {
+                    Thread.sleep(50);
+                } catch (InterruptedException exp) {
+                    break;
                 }
             }
         });
@@ -365,11 +363,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
     protected void stopDisplayLrc() {
         mStopDisplayLrc = true;
         if (mDisplayThread != null) {
-            try {
-                mDisplayThread.join();
-            } catch (InterruptedException exp) {
-                mLogger.e("stopDisplayLrc: " + exp.getMessage());
-            }
+            mDisplayThread.interrupt();
         }
     }
 
@@ -380,7 +374,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
             public void run() {
                 mLogger.i("startSyncLrc: " + lrcId);
                 mStopSyncLrc = false;
-                while (!mStopSyncLrc && mStatus.isAtLeast(Status.Started)) {
+                while (!mStopSyncLrc && mStatus.isAtLeast(Status.Started) && !Thread.currentThread().isInterrupted()) {
                     if (mPlayer == null) {
                         break;
                     }
@@ -390,7 +384,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
                     }
 
                     try {
-                        Thread.sleep(999L);
+                        Thread.sleep(1000L);
                     } catch (InterruptedException exp) {
                         break;
                     }
@@ -418,11 +412,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
     private void stopSyncLrc() {
         mStopSyncLrc = true;
         if (mSyncLrcThread != null) {
-            try {
-                mSyncLrcThread.join();
-            } catch (InterruptedException exp) {
-                mLogger.e("stopSyncLrc: " + exp.getMessage());
-            }
+            mSyncLrcThread.interrupt();
         }
     }
 
@@ -447,52 +437,71 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
             String strMsg = new String(data);
             jsonMsg = new JSONObject(strMsg);
 
-            if (jsonMsg.getString("cmd").equals("setLrcTime")) {
-                long position = jsonMsg.getLong("time");
-                if (position == 0) {
-                    mHandler.obtainMessage(ACTION_ON_RECEIVED_PLAY, uid).sendToTarget();
-                } else if (position == -1) {
-                    mHandler.obtainMessage(ACTION_ON_RECEIVED_PAUSE, uid).sendToTarget();
-                } else {
-                    Bundle bundle = new Bundle();
-                    bundle.putInt("uid", uid);
-                    bundle.putLong("time", position);
-                    Message message = Message.obtain(mHandler, ACTION_ON_RECEIVED_SYNC_TIME);
-                    message.setData(bundle);
-                    message.sendToTarget();
+            String cmd = null;
+            try {
+                cmd = jsonMsg.getString("cmd");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            if (cmd == null) return;
+
+            Bundle bundle = null;
+            int what = -1;
+
+            switch (cmd) {
+                case "setLrcTime":
+                    long position = jsonMsg.getLong("time");
+                    if (position == 0) {
+                        mHandler.obtainMessage(ACTION_ON_RECEIVED_PLAY, uid).sendToTarget();
+                    } else if (position == -1) {
+                        mHandler.obtainMessage(ACTION_ON_RECEIVED_PAUSE, uid).sendToTarget();
+                    } else {
+                        bundle = new Bundle();
+                        bundle.putInt("uid", uid);
+                        bundle.putLong("time", position);
+                        what = ACTION_ON_RECEIVED_SYNC_TIME;
+                    }
+                    break;
+                case "countdown": {
+                    if(mStatus == Status.IDLE) {
+                        int time = jsonMsg.getInt("time");
+
+                        bundle = new Bundle();
+                        bundle.putInt("uid", uid);
+                        bundle.putInt("time", time);
+                        what = ACTION_ON_RECEIVED_COUNT_DOWN;
+                    }
+                    break;
                 }
-            } else if (jsonMsg.getString("cmd").equals("countdown")) {
-                int time = jsonMsg.getInt("time");
-                Bundle bundle = new Bundle();
-                bundle.putInt("uid", uid);
-                bundle.putInt("time", time);
-                Message message = Message.obtain(mHandler, ACTION_ON_RECEIVED_COUNT_DOWN);
-                message.setData(bundle);
-                message.sendToTarget();
-            } else if (jsonMsg.getString("cmd").equals("testDelay")) {
-                long time = jsonMsg.getLong("time");
-                Bundle bundle = new Bundle();
-                bundle.putInt("uid", uid);
-                bundle.putLong("time", time);
-                Message message = Message.obtain(mHandler, ACTION_ON_RECEIVED_TEST_DELAY);
-                message.setData(bundle);
-                message.sendToTarget();
-            } else if (jsonMsg.getString("cmd").equals("replyTestDelay")) {
-                long testDelayTime = jsonMsg.getLong("testDelayTime");
-                long time = jsonMsg.getLong("time");
-                Bundle bundle = new Bundle();
-                bundle.putInt("uid", uid);
-                bundle.putLong("time", time);
-                bundle.putLong("testDelayTime", testDelayTime);
-                Message message = Message.obtain(mHandler, ACTION_ON_RECEIVED_REPLAY_TEST_DELAY);
-                message.setData(bundle);
-                message.sendToTarget();
-            } else if (jsonMsg.getString("cmd").equals("TrackMode")) {
-                int mode = jsonMsg.getInt("mode");
-                Bundle bundle = new Bundle();
-                bundle.putInt("uid", uid);
-                bundle.putInt("mode", mode);
-                Message message = Message.obtain(mHandler, ACTION_ON_RECEIVED_CHANGED_ORIGLE);
+                case "testDelay": {
+                    long time = jsonMsg.getLong("time");
+                    bundle = new Bundle();
+                    bundle.putInt("uid", uid);
+                    bundle.putLong("time", time);
+                    what = ACTION_ON_RECEIVED_TEST_DELAY;
+                }
+                case "replyTestDelay": {
+                    long testDelayTime = jsonMsg.getLong("testDelayTime");
+                    long time = jsonMsg.getLong("time");
+                    bundle = new Bundle();
+                    bundle.putInt("uid", uid);
+                    bundle.putLong("time", time);
+                    bundle.putLong("testDelayTime", testDelayTime);
+                    what = ACTION_ON_RECEIVED_REPLAY_TEST_DELAY;
+                    break;
+                }
+                case "TrackMode": {
+                    int mode = jsonMsg.getInt("mode");
+                    bundle = new Bundle();
+                    bundle.putInt("uid", uid);
+                    bundle.putInt("mode", mode);
+                    what = ACTION_ON_RECEIVED_CHANGED_ORIGLE;
+                    break;
+                }
+            }
+            if (what != -1){
+                Message message = Message.obtain(mHandler, what);
                 message.setData(bundle);
                 message.sendToTarget();
             }
@@ -539,7 +548,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
                 onMusicOpenCompleted();
                 break;
             case PLAYER_STATE_PLAYING:
-                onMusicPlaing();
+                onMusicPlaying();
                 break;
             case PLAYER_STATE_PAUSED:
                 onMusicPause();
@@ -602,15 +611,15 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
         mHandler.obtainMessage(ACTION_ON_MUSIC_OPENERROR, error).sendToTarget();
     }
 
-    protected void onMusicPlaingByListener() {
-        mLogger.i("onMusicPlaingByListener() called");
+    protected void onMusicPlayingByListener() {
+        mLogger.i("onMusicPlayingByListener() called");
         mStatus = Status.Started;
 
         mHandler.obtainMessage(ACTION_ON_MUSIC_PLAING).sendToTarget();
     }
 
-    protected void onMusicPlaing() {
-        mLogger.i("onMusicPlaing() called");
+    protected void onMusicPlaying() {
+        mLogger.i("onMusicPlaying() called");
         mStatus = Status.Started;
 
         if (mStopSyncLrc)
@@ -647,8 +656,8 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
         mHandler.obtainMessage(ACTION_ON_MUSIC_COMPLETED).sendToTarget();
     }
 
-    public void destory() {
-        mLogger.i("destory() called");
+    public void destroy() {
+        mLogger.i("destroy() called");
         mPlayer.unRegisterPlayerObserver(this);
         RoomManager.Instance(mContext).getRtcEngine().removeHandler(this);
         mCallback = null;
@@ -702,7 +711,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
         /**
          * 正在播放
          */
-        void onMusicPlaing();
+        void onMusicPlaying();
 
         /**
          * 暂停
