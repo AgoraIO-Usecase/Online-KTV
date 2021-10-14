@@ -17,7 +17,7 @@ import io.reactivex.Observable;
  *
  * @author chenhengfei(Aslanchen)
  */
-public interface IDataRepositroy {
+public interface IDataRepository {
     Observable<User> login(@NonNull User user);
 
     Observable<User> update(@NonNull User user);

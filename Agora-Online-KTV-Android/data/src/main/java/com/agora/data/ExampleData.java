@@ -1,5 +1,6 @@
 package com.agora.data;
 
+import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -101,5 +102,14 @@ public class ExampleData {
 
     public static void updateCoverImage(int index) {
         mvImage.setValue(index);
+    }
+
+    public static @Nullable MusicModel getMusic(String musicId){
+        for (int i = 0; i < exampleSongs.size(); i++) {
+            if (exampleSongs.get(i).getMusicId().equals(musicId)) {
+                return exampleSongs.get(i);
+            }
+        }
+        return null;
     }
 }

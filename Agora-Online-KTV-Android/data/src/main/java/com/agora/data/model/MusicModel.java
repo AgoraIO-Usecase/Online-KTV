@@ -80,7 +80,7 @@ public class MusicModel implements Parcelable {
     }
 
     public String getName() {
-        return name;
+        return name == null ? "" : name;
     }
 
     public void setName(String name) {
@@ -120,7 +120,7 @@ public class MusicModel implements Parcelable {
     }
 
     public String getSinger() {
-        return singer;
+        return singer == null ? "" : singer;
     }
 
     public void setSinger(String singer) {

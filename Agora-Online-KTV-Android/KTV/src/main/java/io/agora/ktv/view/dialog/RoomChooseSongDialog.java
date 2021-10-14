@@ -1,5 +1,6 @@
 package io.agora.ktv.view.dialog;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
 
@@ -10,11 +11,18 @@ import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Lifecycle;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
+import com.agora.data.manager.UserManager;
+import com.agora.data.model.AgoraRoom;
+import com.agora.data.model.MusicModel;
+import com.agora.data.model.User;
 import com.google.android.material.tabs.TabLayoutMediator;
 
 import io.agora.baselibrary.base.BaseBottomSheetDialogFragment;
 import io.agora.ktv.R;
+import io.agora.ktv.bean.MemberMusicModel;
 import io.agora.ktv.databinding.KtvDialogChooseSongBinding;
+import io.agora.ktv.manager.RoomManager;
+import io.agora.ktv.view.RoomActivity;
 import io.agora.ktv.view.SongsFragment;
 
 /**
@@ -27,12 +35,12 @@ public class RoomChooseSongDialog extends BaseBottomSheetDialogFragment<KtvDialo
 
     private final FragmentManager fragmentManager;
     private final Lifecycle lifecycle;
-    private boolean isChorus;
+    public static boolean isChorus = false;
 
     public RoomChooseSongDialog(FragmentManager fragmentManager, Lifecycle lifecycle, boolean isChorus) {
         this.fragmentManager = fragmentManager;
         this.lifecycle = lifecycle;
-        this.isChorus = isChorus;
+        RoomChooseSongDialog.isChorus = isChorus;
     }
 
     @Override
@@ -57,27 +65,25 @@ public class RoomChooseSongDialog extends BaseBottomSheetDialogFragment<KtvDialo
             else
                 tab.setText(R.string.ktv_room_choosed_song);
         }).attach();
-//        mBinding.pager.setAdapter(new FragmentStatePagerAdapter(getChildFragmentManager(), FragmentStatePagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
-//
-//            @Override
-//            public int getCount() {
-//                return 1;
-//            }
-//
-//            @NonNull
-//            @Override
-//            public Fragment getItem(int position) {
-//                return mSongsFragment;
-//            }
-//
-//            @Override
-//            public CharSequence getPageTitle(int position) {
-//                if (position == 0) {
-//                    return getString(R.string.ktv_room_choose_song);
-//                } else {
-//                    return getString(R.string.ktv_room_choosed_song);
-//                }
-//            }
-//        });
+    }
+
+    public static void finishChooseMusic(Context context, MusicModel music){
+        AgoraRoom mRoom = RoomManager.Instance(context).getRoom();
+        User mUser = UserManager.Instance().getUserLiveData().getValue();
+        if (mRoom != null && mUser != null) {
+            // Construct a MemberMusicModel
+            MemberMusicModel model = new MemberMusicModel(music);
+            model.setRoomId(mRoom);
+            model.setUserId(mUser.getObjectId());
+            model.setId(music.getMusicId());
+            model.setMusicId(music.getMusicId());
+            model.setType(RoomChooseSongDialog.isChorus? MemberMusicModel.SingType.Chorus : MemberMusicModel.SingType.Single);
+
+            RoomManager.Instance(context).onMusicChanged(model);
+
+            // Chose this dialog
+            if(context instanceof RoomActivity)
+                ((RoomActivity)context).onBackPressed();
+        }
     }
 }

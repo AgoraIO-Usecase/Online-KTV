@@ -39,7 +39,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
-public class DataRepositroyImpl implements IDataRepositroy {
+public class DataRepositoryImpl implements IDataRepository {
 
     private Gson mGson = new GsonBuilder()
             .create();

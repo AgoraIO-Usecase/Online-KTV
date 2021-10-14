@@ -4,8 +4,9 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 
+import com.agora.data.ExampleData;
 import com.agora.data.model.MusicModel;
-import com.agora.data.provider.DataRepositroy;
+import com.agora.data.provider.DataRepository;
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
 
@@ -21,9 +22,9 @@ import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
 import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
+import io.reactivex.SingleOnSubscribe;
 import io.reactivex.SingleSource;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 
 /**
@@ -33,17 +34,12 @@ import io.reactivex.functions.Function;
  * @date 2021/06/01
  */
 public final class ResourceManager {
-    private Logger.Builder mLogger = XLog.tag("MusicRes");
+    private final Logger.Builder mLogger = XLog.tag("MusicRes");
 
-    private Context mContext;
     private volatile static ResourceManager instance;
-
-    private String resourceRoot;
-
-    public static volatile boolean isPreparing = false;
+    private final String resourceRoot;
 
     private ResourceManager(Context mContext) {
-        this.mContext = mContext;
         resourceRoot = mContext.getExternalCacheDir().getPath();
     }
 
@@ -58,90 +54,74 @@ public final class ResourceManager {
     }
 
     public Single<MemberMusicModel> download(final MemberMusicModel musicModel, boolean onlyLrc) {
-        return DataRepositroy.Instance(mContext)
-                .getMusic(musicModel.getMusicId())
-                .firstOrError()
-                .retry(3)
-                .flatMap(new Function<MusicModel, SingleSource<MemberMusicModel>>() {
-                    @Override
-                    public SingleSource<MemberMusicModel> apply(@NonNull MusicModel model) throws Exception {
-                        musicModel.setSong(model.getSong());
-                        musicModel.setLrc(model.getLrc());
+        return Single.create(new SingleOnSubscribe<MusicModel>() {
+            @Override
+            public void subscribe(@NonNull SingleEmitter<MusicModel> emitter) throws Exception {
+                MusicModel music = ExampleData.getMusic(musicModel.getMusicId());
+                if(music == null) emitter.onError(new Throwable("Can not find this song."));
+                else emitter.onSuccess(music);
+            }
+        }).flatMap((Function<MusicModel, SingleSource<MemberMusicModel>>) model -> {
+            musicModel.setSong(model.getSong());
+            musicModel.setLrc(model.getLrc());
 
-                        File fileMusic = new File(resourceRoot, musicModel.getMusicId());
-                        File fileLrc;
+            File fileMusic = new File(resourceRoot, musicModel.getMusicId());
+            File fileLrc;
 
-                        if (model.getLrc().endsWith("zip")) {
-                            fileLrc = new File(resourceRoot, musicModel.getMusicId() + ".zip");
-                        } else if (model.getLrc().endsWith("xml")) {
-                            fileLrc = new File(resourceRoot, musicModel.getMusicId() + ".xml");
-                        } else if (model.getLrc().endsWith("lrc")) {
-                            fileLrc = new File(resourceRoot, musicModel.getMusicId() + ".lrc");
-                        } else {
-                            return Single.error(new Throwable("未知歌词格式"));
+            if (model.getLrc().endsWith("zip")) {
+                fileLrc = new File(resourceRoot, musicModel.getMusicId() + ".zip");
+            } else if (model.getLrc().endsWith("xml")) {
+                fileLrc = new File(resourceRoot, musicModel.getMusicId() + ".xml");
+            } else if (model.getLrc().endsWith("lrc")) {
+                fileLrc = new File(resourceRoot, musicModel.getMusicId() + ".lrc");
+            } else {
+                return Single.error(new Throwable("未知歌词格式"));
+            }
+
+            musicModel.setFileMusic(fileMusic);
+            musicModel.setFileLrc(fileLrc);
+
+            mLogger.i("prepareMusic down %s", musicModel);
+            if (onlyLrc) {
+                Completable mCompletable = DataRepository.Instance().download(fileLrc, musicModel.getLrc());
+                if (model.getLrc().endsWith("zip")) {
+                    mCompletable = mCompletable.andThen(Completable.create(new CompletableOnSubscribe() {
+                        @Override
+                        public void subscribe(@NonNull CompletableEmitter emitter) throws Exception {
+                            File fileLrcNew = new File(resourceRoot, musicModel.getMusicId() + ".xml");
+                            unzipLrc(fileLrc, fileLrcNew);
+                            musicModel.setFileLrc(fileLrcNew);
+                            emitter.onComplete();
                         }
+                    }));
+                }
 
-                        musicModel.setFileMusic(fileMusic);
-                        musicModel.setFileLrc(fileLrc);
-
-                        mLogger.i("prepareMusic down %s", musicModel);
-                        if (onlyLrc) {
-                            Completable mCompletable = DataRepositroy.Instance(mContext).download(fileLrc, musicModel.getLrc());
-                            if (model.getLrc().endsWith("zip")) {
-                                mCompletable = mCompletable.andThen(Completable.create(new CompletableOnSubscribe() {
-                                    @Override
-                                    public void subscribe(@NonNull CompletableEmitter emitter) throws Exception {
-                                        File fileLrcNew = new File(resourceRoot, musicModel.getMusicId() + ".xml");
-                                        unzipLrc(fileLrc, fileLrcNew);
-                                        musicModel.setFileLrc(fileLrcNew);
-                                        emitter.onComplete();
-                                    }
-                                }));
-                            }
-
-                            return mCompletable.andThen(Single.just(musicModel));
-                        } else {
-                            Completable mCompletable = DataRepositroy.Instance(mContext).download(fileLrc, musicModel.getLrc());
-                            if (model.getLrc().endsWith("zip")) {
-                                mCompletable = mCompletable.andThen(Completable.create(new CompletableOnSubscribe() {
-                                    @Override
-                                    public void subscribe(@NonNull CompletableEmitter emitter) throws Exception {
-                                        File fileLrcNew = new File(resourceRoot, musicModel.getMusicId() + ".xml");
-                                        unzipLrc(fileLrc, fileLrcNew);
-                                        musicModel.setFileLrc(fileLrcNew);
-                                        emitter.onComplete();
-                                    }
-                                }));
-                            }
-
-                            return Completable.mergeArray(
-                                    DataRepositroy.Instance(mContext).download(fileMusic, musicModel.getSong()),
-                                    mCompletable)
-                                    .toSingle(new Callable<MemberMusicModel>() {
-                                        @Override
-                                        public MemberMusicModel call() throws Exception {
-                                            return musicModel;
-                                        }
-                                    });
+                return mCompletable.andThen(Single.just(musicModel));
+            } else {
+                Completable mCompletable = DataRepository.Instance().download(fileLrc, musicModel.getLrc());
+                if (model.getLrc().endsWith("zip")) {
+                    mCompletable = mCompletable.andThen(Completable.create(new CompletableOnSubscribe() {
+                        @Override
+                        public void subscribe(@NonNull CompletableEmitter emitter) throws Exception {
+                            File fileLrcNew = new File(resourceRoot, musicModel.getMusicId() + ".xml");
+                            unzipLrc(fileLrc, fileLrcNew);
+                            musicModel.setFileLrc(fileLrcNew);
+                            emitter.onComplete();
                         }
-                    }
-                }).doOnSubscribe(new Consumer<Disposable>() {
-                    @Override
-                    public void accept(Disposable disposable) throws Exception {
-                        isPreparing = true;
-                    }
-                }).doOnSuccess(new Consumer<MemberMusicModel>() {
-                    @Override
-                    public void accept(MemberMusicModel musicModel) throws Exception {
-                        isPreparing = false;
-                    }
-                }).doOnError(new Consumer<Throwable>() {
-                    @Override
-                    public void accept(Throwable throwable) throws Exception {
-                        isPreparing = false;
-                        mLogger.e("prepareMusic error", throwable);
-                    }
-                });
+                    }));
+                }
+
+                return Completable.mergeArray(
+                        DataRepository.Instance().download(fileMusic, musicModel.getSong()),
+                        mCompletable)
+                        .toSingle(new Callable<MemberMusicModel>() {
+                            @Override
+                            public MemberMusicModel call() throws Exception {
+                                return musicModel;
+                            }
+                        });
+            }
+        });
     }
 
     private void unzipLrc(File src, File des) throws Exception {

@@ -151,7 +151,7 @@ public class AgoraRoom implements Parcelable {
     public int getMVRes() {
         int index = 0;
         try {
-            index = Integer.parseInt(cover);
+            index = Integer.parseInt(mv);
         } catch (NumberFormatException e) {
             e.printStackTrace();
         }

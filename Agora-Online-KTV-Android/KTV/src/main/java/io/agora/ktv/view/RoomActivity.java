@@ -12,6 +12,7 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.util.ObjectsCompat;
+import androidx.fragment.app.Fragment;
 
 import com.agora.data.ExampleData;
 import com.agora.data.manager.UserManager;
@@ -27,6 +28,7 @@ import java.io.File;
 import java.util.Arrays;
 
 import io.agora.baselibrary.base.BaseActivity;
+import io.agora.baselibrary.base.BaseBottomSheetDialogFragment;
 import io.agora.baselibrary.base.BaseRecyclerViewAdapter;
 import io.agora.baselibrary.base.OnItemClickListener;
 import io.agora.baselibrary.util.ToastUtil;
@@ -209,7 +211,6 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> {
 
         @Override
         public void onMusicChanged(@NonNull MemberMusicModel music) {
-            super.onMusicChanged(music);
             RoomActivity.this.onMusicChanged(music);
         }
 
@@ -622,22 +623,24 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> {
 
     }
 
+    /**
+     * 1. Reset lrcControlView music and role.
+     * 2. Stop former music player.
+     * 3. Create new music player and initialize it.
+     */
     @SuppressLint("NotifyDataSetChanged")
     private void onMusicChanged(@NonNull MemberMusicModel music) {
+        // Step 1
         mBinding.lrcControlView.setMusic(music);
 
-        mRoomSpeakerAdapter.notifyDataSetChanged();
-
         User mUser = UserManager.Instance().getUserLiveData().getValue();
-        if (mUser == null)
-            return;
-
-        if (ObjectsCompat.equals(music.getUserId(), mUser.getObjectId())) {
+        if (mUser != null && ObjectsCompat.equals(music.getUserId(), mUser.getObjectId())) {
             mBinding.lrcControlView.setRole(LrcControlView.Role.Singer);
         } else {
             mBinding.lrcControlView.setRole(LrcControlView.Role.Listener);
         }
 
+        // Step 2
         if (mMusicPlayer != null) {
             mMusicPlayer.stop();
             mMusicPlayer.destory();
@@ -645,19 +648,15 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> {
 
         int role = Constants.CLIENT_ROLE_BROADCASTER;
         AgoraMember mMine = RoomManager.Instance(this).getMine();
-        if (mMine != null) {
-            if (mMine.getRole() == AgoraMember.Role.Owner ||
-                    mMine.getRole() == AgoraMember.Role.Speaker) {
-                role = Constants.CLIENT_ROLE_BROADCASTER;
-            } else if (mMine.getRole() == AgoraMember.Role.Listener) {
-                role = Constants.CLIENT_ROLE_AUDIENCE;
-            }
+        if (mMine != null && mMine.getRole() == AgoraMember.Role.Listener) {
+            role = Constants.CLIENT_ROLE_AUDIENCE;
         }
 
+        // Step 3
         if (music.getType() == MemberMusicModel.SingType.Single) {
             mBinding.lrcControlView.onPrepareStatus();
             mMusicPlayer = new SingleMusicPlayer(this, role, mPlayer);
-        } else if (music.getType() == MemberMusicModel.SingType.Chorus) {
+        } else {
             mBinding.lrcControlView.onWaitChorusStatus();
             mMusicPlayer = new MultipleMusicPlayer(this, role, mPlayer);
         }
@@ -711,7 +710,7 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> {
     private void showBackgroundPicDialog(View v) {
         AgoraRoom room = RoomManager.Instance(this).getRoom();
         if (room != null) {
-            new RoomMVDialog().show(getSupportFragmentManager(), Integer.parseInt(room.getMv()) - 1);
+            new RoomMVDialog().show(getSupportFragmentManager(), RoomMVDialog.TAG);
         }
     }
     private void showMusicMenuDialog() {
@@ -724,12 +723,7 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> {
                 .setTitle(R.string.ktv_room_change_music_title)
                 .setMessage(R.string.ktv_room_change_music_msg)
                 .setNegativeButton(R.string.ktv_cancel, null)
-                .setPositiveButton(R.string.ktv_confirm, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        changeMusic();
-                    }
-                })
+                .setPositiveButton(R.string.ktv_confirm, (dialog, which) -> changeMusic())
                 .show();
     }
     //</editor-fold>
@@ -782,6 +776,13 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> {
 
     @Override
     public void onBackPressed() {
-
+        // dismiss dialog
+        Fragment tempFragment = null;
+        for (Fragment fragment : getSupportFragmentManager().getFragments()) {
+            if(fragment instanceof BaseBottomSheetDialogFragment)
+                tempFragment = fragment;
+        }
+        if (tempFragment != null)
+            ((BaseBottomSheetDialogFragment<?>) tempFragment).dismiss();
     }
 }

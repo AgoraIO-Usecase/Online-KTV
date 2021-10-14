@@ -5,7 +5,6 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.FragmentManager;
 
 import com.agora.data.ExampleData;
 import com.agora.data.model.AgoraRoom;
@@ -25,9 +24,7 @@ import io.agora.ktv.widget.DividerDecoration;
  * @author chenhengfei@agora.io
  */
 public class RoomMVDialog extends BaseBottomSheetDialogFragment<KtvDialogMvBinding> implements OnItemClickListener<Integer> {
-    private static final String TAG = RoomMVDialog.class.getSimpleName();
-
-    private static final String TAG_MV_INDEX = "mvIndex";
+    public static final String TAG = RoomMVDialog.class.getSimpleName();
 
     private BaseRecyclerViewAdapter<KtvItemMvBinding, Integer, MVHolder> mAdapter;
 
@@ -39,19 +36,10 @@ public class RoomMVDialog extends BaseBottomSheetDialogFragment<KtvDialogMvBindi
 
     public void initView() {
         mAdapter = new BaseRecyclerViewAdapter<>(ExampleData.exampleBackgrounds, this, MVHolder.class);
-        if(getArguments()!=null){
-            mAdapter.selectedIndex = getArguments().getInt(TAG_MV_INDEX);
-        }else mAdapter.selectedIndex = 0;
-
+        Integer index = ExampleData.getMvImage().getValue();
+        mAdapter.selectedIndex = index == null ? 0 : index;
         mBinding.rvList.setAdapter(mAdapter);
         mBinding.rvList.addItemDecoration(new DividerDecoration(3));
-    }
-
-    public void show(@NonNull FragmentManager manager, int index) {
-        Bundle mBundle = new Bundle();
-        mBundle.putInt(TAG_MV_INDEX, index);
-        setArguments(mBundle);
-        super.show(manager, TAG);
     }
 
     @Override

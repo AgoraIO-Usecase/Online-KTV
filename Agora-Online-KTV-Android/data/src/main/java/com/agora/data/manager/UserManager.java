@@ -3,7 +3,7 @@ package com.agora.data.manager;
 import androidx.lifecycle.MutableLiveData;
 
 import com.agora.data.model.User;
-import com.agora.data.provider.IDataRepositroy;
+import com.agora.data.provider.IDataRepository;
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
 
@@ -22,7 +22,7 @@ public final class UserManager {
 
     private final MutableLiveData<User> mUserLiveData = new MutableLiveData<>();
 
-    private IDataRepositroy iDataRepositroy;
+    private IDataRepository iDataRepository;
 
     private UserManager() { }
 
@@ -40,8 +40,8 @@ public final class UserManager {
         return mUserLiveData;
     }
 
-    public void setupDataRepository(IDataRepositroy iDataRepositroy) {
-        this.iDataRepositroy = iDataRepositroy;
+    public void setupDataRepository(IDataRepository iDataRepository) {
+        this.iDataRepository = iDataRepository;
     }
 
     public boolean isLogin() {

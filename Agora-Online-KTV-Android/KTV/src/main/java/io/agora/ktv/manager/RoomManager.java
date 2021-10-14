@@ -153,6 +153,7 @@ public final class RoomManager {
         config.mEventHandler = mIRtcEngineEventHandler;
         config.mChannelProfile = Constants.CHANNEL_PROFILE_LIVE_BROADCASTING;
         config.mAudioScenario = Constants.AUDIO_SCENARIO_CHORUS;
+        config.getLogConfig().level = Constants.LogLevel.getValue(Constants.LogLevel.LOG_LEVEL_NONE);
 
         try {
             mRtcEngine = (RtcEngineEx) RtcEngine.create(config);

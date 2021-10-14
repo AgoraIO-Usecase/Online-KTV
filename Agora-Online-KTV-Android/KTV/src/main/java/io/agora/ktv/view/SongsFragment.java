@@ -7,13 +7,19 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.agora.data.ExampleData;
+import com.agora.data.manager.UserManager;
+import com.agora.data.model.AgoraRoom;
 import com.agora.data.model.MusicModel;
+import com.agora.data.model.User;
 
 import io.agora.baselibrary.base.BaseFragment;
 import io.agora.baselibrary.base.BaseRecyclerViewAdapter;
+import io.agora.baselibrary.base.OnItemClickListener;
 import io.agora.ktv.adapter.ChooseSongViewHolder;
+import io.agora.ktv.bean.MemberMusicModel;
 import io.agora.ktv.databinding.KtvFragmentSongListBinding;
 import io.agora.ktv.databinding.KtvItemChooseSongListBinding;
+import io.agora.ktv.manager.RoomManager;
 import io.agora.ktv.widget.DividerDecoration;
 
 /**
@@ -58,7 +64,7 @@ public class SongsFragment extends BaseFragment<KtvFragmentSongListBinding> {
                 MusicModel music;
                 for (int i = 0; i < size; i++) {
                     music = ExampleData.exampleSongs.get(i);
-                    if(music.getName().contains(searchKey))
+                    if(music.getName().contains(searchKey) || music.getSinger().contains(searchKey))
                         mAdapter.dataList.add(music);
                 }
             }
@@ -72,6 +78,6 @@ public class SongsFragment extends BaseFragment<KtvFragmentSongListBinding> {
 
     private void doLoadMusics(View v){
         mBinding.swipeRefreshLayout.setRefreshing(true);
-        loadMusics("");
+        loadMusics(mBinding.searchViewSecSongList.getQuery().toString().trim());
     }
 }

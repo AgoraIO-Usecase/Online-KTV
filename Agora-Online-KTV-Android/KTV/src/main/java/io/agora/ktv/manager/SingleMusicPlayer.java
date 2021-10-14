@@ -8,15 +8,18 @@ import androidx.core.util.ObjectsCompat;
 import com.agora.data.manager.UserManager;
 import com.agora.data.model.User;
 
+import io.agora.baselibrary.util.KTVUtil;
 import io.agora.baselibrary.util.ToastUtil;
 import io.agora.ktv.R;
 import io.agora.ktv.bean.MemberMusicModel;
 import io.agora.mediaplayer.IMediaPlayer;
 import io.agora.rtc2.ChannelMediaOptions;
 import io.agora.rtc2.Constants;
+import io.reactivex.Observer;
 import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 public class SingleMusicPlayer extends BaseMusicPlayer {
 
@@ -55,15 +58,17 @@ public class SingleMusicPlayer extends BaseMusicPlayer {
         if (ObjectsCompat.equals(music.getUserId(), mUser.getObjectId())) {
             ResourceManager.Instance(mContext)
                     .download(music, false)
+                    .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(new SingleObserver<MemberMusicModel>() {
                         @Override
                         public void onSubscribe(@NonNull Disposable d) {
-
+                            KTVUtil.logD("onSubscribe");
                         }
 
                         @Override
                         public void onSuccess(@NonNull MemberMusicModel musicModel) {
+                            KTVUtil.logD("onSuccess");
                             onResourceReady(musicModel);
 
                             open(musicModel);
@@ -71,6 +76,7 @@ public class SingleMusicPlayer extends BaseMusicPlayer {
 
                         @Override
                         public void onError(@NonNull Throwable e) {
+                            KTVUtil.logD("onError");
                             ToastUtil.toastShort(mContext, R.string.ktv_lrc_load_fail);
                         }
                     });
