@@ -90,6 +90,8 @@ public class LrcControlView extends FrameLayout implements View.OnClickListener 
     private CountDownTimer mCountDownLatch;
 
     private void startTimer() {
+        if(mCountDownLatch != null) mCountDownLatch.cancel();
+
         mCountDownLatch = new CountDownTimer(20 * 1000, 999) {
             @Override
             public void onTick(long millisUntilFinished) {

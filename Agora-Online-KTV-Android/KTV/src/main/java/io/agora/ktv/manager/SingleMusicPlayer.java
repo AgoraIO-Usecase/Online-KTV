@@ -47,6 +47,7 @@ public class SingleMusicPlayer extends BaseMusicPlayer {
 
     @Override
     public void prepare(@NonNull MemberMusicModel music) {
+        super.prepare(music);
         User mUser = UserManager.Instance().getUserLiveData().getValue();
         if (mUser == null) {
             return;
@@ -55,7 +56,6 @@ public class SingleMusicPlayer extends BaseMusicPlayer {
         onPrepareResource();
 
         boolean singMyself = ObjectsCompat.equals(music.getUserId(), mUser.getObjectId());
-        // 点歌的是自己
         ResourceManager.Instance(mContext)
                 .download(music, !singMyself)
                 .subscribeOn(Schedulers.io())

@@ -115,6 +115,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
 
     @Override
     public void prepare(@NonNull MemberMusicModel music) {
+        super.prepare(music);
         User mUser = UserManager.Instance().getUserLiveData().getValue();
         if (mUser == null) {
             return;
@@ -226,7 +227,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
     }
 
     @Override
-    protected void onMusicOpenCompleted() {
+    public void onMusicOpenCompleted() {
         mLogger.i("onMusicOpenCompleted() called");
         mStatus = Status.Opened;
 
@@ -389,7 +390,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
     protected void onReceivedStatusPlay(int uid) {
         super.onReceivedStatusPlay(uid);
 
-        MemberMusicModel mMemberMusicModel = RoomManager.Instance(mContext).getMusicModel();
+        MemberMusicModel mMemberMusicModel = RoomManager.Instance(mContext).mMusicModel;
         if (mMemberMusicModel == null) {
             return;
         }
@@ -433,7 +434,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
     protected void onReceivedStatusPause(int uid) {
         super.onReceivedStatusPause(uid);
 
-        MemberMusicModel mMemberMusicModel = RoomManager.Instance(mContext).getMusicModel();
+        MemberMusicModel mMemberMusicModel = RoomManager.Instance(mContext).mMusicModel;
         if (mMemberMusicModel == null) {
             return;
         }
@@ -452,7 +453,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
 
     @Override
     protected void onReceivedSetLrcTime(int uid, long position) {
-        MemberMusicModel mMemberMusicModel = RoomManager.Instance(mContext).getMusicModel();
+        MemberMusicModel mMemberMusicModel = RoomManager.Instance(mContext).mMusicModel;
         if (mMemberMusicModel == null) {
             return;
         }
@@ -500,7 +501,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
     protected void onReceivedTestDelay(int uid, long time) {
         super.onReceivedTestDelay(uid, time);
 
-        MemberMusicModel mMemberMusicModel = RoomManager.Instance(mContext).getMusicModel();
+        MemberMusicModel mMemberMusicModel = RoomManager.Instance(mContext).mMusicModel;
         if (mMemberMusicModel == null) {
             return;
         }
@@ -521,7 +522,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
     @Override
     protected void onReceivedReplyTestDelay(int uid, long testDelayTime, long time) {
         super.onReceivedReplyTestDelay(uid, testDelayTime, time);
-        MemberMusicModel mMemberMusicModel = RoomManager.Instance(mContext).getMusicModel();
+        MemberMusicModel mMemberMusicModel = RoomManager.Instance(mContext).mMusicModel;
         if (mMemberMusicModel == null) {
             return;
         }
@@ -541,9 +542,9 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
     }
 
     @Override
-    protected void onReceivedOrigleChanged(int uid, int mode) {
-        super.onReceivedOrigleChanged(uid, mode);
-        MemberMusicModel mMemberMusicModel = RoomManager.Instance(mContext).getMusicModel();
+    protected void onReceivedOriginalChanged(int uid, int mode) {
+        super.onReceivedOriginalChanged(uid, mode);
+        MemberMusicModel mMemberMusicModel = RoomManager.Instance(mContext).mMusicModel;
         if (mMemberMusicModel == null) {
             return;
         }
@@ -578,7 +579,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
 
     @Override
     protected void startPublish() {
-        MemberMusicModel mMemberMusicModel = RoomManager.Instance(mContext).getMusicModel();
+        MemberMusicModel mMemberMusicModel = RoomManager.Instance(mContext).mMusicModel;
         if (mMemberMusicModel == null) {
             return;
         }
@@ -657,7 +658,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
     public void selectAudioTrack(int i) {
         super.selectAudioTrack(i);
 
-        MemberMusicModel mMemberMusicModel = RoomManager.Instance(mContext).getMusicModel();
+        MemberMusicModel mMemberMusicModel = RoomManager.Instance(mContext).mMusicModel;
         if (mMemberMusicModel == null) {
             return;
         }

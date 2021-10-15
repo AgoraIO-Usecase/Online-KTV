@@ -49,7 +49,7 @@
     <string name="ktv_join_error">Failed to join the room</string>
     <string name="ktv_sync_music_error">Sync song failed</string>
     <string name="ktv_leave_title">Exit</string>
-    <string name="ktv_leave_msg">All members will be removed after closing the room.</string>
+    <string name="ktv_leave_msg">This offline version do not handle any situation when exit.</string>
 
     <string name="ktv_music_menu_dialog_title">Sound effect settings</string>
     <string name="ktv_music_menu_dialog_ear">Headphone Foldback</string>

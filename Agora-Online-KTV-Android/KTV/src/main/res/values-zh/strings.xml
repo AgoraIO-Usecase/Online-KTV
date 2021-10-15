@@ -49,7 +49,7 @@
     <string name="ktv_join_error">加入房间失败</string>
     <string name="ktv_sync_music_error">同步歌曲失败</string>
     <string name="ktv_leave_title">关闭歌房</string>
-    <string name="ktv_leave_msg">关闭歌房后所有成员将被移除房间</string>
+    <string name="ktv_leave_msg">本地版本演唱中关闭歌房情况未做任何处理</string>
 
     <string name="ktv_music_menu_dialog_title">参数设置</string>
     <string name="ktv_music_menu_dialog_ear">耳返</string>

@@ -45,7 +45,7 @@ public class RoomPeopleHolder extends BaseRecyclerViewAdapter.BaseViewHolder<Ktv
 
             // Singer's title
             Context mContext = itemView.getContext();
-            MemberMusicModel mMusicModel = RoomManager.Instance(mContext).getMusicModel();
+            MemberMusicModel mMusicModel = RoomManager.Instance(mContext).mMusicModel;
             if (mMusicModel != null && RoomManager.Instance(mContext).isSinger(member.getUserId())) {
                 int title = 0;
                 if (mMusicModel.getType() == MemberMusicModel.SingType.Single) {

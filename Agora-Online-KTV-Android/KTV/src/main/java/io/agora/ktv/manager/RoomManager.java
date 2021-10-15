@@ -66,7 +66,7 @@ public final class RoomManager {
     private volatile AgoraMember mCurrentMember;
 
     // 当前演唱歌曲
-    private volatile MemberMusicModel mMusicModel;
+    public volatile MemberMusicModel mMusicModel;
 
     private RtcEngineEx mRtcEngine;
 
@@ -297,11 +297,6 @@ public final class RoomManager {
         mLogger.i("onMemberChorusReady() called with: model = [%s]", model);
         mMusicModel = model;
         mMainThreadDispatch.onMemberChorusReady(model);
-    }
-
-    @Nullable
-    public MemberMusicModel getMusicModel() {
-        return mMusicModel;
     }
 
     public boolean isMainSinger() {

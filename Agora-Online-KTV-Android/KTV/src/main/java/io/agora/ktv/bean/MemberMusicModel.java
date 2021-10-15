@@ -328,6 +328,15 @@ public class MemberMusicModel implements Parcelable {
         this.poster = poster;
     }
 
+    public void setPropertiesWithMusic(MusicModel music){
+        this.musicId = music.getMusicId();
+        this.name = music.getName();
+        this.singer = music.getSinger();
+        this.poster = music.getPoster();
+        this.lrc = music.getLrc();
+        this.song = music.getSong();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

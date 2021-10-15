@@ -13,6 +13,7 @@ import androidx.annotation.Nullable;
 import androidx.core.util.ObjectsCompat;
 import androidx.fragment.app.Fragment;
 
+import com.agora.data.DataRepositoryImpl;
 import com.agora.data.ExampleData;
 import com.agora.data.manager.UserManager;
 import com.agora.data.model.AgoraMember;
@@ -55,6 +56,7 @@ import io.agora.rtc2.Constants;
 import io.reactivex.CompletableObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 import jp.wasabeef.glide.transformations.BlurTransformation;
 
 /**
@@ -127,8 +129,20 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> {
             mBinding.lrcControlView.getPitchView().updateTime(position);
         }
 
+        @SuppressLint("CheckResult")
         @Override
-        public void onReceivedCountdown(int time) {
+        public void onReceivedCountdown(int uid, int time, String musicId) {
+            if (RoomManager.Instance(RoomActivity.this).mMusicModel == null) {
+                DataRepositoryImpl.getInstance().getMusic(musicId).subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(musicModel -> {
+                            MemberMusicModel temp = new MemberMusicModel(musicId);
+                            temp.setUserId(String.valueOf(uid));
+                            temp.setPropertiesWithMusic(musicModel);
+                            RoomManager.Instance(RoomActivity.this).mMusicModel = temp;
+                            mBinding.lrcControlView.setMusic(temp);
+                        });
+            }
             mBinding.lrcControlView.onWaitChorusStatus();
             mBinding.lrcControlView.setCountDown(time);
         }
@@ -446,18 +460,19 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> {
         showNotOnSeatStatus();
     }
 
+    /**
+     * 仅当合唱变独唱时调用
+     */
     private void changeSingType() {
         AgoraRoom mRoom = RoomManager.Instance(RoomActivity.this).getRoom();
         if (mRoom == null) {
             return;
         }
-
-        MemberMusicModel music = RoomManager.Instance(RoomActivity.this).getMusicModel();
-        if (music == null) {
-            return;
+        MemberMusicModel musicModel = RoomManager.Instance(RoomActivity.this).mMusicModel;
+        if(musicModel != null) {
+            musicModel.setType(MemberMusicModel.SingType.Single);
+            onMusicChanged(musicModel);
         }
-
-        // TODO change singerType
     }
 
     private void joinChorus() {
@@ -466,7 +481,7 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> {
             return;
         }
 
-        MemberMusicModel musicModel = RoomManager.Instance(this).getMusicModel();
+        MemberMusicModel musicModel = RoomManager.Instance(this).mMusicModel;
         if (musicModel == null) {
             return;
         }
@@ -578,7 +593,7 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> {
             return;
         }
 
-        MemberMusicModel musicModel = RoomManager.Instance(this).getMusicModel();
+        MemberMusicModel musicModel = RoomManager.Instance(this).mMusicModel;
         if (musicModel == null) {
             return;
         }
@@ -680,6 +695,7 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> {
         }
     }
 
+    //<editor-fold desc="Member stuff">
     private void onMemberJoin(@NonNull AgoraMember member){
         for (int i = 0; i < mRoomSpeakerAdapter.getItemCount(); i++) {
             if (mRoomSpeakerAdapter.getItemData(i) == null) {
@@ -713,6 +729,7 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> {
     private void onMemberChorusReady(@NonNull MemberMusicModel music) {
 
     }
+    //</editor-fold>
 
     //<editor-fold desc="Vary Dialogs">
 
@@ -808,5 +825,6 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> {
         }
         if (tempFragment != null)
             ((BaseBottomSheetDialogFragment<?>) tempFragment).dismiss();
+        else showLeaveConfirmDialog(mBinding.toolBarAttRoom);
     }
 }
