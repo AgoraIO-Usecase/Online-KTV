@@ -1,8 +1,5 @@
 package io.agora.ktv.bean;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
 import com.agora.data.model.AgoraRoom;
 import com.agora.data.model.MusicModel;
 
@@ -13,23 +10,7 @@ import java.io.Serializable;
  * @author chenhengfei(Aslanchen)
  * @date 2021/6/9
  */
-public class MemberMusicModel implements Parcelable {
-    public static final String TABLE_NAME = "MUSIC_KTV";
-
-    public static final String COLUMN_NAME = "name";
-    public static final String COLUMN_SINGER = "singer";
-    public static final String COLUMN_POSTER = "poster";
-    public static final String COLUMN_USERID = "userId";
-    public static final String COLUMN_USERBGID = "userbgId";
-    public static final String COLUMN_ROOMID = "roomId";
-    public static final String COLUMN_MUSICID = "musicId";
-    public static final String COLUMN_CREATE = "createdAt";
-    public static final String COLUMN_TYPE = "type";
-    public static final String COLUMN_USERSTATUS = "userStatus";
-    public static final String COLUMN_USER1ID = "user1Id";
-    public static final String COLUMN_USER1BGID = "user1bgId";
-    public static final String COLUMN_USER1STATUS = "user1Status";
-    public static final String COLUMN_APPLYUSERID = "applyUser1Id";
+public class MemberMusicModel implements Serializable {
 
     public enum Type implements Serializable {
         Default, MiGu;
@@ -111,67 +92,6 @@ public class MemberMusicModel implements Parcelable {
         this.poster = data.getPoster();
     }
 
-    protected MemberMusicModel(Parcel in) {
-        id = in.readString();
-        name = in.readString();
-        roomId = in.readParcelable(AgoraRoom.class.getClassLoader());
-        musicId = in.readString();
-        song = in.readString();
-        singer = in.readString();
-        poster = in.readString();
-        lrc = in.readString();
-        fileMusic = (File) in.readSerializable();
-        fileLrc = (File) in.readSerializable();
-        musicType = (Type) in.readSerializable();
-        type = (SingType) in.readSerializable();
-        userId = in.readString();
-        userbgId = in.readLong();
-        userStatus = (UserStatus) in.readSerializable();
-        user1Id = in.readString();
-        user1bgId = in.readLong();
-        user1Status = (UserStatus) in.readSerializable();
-        applyUser1Id = in.readString();
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(id);
-        dest.writeString(name);
-        dest.writeParcelable(roomId, flags);
-        dest.writeString(musicId);
-        dest.writeString(song);
-        dest.writeString(singer);
-        dest.writeString(poster);
-        dest.writeString(lrc);
-        dest.writeSerializable(fileMusic);
-        dest.writeSerializable(fileLrc);
-        dest.writeSerializable(musicType);
-        dest.writeSerializable(type);
-        dest.writeString(userId);
-        dest.writeLong(userbgId);
-        dest.writeSerializable(userStatus);
-        dest.writeString(user1Id);
-        dest.writeLong(user1bgId);
-        dest.writeSerializable(user1Status);
-        dest.writeString(applyUser1Id);
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    public static final Creator<MemberMusicModel> CREATOR = new Creator<MemberMusicModel>() {
-        @Override
-        public MemberMusicModel createFromParcel(Parcel in) {
-            return new MemberMusicModel(in);
-        }
-
-        @Override
-        public MemberMusicModel[] newArray(int size) {
-            return new MemberMusicModel[size];
-        }
-    };
 
     public String getId() {
         return id;

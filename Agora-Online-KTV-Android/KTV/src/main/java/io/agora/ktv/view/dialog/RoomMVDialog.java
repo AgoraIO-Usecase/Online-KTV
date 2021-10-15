@@ -44,7 +44,7 @@ public class RoomMVDialog extends BaseBottomSheetDialogFragment<KtvDialogMvBindi
 
     @Override
     public void onItemClick(@NonNull Integer data, View view, int position, long id) {
-        AgoraRoom mRoom = RoomManager.Instance(requireContext()).getRoom();
+        AgoraRoom mRoom = RoomManager.getInstance(requireContext()).getRoom();
         if (mRoom == null) {
             dismiss();
             return;

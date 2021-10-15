@@ -16,6 +16,7 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.agora.baselibrary.util.KTVUtil;
 import io.agora.baselibrary.util.ToastUtil;
 import io.agora.ktv.R;
 import io.agora.ktv.bean.MemberMusicModel;
@@ -27,10 +28,11 @@ import io.agora.rtc2.RtcConnection;
 import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * 1.起始函数{@link MultipleMusicPlayer#prepare}。
- * 2.陪唱点击按钮"加入合唱"后，触发申请{@link io.agora.ktv.view.RoomActivity#joinChorus}，然后触发{@link MultipleMusicPlayer#onMemberApplyJoinChorus}，主唱把第一个人设置成陪唱。
+ * 2.陪唱点击按钮"加入合唱"后，触发申请{io.agora.ktv.view.RoomActivity#joinChorus}，然后触发{MultipleMusicPlayer#onMemberApplyJoinChorus}，主唱把第一个人设置成陪唱。
  * 3.有陪唱加入后，会收到回调{@link MultipleMusicPlayer#onMemberJoinedChorus}，开始下载资源。
  * 4.{@link MultipleMusicPlayer#joinChannelEX}之后，修改状态成Ready，当所有唱歌的人都Ready后，会触发{@link MultipleMusicPlayer#onMemberChorusReady}
  */
@@ -41,27 +43,24 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
     private final SimpleRoomEventCallback mRoomEventCallback = new SimpleRoomEventCallback() {
         @Override
         public void onMemberApplyJoinChorus(@NonNull MemberMusicModel music) {
-            super.onMemberApplyJoinChorus(music);
             MultipleMusicPlayer.this.onMemberApplyJoinChorus(music);
         }
 
         @Override
         public void onMemberJoinedChorus(@NonNull MemberMusicModel music) {
-            super.onMemberJoinedChorus(music);
             MultipleMusicPlayer.this.onMemberJoinedChorus(music);
         }
 
         @Override
         public void onMemberChorusReady(@NonNull MemberMusicModel music) {
-            super.onMemberChorusReady(music);
             MultipleMusicPlayer.this.onMemberChorusReady(music);
         }
     };
 
     public MultipleMusicPlayer(Context mContext, int role, IMediaPlayer mPlayer) {
         super(mContext, role, mPlayer);
-        RoomManager.Instance(mContext).getRtcEngine().setAudioProfile(Constants.AUDIO_PROFILE_MUSIC_STANDARD);
-        RoomManager.Instance(mContext).addRoomEventCallback(mRoomEventCallback);
+        RoomManager.getInstance(mContext).getRtcEngine().setAudioProfile(Constants.AUDIO_PROFILE_MUSIC_STANDARD);
+        RoomManager.getInstance(mContext).addRoomEventCallback(mRoomEventCallback);
         this.mPlayer.adjustPlayoutVolume(80);
         this.selectAudioTrack(1);
     }
@@ -72,7 +71,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
 
         leaveChannelEX();
         stopNetTestTask();
-        RoomManager.Instance(mContext).removeRoomEventCallback(mRoomEventCallback);
+        RoomManager.getInstance(mContext).removeRoomEventCallback(mRoomEventCallback);
     }
 
     private boolean mRunNetTask = false;
@@ -85,17 +84,14 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
 
     private void startNetTestTask() {
         mRunNetTask = true;
-        mNetTestThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (mRunNetTask) {
-                    sendTestDelay();
+        mNetTestThread = new Thread(() -> {
+            while (mRunNetTask && !Thread.currentThread().isInterrupted()) {
+                sendTestDelay();
 
-                    try {
-                        Thread.sleep(10 * 1000L);
-                    } catch (InterruptedException exp) {
-                        break;
-                    }
+                try {
+                    Thread.sleep(10 * 1000L);
+                } catch (InterruptedException exp) {
+                    break;
                 }
             }
         });
@@ -111,37 +107,35 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
         }
     }
 
-    private MemberMusicModel musicModelReady;
-
     @Override
     public void prepare(@NonNull MemberMusicModel music) {
-        super.prepare(music);
-        User mUser = UserManager.Instance().getUserLiveData().getValue();
-        if (mUser == null) {
-            return;
-        }
+//        super.prepare(music);
+//        User mUser = UserManager.Instance().getUserLiveData().getValue();
+//        if (mUser == null) {
+//            return;
+//        }
+//
+//        AgoraRoom mRoom = RoomManager.Instance(mContext).getRoom();
+//        if (mRoom == null) return;
+//
+//
 
-        AgoraRoom mRoom = RoomManager.Instance(mContext).getRoom();
-        if (mRoom == null) {
-            return;
-        }
-
-        if (ObjectsCompat.equals(music.getUserId(), mUser.getObjectId())) {
-            if (music.getUserStatus() == MemberMusicModel.UserStatus.Ready) {
-                onMemberJoinedChorus(music);
-            }
-        } else if (ObjectsCompat.equals(music.getUser1Id(), mUser.getObjectId())) {
-            onMemberJoinedChorus(music);
-        } else {
-            if (!TextUtils.isEmpty(music.getUserId()) && music.getUserStatus() == MemberMusicModel.UserStatus.Ready
-                    && !TextUtils.isEmpty(music.getUser1Id()) && music.getUser1Status() == MemberMusicModel.UserStatus.Ready) {
-                onMemberChorusReady(music);
-            } else if (!TextUtils.isEmpty(music.getUser1Id()) && music.getUser1Status() == MemberMusicModel.UserStatus.Idle) {
-                onMemberJoinedChorus(music);
-            } else if (!TextUtils.isEmpty(music.getApplyUser1Id())) {
-                onMemberApplyJoinChorus(music);
-            }
-        }
+//        if (ObjectsCompat.equals(music.getUserId(), mUser.getObjectId())) {
+//            if (music.getUserStatus() == MemberMusicModel.UserStatus.Ready) {
+//                onMemberJoinedChorus(music);
+//            }
+//        } else if (ObjectsCompat.equals(music.getUser1Id(), mUser.getObjectId())) {
+//            onMemberJoinedChorus(music);
+//        } else {
+//            if (!TextUtils.isEmpty(music.getUserId()) && music.getUserStatus() == MemberMusicModel.UserStatus.Ready
+//                    && !TextUtils.isEmpty(music.getUser1Id()) && music.getUser1Status() == MemberMusicModel.UserStatus.Ready) {
+//                onMemberChorusReady(music);
+//            } else if (!TextUtils.isEmpty(music.getUser1Id()) && music.getUser1Status() == MemberMusicModel.UserStatus.Idle) {
+//                onMemberJoinedChorus(music);
+//            } else if (!TextUtils.isEmpty(music.getApplyUser1Id())) {
+//                onMemberApplyJoinChorus(music);
+//            }
+//        }
     }
 
     private RtcConnection mRtcConnection;
@@ -149,13 +143,16 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
     private String channelName = null;
 
     private void joinChannelEX() {
+
+        MemberMusicModel currentMusic = RoomManager.getInstance(mContext).mCurrentMemberMusic;
+
         mLogger.d("joinChannelEX() called");
         User mUser = UserManager.Instance().getUserLiveData().getValue();
         if (mUser == null) {
             return;
         }
 
-        AgoraRoom mRoom = RoomManager.Instance(mContext).getRoom();
+        AgoraRoom mRoom = RoomManager.getInstance(mContext).getRoom();
         assert mRoom != null;
         channelName = mRoom.getId();
 
@@ -163,40 +160,27 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
         options.clientRoleType = mRole;
         options.publishAudioTrack = false;
         options.publishMediaPlayerId = mPlayer.getMediaPlayerId();
-        if (ObjectsCompat.equals(musicModelReady.getUserId(), mUser.getObjectId())) {
+        if (ObjectsCompat.equals(currentMusic.getUserId(), mUser.getObjectId())) {
             options.publishMediaPlayerAudioTrack = true;
             options.enableAudioRecordingOrPlayout = false;
-        } else if (ObjectsCompat.equals(musicModelReady.getUser1Id(), mUser.getObjectId())) {
+        } else if (ObjectsCompat.equals(currentMusic.getUser1Id(), mUser.getObjectId())) {
             options.publishMediaPlayerAudioTrack = false;
             options.enableAudioRecordingOrPlayout = false;
         }
 
         int uid = 0;
-        if (ObjectsCompat.equals(mUser.getObjectId(), musicModelReady.getUserId())) {
-            if (musicModelReady.getUserbgId() != null) {
-                uid = musicModelReady.getUserbgId().intValue();
+        if (ObjectsCompat.equals(mUser.getObjectId(), currentMusic.getUserId())) {
+            if (currentMusic.getUserbgId() != null) {
+                uid = currentMusic.getUserbgId().intValue();
             }
-        } else if (ObjectsCompat.equals(mUser.getObjectId(), musicModelReady.getUser1Id())) {
-            if (musicModelReady.getUser1bgId() != null) {
-                uid = musicModelReady.getUser1bgId().intValue();
+        } else if (ObjectsCompat.equals(mUser.getObjectId(), currentMusic.getUser1Id())) {
+            if (currentMusic.getUser1bgId() != null) {
+                uid = currentMusic.getUser1bgId().intValue();
             }
         }
 
         mRtcConnection = new RtcConnection();
-        RoomManager.Instance(mContext).getRtcEngine().joinChannelEx("", channelName, uid, options, new IRtcEngineEventHandler() {
-            @Override
-            public void onJoinChannelSuccess(String channel, int uid, int elapsed) {
-                super.onJoinChannelSuccess(channel, uid, elapsed);
-                mLogger.d("onJoinChannelSuccessEX() called with: channel = [%s], uid = [%s], elapsed = [%s]", channel, uid, elapsed);
-                MultipleMusicPlayer.this.onJoinChannelExSuccess(uid);
-            }
-
-            @Override
-            public void onLeaveChannel(RtcStats stats) {
-                super.onLeaveChannel(stats);
-                mLogger.d("onLeaveChannelEX() called with: stats = [%s]", stats);
-            }
-        }, mRtcConnection);
+        RoomManager.getInstance(mContext).getRtcEngine().joinChannelEx("", channelName, uid, options, null, mRtcConnection);
     }
 
     private void leaveChannelEX() {
@@ -205,25 +189,11 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
         }
 
         mLogger.d("leaveChannelEX() called");
-        RoomManager.Instance(mContext).getRtcEngine().muteAllRemoteAudioStreams(false);
+        RoomManager.getInstance(mContext).getRtcEngine().muteAllRemoteAudioStreams(false);
         if (!TextUtils.isEmpty(channelName)) {
-            RoomManager.Instance(mContext).getRtcEngine().leaveChannelEx(channelName, mRtcConnection);
+            RoomManager.getInstance(mContext).getRtcEngine().leaveChannelEx(channelName, mRtcConnection);
         }
         mRtcConnection = null;
-    }
-
-    private int mUid;
-
-    private void onJoinChannelExSuccess(int uid) {
-        User mUser = UserManager.Instance().getUserLiveData().getValue();
-        if (mUser == null) {
-            return;
-        }
-
-        AgoraRoom mRoom = RoomManager.Instance(mContext).getRoom();
-        if (mRoom == null) {
-            return;
-        }
     }
 
     @Override
@@ -235,74 +205,45 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
         mHandler.obtainMessage(ACTION_ON_MUSIC_OPENCOMPLETED, mPlayer.getDuration()).sendToTarget();
     }
 
-    private volatile boolean isApplyJoinChorus = false;
 
     private void onMemberApplyJoinChorus(@NonNull MemberMusicModel music) {
-        User mUser = UserManager.Instance().getUserLiveData().getValue();
-        if (mUser == null) {
-            return;
-        }
-
-        if (!ObjectsCompat.equals(mUser.getObjectId(), music.getUserId())) {
-            return;
-        }
-
-        AgoraRoom mRoom = RoomManager.Instance(mContext).getRoom();
-        if (mRoom == null) {
-            return;
-        }
-
-        if (isApplyJoinChorus) {
-            return;
-        }
-
-        isApplyJoinChorus = true;
-        HashMap<String, Object> maps = new HashMap<>();
-        maps.put(MemberMusicModel.COLUMN_USER1ID, music.getApplyUser1Id());
-        maps.put(MemberMusicModel.COLUMN_APPLYUSERID, "");
-
-        // TODO
     }
 
     private void onMemberJoinedChorus(@NonNull MemberMusicModel music) {
-        User mUser = UserManager.Instance().getUserLiveData().getValue();
-        if (mUser == null) {
-            return;
-        }
+        KTVUtil.logD("onMemberJoinedChorus");
+        onPrepareResource();
+        ResourceManager.Instance(mContext)
+                .download(music, false)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new SingleObserver<MemberMusicModel>() {
+                    @Override
+                    public void onSubscribe(@NonNull Disposable d) {
+                    }
 
-        if (ObjectsCompat.equals(mUser.getObjectId(), music.getUserId())
-                || ObjectsCompat.equals(mUser.getObjectId(), music.getUser1Id())) {
-            onPrepareResource();
-            ResourceManager.Instance(mContext)
-                    .download(music, false)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new SingleObserver<MemberMusicModel>() {
-                        @Override
-                        public void onSubscribe(@NonNull Disposable d) {
+                    @Override
+                    public void onSuccess(@NonNull MemberMusicModel musicModel) {
+                        if(RoomManager.getInstance(mContext).isMainSinger())
+                            RoomManager.getInstance(mContext).mCurrentMemberMusic.setUserStatus(MemberMusicModel.UserStatus.Ready);
+                        else
+                            RoomManager.getInstance(mContext).mCurrentMemberMusic.setUser1Status(MemberMusicModel.UserStatus.Ready);
+                        onResourceReady(musicModel);
 
+                        open();
+
+                        if (RoomManager.getInstance(mContext).isMainSinger()) {
+                            joinChannelEX();
+                        } else if (RoomManager.getInstance(mContext).isFollowSinger()) {
+                            startNetTestTask();
+                            joinChannelEX();
                         }
+                    }
 
-                        @Override
-                        public void onSuccess(@NonNull MemberMusicModel musicModel) {
-                            onResourceReady(musicModel);
-                            musicModelReady = musicModel;
-
-                            open(musicModelReady);
-
-                            if (ObjectsCompat.equals(mUser.getObjectId(), music.getUserId())) {
-                                joinChannelEX();
-                            } else if (ObjectsCompat.equals(mUser.getObjectId(), music.getUser1Id())) {
-                                startNetTestTask();
-                                joinChannelEX();
-                            }
-                        }
-
-                        @Override
-                        public void onError(@NonNull Throwable e) {
-                            ToastUtil.toastShort(mContext, R.string.ktv_lrc_load_fail);
-                        }
-                    });
-        }
+                    @Override
+                    public void onError(@NonNull Throwable e) {
+                        ToastUtil.toastShort(mContext, R.string.ktv_lrc_load_fail);
+                    }
+                });
     }
 
     /**
@@ -312,41 +253,33 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
      * 3.为了保证所有人同时播放音乐，做延迟wait。
      * <p>
      * 陪唱逻辑:{@link MultipleMusicPlayer#onReceivedStatusPlay}
-     *
-     * @param music
      */
     private void onMemberChorusReady(@NonNull MemberMusicModel music) {
-        User mUser = UserManager.Instance().getUserLiveData().getValue();
-        if (mUser == null) {
-            return;
-        }
 
-        AgoraMember mMine = RoomManager.Instance(mContext).getMine();
-        if (mMine == null) {
-            return;
-        }
+        KTVUtil.logD("onMemberChorusReady");
+        AgoraMember mMine = RoomManager.getInstance(mContext).getMine();
+        if (mMine == null) return;
 
-        if (ObjectsCompat.equals(music.getUserId(), mUser.getObjectId())) {
+        if (RoomManager.getInstance(mContext).isMainSinger()) {
             //唱歌人，主唱，joinChannel 需要屏蔽的uid
-            RoomManager.Instance(mContext).getRtcEngine().muteRemoteAudioStream(music.getUserbgId().intValue(), true);
-            RoomManager.Instance(mContext).getRtcEngine().muteRemoteAudioStream(music.getUser1bgId().intValue(), true);
-            RoomManager.Instance(mContext).getRtcEngine().muteRemoteAudioStreamEx(mMine.getStreamId().intValue(), true, mRtcConnection);
-        } else if (ObjectsCompat.equals(music.getUser1Id(), mUser.getObjectId())) {
+//            RoomManager.getInstance(mContext).getRtcEngine().muteRemoteAudioStream(music.getUserbgId().intValue(), true);
+//            RoomManager.getInstance(mContext).getRtcEngine().muteRemoteAudioStream(music.getUser1bgId().intValue(), true);
+//            RoomManager.getInstance(mContext).getRtcEngine().muteRemoteAudioStreamEx(mMine.getStreamId().intValue(), true, mRtcConnection);
+        } else if (RoomManager.getInstance(mContext).isFollowSinger()) {
             //唱歌人，陪唱人，joinChannel 需要屏蔽的uid
-            RoomManager.Instance(mContext).getRtcEngine().muteRemoteAudioStream(music.getUserbgId().intValue(), true);
-            RoomManager.Instance(mContext).getRtcEngine().muteRemoteAudioStream(music.getUser1bgId().intValue(), true);
-            RoomManager.Instance(mContext).getRtcEngine().muteRemoteAudioStreamEx(mMine.getStreamId().intValue(), true, mRtcConnection);
+//            RoomManager.getInstance(mContext).getRtcEngine().muteRemoteAudioStream(music.getUserbgId().intValue(), true);
+//            RoomManager.getInstance(mContext).getRtcEngine().muteRemoteAudioStream(music.getUser1bgId().intValue(), true);
+//            RoomManager.getInstance(mContext).getRtcEngine().muteRemoteAudioStreamEx(mMine.getStreamId().intValue(), true, mRtcConnection);
         } else {
             //观众，需要屏蔽陪唱背景音乐
-            RoomManager.Instance(mContext).getRtcEngine().muteRemoteAudioStream(music.getUser1bgId().intValue(), true);
+//            RoomManager.getInstance(mContext).getRtcEngine().muteRemoteAudioStream(music.getUser1bgId().intValue(), true);
         }
 
-        if (ObjectsCompat.equals(music.getUserId(), mUser.getObjectId())
-                || ObjectsCompat.equals(music.getUser1Id(), mUser.getObjectId())) {
-            music.setFileMusic(musicModelReady.getFileMusic());
-            music.setFileLrc(musicModelReady.getFileLrc());
+        if (RoomManager.getInstance(mContext).isSinger()) {
+            music.setFileMusic(music.getFileMusic());
+            music.setFileLrc(music.getFileLrc());
 
-            if (ObjectsCompat.equals(music.getUserId(), mUser.getObjectId())) {
+            if (RoomManager.getInstance(mContext).isMainSinger()) {
                 sendStartPlay();
                 try {
                     synchronized (this) {
@@ -355,34 +288,14 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-
                 play();
             }
         } else {
             onPrepareResource();
+            onResourceReady(music);
 
-            ResourceManager.Instance(mContext)
-                    .download(music, true)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new SingleObserver<MemberMusicModel>() {
-                        @Override
-                        public void onSubscribe(@NonNull Disposable d) {
-
-                        }
-
-                        @Override
-                        public void onSuccess(@NonNull MemberMusicModel musicModel) {
-                            onResourceReady(musicModel);
-
-                            onMusicPlayingByListener();
-                            playByListener(music);
-                        }
-
-                        @Override
-                        public void onError(@NonNull Throwable e) {
-                            ToastUtil.toastShort(mContext, R.string.ktv_lrc_load_fail);
-                        }
-                    });
+            onMusicPlayingByListener();
+            playByListener();
         }
     }
 
@@ -390,7 +303,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
     protected void onReceivedStatusPlay(int uid) {
         super.onReceivedStatusPlay(uid);
 
-        MemberMusicModel mMemberMusicModel = RoomManager.Instance(mContext).mMusicModel;
+        MemberMusicModel mMemberMusicModel = RoomManager.getInstance(mContext).mCurrentMemberMusic;
         if (mMemberMusicModel == null) {
             return;
         }
@@ -434,7 +347,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
     protected void onReceivedStatusPause(int uid) {
         super.onReceivedStatusPause(uid);
 
-        MemberMusicModel mMemberMusicModel = RoomManager.Instance(mContext).mMusicModel;
+        MemberMusicModel mMemberMusicModel = RoomManager.getInstance(mContext).mCurrentMemberMusic;
         if (mMemberMusicModel == null) {
             return;
         }
@@ -453,7 +366,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
 
     @Override
     protected void onReceivedSetLrcTime(int uid, long position) {
-        MemberMusicModel mMemberMusicModel = RoomManager.Instance(mContext).mMusicModel;
+        MemberMusicModel mMemberMusicModel = RoomManager.getInstance(mContext).mCurrentMemberMusic;
         if (mMemberMusicModel == null) {
             return;
         }
@@ -501,7 +414,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
     protected void onReceivedTestDelay(int uid, long time) {
         super.onReceivedTestDelay(uid, time);
 
-        MemberMusicModel mMemberMusicModel = RoomManager.Instance(mContext).mMusicModel;
+        MemberMusicModel mMemberMusicModel = RoomManager.getInstance(mContext).mCurrentMemberMusic;
         if (mMemberMusicModel == null) {
             return;
         }
@@ -522,7 +435,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
     @Override
     protected void onReceivedReplyTestDelay(int uid, long testDelayTime, long time) {
         super.onReceivedReplyTestDelay(uid, testDelayTime, time);
-        MemberMusicModel mMemberMusicModel = RoomManager.Instance(mContext).mMusicModel;
+        MemberMusicModel mMemberMusicModel = RoomManager.getInstance(mContext).mCurrentMemberMusic;
         if (mMemberMusicModel == null) {
             return;
         }
@@ -544,7 +457,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
     @Override
     protected void onReceivedOriginalChanged(int uid, int mode) {
         super.onReceivedOriginalChanged(uid, mode);
-        MemberMusicModel mMemberMusicModel = RoomManager.Instance(mContext).mMusicModel;
+        MemberMusicModel mMemberMusicModel = RoomManager.getInstance(mContext).mCurrentMemberMusic;
         if (mMemberMusicModel == null) {
             return;
         }
@@ -574,12 +487,12 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
             options.publishAudioTrack = false;
         }
 
-        RoomManager.Instance(mContext).getRtcEngine().updateChannelMediaOptions(options);
+        RoomManager.getInstance(mContext).getRtcEngine().updateChannelMediaOptions(options);
     }
 
     @Override
     protected void startPublish() {
-        MemberMusicModel mMemberMusicModel = RoomManager.Instance(mContext).mMusicModel;
+        MemberMusicModel mMemberMusicModel = RoomManager.getInstance(mContext).mCurrentMemberMusic;
         if (mMemberMusicModel == null) {
             return;
         }
@@ -611,8 +524,8 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
         msg.put("testDelayTime", String.valueOf(receiveTime));
         msg.put("time", String.valueOf(System.currentTimeMillis()));
         JSONObject jsonMsg = new JSONObject(msg);
-        int streamId = RoomManager.Instance(mContext).getStreamId();
-        int ret = RoomManager.Instance(mContext).getRtcEngine().sendStreamMessage(streamId, jsonMsg.toString().getBytes());
+        int streamId = RoomManager.getInstance(mContext).getStreamId();
+        int ret = RoomManager.getInstance(mContext).getRtcEngine().sendStreamMessage(streamId, jsonMsg.toString().getBytes());
         if (ret < 0) {
             mLogger.e("sendReplyTestDelay() sendStreamMessage called returned: ret = [%s]", ret);
         }
@@ -623,8 +536,8 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
         msg.put("cmd", "testDelay");
         msg.put("time", String.valueOf(System.currentTimeMillis()));
         JSONObject jsonMsg = new JSONObject(msg);
-        int streamId = RoomManager.Instance(mContext).getStreamId();
-        int ret = RoomManager.Instance(mContext).getRtcEngine().sendStreamMessage(streamId, jsonMsg.toString().getBytes());
+        int streamId = RoomManager.getInstance(mContext).getStreamId();
+        int ret = RoomManager.getInstance(mContext).getRtcEngine().sendStreamMessage(streamId, jsonMsg.toString().getBytes());
         if (ret < 0) {
             mLogger.e("sendTestDelay() sendStreamMessage called returned: ret = [%s]", ret);
         }
@@ -635,8 +548,8 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
         msg.put("cmd", "setLrcTime");
         msg.put("time", 0);
         JSONObject jsonMsg = new JSONObject(msg);
-        int streamId = RoomManager.Instance(mContext).getStreamId();
-        int ret = RoomManager.Instance(mContext).getRtcEngine().sendStreamMessage(streamId, jsonMsg.toString().getBytes());
+        int streamId = RoomManager.getInstance(mContext).getStreamId();
+        int ret = RoomManager.getInstance(mContext).getRtcEngine().sendStreamMessage(streamId, jsonMsg.toString().getBytes());
         if (ret < 0) {
             mLogger.e("sendStartPlay() sendStreamMessage called returned: ret = [%s]", ret);
         }
@@ -647,8 +560,8 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
         msg.put("cmd", "setLrcTime");
         msg.put("time", -1);
         JSONObject jsonMsg = new JSONObject(msg);
-        int streamId = RoomManager.Instance(mContext).getStreamId();
-        int ret = RoomManager.Instance(mContext).getRtcEngine().sendStreamMessage(streamId, jsonMsg.toString().getBytes());
+        int streamId = RoomManager.getInstance(mContext).getStreamId();
+        int ret = RoomManager.getInstance(mContext).getRtcEngine().sendStreamMessage(streamId, jsonMsg.toString().getBytes());
         if (ret < 0) {
             mLogger.e("sendPause() sendStreamMessage called returned: ret = [%s]", ret);
         }
@@ -658,7 +571,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
     public void selectAudioTrack(int i) {
         super.selectAudioTrack(i);
 
-        MemberMusicModel mMemberMusicModel = RoomManager.Instance(mContext).mMusicModel;
+        MemberMusicModel mMemberMusicModel = RoomManager.getInstance(mContext).mCurrentMemberMusic;
         if (mMemberMusicModel == null) {
             return;
         }
@@ -678,8 +591,8 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
         msg.put("cmd", "TrackMode");
         msg.put("mode", mode);
         JSONObject jsonMsg = new JSONObject(msg);
-        int streamId = RoomManager.Instance(mContext).getStreamId();
-        int ret = RoomManager.Instance(mContext).getRtcEngine().sendStreamMessage(streamId, jsonMsg.toString().getBytes());
+        int streamId = RoomManager.getInstance(mContext).getStreamId();
+        int ret = RoomManager.getInstance(mContext).getRtcEngine().sendStreamMessage(streamId, jsonMsg.toString().getBytes());
         if (ret < 0) {
             mLogger.e("sendTrackMode() sendStreamMessage called returned: ret = [%s]", ret);
         }

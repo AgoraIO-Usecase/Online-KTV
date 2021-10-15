@@ -24,7 +24,7 @@ public class SingleMusicPlayer extends BaseMusicPlayer {
 
     public SingleMusicPlayer(Context mContext, int role, IMediaPlayer mPlayer) {
         super(mContext, role, mPlayer);
-        RoomManager.Instance(mContext).getRtcEngine().setAudioProfile(Constants.AUDIO_SCENARIO_DEFAULT);
+        RoomManager.getInstance(mContext).getRtcEngine().setAudioProfile(Constants.AUDIO_SCENARIO_DEFAULT);
     }
 
     @Override
@@ -42,12 +42,11 @@ public class SingleMusicPlayer extends BaseMusicPlayer {
             options.publishAudioTrack = false;
             options.publishMediaPlayerAudioTrack = false;
         }
-        RoomManager.Instance(mContext).getRtcEngine().updateChannelMediaOptions(options);
+        RoomManager.getInstance(mContext).getRtcEngine().updateChannelMediaOptions(options);
     }
 
     @Override
     public void prepare(@NonNull MemberMusicModel music) {
-        super.prepare(music);
         User mUser = UserManager.Instance().getUserLiveData().getValue();
         if (mUser == null) {
             return;
@@ -70,10 +69,10 @@ public class SingleMusicPlayer extends BaseMusicPlayer {
                         onResourceReady(musicModel);
 
                         if (singMyself) {
-                            open(musicModel);
+                            open();
                         } else {
                             onMusicPlayingByListener();
-                            playByListener(musicModel);
+                            playByListener();
                         }
                     }
 

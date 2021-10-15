@@ -3,16 +3,7 @@ package com.agora.data.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class AgoraMember implements Parcelable {
-    public static final String TABLE_NAME = "MEMBER_KTV";
-
-    public static final String COLUMN_ROOMID = "roomId";
-    public static final String COLUMN_STREAMID = "streamId";
-    public static final String COLUMN_USERID = "userId";
-    public static final String COLUMN_ROLE = "role";
-    public static final String COLUMN_ISAUDIOMUTED = "isMuted";
-    public static final String COLUMN_ISSELFAUDIOMUTED = "isSelfMuted";
-
+public class AgoraMember {
     public enum Role {
         Listener(0), Owner(1), Speaker(2);
         private int value;
@@ -63,38 +54,6 @@ public class AgoraMember implements Parcelable {
         isMuted = in.readInt();
         isSelfMuted = in.readInt();
     }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(id);
-        dest.writeParcelable(roomId, flags);
-        dest.writeString(userId);
-        if (streamId == null) {
-            dest.writeByte((byte) 0);
-        } else {
-            dest.writeByte((byte) 1);
-            dest.writeLong(streamId);
-        }
-        dest.writeInt(isMuted);
-        dest.writeInt(isSelfMuted);
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    public static final Creator<AgoraMember> CREATOR = new Creator<AgoraMember>() {
-        @Override
-        public AgoraMember createFromParcel(Parcel in) {
-            return new AgoraMember(in);
-        }
-
-        @Override
-        public AgoraMember[] newArray(int size) {
-            return new AgoraMember[size];
-        }
-    };
 
     public AgoraRoom getRoomId() {
         return roomId;

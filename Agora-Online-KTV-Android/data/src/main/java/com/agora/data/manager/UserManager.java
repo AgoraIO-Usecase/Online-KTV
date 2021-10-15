@@ -1,5 +1,6 @@
 package com.agora.data.manager;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -32,6 +33,10 @@ public final class UserManager {
 
     public LiveData<User> getUserLiveData() {
         return mUserLiveData;
+    }
+
+    public @NonNull User getUser(){
+        return mUserLiveData.getValue();
     }
 
     public boolean alreadyLoggedIn() {

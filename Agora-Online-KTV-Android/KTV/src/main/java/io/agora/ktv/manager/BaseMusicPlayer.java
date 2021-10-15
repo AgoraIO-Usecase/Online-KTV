@@ -46,8 +46,6 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
     private static volatile long mRecvedPlayPosition = 0;//播放器播放position，ms
     private static volatile Long mLastRecvPlayPosTime = null;
 
-    protected volatile MemberMusicModel mMusicModel;
-
     private Callback mCallback;
 
     protected static final int ACTION_UPDATE_TIME = 100;
@@ -160,7 +158,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
 
         this.mPlayer.registerPlayerObserver(this);
 
-        RoomManager.Instance(mContext).getRtcEngine().addHandler(this);
+        RoomManager.getInstance(mContext).getRtcEngine().addHandler(this);
         switchRole(role);
     }
 
@@ -169,7 +167,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
         JSONObject jsonMsg;
         try {
             String strMsg = new String(data);
-        KTVUtil.logD("onStreamMessage);"+strMsg);
+//        KTVUtil.logD("onStreamMessage);"+strMsg);
             jsonMsg = new JSONObject(strMsg);
 
             String cmd = null;
@@ -200,15 +198,13 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
                     break;
                 case "countdown": {
                     // Only this situation we can play with a chorus
-                    if(mStatus == Status.IDLE) {
-                        int time = jsonMsg.getInt("time");
+                    int time = jsonMsg.getInt("time");
 
-                        bundle = new Bundle();
-                        bundle.putInt("uid", uid);
-                        bundle.putInt("time", time);
-                        bundle.putString("musicId", jsonMsg.getString("musicId"));
-                        what = ACTION_ON_RECEIVED_COUNT_DOWN;
-                    }
+                    bundle = new Bundle();
+                    bundle.putInt("uid", uid);
+                    bundle.putInt("time", time);
+                    bundle.putString("musicId", jsonMsg.getString("musicId"));
+                    what = ACTION_ON_RECEIVED_COUNT_DOWN;
                     break;
                 }
                 case "testDelay": {
@@ -237,7 +233,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
                     break;
                 }
             }
-            if (what != -1){
+            if (what != -1) {
                 Message message = Message.obtain(mHandler, what);
                 message.setData(bundle);
                 message.sendToTarget();
@@ -248,22 +244,19 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
     }
 
     public void sendCountdown(int time) {
-        KTVUtil.logD("send>>> sendCountdown");
-        if (mMusicModel == null) return;
-        KTVUtil.logD("send>222>> sendCountdown");
+        if (RoomManager.getInstance(mContext).mCurrentMemberMusic == null) return;
         Map<String, Object> msg = new HashMap<>();
         msg.put("cmd", "countdown");
         msg.put("time", time);
-        msg.put("musicId", mMusicModel.getMusicId());
+        msg.put("musicId", RoomManager.getInstance(mContext).mCurrentMemberMusic.getMusicId());
         JSONObject jsonMsg = new JSONObject(msg);
-        int streamId = RoomManager.Instance(mContext).getStreamId();
-        RoomManager.Instance(mContext).getRtcEngine().sendStreamMessage(streamId, jsonMsg.toString().getBytes());
+        int streamId = RoomManager.getInstance(mContext).getStreamId();
+        RoomManager.getInstance(mContext).getRtcEngine().sendStreamMessage(streamId, jsonMsg.toString().getBytes());
     }
 
     private void reset() {
         mRecvedPlayPosition = 0;
         mLastRecvPlayPosTime = null;
-        mMusicModel = null;
         mAudioTrackIndex = 1;
         mStatus = Status.IDLE;
     }
@@ -278,16 +271,14 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
 
     public abstract void switchRole(int role);
 
-    public void prepare(@NonNull MemberMusicModel music){
-        this.mMusicModel = music;
-    }
+    public abstract void prepare(@NonNull MemberMusicModel music);
 
-    public void playByListener(@NonNull MemberMusicModel mMusicModel) {
-        this.mMusicModel = mMusicModel;
+    public void playByListener() {
         startDisplayLrc();
     }
 
-    protected int open(@NonNull MemberMusicModel mMusicModel) {
+    protected int open() {
+        MemberMusicModel currentMusic = RoomManager.getInstance(mContext).mCurrentMemberMusic;
 //        if (mRole != Constants.CLIENT_ROLE_BROADCASTER) {
 //            mLogger.e("open error: current role is not broadcaster, abort playing");
 //            return -1;
@@ -303,13 +294,13 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
             return -3;
         }
 
-        File fileMusic = mMusicModel.getFileMusic();
+        File fileMusic = currentMusic.getFileMusic();
         if (!fileMusic.exists()) {
             mLogger.e("open error: fileMusic is not exists");
             return -4;
         }
 
-        File fileLrc = mMusicModel.getFileLrc();
+        File fileLrc = currentMusic.getFileLrc();
         if (!fileLrc.exists()) {
             mLogger.e("open error: fileLrc is not exists");
             return -5;
@@ -322,7 +313,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
         stopDisplayLrc();
 
         mAudioTrackIndex = 1;
-        mLogger.i("open() called with: mMusicModel = [%s]", mMusicModel);
+        mLogger.i("open() called with: currentMusic = [%s]", currentMusic);
         mPlayer.open(fileMusic.getAbsolutePath(), 0);
         return 0;
     }
@@ -416,7 +407,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
     }
 
     public void setMicVolume(int v) {
-        RoomManager.Instance(mContext).getRtcEngine().adjustRecordingSignalVolume(v);
+        RoomManager.getInstance(mContext).getRtcEngine().adjustRecordingSignalVolume(v);
     }
 
     public void seek(long d) {
@@ -457,12 +448,12 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
         }
     }
 
-    private void startSyncLrc(String lrcId, long duration) {
+    private void startSyncLrc(String musicId, long duration) {
         mSyncLrcThread = new Thread(new Runnable() {
 
             @Override
             public void run() {
-                mLogger.i("startSyncLrc: " + lrcId);
+                mLogger.i("startSyncLrc: " + musicId);
                 mStopSyncLrc = false;
                 while (!mStopSyncLrc && mStatus.isAtLeast(Status.Started) && !Thread.currentThread().isInterrupted()) {
                     if (mPlayer == null) {
@@ -470,7 +461,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
                     }
 
                     if (mLastRecvPlayPosTime != null && mStatus == Status.Started) {
-                        sendSyncLrc(lrcId, duration, mRecvedPlayPosition);
+                        sendSyncLrc(musicId, duration, mRecvedPlayPosition);
                     }
 
                     try {
@@ -481,18 +472,20 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
                 }
             }
 
-            private void sendSyncLrc(String lrcId, long duration, long time) {
+            private void sendSyncLrc(String musicId, long duration, long time) {
+                int state = 0;
+                if (mStatus == Status.Paused)
+                    state = 2;
+                else if (mStatus == Status.Started)
+                    state = 1;
+
                 Map<String, Object> msg = new HashMap<>();
                 msg.put("cmd", "setLrcTime");
-                msg.put("lrcId", lrcId);
+                msg.put("lrcId", musicId);
                 msg.put("duration", duration);
                 msg.put("time", time);//ms
-                JSONObject jsonMsg = new JSONObject(msg);
-                int streamId = RoomManager.Instance(mContext).getStreamId();
-                int ret = RoomManager.Instance(mContext).getRtcEngine().sendStreamMessage(streamId, jsonMsg.toString().getBytes());
-                if (ret < 0) {
-                    mLogger.e("sendSyncLrc() sendStreamMessage called returned: ret = [%s]", ret);
-                }
+                msg.put("state", state);
+                RoomManager.getInstance(mContext).sendStreamMsg(msg);
             }
         });
         mSyncLrcThread.setName("Thread-SyncLrc");
@@ -507,7 +500,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
     }
 
     protected void startPublish() {
-        startSyncLrc(mMusicModel.getMusicId(), mPlayer.getDuration());
+        startSyncLrc(RoomManager.getInstance(mContext).mCurrentMemberMusic.getMusicId(), mPlayer.getDuration());
     }
 
     private void stopPublish() {
@@ -627,7 +620,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
         mLogger.i("onMusicPlaying() called");
         mStatus = Status.Started;
 
-        if (mStopSyncLrc)
+        if (mStopSyncLrc && RoomManager.getInstance(mContext).isSinger())
             startPublish();
 
         mHandler.obtainMessage(ACTION_ON_MUSIC_PLAING).sendToTarget();
@@ -664,7 +657,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
     public void destroy() {
         mLogger.i("destroy() called");
         mPlayer.unRegisterPlayerObserver(this);
-        RoomManager.Instance(mContext).getRtcEngine().removeHandler(this);
+        RoomManager.getInstance(mContext).getRtcEngine().removeHandler(this);
         mCallback = null;
     }
 
@@ -744,7 +737,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
          * 合唱模式下，等待加入合唱倒计时
          *
          * @param uid
-         * @param time 秒
+         * @param time    秒
          * @param musicId
          */
         void onReceivedCountdown(int uid, int time, String musicId);
