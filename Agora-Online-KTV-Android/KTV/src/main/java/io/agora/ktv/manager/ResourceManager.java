@@ -4,9 +4,9 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 
+import com.agora.data.DataRepositoryImpl;
 import com.agora.data.ExampleData;
 import com.agora.data.model.MusicModel;
-import com.agora.data.provider.DataRepository;
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
 
@@ -17,15 +17,21 @@ import java.util.concurrent.Callable;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import io.agora.baselibrary.util.KTVUtil;
 import io.agora.ktv.bean.MemberMusicModel;
 import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
 import io.reactivex.CompletableOnSubscribe;
+import io.reactivex.Observable;
+import io.reactivex.Observer;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.SingleSource;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
+import io.reactivex.internal.operators.observable.ObservableEmpty;
 
 /**
  * Music Resource
@@ -54,14 +60,30 @@ public final class ResourceManager {
     }
 
     public Single<MemberMusicModel> download(final MemberMusicModel musicModel, boolean onlyLrc) {
-        return Single.create(new SingleOnSubscribe<MusicModel>() {
+        return Single.create((SingleOnSubscribe<MusicModel>) emitter ->
+                DataRepositoryImpl.getInstance().getMusic(musicModel.getMusicId()).subscribe(new Observer<MusicModel>() {
             @Override
-            public void subscribe(@NonNull SingleEmitter<MusicModel> emitter) throws Exception {
-                MusicModel music = ExampleData.getMusic(musicModel.getMusicId());
-                if(music == null) emitter.onError(new Throwable("Can not find this song."));
-                else emitter.onSuccess(music);
+            public void onSubscribe(@NonNull Disposable d) {
+                KTVUtil.logD("onSubscribe");
             }
-        }).flatMap((Function<MusicModel, SingleSource<MemberMusicModel>>) model -> {
+
+            @Override
+            public void onNext(@NonNull MusicModel musicModel) {
+                KTVUtil.logD("onNext");
+                emitter.onSuccess(musicModel);
+            }
+
+            @Override
+            public void onError(@NonNull Throwable e) {
+                KTVUtil.logD(e.getMessage());
+                emitter.onError(e);
+            }
+
+            @Override
+            public void onComplete() {
+                KTVUtil.logD("onComplete");
+            }
+        })).flatMap((Function<MusicModel, SingleSource<MemberMusicModel>>) model -> {
             musicModel.setSong(model.getSong());
             musicModel.setLrc(model.getLrc());
 
@@ -83,7 +105,7 @@ public final class ResourceManager {
 
             mLogger.i("prepareMusic down %s", musicModel);
             if (onlyLrc) {
-                Completable mCompletable = DataRepository.Instance().download(fileLrc, musicModel.getLrc());
+                Completable mCompletable = DataRepositoryImpl.getInstance().download(fileLrc, musicModel.getLrc());
                 if (model.getLrc().endsWith("zip")) {
                     mCompletable = mCompletable.andThen(Completable.create(new CompletableOnSubscribe() {
                         @Override
@@ -98,7 +120,7 @@ public final class ResourceManager {
 
                 return mCompletable.andThen(Single.just(musicModel));
             } else {
-                Completable mCompletable = DataRepository.Instance().download(fileLrc, musicModel.getLrc());
+                Completable mCompletable = DataRepositoryImpl.getInstance().download(fileLrc, musicModel.getLrc());
                 if (model.getLrc().endsWith("zip")) {
                     mCompletable = mCompletable.andThen(Completable.create(new CompletableOnSubscribe() {
                         @Override
@@ -112,7 +134,7 @@ public final class ResourceManager {
                 }
 
                 return Completable.mergeArray(
-                        DataRepository.Instance().download(fileMusic, musicModel.getSong()),
+                        DataRepositoryImpl.getInstance().download(fileMusic, musicModel.getSong()),
                         mCompletable)
                         .toSingle(new Callable<MemberMusicModel>() {
                             @Override

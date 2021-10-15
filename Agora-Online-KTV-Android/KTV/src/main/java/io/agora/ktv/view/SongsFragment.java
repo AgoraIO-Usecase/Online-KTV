@@ -6,21 +6,21 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.agora.data.ExampleData;
-import com.agora.data.manager.UserManager;
-import com.agora.data.model.AgoraRoom;
+import com.agora.data.DataRepositoryImpl;
 import com.agora.data.model.MusicModel;
-import com.agora.data.model.User;
+
+import java.util.List;
 
 import io.agora.baselibrary.base.BaseFragment;
 import io.agora.baselibrary.base.BaseRecyclerViewAdapter;
-import io.agora.baselibrary.base.OnItemClickListener;
+import io.agora.baselibrary.util.KTVUtil;
 import io.agora.ktv.adapter.ChooseSongViewHolder;
-import io.agora.ktv.bean.MemberMusicModel;
 import io.agora.ktv.databinding.KtvFragmentSongListBinding;
 import io.agora.ktv.databinding.KtvItemChooseSongListBinding;
-import io.agora.ktv.manager.RoomManager;
-import io.agora.ktv.widget.DividerDecoration;
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * 歌单列表
@@ -55,25 +55,31 @@ public class SongsFragment extends BaseFragment<KtvFragmentSongListBinding> {
     }
 
     private void loadMusics(String searchKey) {
-        new Thread(() -> {
-            mAdapter.dataList.clear();
-            if(searchKey.isEmpty())
-                mAdapter.dataList.addAll(ExampleData.exampleSongs);
-            else{
-                int size = ExampleData.exampleSongs.size();
-                MusicModel music;
-                for (int i = 0; i < size; i++) {
-                    music = ExampleData.exampleSongs.get(i);
-                    if(music.getName().contains(searchKey) || music.getSinger().contains(searchKey))
-                        mAdapter.dataList.add(music);
-                }
+        DataRepositoryImpl.getInstance().getMusics(searchKey)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<List<MusicModel>>() {
+            @Override
+            public void onSubscribe(@NonNull Disposable d) {
+
             }
-            mBinding.getRoot().post(() -> {
-                mAdapter.notifyDataSetChanged();
+
+            @Override
+            public void onNext(@NonNull List<MusicModel> musicModels) {
+                mAdapter.setDataList(musicModels);
+            }
+
+            @Override
+            public void onError(@NonNull Throwable e) {
+                KTVUtil.logE(e.getMessage());
+            }
+
+            @Override
+            public void onComplete() {
                 mBinding.llEmpty.setVisibility(mAdapter.getItemCount()>0 ? View.GONE : View.VISIBLE);
                 mBinding.swipeRefreshLayout.setRefreshing(false);
-            });
-        }).start();
+            }
+        });
     }
 
     private void doLoadMusics(View v){

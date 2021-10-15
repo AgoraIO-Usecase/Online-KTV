@@ -411,7 +411,6 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> {
         RoomManager.Instance(this)
                 .joinRoom(mRoom)
                 .observeOn(AndroidSchedulers.mainThread())
-                .compose(mLifecycleProvider.bindToLifecycle())
                 .subscribe(new CompletableObserver() {
                     @Override
                     public void onSubscribe(@NonNull Disposable d) {
@@ -730,7 +729,7 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> {
         boolean isChorus = false;
         if (v.getId() == R.id.btn_chorus_att_room)
             isChorus = true;
-        new RoomChooseSongDialog(getSupportFragmentManager(), getLifecycle(), isChorus).show(getSupportFragmentManager(), RoomChooseSongDialog.TAG);
+        new RoomChooseSongDialog(isChorus).show(getSupportFragmentManager(), RoomChooseSongDialog.TAG);
     }
 
     private void showBackgroundPicDialog(View v) {
@@ -790,7 +789,6 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> {
         dismissLoading();
         stopOnTrialTimer();
 
-        RoomManager.Instance(this).removeRoomEventCallback(mRoomEventCallback);
         if (mMusicPlayer != null) {
             mMusicPlayer.unregisterPlayerObserver();
             mMusicPlayer.destroy();

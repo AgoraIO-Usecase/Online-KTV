@@ -8,6 +8,7 @@ import androidx.core.util.ObjectsCompat;
 import com.agora.data.manager.UserManager;
 import com.agora.data.model.User;
 
+import io.agora.baselibrary.util.KTVUtil;
 import io.agora.baselibrary.util.ToastUtil;
 import io.agora.ktv.R;
 import io.agora.ktv.bean.MemberMusicModel;
@@ -78,6 +79,7 @@ public class SingleMusicPlayer extends BaseMusicPlayer {
 
                     @Override
                     public void onError(@NonNull Throwable e) {
+                        KTVUtil.logD(e.getMessage());
                         ToastUtil.toastShort(mContext, R.string.ktv_lrc_load_fail);
                     }
                 });

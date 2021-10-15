@@ -12,11 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.Lifecycle;
 import androidx.viewbinding.ViewBinding;
-
-import com.trello.lifecycle2.android.lifecycle.AndroidLifecycle;
-import com.trello.rxlifecycle3.LifecycleProvider;
 
 import java.lang.reflect.Type;
 
@@ -32,8 +28,6 @@ import io.agora.baselibrary.util.ToastUtil;
 
 public abstract class BaseActivity<B extends ViewBinding> extends AppCompatActivity {
     public B mBinding;
-    protected final LifecycleProvider<Lifecycle.Event> mLifecycleProvider = AndroidLifecycle.createLifecycleProvider(this);
-
     private AlertDialog mLoadingDialog = null;
 
     @Override

@@ -13,14 +13,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 
-import com.agora.data.BaseError;
+import com.agora.data.DataRepositoryImpl;
 import com.agora.data.ExampleData;
 import com.agora.data.manager.UserManager;
 import com.agora.data.model.AgoraRoom;
-import com.agora.data.model.User;
-import com.agora.data.observer.DataObserver;
-import com.agora.data.provider.DataRepository;
-import com.agora.data.sync.SyncManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,10 +36,10 @@ import io.reactivex.disposables.Disposable;
 
 /**
  * Remember, this room list uses the R.mipmap.cover_xxx
+ *
  * @author chenhengfei@agora.io
  */
 public class RoomListActivity extends BaseActivity<KtvActivityRoomListBinding> {
-    public static String key = "ROOM";
 
     private static final String[] PERMISSIONS = new String[]{
             Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -94,40 +90,25 @@ public class RoomListActivity extends BaseActivity<KtvActivityRoomListBinding> {
         mBinding.list.setAdapter(mAdapter);
         mBinding.list.addItemDecoration(new DividerDecoration(2));
         mBinding.swipeRefreshLayout.setOnRefreshListener(this::loadRooms);
+
+        UserManager.Instance().getUserLiveData().observe(this, user -> loadRooms());
     }
 
     protected void initData() {
-        UserManager.Instance().setupDataRepository(DataRepository.Instance());
-
         showEmptyStatus();
-
-        mBinding.swipeRefreshLayout.post(this::login);
+        login();
     }
 
     private void login() {
         mBinding.swipeRefreshLayout.setRefreshing(true);
-        UserManager.Instance()
-                .loginIn()
-                .observeOn(AndroidSchedulers.mainThread())
-                .compose(mLifecycleProvider.bindToLifecycle())
-                .subscribe(new DataObserver<User>(this) {
-                    @Override
-                    public void handleError(@NonNull BaseError e) {
-
-                    }
-
-                    @Override
-                    public void handleSuccess(@NonNull User user) {
-                        loadRooms();
-                    }
-                });
+        if (!UserManager.Instance().alreadyLoggedIn())
+            UserManager.Instance().loginIn();
     }
 
     private void loadRooms() {
-        SyncManager.Instance()
+        DataRepositoryImpl.getInstance()
                 .getRooms()
                 .observeOn(AndroidSchedulers.mainThread())
-                .compose(mLifecycleProvider.bindToLifecycle())
                 .subscribe(new Observer<List<AgoraRoom>>() {
                     @Override
                     public void onSubscribe(@NonNull Disposable d) {
@@ -202,14 +183,16 @@ public class RoomListActivity extends BaseActivity<KtvActivityRoomListBinding> {
             // 显示申请理由
         else showPermissionAlertDialog(true);
     }
+
     private void showPermissionAlertDialog(boolean canRequest) {
         if (canRequest)
-        new AlertDialog.Builder(this).setMessage(R.string.ktv_permission_alert).setNegativeButton(android.R.string.cancel, null)
-                .setPositiveButton(android.R.string.ok, ((dialogInterface, i) -> requestPermissionLauncher.launch(RoomListActivity.PERMISSIONS))).show();
+            new AlertDialog.Builder(this).setMessage(R.string.ktv_permission_alert).setNegativeButton(android.R.string.cancel, null)
+                    .setPositiveButton(android.R.string.ok, ((dialogInterface, i) -> requestPermissionLauncher.launch(RoomListActivity.PERMISSIONS))).show();
         else
-        new AlertDialog.Builder(this).setMessage(R.string.ktv_permission_refused)
-                .setPositiveButton(android.R.string.ok, null).show();
+            new AlertDialog.Builder(this).setMessage(R.string.ktv_permission_refused)
+                    .setPositiveButton(android.R.string.ok, null).show();
     }
+
     private void toNextActivity() {
         AgoraRoom agoraRoom = null;
         try {

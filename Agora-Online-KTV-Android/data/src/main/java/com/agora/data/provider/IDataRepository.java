@@ -3,6 +3,7 @@ package com.agora.data.provider;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.agora.data.model.AgoraRoom;
 import com.agora.data.model.MusicModel;
 import com.agora.data.model.User;
 
@@ -18,15 +19,13 @@ import io.reactivex.Observable;
  * @author chenhengfei(Aslanchen)
  */
 public interface IDataRepository {
-    Observable<User> login(@NonNull User user);
-
-    Observable<User> update(@NonNull User user);
-
-    Observable<User> getUser(@NonNull String userId);
+    Observable<User> login(String userId, String userName);
 
     Observable<List<MusicModel>> getMusics(@Nullable String searchKey);
 
     Observable<MusicModel> getMusic(@NonNull String musicId);
+
+    Observable<List<AgoraRoom>> getRooms();
 
     Completable download(@NonNull File file, @NonNull String url);
 }

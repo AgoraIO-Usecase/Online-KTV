@@ -33,6 +33,12 @@ public class BaseBottomSheetDialogFragment<B extends ViewBinding> extends Bottom
         requireDialog().setOnShowListener(dialog -> ((ViewGroup) view.getParent()).setBackgroundColor(Color.TRANSPARENT));
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mBinding = null;
+    }
+
     private B getViewBindingByReflect(@NonNull LayoutInflater inflater, @Nullable ViewGroup container) {
         try {
             Class<B> c = KTVUtil.getGenericClass(getClass(), 0);

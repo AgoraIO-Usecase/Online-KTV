@@ -5,12 +5,9 @@ import android.os.Parcelable;
 
 import com.agora.data.model.AgoraRoom;
 import com.agora.data.model.MusicModel;
-import com.agora.data.sync.DocumentReference;
-import com.agora.data.sync.SyncManager;
 
 import java.io.File;
 import java.io.Serializable;
-import java.util.HashMap;
 
 /**
  * @author chenhengfei(Aslanchen)

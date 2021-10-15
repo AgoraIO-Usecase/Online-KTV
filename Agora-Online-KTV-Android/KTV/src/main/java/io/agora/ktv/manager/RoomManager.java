@@ -21,8 +21,10 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import io.agora.baselibrary.util.ToastUtil;
@@ -63,6 +65,7 @@ public final class RoomManager {
     private volatile AgoraRoom mRoom;
     private volatile AgoraMember mCurrentMember;
 
+    // 当前演唱歌曲
     private volatile MemberMusicModel mMusicModel;
 
     private RtcEngineEx mRtcEngine;
@@ -72,7 +75,7 @@ public final class RoomManager {
     /**
      * 唱歌人的UserId
      */
-    private final List<String> singers = new ArrayList<>();
+    private final Set<String> singers = new HashSet<>();
 
     private Thread syncMemberThread;
 
@@ -391,6 +394,7 @@ public final class RoomManager {
 
     public Completable leaveRoom() {
         stopSyncMember();
+        mMainThreadDispatch.destroy();
         mLogger.i("leaveRoom() called");
 
         mLoggerRTC.i("leaveChannel() called");

@@ -7,8 +7,6 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.Lifecycle;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import com.agora.data.manager.UserManager;
@@ -32,20 +30,16 @@ import io.agora.ktv.view.SongsFragment;
 public class RoomChooseSongDialog extends BaseBottomSheetDialogFragment<KtvDialogChooseSongBinding> {
     public static final String TAG = RoomChooseSongDialog.class.getSimpleName();
 
-    private final FragmentManager fragmentManager;
-    private final Lifecycle lifecycle;
     public static boolean isChorus = false;
 
-    public RoomChooseSongDialog(FragmentManager fragmentManager, Lifecycle lifecycle, boolean isChorus) {
-        this.fragmentManager = fragmentManager;
-        this.lifecycle = lifecycle;
+    public RoomChooseSongDialog(boolean isChorus) {
         RoomChooseSongDialog.isChorus = isChorus;
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mBinding.pager.setAdapter(new FragmentStateAdapter(fragmentManager, lifecycle){
+        mBinding.pager.setAdapter(new FragmentStateAdapter(getChildFragmentManager(), getViewLifecycleOwner().getLifecycle()){
 
             @Override
             public int getItemCount() {
@@ -57,6 +51,7 @@ public class RoomChooseSongDialog extends BaseBottomSheetDialogFragment<KtvDialo
             public Fragment createFragment(int position) {
                 return new SongsFragment();
             }
+
         });
         new TabLayoutMediator(mBinding.tabLayout, mBinding.pager, (tab, position) -> {
             if (position == 0)

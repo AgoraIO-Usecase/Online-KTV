@@ -3,11 +3,6 @@ package com.agora.data.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.agora.data.sync.DocumentReference;
-import com.agora.data.sync.SyncManager;
-
-import java.util.HashMap;
-
 public class AgoraMember implements Parcelable {
     public static final String TABLE_NAME = "MEMBER_KTV";
 
