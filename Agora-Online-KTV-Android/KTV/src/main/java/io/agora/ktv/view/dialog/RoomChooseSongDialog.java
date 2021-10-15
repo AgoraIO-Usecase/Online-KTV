@@ -1,6 +1,7 @@
 package io.agora.ktv.view.dialog;
 
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 
@@ -39,6 +40,7 @@ public class RoomChooseSongDialog extends BaseBottomSheetDialogFragment<KtvDialo
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        mBinding.pager.getChildAt(0).setOverScrollMode(View.OVER_SCROLL_NEVER);
         mBinding.pager.setAdapter(new FragmentStateAdapter(getChildFragmentManager(), getViewLifecycleOwner().getLifecycle()){
 
             @Override

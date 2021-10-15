@@ -6,7 +6,6 @@ import androidx.annotation.NonNull;
 
 import com.agora.data.model.AgoraMember;
 import com.agora.data.model.User;
-import com.bumptech.glide.Glide;
 
 import io.agora.baselibrary.base.BaseRecyclerViewAdapter;
 import io.agora.ktv.MyUtil;
@@ -35,10 +34,7 @@ public class RoomPeopleHolder extends BaseRecyclerViewAdapter.BaseViewHolder<Ktv
             // User's special avatar
             User mUser = member.getUser();
             if (mUser != null) {
-                Glide.with(itemView)
-                        .load(mUser.getAvatarRes())
-                        .circleCrop()
-                        .into(mBinding.avatarItemRoomSpeaker);
+                mBinding.avatarItemRoomSpeaker.setImageResource(mUser.getAvatarRes());
             } else {
                 mBinding.avatarItemRoomSpeaker.setImageResource(R.mipmap.default_head);
             }

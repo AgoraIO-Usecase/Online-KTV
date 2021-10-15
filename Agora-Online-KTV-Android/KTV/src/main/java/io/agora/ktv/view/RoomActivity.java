@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.view.View;
@@ -49,6 +50,7 @@ import io.agora.ktv.service.MyForegroundService;
 import io.agora.ktv.view.dialog.MusicSettingDialog;
 import io.agora.ktv.view.dialog.RoomChooseSongDialog;
 import io.agora.ktv.view.dialog.RoomMVDialog;
+import io.agora.ktv.widget.DividerDecoration;
 import io.agora.ktv.widget.LrcControlView;
 import io.agora.lrcview.LrcLoadUtils;
 import io.agora.lrcview.bean.LrcData;
@@ -279,7 +281,10 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> {
             }
         }, RoomPeopleHolder.class);
 
+        mBinding.recyclerViewAttRoom.addItemDecoration(new DividerDecoration(4, 24, 8));
         mBinding.recyclerViewAttRoom.setAdapter(mRoomSpeakerAdapter);
+        if(Build.VERSION.SDK_INT <= Build.VERSION_CODES.R)
+        mBinding.recyclerViewAttRoom.setOverScrollMode(View.OVER_SCROLL_NEVER);
 
         MyUtil.scaleOnTouch(mBinding.btnMicAttRoom);
         MyUtil.scaleOnTouch(mBinding.btnChangeCoverAttRoom);

@@ -35,6 +35,7 @@
         android:textColor="@android:color/white"
         android:insetTop="2dp"
         android:insetBottom="2dp"
+        android:paddingHorizontal="24dp"
         android:textSize="18sp"
         app:shapeAppearance="@style/ktv_roundStyle"
         app:strokeColor="@android:color/white"
