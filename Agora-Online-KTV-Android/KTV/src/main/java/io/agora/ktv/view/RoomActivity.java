@@ -439,7 +439,7 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> {
                 .subscribe(new CompletableObserver() {
                     @Override
                     public void onSubscribe(@NonNull Disposable d) {
-//                        showLoadingDialog(false);
+                        showLoadingDialog(false);
                     }
 
                     @Override

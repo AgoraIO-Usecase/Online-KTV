@@ -1,26 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <androidx.appcompat.widget.Toolbar
+    <com.google.android.material.button.MaterialButton
         android:id="@id/titleBar"
-        app:layout_constraintTop_toTopOf="parent"
-        app:title=""
-        android:background="@color/ktv_colorPrimary"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <TextView
-            android:layout_gravity="center"
-            android:text="@string/ktv_room_list_title"
-            android:textAppearance="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
-            android:textColor="@color/ktv_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-    </androidx.appcompat.widget.Toolbar>
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:paddingVertical="12dp"
+        android:text="@string/ktv_room_list_title"
+        android:textAllCaps="false"
+        android:clickable="false"
+        android:focusable="false"
+        android:textAppearance="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
+        android:textColor="@color/ktv_title"
+        app:backgroundTint="@color/ktv_colorPrimary"
+        app:backgroundTintMode="src_atop"
+        app:layout_constraintTop_toTopOf="parent"
+        app:shapeAppearance="@style/ktv_cornerMediumStyle" />
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipeRefreshLayout"
@@ -34,8 +34,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
-            app:spanCount="2"
             app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+            app:spanCount="2"
             tools:listitem="@layout/ktv_item_room_list" />
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
