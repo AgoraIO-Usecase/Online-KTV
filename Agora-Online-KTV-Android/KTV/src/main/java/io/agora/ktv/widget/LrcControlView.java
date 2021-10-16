@@ -5,16 +5,20 @@ import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Outline;
+import android.graphics.Rect;
 import android.os.CountDownTimer;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewOutlineProvider;
 import android.widget.FrameLayout;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.ViewCompat;
 import androidx.palette.graphics.Palette;
 
 import io.agora.baselibrary.util.KTVUtil;
@@ -80,6 +84,7 @@ public class LrcControlView extends FrameLayout implements View.OnClickListener 
         mDataBinding.ilActive.ivMusicMenu.setOnClickListener(this);
         mDataBinding.ilActive.ivMusicStart.setOnClickListener(this);
         mDataBinding.ilActive.ivChangeSong.setOnClickListener(this);
+
     }
 
     public void setOnLrcClickListener(OnLrcActionListener mOnLrcActionListener) {
@@ -239,21 +244,18 @@ public class LrcControlView extends FrameLayout implements View.OnClickListener 
     }
 
     public void setLrcViewBackground(@DrawableRes int resId) {
-//        Bitmap mBitmap = BitmapFactory.decodeResource(getResources(), resId);
-//        Palette.from(mBitmap).generate(new Palette.PaletteAsyncListener() {
-//            @Override
-//            public void onGenerated(@Nullable Palette palette) {
-//                if (palette == null) {
-//                    return;
-//                }
-//
-//                int defaultColor = ContextCompat.getColor(getContext(), R.color.ktv_lrc_highligh);
-//                mDataBinding.ilActive.lrcView.setCurrentColor(palette.getLightVibrantColor(defaultColor));
-//
-//                defaultColor = ContextCompat.getColor(getContext(), R.color.ktv_lrc_nomal);
-//                mDataBinding.ilActive.lrcView.setNormalColor(palette.getLightMutedColor(defaultColor));
-//            }
-//        });
+        Bitmap mBitmap = BitmapFactory.decodeResource(getResources(), resId);
+        Palette.from(mBitmap).generate(palette -> {
+            if (palette == null) {
+                return;
+            }
+
+            int defaultColor = ContextCompat.getColor(getContext(), R.color.ktv_lrc_highligh);
+            mDataBinding.ilActive.lrcView.setCurrentColor(palette.getLightVibrantColor(defaultColor));
+
+            defaultColor = ContextCompat.getColor(getContext(), R.color.ktv_lrc_nomal);
+            mDataBinding.ilActive.lrcView.setNormalColor(palette.getLightMutedColor(defaultColor));
+        });
         mDataBinding.clActive.setBackgroundResource(resId);
     }
 

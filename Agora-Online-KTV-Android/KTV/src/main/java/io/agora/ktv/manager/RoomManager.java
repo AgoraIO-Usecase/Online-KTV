@@ -2,18 +2,22 @@ package io.agora.ktv.manager;
 
 import static io.agora.ktv.bean.MemberMusicModel.UserStatus.Ready;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.os.Bundle;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.util.ObjectsCompat;
 
+import com.agora.data.DataRepositoryImpl;
 import com.agora.data.ExampleData;
 import com.agora.data.R;
 import com.agora.data.manager.UserManager;
 import com.agora.data.model.AgoraMember;
 import com.agora.data.model.AgoraRoom;
+import com.agora.data.model.MusicModel;
 import com.agora.data.model.User;
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
@@ -38,6 +42,7 @@ import io.agora.rtc2.RtcEngine;
 import io.agora.rtc2.RtcEngineConfig;
 import io.agora.rtc2.RtcEngineEx;
 import io.reactivex.Completable;
+import io.reactivex.functions.Consumer;
 
 /**
  * 房间控制
@@ -51,8 +56,10 @@ public final class RoomManager {
 
     ///////////////////////// —— ALL CMD ——//////////////////////////////////////////////////////////
     public static final String syncMember = "syncMember";
+    public static final String syncMusic = "setLrcTime";
     public static final String requestChorus = "applyChorus";
     public static final String acceptChorus = "acceptChorus";
+    public static final String countdown = "countdown";
 
     private final Logger.Builder mLogger = XLog.tag("RoomManager");
     private final Logger.Builder mLoggerRTC = XLog.tag("RTC");
@@ -114,6 +121,7 @@ public final class RoomManager {
 
         @Override
         public void onStreamMessage(int uid, int streamId, byte[] data) {
+
             JSONObject jsonMsg;
             try {
                 String strMsg = new String(data);
@@ -138,7 +146,14 @@ public final class RoomManager {
                 if (remoteUserId == null) return;
 
                 switch (cmd) {
-                    case "setLrcTime": {
+                    case RoomManager.countdown: {
+                        int time = jsonMsg.getInt("time");
+                        String musicId = jsonMsg.getString("musicId");
+
+                        mMainThreadDispatch.onReceivedCountdown(uid, time,musicId);
+                        break;
+                    }
+                    case RoomManager.syncMusic: {
                         String musicId = "";
                         try {
                             musicId = jsonMsg.getString("lrcId");
@@ -254,17 +269,17 @@ public final class RoomManager {
                         if (acceptId.equals(UserManager.Instance().getUser().getObjectId())) {
 
                             if (mCurrentMemberMusic != null && mCurrentMemberMusic.getType() == MemberMusicModel.SingType.Chorus
-                                    && mCurrentMemberMusic.getUser1Id() == null && ObjectsCompat.equals(mCurrentMemberMusic.getUserId(), remoteUserId)) {
+                                    && ObjectsCompat.equals(mCurrentMemberMusic.getUserId(), userId)) {
 
-                                KTVUtil.logD("acceptChorus---- case1");
-                                // Mark as accepted
-                                mCurrentMemberMusic.setUser1Id(UserManager.Instance().getUser().getObjectId());
-                                // Start Prepare
-                                mMainThreadDispatch.onMemberJoinedChorus(mCurrentMemberMusic);
+                                if(  mCurrentMemberMusic.getUser1Id() == null) {
+                                    KTVUtil.logD("acceptChorus---- case1");
+                                    // Mark as accepted
+                                    mCurrentMemberMusic.setUser1Id(UserManager.Instance().getUser().getObjectId());
+                                    // Start Prepare
+                                    mMainThreadDispatch.onMemberJoinedChorus(mCurrentMemberMusic);
+                                    // 确认是陪唱 && 发消息的是主唱
+                                }else if(isFollowSinger() && jsonMsg.getInt("musicStatus") == 1){
 
-                                // 确认是陪唱 && 发消息的是主唱
-                            } else if (isFollowSinger() && userId.equals(mCurrentMemberMusic.getUserId())) {
-                                if (jsonMsg.getInt("musicStatus") == 1) {
                                     KTVUtil.logD("acceptChorus---- case2");
                                     mCurrentMemberMusic.setUserStatus(Ready);
                                     stopSyncRequestChorus();
@@ -426,20 +441,27 @@ public final class RoomManager {
         mMainThreadDispatch.onMusicEmpty();
     }
 
+    @SuppressLint("CheckResult")
     public void onMusicChanged(MemberMusicModel model) {
+        KTVUtil.logD("onMusicChanged() called with: model = [%s]");
         mLogger.i("onMusicChanged() called with: model = [%s]", model);
 
         mCurrentMemberMusic = model;
 
-        // 独唱
-        if (mCurrentMemberMusic.getType() == MemberMusicModel.SingType.Single) {
-            singers.add(model.getUserId());
-        } else if (mCurrentMemberMusic.getType() == MemberMusicModel.SingType.Chorus) {
-            singers.add(model.getUserId());
-            singers.add(model.getUser1Id());
-        }
+        DataRepositoryImpl.getInstance().getMusic(model.getMusicId()).subscribe(musicModel -> {
+            mCurrentMemberMusic.setPropertiesWithMusic(musicModel);
+            // 独唱
+            if (mCurrentMemberMusic.getType() == MemberMusicModel.SingType.Single) {
+                singers.add(model.getUserId());
+            } else if (mCurrentMemberMusic.getType() == MemberMusicModel.SingType.Chorus) {
+                singers.add(model.getUserId());
+                if(model.getUser1Id() != null)
+                    singers.add(model.getUser1Id());
+            }
 
-        mMainThreadDispatch.onMusicChanged(model);
+            mMainThreadDispatch.onMusicChanged(model);
+        });
+
     }
 
     public void onMemberApplyJoinChorus(MemberMusicModel model) {
@@ -597,7 +619,7 @@ public final class RoomManager {
      * {"userId":2222,"msgId":1,"cmd":"applyChorus","musicId":"6246262727281640","musicStatus":0}
      */
     private void sendSyncRequestChorusMsg() {
-        if (getRtcEngine() == null || mCurrentMemberMusic == null || mCurrentMember == null) return;
+        if ( mCurrentMemberMusic == null || mCurrentMember == null) return;
 
         Map<String, Object> msg = new HashMap<>();
         msg.put("cmd", RoomManager.requestChorus);
@@ -640,7 +662,7 @@ public final class RoomManager {
      * {"userId":1234,"msgId":1,"cmd":"acceptChorus","acceptedUid":2222,"musicStatus":0}
      */
     private void sendSyncAcceptChorusMsg() {
-        if (getRtcEngine() == null || mCurrentMemberMusic == null) return;
+        if (mCurrentMemberMusic == null) return;
 
         boolean ready = mCurrentMemberMusic.getUserStatus() == Ready && mCurrentMemberMusic.getUser1Status() == Ready;
 
@@ -661,9 +683,24 @@ public final class RoomManager {
 
 
     public void sendStreamMsg(Map<String, Object> mapMsg) {
-        String msg = new JSONObject(mapMsg).toString();
-        int res = getRtcEngine().sendStreamMessage(getStreamId(), msg.getBytes());
-        if (res < 0) mLogger.e("sendStreamMsg() called returned: ret = [%s], msg = %s", res, msg);
+        if(mRtcEngine != null) {
+            String msg = new JSONObject(mapMsg).toString();
+            int res = getRtcEngine().sendStreamMessage(getStreamId(), msg.getBytes());
+            if (res < 0)
+                mLogger.e("sendStreamMsg() called returned: ret = [%s], msg = %s", res, msg);
+        }
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////// ———— COUNTDOWN ———— //////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////
+    public void sendSyncCountdown(int time) {
+        if (mCurrentMemberMusic == null) return;
+        Map<String, Object> msg = new HashMap<>();
+        msg.put("cmd", "countdown");
+        msg.put("time", time);
+        msg.put("musicId", RoomManager.getInstance().mCurrentMemberMusic.getMusicId());
+        sendStreamMsg(msg);
     }
 
     //</editor-fold>

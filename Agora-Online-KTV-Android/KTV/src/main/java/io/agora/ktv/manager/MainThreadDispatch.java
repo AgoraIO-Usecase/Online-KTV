@@ -32,7 +32,8 @@ public class MainThreadDispatch implements RoomEventCallback {
     private static final int ON_MUSIC_ADD = ON_ROOM_CLOSED + 1;
     private static final int ON_MUSIC_DELETE = ON_MUSIC_ADD + 1;
     private static final int ON_MUSIC_CHANGED = ON_MUSIC_DELETE + 1;
-    private static final int ON_MUSIC_EMPTY = ON_MUSIC_CHANGED + 1;
+    private static final int ON_MUSIC_COUNTDOWN = ON_MUSIC_CHANGED + 1;
+    private static final int ON_MUSIC_EMPTY = ON_MUSIC_COUNTDOWN + 1;
     private static final int ON_MUSIC_PROGRESS = ON_MUSIC_EMPTY + 1;
     private static final int ON_ROOM_INFO_CHANGED = ON_MUSIC_PROGRESS + 1;
     private static final int ON_MEMBER_APPLY_JOIN_CHORUS = ON_ROOM_INFO_CHANGED + 1;
@@ -50,79 +51,111 @@ public class MainThreadDispatch implements RoomEventCallback {
     }
 
     private final Handler mHandler = new Handler(Looper.getMainLooper(), msg -> {
-        if (msg.what == ON_MEMBER_JOIN) {
-            for (RoomEventCallback callback : eventCallbacks) {
-                callback.onMemberJoin((AgoraMember) msg.obj);
-            }
-        } else if (msg.what == ON_MEMBER_LEAVE) {
-            for (RoomEventCallback callback : eventCallbacks) {
-                callback.onMemberLeave((AgoraMember) msg.obj);
-            }
-        } else if (msg.what == ON_ROLE_CHANGED) {
-            for (RoomEventCallback callback : eventCallbacks) {
-                callback.onRoleChanged((AgoraMember) msg.obj);
-            }
-        } else if (msg.what == ON_AUDIO_CHANGED) {
-            for (RoomEventCallback callback : eventCallbacks) {
-                callback.onAudioStatusChanged((AgoraMember) msg.obj);
-            }
-        } else if (msg.what == ON_ROOM_ERROR) {
-            Bundle bundle = msg.getData();
-            int error = bundle.getInt("error");
-            String msgError = bundle.getString("msg");
+        switch (msg.what) {
+            case ON_MEMBER_JOIN:
+                for (RoomEventCallback callback : eventCallbacks) {
+                    callback.onMemberJoin((AgoraMember) msg.obj);
+                }
+                break;
+            case ON_MEMBER_LEAVE:
+                for (RoomEventCallback callback : eventCallbacks) {
+                    callback.onMemberLeave((AgoraMember) msg.obj);
+                }
+                break;
+            case ON_ROLE_CHANGED:
+                for (RoomEventCallback callback : eventCallbacks) {
+                    callback.onRoleChanged((AgoraMember) msg.obj);
+                }
+                break;
+            case ON_AUDIO_CHANGED:
+                for (RoomEventCallback callback : eventCallbacks) {
+                    callback.onAudioStatusChanged((AgoraMember) msg.obj);
+                }
+                break;
+            case ON_ROOM_ERROR: {
+                Bundle bundle = msg.getData();
+                int error = bundle.getInt("error");
+                String msgError = bundle.getString("msg");
 
-            for (RoomEventCallback callback : eventCallbacks) {
-                callback.onRoomError(error, msgError);
+                for (RoomEventCallback callback : eventCallbacks) {
+                    callback.onRoomError(error, msgError);
+                }
+                break;
             }
-        } else if (msg.what == ON_ROOM_CLOSED) {
-            Bundle bundle = msg.getData();
-            AgoraRoom room = bundle.getParcelable("room");
-            boolean fromUser = bundle.getBoolean("fromUser");
-            for (RoomEventCallback callback : eventCallbacks) {
-                callback.onRoomClosed(room, fromUser);
+            case ON_ROOM_CLOSED: {
+                Bundle bundle = msg.getData();
+                AgoraRoom room = bundle.getParcelable("room");
+                boolean fromUser = bundle.getBoolean("fromUser");
+                for (RoomEventCallback callback : eventCallbacks) {
+                    callback.onRoomClosed(room, fromUser);
+                }
+                break;
             }
-        } else if (msg.what == ON_MUSIC_ADD) {
-            MemberMusicModel data = (MemberMusicModel) msg.obj;
-            for (RoomEventCallback callback : eventCallbacks) {
-                callback.onMusicAdd(data);
+            case ON_MUSIC_ADD: {
+                MemberMusicModel data = (MemberMusicModel) msg.obj;
+                for (RoomEventCallback callback : eventCallbacks) {
+                    callback.onMusicAdd(data);
+                }
+                break;
             }
-        } else if (msg.what == ON_MUSIC_DELETE) {
-            MemberMusicModel data = (MemberMusicModel) msg.obj;
-            for (RoomEventCallback callback : eventCallbacks) {
-                callback.onMusicDelete(data);
+            case ON_MUSIC_DELETE: {
+                MemberMusicModel data = (MemberMusicModel) msg.obj;
+                for (RoomEventCallback callback : eventCallbacks) {
+                    callback.onMusicDelete(data);
+                }
+                break;
             }
-        } else if (msg.what == ON_MUSIC_EMPTY) {
-            for (RoomEventCallback callback : eventCallbacks) {
-                callback.onMusicEmpty();
+            case ON_MUSIC_EMPTY:
+                for (RoomEventCallback callback : eventCallbacks) {
+                    callback.onMusicEmpty();
+                }
+                break;
+            case ON_MUSIC_CHANGED: {
+                MemberMusicModel data = (MemberMusicModel) msg.obj;
+                for (RoomEventCallback callback : eventCallbacks) {
+                    callback.onMusicChanged(data);
+                }
+                break;
             }
-        } else if (msg.what == ON_MUSIC_CHANGED) {
-            MemberMusicModel data = (MemberMusicModel) msg.obj;
-            for (RoomEventCallback callback : eventCallbacks) {
-                callback.onMusicChanged(data);
+            case ON_MUSIC_PROGRESS: {
+                Bundle bundle = msg.getData();
+                long total = bundle.getLong("total");
+                long cur = bundle.getLong("cur");
+                for (RoomEventCallback callback : eventCallbacks) {
+                    callback.onMusicProgress(total, cur);
+                }
+                break;
             }
-        } else if (msg.what == ON_MUSIC_PROGRESS) {
-            Bundle bundle = msg.getData();
-            long total = bundle.getLong("total");
-            long cur = bundle.getLong("cur");
-            for (RoomEventCallback callback : eventCallbacks) {
-                callback.onMusicProgress(total, cur);
+            case ON_MUSIC_COUNTDOWN:{
+                Bundle bundle = msg.getData();
+                int uid = bundle.getInt("uid");
+                int time = bundle.getInt("time");
+                String musicId = bundle.getString("musicId");
+                for (RoomEventCallback callback : eventCallbacks) {
+                    callback.onReceivedCountdown(uid, time, musicId);
+                }
+                break;
             }
-        } else if (msg.what == ON_ROOM_INFO_CHANGED) {
-            for (RoomEventCallback callback : eventCallbacks) {
-                callback.onRoomInfoChanged((AgoraRoom) msg.obj);
-            }
-        } else if (msg.what == ON_MEMBER_APPLY_JOIN_CHORUS) {
-            for (RoomEventCallback callback : eventCallbacks) {
-                callback.onMemberApplyJoinChorus((MemberMusicModel) msg.obj);
-            }
-        } else if (msg.what == ON_MEMBER_JOIN_CHORUS) {
-            for (RoomEventCallback callback : eventCallbacks) {
-                callback.onMemberJoinedChorus((MemberMusicModel) msg.obj);
-            }
-        } else if (msg.what == ON_MEMBER_CHORUS_READY) {
-            for (RoomEventCallback callback : eventCallbacks) {
-                callback.onMemberChorusReady((MemberMusicModel) msg.obj);
-            }
+            case ON_ROOM_INFO_CHANGED:
+                for (RoomEventCallback callback : eventCallbacks) {
+                    callback.onRoomInfoChanged((AgoraRoom) msg.obj);
+                }
+                break;
+            case ON_MEMBER_APPLY_JOIN_CHORUS:
+                for (RoomEventCallback callback : eventCallbacks) {
+                    callback.onMemberApplyJoinChorus((MemberMusicModel) msg.obj);
+                }
+                break;
+            case ON_MEMBER_JOIN_CHORUS:
+                for (RoomEventCallback callback : eventCallbacks) {
+                    callback.onMemberJoinedChorus((MemberMusicModel) msg.obj);
+                }
+                break;
+            case ON_MEMBER_CHORUS_READY:
+                for (RoomEventCallback callback : eventCallbacks) {
+                    callback.onMemberChorusReady((MemberMusicModel) msg.obj);
+                }
+                break;
         }
         return false;
     });
@@ -221,6 +254,18 @@ public class MainThreadDispatch implements RoomEventCallback {
         bundle.putLong("cur", cur);
 
         Message message = mHandler.obtainMessage(ON_MUSIC_PROGRESS);
+        message.setData(bundle);
+        message.sendToTarget();
+    }
+
+    @Override
+    public void onReceivedCountdown(int uid, int time, String musicId) {
+        Bundle bundle = new Bundle();
+        bundle.putInt("uid", uid);
+        bundle.putInt("time", time);
+        bundle.putString("musicId", musicId);
+
+        Message message = mHandler.obtainMessage(ON_MUSIC_COUNTDOWN);
         message.setData(bundle);
         message.sendToTarget();
     }

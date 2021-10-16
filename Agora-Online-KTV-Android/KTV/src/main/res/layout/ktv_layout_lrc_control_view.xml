@@ -1,50 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/transparent">
+    android:layout_margin="12dp"
+    app:cardBackgroundColor="@android:color/transparent"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="0dp">
 
-    <include
-        android:id="@+id/ilIDLE"
-        layout="@layout/ktv_layout_lrc_idle"
-        android:visibility="gone" />
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/clActive"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@mipmap/ktv_music_background1"
-        android:visibility="gone">
-
-        <TextView
-            android:id="@+id/tvMusicName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:drawablePadding="4dp"
-            android:gravity="center"
-            android:textColor="@android:color/white"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:drawableStartCompat="@mipmap/ktv_room_music_name" />
+        android:layout_height="match_parent">
 
         <include
-            android:id="@+id/ilChorus"
-            layout="@layout/ktv_layout_lrc_chorus"
-            android:visibility="gone" />
+            android:id="@+id/ilIDLE"
+            layout="@layout/ktv_layout_lrc_idle"
+            android:visibility="visible"
+            tools:visibility="visible" />
 
-        <include
-            android:id="@+id/ilPrepare"
-            layout="@layout/ktv_layout_lrc_prepare"
-            android:visibility="gone" />
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/clActive"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            tools:background="@mipmap/ktv_music_background1">
 
-        <include
-            android:id="@+id/ilActive"
-            layout="@layout/ktv_layout_lrc_active"
-            android:visibility="gone" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</FrameLayout>
+            <TextView
+                android:id="@+id/tvMusicName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:drawablePadding="4dp"
+                android:gravity="center"
+                android:textColor="@android:color/white"
+                app:drawableStartCompat="@mipmap/ktv_room_music_name"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <include
+                android:id="@+id/ilChorus"
+                layout="@layout/ktv_layout_lrc_chorus"
+                android:visibility="gone" />
+
+            <include
+                android:id="@+id/ilPrepare"
+                layout="@layout/ktv_layout_lrc_prepare"
+                android:visibility="gone" />
+
+            <include
+                android:id="@+id/ilActive"
+                layout="@layout/ktv_layout_lrc_active"
+                android:visibility="gone"
+                tools:visibility="visible" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </FrameLayout>
+</androidx.cardview.widget.CardView>

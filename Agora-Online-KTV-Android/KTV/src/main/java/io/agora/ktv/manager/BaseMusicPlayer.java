@@ -56,8 +56,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
     protected static final int ACTION_ON_MUSIC_PAUSE = ACTION_ON_MUSIC_PLAING + 1;
     protected static final int ACTION_ON_MUSIC_STOP = ACTION_ON_MUSIC_PAUSE + 1;
     protected static final int ACTION_ON_MUSIC_COMPLETED = ACTION_ON_MUSIC_STOP + 1;
-    protected static final int ACTION_ON_RECEIVED_COUNT_DOWN = ACTION_ON_MUSIC_COMPLETED + 1;
-    protected static final int ACTION_ON_RECEIVED_PLAY = ACTION_ON_RECEIVED_COUNT_DOWN + 1;
+    protected static final int ACTION_ON_RECEIVED_PLAY = ACTION_ON_MUSIC_COMPLETED + 1;
     protected static final int ACTION_ON_RECEIVED_PAUSE = ACTION_ON_RECEIVED_PLAY + 1;
     protected static final int ACTION_ON_RECEIVED_SYNC_TIME = ACTION_ON_RECEIVED_PAUSE + 1;
     protected static final int ACTION_ON_RECEIVED_TEST_DELAY = ACTION_ON_RECEIVED_SYNC_TIME + 1;
@@ -116,13 +115,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
                 if (mCallback != null) {
                     mCallback.onMusicCompleted();
                 }
-            } else if (msg.what == ACTION_ON_RECEIVED_COUNT_DOWN) {
-                Bundle data = msg.getData();
-                int uid = data.getInt("uid");
-                int time = data.getInt("time");
-                String musicId = data.getString("musicId");
-                onReceivedCountdown(uid, time, musicId);
-            } else if (msg.what == ACTION_ON_RECEIVED_PLAY) {
+            }else if (msg.what == ACTION_ON_RECEIVED_PLAY) {
                 onReceivedStatusPlay((Integer) msg.obj);
             } else if (msg.what == ACTION_ON_RECEIVED_PAUSE) {
                 onReceivedStatusPause((Integer) msg.obj);
@@ -196,17 +189,6 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
                         what = ACTION_ON_RECEIVED_SYNC_TIME;
                     }
                     break;
-                case "countdown": {
-                    // Only this situation we can play with a chorus
-                    int time = jsonMsg.getInt("time");
-
-                    bundle = new Bundle();
-                    bundle.putInt("uid", uid);
-                    bundle.putInt("time", time);
-                    bundle.putString("musicId", jsonMsg.getString("musicId"));
-                    what = ACTION_ON_RECEIVED_COUNT_DOWN;
-                    break;
-                }
                 case "testDelay": {
                     long time = jsonMsg.getLong("time");
                     bundle = new Bundle();
@@ -241,17 +223,6 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
         } catch (JSONException exp) {
             mLogger.e("onStreamMessage: failed parse json, error: " + exp.toString());
         }
-    }
-
-    public void sendCountdown(int time) {
-        if (RoomManager.getInstance().mCurrentMemberMusic == null) return;
-        Map<String, Object> msg = new HashMap<>();
-        msg.put("cmd", "countdown");
-        msg.put("time", time);
-        msg.put("musicId", RoomManager.getInstance().mCurrentMemberMusic.getMusicId());
-        JSONObject jsonMsg = new JSONObject(msg);
-        int streamId = RoomManager.getInstance().getStreamId();
-        RoomManager.getInstance().getRtcEngine().sendStreamMessage(streamId, jsonMsg.toString().getBytes());
     }
 
     private void reset() {
@@ -518,13 +489,6 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
         mLastRecvPlayPosTime = System.currentTimeMillis();
     }
 
-    @SuppressLint("CheckResult")
-    protected void onReceivedCountdown(int uid, int time, String musicId) {
-        if (mCallback != null) {
-            mCallback.onReceivedCountdown(uid, time, musicId);
-        }
-    }
-
     protected void onReceivedTestDelay(int uid, long time) {
     }
 
@@ -734,13 +698,5 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
          */
         void onMusicPositionChanged(long position);
 
-        /**
-         * 合唱模式下，等待加入合唱倒计时
-         *
-         * @param uid
-         * @param time    秒
-         * @param musicId
-         */
-        void onReceivedCountdown(int uid, int time, String musicId);
     }
 }

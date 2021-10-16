@@ -1,7 +1,6 @@
 package io.agora.ktv.view.dialog;
 
 import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 
@@ -11,7 +10,6 @@ import androidx.fragment.app.Fragment;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import com.agora.data.manager.UserManager;
-import com.agora.data.model.AgoraRoom;
 import com.agora.data.model.MusicModel;
 import com.agora.data.model.User;
 import com.google.android.material.tabs.TabLayoutMediator;
@@ -64,14 +62,11 @@ public class RoomChooseSongDialog extends BaseBottomSheetDialogFragment<KtvDialo
     }
 
     public static void finishChooseMusic(Context context, MusicModel music){
-        AgoraRoom mRoom = RoomManager.getInstance().getRoom();
         User mUser = UserManager.Instance().getUserLiveData().getValue();
-        if (mRoom != null && mUser != null) {
+        if (mUser != null) {
             // Construct a MemberMusicModel
             MemberMusicModel model = new MemberMusicModel(music);
-            model.setRoomId(mRoom);
             model.setUserId(mUser.getObjectId());
-            model.setId(music.getMusicId());
             model.setMusicId(music.getMusicId());
             model.setType(RoomChooseSongDialog.isChorus? MemberMusicModel.SingType.Chorus : MemberMusicModel.SingType.Single);
 

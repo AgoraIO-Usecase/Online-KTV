@@ -85,4 +85,14 @@ public class SimpleRoomEventCallback implements RoomEventCallback {
     public void onMusicProgress(long total, long cur) {
 
     }
+
+    /**
+     * 合唱模式下，等待加入合唱倒计时
+     *
+     */
+
+    @Override
+    public void onReceivedCountdown(int uid, int time, String musicId){
+
+    }
 }

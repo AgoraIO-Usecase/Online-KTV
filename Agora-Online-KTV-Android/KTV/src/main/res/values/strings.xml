@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:tools="http://schemas.android.com/tools" translatable="false">
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="ktv_app_name">KTV</string>
 
     <string name="ktv_ok">OK</string>
@@ -13,11 +13,13 @@
     <string name="ktv_room_list_title">Room</string>
     <string name="ktv_room_list_empty">Please create a song room</string>
 
+    <string name="ktv_change_song">Cut off</string>
+
     <string name="ktv_create_room_name_label">Room name</string>
     <string name="ktv_create_room_name_label2">The application is for test purpose only, please do not use it for commercial purpose. The longest duration per session is 10 minutes, and the maximum of participants per channel is 10.</string>
     <string name="ktv_create_button">Start</string>
 
-    <string name="ktv_dialog_join_msg">Preparing...</string>
+    <string name="ktv_dialog_join_msg">Preparing…</string>
 
     <string name="ktv_room_before_speaker">After wheat, you can order songs and speak</string>
     <string name="ktv_room_owner">Host</string>

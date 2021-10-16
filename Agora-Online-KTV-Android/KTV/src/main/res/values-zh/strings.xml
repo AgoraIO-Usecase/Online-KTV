@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources translatable="false">
+<resources>
     <string name="ktv_app_name">KTV</string>
 
     <string name="ktv_ok">好的</string>
@@ -13,11 +13,13 @@
     <string name="ktv_room_list_title">歌房</string>
     <string name="ktv_room_list_empty">请创建一个歌房</string>
 
+    <string name="ktv_change_song">切歌</string>
+
     <string name="ktv_create_room_name_label">歌房名称</string>
     <string name="ktv_create_room_name_label2">本应用为测试产品，请勿商用。单次直播最长10分钟，每个频道最多10人。</string>
     <string name="ktv_create_button">创建</string>
 
-    <string name="ktv_dialog_join_msg">准备中，请等待...</string>
+    <string name="ktv_dialog_join_msg">准备中，请等待…</string>
 
     <string name="ktv_room_before_speaker">上麦后可点歌与发言</string>
     <string name="ktv_room_owner">房主</string>

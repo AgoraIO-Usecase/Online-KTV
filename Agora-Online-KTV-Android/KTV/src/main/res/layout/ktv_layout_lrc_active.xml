@@ -1,29 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-
-    <io.agora.lrcview.LrcView
-        android:id="@+id/lrcView"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:background="#00000000"
-        android:paddingStart="10dp"
-        android:paddingEnd="10dp"
-        android:paddingBottom="20dp"
-        app:layout_constraintBottom_toTopOf="@+id/rlMusicControlMenu"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/pitchView"
-        app:lrcCurrentTextColor="@color/ktv_lrc_highligh"
-        app:lrcDividerHeight="20dp"
-        app:lrcLabel=" "
-        app:lrcNormalTextColor="@color/ktv_lrc_nomal"
-        app:lrcNormalTextSize="16sp"
-        app:lrcTextGravity="center"
-        app:lrcTextSize="26sp" />
 
     <io.agora.lrcview.PitchView
         android:id="@+id/pitchView"
@@ -37,59 +16,83 @@
         app:pitchDoneTextColor="@color/ktv_lrc_highligh"
         app:pitchNormalTextColor="@color/ktv_pitch_nomal" />
 
-    <RelativeLayout
-        android:id="@+id/rlMusicControlMenu"
+    <io.agora.lrcview.LrcView
+        android:id="@+id/lrcView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:background="@drawable/ktv_shape_room_irc_menu_background"
-        android:padding="20dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        android:layout_height="0dp"
+        android:background="#00000000"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:paddingBottom="20dp"
+        app:layout_constraintBottom_toTopOf="@+id/bgd_control_layout_lrc"
+        app:layout_constraintTop_toBottomOf="@+id/pitchView"
+        app:lrcCurrentTextColor="@color/ktv_lrc_highligh"
+        app:lrcDividerHeight="20dp"
+        app:lrcLabel=" "
+        app:lrcNormalTextColor="@color/ktv_lrc_nomal"
+        app:lrcNormalTextSize="16sp"
+        app:lrcTextGravity="center"
+        app:lrcTextSize="26sp" />
 
-        <TextView
-            android:id="@+id/tvOriginalLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:text="@string/ktv_room_original"
-            android:textColor="#9BA2AB" />
+
+        <View
+            android:id="@+id/bgd_control_layout_lrc"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:background="#990A0F17"
+            app:layout_constraintBottom_toBottomOf="parent"/>
 
         <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/switchOriginal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_marginStart="10dp"
-            android:layout_toRightOf="@+id/tvOriginalLabel"
+            app:switchPadding="12dp"
+            android:layout_marginStart="12dp"
+            android:text="@string/ktv_room_original"
+            android:textColor="#9BA2AB"
             android:checked="true"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/bgd_control_layout_lrc"
+            app:layout_constraintBottom_toBottomOf="@id/bgd_control_layout_lrc"
             android:track="@drawable/ktv_selector_switch_background" />
 
-        <ImageView
+        <ImageButton
             android:id="@+id/ivMusicMenu"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
             android:layout_marginEnd="20dp"
-            android:layout_toStartOf="@+id/ivMusicStart"
-            android:src="@mipmap/ktv_room_music_menu" />
+            android:background="@null"
+            android:src="@mipmap/ktv_room_music_menu"
+            app:layout_constraintEnd_toStartOf="@id/ivMusicStart"
+            app:layout_constraintTop_toTopOf="@id/bgd_control_layout_lrc"
+            app:layout_constraintBottom_toBottomOf="@id/bgd_control_layout_lrc"/>
 
-        <ImageView
+        <ImageButton
             android:id="@+id/ivMusicStart"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
             android:layout_marginEnd="20dp"
-            android:layout_toStartOf="@+id/ivChangeSong"
-            android:src="@mipmap/ktv_room_music_pause" />
+            android:background="@null"
+            android:src="@mipmap/ktv_room_music_pause"
+            app:layout_constraintEnd_toStartOf="@id/ivChangeSong"
+            app:layout_constraintTop_toTopOf="@id/bgd_control_layout_lrc"
+            app:layout_constraintBottom_toBottomOf="@id/bgd_control_layout_lrc"
+            />
 
-        <ImageView
+        <ImageButton
             android:id="@+id/ivChangeSong"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:src="@mipmap/ktv_room_music_qie" />
-    </RelativeLayout>
+            android:background="@null"
+            android:layout_marginEnd="12dp"
+            android:src="@mipmap/ktv_room_music_qie"
+            app:layout_constraintTop_toTopOf="@id/bgd_control_layout_lrc"
+            app:layout_constraintBottom_toBottomOf="@id/bgd_control_layout_lrc"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/rlMusicControlMenu"
+        app:constraint_referenced_ids="bgd_control_layout_lrc,switchOriginal,ivMusicMenu,ivMusicStart,ivChangeSong"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
 </androidx.constraintlayout.widget.ConstraintLayout>
