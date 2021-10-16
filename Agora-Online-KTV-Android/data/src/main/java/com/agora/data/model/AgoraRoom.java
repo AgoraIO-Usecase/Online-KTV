@@ -8,19 +8,12 @@ import androidx.annotation.DrawableRes;
 import com.agora.data.ExampleData;
 import com.agora.data.R;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Random;
 
-public class AgoraRoom implements Parcelable {
-    public static final String TABLE_NAME = "AGORA_ROOM";
-
-    public static final String COLUMN_ID = "objectId";
-    public static final String COLUMN_OWNERID = "userId";
-    public static final String COLUMN_NAME = "channelName";
-    public static final String COLUMN_COVER = "cover";
-    public static final String COLUMN_MV = "mv";
-    public static final String COLUMN_CREATEDAT = "createdAt";
+public class AgoraRoom implements Serializable {
 
     private String id;
     private String channelName;
@@ -41,41 +34,6 @@ public class AgoraRoom implements Parcelable {
         createdAt = (Date) in.readSerializable();
     }
 
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(id);
-        dest.writeString(channelName);
-        dest.writeString(userId);
-        dest.writeString(cover);
-        dest.writeString(mv);
-        dest.writeSerializable(createdAt);
-    }
-
-    public HashMap<String, Object> toHashMap() {
-        HashMap<String, Object> datas = new HashMap<>();
-        datas.put(COLUMN_OWNERID, userId);
-        datas.put(COLUMN_NAME, channelName);
-        datas.put(COLUMN_COVER, cover);
-        datas.put(COLUMN_MV, mv);
-        return datas;
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    public static final Creator<AgoraRoom> CREATOR = new Creator<AgoraRoom>() {
-        @Override
-        public AgoraRoom createFromParcel(Parcel in) {
-            return new AgoraRoom(in);
-        }
-
-        @Override
-        public AgoraRoom[] newArray(int size) {
-            return new AgoraRoom[size];
-        }
-    };
 
     public String getId() {
         return id;

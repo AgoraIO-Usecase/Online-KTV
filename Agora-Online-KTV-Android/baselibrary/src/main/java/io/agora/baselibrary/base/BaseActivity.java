@@ -29,9 +29,11 @@ import io.agora.baselibrary.util.ToastUtil;
 public abstract class BaseActivity<B extends ViewBinding> extends AppCompatActivity {
     public B mBinding;
     private AlertDialog mLoadingDialog = null;
+    private long time;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+        time = System.currentTimeMillis();
         super.onCreate(savedInstanceState);
         mBinding = getViewBindingByReflect(getLayoutInflater());
         if(mBinding == null) {
@@ -41,6 +43,12 @@ public abstract class BaseActivity<B extends ViewBinding> extends AppCompatActiv
             setContentView(mBinding.getRoot());
 
 //        WindowCompat.setDecorFitsSystemWindows(getWindow(), true)
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        KTVUtil.logD("launch this activity need "+(System.currentTimeMillis() - time)+"ms" );
     }
 
     public void showLoadingDialog() {
@@ -61,7 +69,8 @@ public abstract class BaseActivity<B extends ViewBinding> extends AppCompatActiv
     }
 
     public void dismissLoading() {
-        mLoadingDialog.dismiss();
+        if(mLoadingDialog != null)
+            mLoadingDialog.dismiss();
     }
 
     @SuppressWarnings("unchecked")

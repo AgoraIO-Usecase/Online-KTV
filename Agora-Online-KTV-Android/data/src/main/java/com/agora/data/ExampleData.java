@@ -101,7 +101,7 @@ public class ExampleData {
     }
 
     public static void updateCoverImage(int index) {
-        mvImage.setValue(index);
+        mvImage.postValue(index);
     }
 
     public static @Nullable MusicModel getMusic(String musicId){

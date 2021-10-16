@@ -24,7 +24,7 @@ public class SingleMusicPlayer extends BaseMusicPlayer {
 
     public SingleMusicPlayer(Context mContext, int role, IMediaPlayer mPlayer) {
         super(mContext, role, mPlayer);
-        RoomManager.getInstance(mContext).getRtcEngine().setAudioProfile(Constants.AUDIO_SCENARIO_DEFAULT);
+        RoomManager.getInstance().getRtcEngine().setAudioProfile(Constants.AUDIO_SCENARIO_DEFAULT);
     }
 
     @Override
@@ -42,7 +42,7 @@ public class SingleMusicPlayer extends BaseMusicPlayer {
             options.publishAudioTrack = false;
             options.publishMediaPlayerAudioTrack = false;
         }
-        RoomManager.getInstance(mContext).getRtcEngine().updateChannelMediaOptions(options);
+        RoomManager.getInstance().getRtcEngine().updateChannelMediaOptions(options);
     }
 
     @Override

@@ -68,20 +68,15 @@ public class RoomListActivity extends BaseActivity<KtvActivityRoomListBinding> {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        if ((getIntent().getFlags() & Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT) != 0)
-            finish();
-        else {
-            super.onCreate(savedInstanceState);
-            initView();
-            initData();
-        }
+        super.onCreate(savedInstanceState);
+        initView();
+        initData();
     }
 
     protected void initView() {
         mAdapter = new BaseRecyclerViewAdapter<>(null, new OnItemClickListener<AgoraRoom>() {
             @Override
             public void onItemClick(@NonNull AgoraRoom data, View view, int position, long id) {
-                showLoadingDialog();
                 mAdapter.selectedIndex = position;
                 handlePermissionStuff();
             }
@@ -203,7 +198,6 @@ public class RoomListActivity extends BaseActivity<KtvActivityRoomListBinding> {
 
         dismissLoading();
         if (agoraRoom != null) {
-            ExampleData.updateCoverImage(ExampleData.exampleBackgrounds.indexOf(agoraRoom.getMVRes()));
             Intent intent = new Intent(this, RoomActivity.class);
             intent.putExtra(RoomActivity.TAG_ROOM, agoraRoom);
             startActivity(intent);

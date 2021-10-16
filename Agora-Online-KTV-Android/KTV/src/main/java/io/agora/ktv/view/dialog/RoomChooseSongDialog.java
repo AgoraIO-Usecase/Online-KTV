@@ -64,7 +64,7 @@ public class RoomChooseSongDialog extends BaseBottomSheetDialogFragment<KtvDialo
     }
 
     public static void finishChooseMusic(Context context, MusicModel music){
-        AgoraRoom mRoom = RoomManager.getInstance(context).getRoom();
+        AgoraRoom mRoom = RoomManager.getInstance().getRoom();
         User mUser = UserManager.Instance().getUserLiveData().getValue();
         if (mRoom != null && mUser != null) {
             // Construct a MemberMusicModel
@@ -75,7 +75,7 @@ public class RoomChooseSongDialog extends BaseBottomSheetDialogFragment<KtvDialo
             model.setMusicId(music.getMusicId());
             model.setType(RoomChooseSongDialog.isChorus? MemberMusicModel.SingType.Chorus : MemberMusicModel.SingType.Single);
 
-            RoomManager.getInstance(context).onMusicChanged(model);
+            RoomManager.getInstance().onMusicChanged(model);
 
             // Chose this dialog
             if(context instanceof RoomActivity)

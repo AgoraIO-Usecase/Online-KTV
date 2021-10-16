@@ -158,7 +158,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
 
         this.mPlayer.registerPlayerObserver(this);
 
-        RoomManager.getInstance(mContext).getRtcEngine().addHandler(this);
+        RoomManager.getInstance().getRtcEngine().addHandler(this);
         switchRole(role);
     }
 
@@ -244,14 +244,14 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
     }
 
     public void sendCountdown(int time) {
-        if (RoomManager.getInstance(mContext).mCurrentMemberMusic == null) return;
+        if (RoomManager.getInstance().mCurrentMemberMusic == null) return;
         Map<String, Object> msg = new HashMap<>();
         msg.put("cmd", "countdown");
         msg.put("time", time);
-        msg.put("musicId", RoomManager.getInstance(mContext).mCurrentMemberMusic.getMusicId());
+        msg.put("musicId", RoomManager.getInstance().mCurrentMemberMusic.getMusicId());
         JSONObject jsonMsg = new JSONObject(msg);
-        int streamId = RoomManager.getInstance(mContext).getStreamId();
-        RoomManager.getInstance(mContext).getRtcEngine().sendStreamMessage(streamId, jsonMsg.toString().getBytes());
+        int streamId = RoomManager.getInstance().getStreamId();
+        RoomManager.getInstance().getRtcEngine().sendStreamMessage(streamId, jsonMsg.toString().getBytes());
     }
 
     private void reset() {
@@ -278,7 +278,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
     }
 
     protected int open() {
-        MemberMusicModel currentMusic = RoomManager.getInstance(mContext).mCurrentMemberMusic;
+        MemberMusicModel currentMusic = RoomManager.getInstance().mCurrentMemberMusic;
 //        if (mRole != Constants.CLIENT_ROLE_BROADCASTER) {
 //            mLogger.e("open error: current role is not broadcaster, abort playing");
 //            return -1;
@@ -407,7 +407,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
     }
 
     public void setMicVolume(int v) {
-        RoomManager.getInstance(mContext).getRtcEngine().adjustRecordingSignalVolume(v);
+        RoomManager.getInstance().getRtcEngine().adjustRecordingSignalVolume(v);
     }
 
     public void seek(long d) {
@@ -485,7 +485,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
                 msg.put("duration", duration);
                 msg.put("time", time);//ms
                 msg.put("state", state);
-                RoomManager.getInstance(mContext).sendStreamMsg(msg);
+                RoomManager.getInstance().sendStreamMsg(msg);
             }
         });
         mSyncLrcThread.setName("Thread-SyncLrc");
@@ -500,7 +500,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
     }
 
     protected void startPublish() {
-        startSyncLrc(RoomManager.getInstance(mContext).mCurrentMemberMusic.getMusicId(), mPlayer.getDuration());
+        startSyncLrc(RoomManager.getInstance().mCurrentMemberMusic.getMusicId(), mPlayer.getDuration());
     }
 
     private void stopPublish() {
@@ -620,7 +620,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
         mLogger.i("onMusicPlaying() called");
         mStatus = Status.Started;
 
-        if (mStopSyncLrc && RoomManager.getInstance(mContext).isSinger())
+        if (mStopSyncLrc && RoomManager.getInstance().isSinger())
             startPublish();
 
         mHandler.obtainMessage(ACTION_ON_MUSIC_PLAING).sendToTarget();
@@ -656,8 +656,9 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
 
     public void destroy() {
         mLogger.i("destroy() called");
+        stopPublish();
         mPlayer.unRegisterPlayerObserver(this);
-        RoomManager.getInstance(mContext).getRtcEngine().removeHandler(this);
+        RoomManager.getInstance().getRtcEngine().removeHandler(this);
         mCallback = null;
     }
 

@@ -1,6 +1,5 @@
 package io.agora.ktv.manager;
 
-import static io.agora.ktv.bean.MemberMusicModel.UserStatus.Idle;
 import static io.agora.ktv.bean.MemberMusicModel.UserStatus.Ready;
 
 import android.content.Context;
@@ -28,8 +27,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import io.agora.base.internal.ContextUtils;
 import io.agora.baselibrary.util.KTVUtil;
-import io.agora.baselibrary.util.ToastUtil;
 import io.agora.ktv.bean.MemberMusicModel;
 import io.agora.rtc2.ChannelMediaOptions;
 import io.agora.rtc2.Constants;
@@ -39,8 +38,6 @@ import io.agora.rtc2.RtcEngine;
 import io.agora.rtc2.RtcEngineConfig;
 import io.agora.rtc2.RtcEngineEx;
 import io.reactivex.Completable;
-import io.reactivex.Single;
-import io.reactivex.SingleEmitter;
 
 /**
  * 房间控制
@@ -92,27 +89,14 @@ public final class RoomManager {
     private final IRtcEngineEventHandler mIRtcEngineEventHandler = new IRtcEngineEventHandler() {
 
         @Override
-        public void onConnectionStateChanged(int state, int reason) {
-            super.onConnectionStateChanged(state, reason);
-            mLoggerRTC.d("onConnectionStateChanged() called with: state = [%s], reason = [%s]", state, reason);
-
-            if (state == Constants.CONNECTION_STATE_FAILED) {
-                if (emitterJoinRTC != null) {
-                    emitterJoinRTC.onError(new Exception("connection_state_failed"));
-                    emitterJoinRTC = null;
-                }
-            }
-        }
-
-        @Override
         public void onJoinChannelSuccess(String channel, int uid, int elapsed) {
             super.onJoinChannelSuccess(channel, uid, elapsed);
             mLoggerRTC.i("onJoinChannelSuccess() called with: channel = [%s], uid = [%s], elapsed = [%s]", channel, uid, elapsed);
 
-            if (emitterJoinRTC != null) {
-                emitterJoinRTC.onSuccess(uid);
-                emitterJoinRTC = null;
-            }
+//            if (emitterJoinRTC != null) {
+//                emitterJoinRTC.onSuccess(uid);
+//                emitterJoinRTC = null;
+//            }
         }
 
         @Override
@@ -243,7 +227,7 @@ public final class RoomManager {
                                 KTVUtil.logD("requestChorus---- case2");
                                 mCurrentMemberMusic.setUser1Status(Ready);
 
-                                if(mCurrentMemberMusic.getUserStatus() == Ready) {
+                                if (mCurrentMemberMusic.getUserStatus() == Ready) {
                                     stopSyncAcceptChorus();
                                     sendSyncAcceptChorusMsg();
                                     mMainThreadDispatch.onMemberChorusReady(mCurrentMemberMusic);
@@ -267,12 +251,12 @@ public final class RoomManager {
                         String userId = jsonMsg.getString("userId");
                         String acceptId = jsonMsg.getString("acceptedUid");
 
-                        if(acceptId.equals(UserManager.Instance().getUser().getObjectId())) {
+                        if (acceptId.equals(UserManager.Instance().getUser().getObjectId())) {
 
                             if (mCurrentMemberMusic != null && mCurrentMemberMusic.getType() == MemberMusicModel.SingType.Chorus
                                     && mCurrentMemberMusic.getUser1Id() == null && ObjectsCompat.equals(mCurrentMemberMusic.getUserId(), remoteUserId)) {
 
-                            KTVUtil.logD("acceptChorus---- case1");
+                                KTVUtil.logD("acceptChorus---- case1");
                                 // Mark as accepted
                                 mCurrentMemberMusic.setUser1Id(UserManager.Instance().getUser().getObjectId());
                                 // Start Prepare
@@ -297,31 +281,97 @@ public final class RoomManager {
         }
     };
 
-    private RoomManager(Context mContext) {
-        iniRTC(mContext);
+    private RoomManager() {
     }
 
-    private void iniRTC(Context mContext) {
-        String APP_ID = mContext.getString(R.string.app_id);
-        if (TextUtils.isEmpty(APP_ID)) {
-            ToastUtil.toastShort(mContext, "please check \"strings_config.xml\"");
-            throw new NullPointerException("please check \"strings_config.xml\"");
+    public static RoomManager getInstance() {
+        if (instance == null) {
+            synchronized (RoomManager.class) {
+                if (instance == null)
+                    instance = new RoomManager();
+            }
         }
+        return instance;
+    }
 
-        RtcEngineConfig config = new RtcEngineConfig();
-        config.mContext = mContext;
-        config.mAppId = APP_ID;
-        config.mEventHandler = mIRtcEngineEventHandler;
-        config.mChannelProfile = Constants.CHANNEL_PROFILE_LIVE_BROADCASTING;
-        config.mAudioScenario = Constants.AUDIO_SCENARIO_CHORUS;
-        config.getLogConfig().level = Constants.LogLevel.getValue(Constants.LogLevel.LOG_LEVEL_NONE);
+    public Completable initEngine(Context mContext) {
+        return Completable.create(emitter -> {
 
-        try {
-            mRtcEngine = (RtcEngineEx) RtcEngine.create(config);
-        } catch (Exception e) {
-            e.printStackTrace();
-            mLoggerRTC.e("init error", e);
-        }
+            KTVUtil.logD("initEngine Thread ----"+Thread.currentThread().getName());
+            String APP_ID = mContext.getString(R.string.app_id);
+            if (TextUtils.isEmpty(APP_ID)) {
+                emitter.onError(new NullPointerException("APP_ID is empty, please check \"strings_config.xml\""));
+            }
+
+            RtcEngineConfig config = new RtcEngineConfig();
+            config.mContext = mContext;
+            config.mAppId = APP_ID;
+            config.mEventHandler = mIRtcEngineEventHandler;
+            config.mChannelProfile = Constants.CHANNEL_PROFILE_LIVE_BROADCASTING;
+            config.mAudioScenario = Constants.AUDIO_SCENARIO_CHORUS;
+
+            try {
+                mRtcEngine = (RtcEngineEx) RtcEngine.create(config);
+                emitter.onComplete();
+            } catch (Exception e) {
+                emitter.onError(e);
+            }
+        });
+    }
+
+
+    public Completable joinRoom(AgoraRoom room) {
+        return Completable.create(emitter -> {
+            KTVUtil.logD("joinRoom ---" + Thread.currentThread().getName());
+            RoomManager.this.mRoom = room;
+
+            User mUser = UserManager.Instance().getUserLiveData().getValue();
+            if (mUser == null) {
+                emitter.onError(new NullPointerException("mUser is empty"));
+            }else {
+                mCurrentMember = new AgoraMember();
+                mCurrentMember.setRoomId(mRoom);
+                mCurrentMember.setId(mUser.getObjectId());
+                mCurrentMember.setUserId(mUser.getObjectId());
+                mCurrentMember.setUser(mUser);
+                mCurrentMember.setRole(AgoraMember.Role.Listener);
+
+                try {
+                    ExampleData.updateCoverImage(Integer.parseInt(mRoom.getMv()));
+                    onJoinRoom();
+                    emitter.onComplete();
+                } catch (NumberFormatException e) {
+                    emitter.onError(e);
+                }
+            }
+        });
+    }
+
+    private void onJoinRoom() {
+        KTVUtil.logD("Thread onJoinRoom:" + Thread.currentThread().getName());
+        mCurrentMemberMusic = null;
+    }
+
+    public Completable joinRTC() {
+        return Completable.create(emitter -> {
+            KTVUtil.logD("Thread joinRTC:" + Thread.currentThread().getName());
+            mRtcEngine.setChannelProfile(Constants.CHANNEL_PROFILE_LIVE_BROADCASTING);
+            mRtcEngine.enableAudio();
+            mRtcEngine.setParameters("{\"rtc.audio.opensl.mode\":0}");
+            mRtcEngine.setParameters("{\"rtc.audio_fec\":[3,2]}");
+            mRtcEngine.setParameters("{\"rtc.audio_resend\":false}");
+
+            mRtcEngine.setClientRole(Constants.CLIENT_ROLE_AUDIENCE);
+
+            mLoggerRTC.i("joinRTC() called with: results = [%s]", mRoom);
+            int res = mRtcEngine.joinChannel("", mRoom.getChannelName(), null, Integer.parseInt(mCurrentMember.getId()));
+            if (res != Constants.ERR_OK) {
+                mLoggerRTC.e("joinRTC() called error " + res);
+                emitter.onError(new Exception("join rtc room error " + res));
+            } else {
+                emitter.onComplete();
+            }
+        });
     }
 
     public RtcEngineEx getRtcEngine() {
@@ -339,16 +389,6 @@ public final class RoomManager {
             mStreamId = getRtcEngine().createDataStream(cfg);
         }
         return mStreamId;
-    }
-
-    public static RoomManager getInstance(Context mContext) {
-        if (instance == null) {
-            synchronized (RoomManager.class) {
-                if (instance == null)
-                    instance = new RoomManager(mContext);
-            }
-        }
-        return instance;
     }
 
     @Nullable
@@ -449,61 +489,7 @@ public final class RoomManager {
         return ObjectsCompat.equals(mCurrentMemberMusic.getUserId(), member.getUserId());
     }
 
-    public Completable joinRoom(AgoraRoom room) {
-        this.mRoom = room;
-
-        User mUser = UserManager.Instance().getUserLiveData().getValue();
-        if (mUser == null) {
-            return Completable.error(new NullPointerException("mUser is empty"));
-        }
-
-        mCurrentMember = new AgoraMember();
-        mCurrentMember.setRoomId(mRoom);
-        mCurrentMember.setId(mUser.getObjectId());
-        mCurrentMember.setUserId(mUser.getObjectId());
-        mCurrentMember.setUser(mUser);
-        mCurrentMember.setRole(AgoraMember.Role.Listener);
-
-        try {
-            ExampleData.updateCoverImage(Integer.parseInt(mRoom.getMv()));
-        } catch (NumberFormatException e) {
-            e.printStackTrace();
-        }
-
-        return Completable.complete().andThen(joinRTC().doOnSuccess(uid -> {
-            Long streamId = uid & 0xffffffffL;
-            mCurrentMember.setStreamId(streamId);
-        }).ignoreElement()).doOnComplete(this::onJoinRoom);
-    }
-
-    private void onJoinRoom() {
-        mCurrentMemberMusic = null;
-    }
-
-    private SingleEmitter<Integer> emitterJoinRTC = null;
-
-    private Single<Integer> joinRTC() {
-        return Single.create(emitter -> {
-            emitterJoinRTC = emitter;
-            getRtcEngine().setChannelProfile(Constants.CHANNEL_PROFILE_LIVE_BROADCASTING);
-            getRtcEngine().enableAudio();
-            getRtcEngine().setParameters("{\"rtc.audio.opensl.mode\":0}");
-            getRtcEngine().setParameters("{\"rtc.audio_fec\":[3,2]}");
-            getRtcEngine().setParameters("{\"rtc.audio_resend\":false}");
-
-            getRtcEngine().setClientRole(Constants.CLIENT_ROLE_AUDIENCE);
-
-            mLoggerRTC.i("joinRTC() called with: results = [%s]", mRoom);
-            int ret = getRtcEngine().joinChannel("", mRoom.getChannelName(), null, Integer.parseInt(mCurrentMember.getId()));
-            if (ret != Constants.ERR_OK) {
-                mLoggerRTC.e("joinRTC() called error " + ret);
-                emitter.onError(new Exception("join rtc room error " + ret));
-                emitterJoinRTC = null;
-            }
-        });
-    }
-
-    public Completable leaveRoom() {
+    public void leaveRoom() {
         stopSyncMember();
         stopSyncAcceptChorus();
         stopSyncRequestChorus();
@@ -511,12 +497,17 @@ public final class RoomManager {
         mLogger.i("leaveRoom() called");
 
         mLoggerRTC.i("leaveChannel() called");
-        getRtcEngine().leaveChannel();
+        if (mRtcEngine != null) {
+            mRtcEngine.leaveChannel();
+        }
+        RtcEngine.destroy();
 
+        mRtcEngine = null;
         mRoom = null;
         mCurrentMember = null;
+        ContextUtils.uninitialize();
+
         instance = null;
-        return Completable.complete();
     }
 
     public Completable toggleSelfAudio(boolean mute) {
@@ -574,8 +565,10 @@ public final class RoomManager {
         if (syncMemberThread != null) {
             syncMemberThread.interrupt();
         }
-        mCurrentMember.setRole(AgoraMember.Role.Listener);
-        sendSyncMemberMsg();
+        if (mCurrentMember != null) {
+            mCurrentMember.setRole(AgoraMember.Role.Listener);
+            sendSyncMemberMsg();
+        }
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////

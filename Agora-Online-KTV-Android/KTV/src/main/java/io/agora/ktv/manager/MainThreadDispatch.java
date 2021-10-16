@@ -129,20 +129,10 @@ public class MainThreadDispatch implements RoomEventCallback {
 
     @Override
     public void onRoomInfoChanged(@NonNull AgoraRoom room) {
-        mLogger.d("onRoomInfoChanged() called with: room = [%s]", room);
-        mHandler.obtainMessage(ON_ROOM_INFO_CHANGED, room).sendToTarget();
     }
 
     @Override
     public void onRoomClosed(@NonNull AgoraRoom room, boolean fromUser) {
-        mLogger.d("onRoomClosed() called with: room = [%s], fromUser = [%s]", room, fromUser);
-        Bundle bundle = new Bundle();
-        bundle.putParcelable("room", room);
-        bundle.putBoolean("fromUser", fromUser);
-
-        Message message = mHandler.obtainMessage(ON_ROOM_CLOSED);
-        message.setData(bundle);
-        message.sendToTarget();
     }
 
     @Override

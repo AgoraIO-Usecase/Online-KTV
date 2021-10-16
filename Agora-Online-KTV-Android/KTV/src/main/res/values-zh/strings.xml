@@ -46,7 +46,7 @@
     <string name="ktv_use_overtime">试用时间已到</string>
     <string name="ktv_need_up">请先上坐</string>
     <string name="ktv_error_cut">该歌曲无法进行人声切换</string>
-    <string name="ktv_join_error">加入房间失败</string>
+    <string name="ktv_join_error">加入房间失败\n%s</string>
     <string name="ktv_sync_music_error">同步歌曲失败</string>
     <string name="ktv_leave_title">关闭歌房</string>
     <string name="ktv_leave_msg">本地版本演唱中关闭歌房情况未做任何处理</string>

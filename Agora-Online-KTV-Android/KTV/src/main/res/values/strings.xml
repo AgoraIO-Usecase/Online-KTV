@@ -46,7 +46,7 @@
     <string name="ktv_use_overtime">Trial time has expired</string>
     <string name="ktv_need_up">Please seat up first</string>
     <string name="ktv_error_cut">This song can\'t be switched</string>
-    <string name="ktv_join_error">Failed to join the room</string>
+    <string name="ktv_join_error">Failed to join the room\n%s</string>
     <string name="ktv_sync_music_error">Sync song failed</string>
     <string name="ktv_leave_title">Exit</string>
     <string name="ktv_leave_msg">This offline version do not handle any situation when exit.</string>
