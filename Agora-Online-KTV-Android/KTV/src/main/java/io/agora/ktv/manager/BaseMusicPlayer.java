@@ -115,7 +115,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
                 if (mCallback != null) {
                     mCallback.onMusicCompleted();
                 }
-            }else if (msg.what == ACTION_ON_RECEIVED_PLAY) {
+            } else if (msg.what == ACTION_ON_RECEIVED_PLAY) {
                 onReceivedStatusPlay((Integer) msg.obj);
             } else if (msg.what == ACTION_ON_RECEIVED_PAUSE) {
                 onReceivedStatusPause((Integer) msg.obj);
@@ -420,43 +420,24 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
     }
 
     private void startSyncLrc(String musicId, long duration) {
-        mSyncLrcThread = new Thread(new Runnable() {
-
-            @Override
-            public void run() {
-                mLogger.i("startSyncLrc: " + musicId);
-                mStopSyncLrc = false;
-                while (!mStopSyncLrc && mStatus.isAtLeast(Status.Started) && !Thread.currentThread().isInterrupted()) {
-                    if (mPlayer == null) {
-                        break;
-                    }
-
-                    if (mLastRecvPlayPosTime != null && mStatus == Status.Started) {
-                        sendSyncLrc(musicId, duration, mRecvedPlayPosition);
-                    }
-
-                    try {
-                        Thread.sleep(1000L);
-                    } catch (InterruptedException exp) {
-                        break;
-                    }
+        mSyncLrcThread = new Thread(() -> {
+            mLogger.i("startSyncLrc: " + musicId);
+            mStopSyncLrc = false;
+            while (mPlayer != null && !mStopSyncLrc && mStatus.isAtLeast(Status.Started)
+                    && !Thread.currentThread().isInterrupted()) {
+                if(mLastRecvPlayPosTime != null) {
+                    int state = 0;
+                    if (mStatus == Status.Paused)
+                        state = 2;
+                    else if (mStatus == Status.Started)
+                        state = 1;
+                    RoomManager.getInstance().sendSyncLrc(musicId, duration, mRecvedPlayPosition, state);
                 }
-            }
-
-            private void sendSyncLrc(String musicId, long duration, long time) {
-                int state = 0;
-                if (mStatus == Status.Paused)
-                    state = 2;
-                else if (mStatus == Status.Started)
-                    state = 1;
-
-                Map<String, Object> msg = new HashMap<>();
-                msg.put("cmd", "setLrcTime");
-                msg.put("lrcId", musicId);
-                msg.put("duration", duration);
-                msg.put("time", time);//ms
-                msg.put("state", state);
-                RoomManager.getInstance().sendStreamMsg(msg);
+                try {
+                    Thread.sleep(1000L);
+                } catch (InterruptedException exp) {
+                    break;
+                }
             }
         });
         mSyncLrcThread.setName("Thread-SyncLrc");

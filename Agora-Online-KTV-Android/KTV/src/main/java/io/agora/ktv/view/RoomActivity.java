@@ -168,7 +168,6 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> {
 
         @Override
         public void onMusicEmpty() {
-            super.onMusicEmpty();
             RoomActivity.this.onMusicEmpty();
         }
 
@@ -508,15 +507,16 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> {
     }
 
     private void changeMusic() {
-        MemberMusicModel musicModel = RoomManager.getInstance().mCurrentMemberMusic;
-        if (musicModel == null) {
-            return;
-        }
-
-        if (mMusicPlayer != null) {
-            mMusicPlayer.selectAudioTrack(1);
-            mMusicPlayer.stop();
-        }
+        RoomManager.getInstance().onMusicEmpty();
+//        MemberMusicModel musicModel = RoomManager.getInstance().mCurrentMemberMusic;
+//        if (musicModel == null) {
+//            return;
+//        }
+//
+//        if (mMusicPlayer != null) {
+//            mMusicPlayer.selectAudioTrack(1);
+//            mMusicPlayer.stop();
+//        }
     }
 
     private void toggleStart() {

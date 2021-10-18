@@ -142,6 +142,10 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
 
     private String channelName = null;
 
+    /**
+     * 主唱
+     * 分两路流
+     */
     private void joinChannelEX() {
 
         MemberMusicModel currentMusic = RoomManager.getInstance().mCurrentMemberMusic;
@@ -160,6 +164,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
         options.clientRoleType = mRole;
         options.publishAudioTrack = false;
         options.publishMediaPlayerId = mPlayer.getMediaPlayerId();
+        // 主唱
         if (ObjectsCompat.equals(currentMusic.getUserId(), mUser.getObjectId())) {
             options.publishMediaPlayerAudioTrack = true;
             options.enableAudioRecordingOrPlayout = false;
@@ -267,7 +272,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
 //            RoomManager.getInstance().getRtcEngine().muteRemoteAudioStreamEx(mMine.getStreamId().intValue(), true, mRtcConnection);
         } else if (RoomManager.getInstance().isFollowSinger()) {
             //唱歌人，陪唱人，joinChannel 需要屏蔽的uid
-//            RoomManager.getInstance().getRtcEngine().muteRemoteAudioStream(music.getUserbgId().intValue(), true);
+            RoomManager.getInstance().getRtcEngine().muteRemoteAudioStream(music.getUserbgId().intValue(), true);
 //            RoomManager.getInstance().getRtcEngine().muteRemoteAudioStream(music.getUser1bgId().intValue(), true);
 //            RoomManager.getInstance().getRtcEngine().muteRemoteAudioStreamEx(mMine.getStreamId().intValue(), true, mRtcConnection);
         } else {

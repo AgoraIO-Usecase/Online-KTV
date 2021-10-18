@@ -436,7 +436,10 @@ public final class RoomManager {
 
     public void onMusicEmpty() {
         mLogger.i("onMusicEmpty() called");
-        mCurrentMemberMusic = null;
+        if( mCurrentMemberMusic != null) {
+            sendSyncLrc(mCurrentMemberMusic.getMusicId(), 0, 0, 0);
+            mCurrentMemberMusic = null;
+        }
         singers.clear();
         mMainThreadDispatch.onMusicEmpty();
     }
@@ -599,7 +602,7 @@ public final class RoomManager {
     public void startSyncRequestChorus() {
         if (syncRequestChorusThread == null) {
             syncRequestChorusThread = new Thread(() -> {
-                while (!syncRequestChorusThread.isInterrupted() && getRtcEngine() != null) {
+                while (!syncRequestChorusThread.isInterrupted() && getRtcEngine() != null && mCurrentMemberMusic != null) {
                     sendSyncRequestChorusMsg();
                     try {
                         Thread.sleep(1000);
@@ -643,7 +646,7 @@ public final class RoomManager {
     public void startSyncAcceptChorus() {
         if (syncAcceptChorusThread == null) {
             syncAcceptChorusThread = new Thread(() -> {
-                while (!syncAcceptChorusThread.isInterrupted() && getRtcEngine() != null) {
+                while (!syncAcceptChorusThread.isInterrupted() && getRtcEngine() != null && mCurrentMemberMusic != null) {
                     sendSyncAcceptChorusMsg();
                     try {
                         Thread.sleep(1000);
@@ -703,5 +706,20 @@ public final class RoomManager {
         sendStreamMsg(msg);
     }
 
+    public void sendSyncLrc(String musicId, long duration, long time, int state) {
+//        int state = 0;
+//        if (mStatus == BaseMusicPlayer.Status.Paused)
+//            state = 2;
+//        else if (mStatus == BaseMusicPlayer.Status.Started)
+//            state = 1;
+
+        Map<String, Object> msg = new HashMap<>();
+        msg.put("cmd", "setLrcTime");
+        msg.put("lrcId", musicId);
+        msg.put("duration", duration);
+        msg.put("time", time);//ms
+        msg.put("state", state);
+        RoomManager.getInstance().sendStreamMsg(msg);
+    }
     //</editor-fold>
 }
