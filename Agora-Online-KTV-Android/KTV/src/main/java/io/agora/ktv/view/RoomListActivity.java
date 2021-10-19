@@ -1,10 +1,15 @@
 package io.agora.ktv.view;
 
 import android.Manifest;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
+import android.telecom.ConnectionService;
 import android.view.View;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -72,11 +77,25 @@ public class RoomListActivity extends BaseActivity<KtvActivityRoomListBinding> {
     }
 
     protected void initView() {
+
         mAdapter = new BaseRecyclerViewAdapter<>(null, new OnItemClickListener<AgoraRoom>() {
             @Override
             public void onItemClick(@NonNull AgoraRoom data, View view, int position, long id) {
-                mAdapter.selectedIndex = position;
-                handlePermissionStuff();
+                // 判断网络
+                ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+                if(activeNetworkInfo!=null && activeNetworkInfo.isConnected()) {
+                    mAdapter.selectedIndex = position;
+                    handlePermissionStuff();
+                }else {
+                    new AlertDialog.Builder(RoomListActivity.this).setMessage(R.string.ktv_network_unavailable)
+                            .setNegativeButton(android.R.string.cancel, null)
+                            .setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                                dialog.dismiss();
+                                mAdapter.selectedIndex = position;
+                                handlePermissionStuff();
+                            }).show();
+                }
             }
         }, RoomHolder.class);
 

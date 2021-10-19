@@ -9,19 +9,19 @@ import java.io.Serializable;
 
 public class User implements Serializable, Cloneable {
 
-    private String objectId;
+    private int userId;
     private String name;
     private String avatar;
 
     public User() {
     }
 
-    public String getObjectId() {
-        return objectId;
+    public int getUserId() {
+        return userId;
     }
 
-    public void setObjectId(String objectId) {
-        this.objectId = objectId;
+    public void setUserId(int objectId) {
+        this.userId = objectId;
     }
 
     public String getName() {
@@ -47,12 +47,15 @@ public class User implements Serializable, Cloneable {
 
         User user = (User) o;
 
-        return objectId.equals(user.objectId);
+        return this.userId == user.userId;
     }
 
     @Override
     public int hashCode() {
-        return objectId.hashCode();
+        int res = 17;
+        res = res * 31 + name.hashCode();
+        res = res * 31 + userId;
+        return res;
     }
 
     @NonNull
@@ -83,7 +86,7 @@ public class User implements Serializable, Cloneable {
     @Override
     public String toString() {
         return "User{" +
-                "objectId='" + objectId + '\'' +
+                "objectId='" + userId + '\'' +
                 ", name='" + name + '\'' +
                 ", avatar='" + avatar + '\'' +
                 '}';

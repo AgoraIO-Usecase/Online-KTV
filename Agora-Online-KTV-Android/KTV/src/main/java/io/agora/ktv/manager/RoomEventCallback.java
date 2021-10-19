@@ -55,13 +55,6 @@ public interface RoomEventCallback {
     void onMusicEmpty();
 
     /**
-     * 合唱模式下，有用户申请加入合唱。
-     *
-     * @param music
-     */
-    void onMemberApplyJoinChorus(@NonNull MemberMusicModel music);
-
-    /**
      * 合唱模式下，有用户加入合唱。
      *
      * @param music

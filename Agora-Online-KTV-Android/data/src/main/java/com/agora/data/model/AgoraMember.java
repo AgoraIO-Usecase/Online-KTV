@@ -1,58 +1,19 @@
 package com.agora.data.model;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
 public class AgoraMember {
-    public enum Role {
-        Listener(0), Owner(1), Speaker(2);
-        private int value;
-
-        Role(int value) {
-            this.value = value;
-        }
-
-        public int getValue() {
-            return value;
-        }
-
-        public static AgoraMember.Role parse(int value) {
-            if (value == 0) {
-                return AgoraMember.Role.Listener;
-            } else if (value == 1) {
-                return AgoraMember.Role.Owner;
-            } else if (value == 2) {
-                return AgoraMember.Role.Speaker;
-            }
-            return AgoraMember.Role.Listener;
-        }
-    }
-
-    private String id;
+    private int id;
     private AgoraRoom roomId;
-    private String userId;
+    private int userId;
     private Long streamId = 0L;
-    private Role role = Role.Listener;
     private int isMuted = 0;
     private int isSelfMuted = 0;
 
     private User user;
 
+    private int role = 2;
+
     public AgoraMember() {
 
-    }
-
-    protected AgoraMember(Parcel in) {
-        id = in.readString();
-        roomId = in.readParcelable(AgoraRoom.class.getClassLoader());
-        userId = in.readString();
-        if (in.readByte() == 0) {
-            streamId = null;
-        } else {
-            streamId = in.readLong();
-        }
-        isMuted = in.readInt();
-        isSelfMuted = in.readInt();
     }
 
     public AgoraRoom getRoomId() {
@@ -63,11 +24,11 @@ public class AgoraMember {
         this.roomId = roomId;
     }
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -79,11 +40,11 @@ public class AgoraMember {
         this.streamId = streamId;
     }
 
-    public Role getRole() {
+    public int getRole() {
         return role;
     }
 
-    public void setRole(Role role) {
+    public void setRole(int role) {
         this.role = role;
     }
 
@@ -103,11 +64,11 @@ public class AgoraMember {
         this.isSelfMuted = isSelfMuted;
     }
 
-    public String getUserId() {
+    public int getUserId() {
         return userId;
     }
 
-    public void setUserId(String userId) {
+    public void setUserId(int userId) {
         this.userId = userId;
     }
 
@@ -117,6 +78,7 @@ public class AgoraMember {
 
     public void setUser(User user) {
         this.user = user;
+        this.userId = user.getUserId();
     }
 
     @Override
@@ -126,12 +88,14 @@ public class AgoraMember {
 
         AgoraMember that = (AgoraMember) o;
 
-        return id != null && id.equals(that.id);
+        return id ==that.id;
     }
 
     @Override
     public int hashCode() {
-        return id.hashCode();
+        int res = 17;
+        res = res * 31 + id;
+        return res;
     }
 
     @Override

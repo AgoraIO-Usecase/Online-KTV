@@ -66,10 +66,6 @@ public class SimpleRoomEventCallback implements RoomEventCallback {
 
     }
 
-    @Override
-    public void onMemberApplyJoinChorus(@NonNull MemberMusicModel music) {
-
-    }
 
     @Override
     public void onMemberJoinedChorus(@NonNull MemberMusicModel music) {

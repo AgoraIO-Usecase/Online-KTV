@@ -59,6 +59,8 @@
     <string name="ktv_music_menu_dialog_vol2">Music volume</string>
     <string name="ktv_music_menu_dialog_effect">Effects</string>
 
+    <string name="ktv_network_unavailable">Network unavailable, sure to continue?</string>
+
     <string name="ktv_permission_alert">Sure to request Required permission？</string>
     <string name="ktv_permission_refused">Necessary permissions to run this function have not been granted.</string>
 

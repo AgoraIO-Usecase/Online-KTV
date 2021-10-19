@@ -19,7 +19,7 @@ import io.reactivex.Observable;
  * @author chenhengfei(Aslanchen)
  */
 public interface IDataRepository {
-    Observable<User> login(String userId, String userName);
+    Observable<User> login(int userId, String userName);
 
     Observable<List<MusicModel>> getMusics(@Nullable String searchKey);
 

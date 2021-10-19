@@ -36,8 +36,7 @@ public class MainThreadDispatch implements RoomEventCallback {
     private static final int ON_MUSIC_EMPTY = ON_MUSIC_COUNTDOWN + 1;
     private static final int ON_MUSIC_PROGRESS = ON_MUSIC_EMPTY + 1;
     private static final int ON_ROOM_INFO_CHANGED = ON_MUSIC_PROGRESS + 1;
-    private static final int ON_MEMBER_APPLY_JOIN_CHORUS = ON_ROOM_INFO_CHANGED + 1;
-    private static final int ON_MEMBER_JOIN_CHORUS = ON_MEMBER_APPLY_JOIN_CHORUS + 1;
+    private static final int ON_MEMBER_JOIN_CHORUS = ON_ROOM_INFO_CHANGED + 1;
     private static final int ON_MEMBER_CHORUS_READY = ON_MEMBER_JOIN_CHORUS + 1;
 
     private final List<RoomEventCallback> eventCallbacks = new CopyOnWriteArrayList<>();
@@ -141,11 +140,6 @@ public class MainThreadDispatch implements RoomEventCallback {
                     callback.onRoomInfoChanged((AgoraRoom) msg.obj);
                 }
                 break;
-            case ON_MEMBER_APPLY_JOIN_CHORUS:
-                for (RoomEventCallback callback : eventCallbacks) {
-                    callback.onMemberApplyJoinChorus((MemberMusicModel) msg.obj);
-                }
-                break;
             case ON_MEMBER_JOIN_CHORUS:
                 for (RoomEventCallback callback : eventCallbacks) {
                     callback.onMemberJoinedChorus((MemberMusicModel) msg.obj);
@@ -226,12 +220,6 @@ public class MainThreadDispatch implements RoomEventCallback {
     public void onMusicEmpty() {
         mLogger.d("onMusicEmpty() called");
         mHandler.obtainMessage(ON_MUSIC_EMPTY).sendToTarget();
-    }
-
-    @Override
-    public void onMemberApplyJoinChorus(@NonNull MemberMusicModel music) {
-        mLogger.d("onMemberApplyJoinChorus() called with: music = [%s]", music);
-        mHandler.obtainMessage(ON_MEMBER_APPLY_JOIN_CHORUS, music).sendToTarget();
     }
 
     @Override

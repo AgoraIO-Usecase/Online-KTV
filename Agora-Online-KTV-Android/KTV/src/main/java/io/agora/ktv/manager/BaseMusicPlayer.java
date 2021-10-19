@@ -1,6 +1,5 @@
 package io.agora.ktv.manager;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
@@ -10,6 +9,7 @@ import android.os.Message;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 
+import com.agora.data.manager.UserManager;
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
 
@@ -17,8 +17,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
 
 import io.agora.baselibrary.util.KTVUtil;
 import io.agora.ktv.bean.MemberMusicModel;
@@ -132,9 +130,8 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
             } else if (msg.what == ACTION_ON_RECEIVED_REPLAY_TEST_DELAY) {
                 Bundle data = msg.getData();
                 int uid = data.getInt("uid");
-                long testDelayTime = data.getLong("testDelayTime");
                 long time = data.getLong("time");
-                onReceivedReplyTestDelay(uid, testDelayTime, time);
+                onReceivedReplyTestDelay(uid, time);
             } else if (msg.what == ACTION_ON_RECEIVED_CHANGED_ORIGLE) {
                 Bundle data = msg.getData();
                 int uid = data.getInt("uid");
@@ -144,7 +141,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
         }
     };
 
-    public BaseMusicPlayer(Context mContext, int role, IMediaPlayer mPlayer) {
+    public BaseMusicPlayer(Context mContext, IMediaPlayer mPlayer) {
         this.mContext = mContext;
         this.mPlayer = mPlayer;
         reset();
@@ -152,7 +149,6 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
         this.mPlayer.registerPlayerObserver(this);
 
         RoomManager.getInstance().getRtcEngine().addHandler(this);
-        switchRole(role);
     }
 
     @Override
@@ -178,15 +174,15 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
             switch (cmd) {
                 case "setLrcTime":
                     long position = jsonMsg.getLong("time");
-                    if (position == 0) {
-                        mHandler.obtainMessage(ACTION_ON_RECEIVED_PLAY, uid).sendToTarget();
-                    } else if (position == -1) {
+                    int state = jsonMsg.getInt("state");
+                    if (state == 2) {
                         mHandler.obtainMessage(ACTION_ON_RECEIVED_PAUSE, uid).sendToTarget();
                     } else {
                         bundle = new Bundle();
                         bundle.putInt("uid", uid);
                         bundle.putLong("time", position);
                         what = ACTION_ON_RECEIVED_SYNC_TIME;
+                        mHandler.obtainMessage(ACTION_ON_RECEIVED_PLAY, uid).sendToTarget();
                     }
                     break;
                 case "testDelay": {
@@ -194,13 +190,16 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
                     bundle = new Bundle();
                     bundle.putInt("uid", uid);
                     bundle.putLong("time", time);
+                    bundle.putInt("userId", UserManager.Instance().getUser().getUserId());
                     what = ACTION_ON_RECEIVED_TEST_DELAY;
+                    break;
                 }
                 case "replyTestDelay": {
                     long testDelayTime = jsonMsg.getLong("testDelayTime");
                     long time = jsonMsg.getLong("time");
                     bundle = new Bundle();
                     bundle.putInt("uid", uid);
+                    bundle.putInt("userId", UserManager.Instance().getUser().getUserId());
                     bundle.putLong("time", time);
                     bundle.putLong("testDelayTime", testDelayTime);
                     what = ACTION_ON_RECEIVED_REPLAY_TEST_DELAY;
@@ -211,6 +210,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
                     bundle = new Bundle();
                     bundle.putInt("uid", uid);
                     bundle.putInt("mode", mode);
+                    bundle.putInt("userId", UserManager.Instance().getUser().getUserId());
                     what = ACTION_ON_RECEIVED_CHANGED_ORIGLE;
                     break;
                 }
@@ -240,9 +240,8 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
         this.mCallback = null;
     }
 
-    public abstract void switchRole(int role);
-
-    public abstract void prepare(@NonNull MemberMusicModel music);
+    public void prepare(@NonNull MemberMusicModel music) {
+    }
 
     public void playByListener() {
         startDisplayLrc();
@@ -285,8 +284,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
 
         mAudioTrackIndex = 1;
         mLogger.i("open() called with: currentMusic = [%s]", currentMusic);
-        mPlayer.open(fileMusic.getAbsolutePath(), 0);
-        return 0;
+        return mPlayer.open(fileMusic.getAbsolutePath(), 0);
     }
 
     protected void play() {
@@ -375,6 +373,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
 
     public void setMusicVolume(int v) {
         mPlayer.adjustPlayoutVolume(v);
+        mPlayer.adjustPublishSignalVolume(v);
     }
 
     public void setMicVolume(int v) {
@@ -425,12 +424,12 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
             mStopSyncLrc = false;
             while (mPlayer != null && !mStopSyncLrc && mStatus.isAtLeast(Status.Started)
                     && !Thread.currentThread().isInterrupted()) {
-                if(mLastRecvPlayPosTime != null) {
+                if (mLastRecvPlayPosTime != null) {
                     int state = 0;
-                    if (mStatus == Status.Paused)
-                        state = 2;
-                    else if (mStatus == Status.Started)
+                    if (mStatus == Status.Started)
                         state = 1;
+                    else if (mStatus == Status.Paused)
+                        state = 2;
                     RoomManager.getInstance().sendSyncLrc(musicId, duration, mRecvedPlayPosition, state);
                 }
                 try {
@@ -460,9 +459,13 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
     }
 
     protected void onReceivedStatusPlay(int uid) {
+        if(mStopDisplayLrc) {
+            startDisplayLrc();
+        }
     }
 
     protected void onReceivedStatusPause(int uid) {
+        stopDisplayLrc();
     }
 
     protected void onReceivedSetLrcTime(int uid, long position) {
@@ -473,7 +476,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
     protected void onReceivedTestDelay(int uid, long time) {
     }
 
-    protected void onReceivedReplyTestDelay(int uid, long testDelayTime, long time) {
+    protected void onReceivedReplyTestDelay(int uid, long time) {
     }
 
     protected void onReceivedOriginalChanged(int uid, int mode) {
@@ -628,8 +631,6 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
 
         /**
          * 资源下载结束
-         *
-         * @param music
          */
         void onResourceReady(@NonNull MemberMusicModel music);
 
@@ -674,8 +675,6 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
 
         /**
          * 进度更新
-         *
-         * @param position
          */
         void onMusicPositionChanged(long position);
 

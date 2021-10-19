@@ -1,5 +1,7 @@
 package io.agora.ktv.bean;
 
+import androidx.annotation.NonNull;
+
 import com.agora.data.model.AgoraRoom;
 import com.agora.data.model.MusicModel;
 
@@ -71,15 +73,12 @@ public class MemberMusicModel implements Serializable {
 
     private SingType type = SingType.Single;
 
-    private String userId;
-    private Long userbgId;
+    private int userId;
+    private int userPlayerId;
     private UserStatus userStatus;
 
-    private String user1Id;
-    private Long user1bgId;
+    private int user1Id;
     private UserStatus user1Status;
-
-    private String applyUser1Id;
 
     public MemberMusicModel(String musicId) {
         this.musicId = musicId;
@@ -101,11 +100,11 @@ public class MemberMusicModel implements Serializable {
         this.id = id;
     }
 
-    public String getUserId() {
+    public int getUserId() {
         return userId;
     }
 
-    public void setUserId(String userId) {
+    public void setUserId(int userId) {
         this.userId = userId;
     }
 
@@ -192,11 +191,11 @@ public class MemberMusicModel implements Serializable {
         this.userStatus = userStatus;
     }
 
-    public String getUser1Id() {
+    public int getUser1Id() {
         return user1Id;
     }
 
-    public void setUser1Id(String user1Id) {
+    public void setUser1Id(int user1Id) {
         this.user1Id = user1Id;
     }
 
@@ -208,28 +207,12 @@ public class MemberMusicModel implements Serializable {
         this.user1Status = user1Status;
     }
 
-    public String getApplyUser1Id() {
-        return applyUser1Id;
+    public int getUserPlayerId() {
+        return userPlayerId;
     }
 
-    public void setApplyUser1Id(String applyUser1Id) {
-        this.applyUser1Id = applyUser1Id;
-    }
-
-    public Long getUserbgId() {
-        return userbgId;
-    }
-
-    public void setUserbgId(Long userbgId) {
-        this.userbgId = userbgId;
-    }
-
-    public Long getUser1bgId() {
-        return user1bgId;
-    }
-
-    public void setUser1bgId(Long user1bgId) {
-        this.user1bgId = user1bgId;
+    public void setUserPlayerId(int userPlayerId) {
+        this.userPlayerId = userPlayerId;
     }
 
     public String getSinger() {
@@ -276,6 +259,7 @@ public class MemberMusicModel implements Serializable {
         return id.hashCode();
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "MemberMusicModel{" +
@@ -292,12 +276,9 @@ public class MemberMusicModel implements Serializable {
                 ", musicType=" + musicType +
                 ", type=" + type +
                 ", userId='" + userId + '\'' +
-                ", userbgId=" + userbgId +
                 ", userStatus=" + userStatus +
                 ", user1Id='" + user1Id + '\'' +
-                ", user1bgId=" + user1bgId +
                 ", user1Status=" + user1Status +
-                ", applyUser1Id='" + applyUser1Id + '\'' +
                 '}';
     }
 }

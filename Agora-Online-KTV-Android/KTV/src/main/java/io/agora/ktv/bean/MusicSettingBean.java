@@ -7,6 +7,7 @@ public class MusicSettingBean {
     private boolean isEar;
     private int volMic;
     private int volMusic;
+    private int effect;
 
     public MusicSettingBean(boolean isEar, int volMic, int volMusic, MusicSettingDialog.Callback mCallback) {
         this.isEar = isEar;
@@ -44,5 +45,14 @@ public class MusicSettingBean {
     public void setVolMusic(int volMusic) {
         this.volMusic = volMusic;
         this.mCallback.onMusicVolChanged(volMusic);
+    }
+
+    public int getEffect() {
+        return effect;
+    }
+
+    public void setEffect(int effect) {
+        this.effect = effect;
+        this.mCallback.onEffectChanged(effect);
     }
 }

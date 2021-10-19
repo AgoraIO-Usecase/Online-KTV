@@ -66,7 +66,7 @@ public class RoomChooseSongDialog extends BaseBottomSheetDialogFragment<KtvDialo
         if (mUser != null) {
             // Construct a MemberMusicModel
             MemberMusicModel model = new MemberMusicModel(music);
-            model.setUserId(mUser.getObjectId());
+            model.setUserId(mUser.getUserId());
             model.setMusicId(music.getMusicId());
             model.setType(RoomChooseSongDialog.isChorus? MemberMusicModel.SingType.Chorus : MemberMusicModel.SingType.Single);
 

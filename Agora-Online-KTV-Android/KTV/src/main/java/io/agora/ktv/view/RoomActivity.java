@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.CountDownTimer;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -31,6 +30,7 @@ import io.agora.baselibrary.base.BaseActivity;
 import io.agora.baselibrary.base.BaseBottomSheetDialogFragment;
 import io.agora.baselibrary.base.BaseRecyclerViewAdapter;
 import io.agora.baselibrary.base.OnItemClickListener;
+import io.agora.baselibrary.util.KTVUtil;
 import io.agora.baselibrary.util.ToastUtil;
 import io.agora.ktv.MyUtil;
 import io.agora.ktv.R;
@@ -53,6 +53,7 @@ import io.agora.ktv.widget.LrcControlView;
 import io.agora.lrcview.LrcLoadUtils;
 import io.agora.lrcview.bean.LrcData;
 import io.agora.mediaplayer.IMediaPlayer;
+import io.agora.rtc2.ChannelMediaOptions;
 import io.agora.rtc2.Constants;
 import io.reactivex.CompletableObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -81,11 +82,8 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> {
         }
 
         @Override
-        public void onResourceReady(@NonNull MemberMusicModel music) {
-            File lrcFile = music.getFileLrc();
-            LrcData data = LrcLoadUtils.parse(lrcFile);
-            mBinding.lrcControlView.getLrcView().setLrcData(data);
-            mBinding.lrcControlView.getPitchView().setLrcData(data);
+        public void onResourceReady(@NonNull MemberMusicModel memberMusic) {
+            setupLrc(memberMusic);
         }
 
         @Override
@@ -121,7 +119,7 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> {
         public void onMusicCompleted() {
             mBinding.lrcControlView.getLrcView().reset();
 
-            changeMusic();
+            cutOffMusic();
         }
 
         @Override
@@ -139,7 +137,7 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> {
             if (RoomManager.getInstance().mCurrentMemberMusic == null) {
                 MemberMusicModel temp = new MemberMusicModel(musicId);
                 temp.setType(MemberMusicModel.SingType.Chorus);
-                temp.setUserId(String.valueOf(uid));
+                temp.setUserId(uid);
                 temp.setMusicId(musicId);
                 RoomManager.getInstance().onMusicChanged(temp);
                 mBinding.lrcControlView.onWaitChorusStatus();
@@ -182,13 +180,7 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> {
         }
 
         @Override
-        public void onMemberApplyJoinChorus(@NonNull MemberMusicModel music) {
-            super.onMemberApplyJoinChorus(music);
-            RoomActivity.this.onMemberApplyJoinChorus(music);
-        }
-        @Override
         public void onMemberJoinedChorus(@NonNull MemberMusicModel music) {
-            super.onMemberJoinedChorus(music);
             RoomActivity.this.onMemberJoinedChorus(music);
         }
 
@@ -333,6 +325,7 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> {
 
             @Override
             public void onEffectChanged(int effect) {
+                KTVUtil.logD("effect:"+effect);
                 RoomManager.getInstance().getRtcEngine().setAudioEffectPreset(getEffectIndex(effect));
             }
         });
@@ -378,13 +371,15 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> {
 
                     @Override
                     public void onComplete() {
+                        KTVUtil.logD("onComplete");
                         dismissLoading();
                         onJoinRoom();
                     }
 
                     @Override
                     public void onError(@NonNull Throwable e) {
-                        ToastUtil.toastLong(RoomActivity.this, getString(R.string.ktv_join_error,e.getMessage()));
+                        KTVUtil.logD("onError");
+                        ToastUtil.toastLong(RoomActivity.this, getString(R.string.ktv_join_error, e.getMessage()));
                         e.printStackTrace();
                         dismissLoading();
                         finish();
@@ -413,7 +408,7 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> {
 
         if (mMember == null) return;
 
-        if (mMember.getRole() == AgoraMember.Role.Listener) {
+        if (mMember.getRole() == Constants.CLIENT_ROLE_AUDIENCE) {
             ToastUtil.toastShort(this, R.string.ktv_need_up);
         } else {
             RoomManager.getInstance().startSyncRequestChorus();
@@ -421,26 +416,26 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> {
 
     }
 
-    private CountDownTimer timerOnTrial;
-
-    private void startOnTrialTimer(long liveTimeLeft) {
-        timerOnTrial = new CountDownTimer(liveTimeLeft, 999) {
-            public void onTick(long millisUntilFinished) {
-            }
-
-            public void onFinish() {
-                ToastUtil.toastShort(RoomActivity.this, R.string.ktv_use_overtime);
-                finish();
-            }
-        }.start();
-    }
-
-    private void stopOnTrialTimer() {
-        if (timerOnTrial != null) {
-            timerOnTrial.cancel();
-            timerOnTrial = null;
-        }
-    }
+//    private CountDownTimer timerOnTrial;
+//
+//    private void startOnTrialTimer(long liveTimeLeft) {
+//        timerOnTrial = new CountDownTimer(liveTimeLeft, 999) {
+//            public void onTick(long millisUntilFinished) {
+//            }
+//
+//            public void onFinish() {
+//                ToastUtil.toastShort(RoomActivity.this, R.string.ktv_use_overtime);
+//                finish();
+//            }
+//        }.start();
+//    }
+//
+//    private void stopOnTrialTimer() {
+//        if (timerOnTrial != null) {
+//            timerOnTrial.cancel();
+//            timerOnTrial = null;
+//        }
+//    }
 
     private void toggleMic(View v) {
         AgoraMember temp = RoomManager.getInstance().getMine();
@@ -506,17 +501,8 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> {
         return Constants.AUDIO_EFFECT_OFF;
     }
 
-    private void changeMusic() {
+    private void cutOffMusic() {
         RoomManager.getInstance().onMusicEmpty();
-//        MemberMusicModel musicModel = RoomManager.getInstance().mCurrentMemberMusic;
-//        if (musicModel == null) {
-//            return;
-//        }
-//
-//        if (mMusicPlayer != null) {
-//            mMusicPlayer.selectAudioTrack(1);
-//            mMusicPlayer.stop();
-//        }
     }
 
     private void toggleStart() {
@@ -537,35 +523,43 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> {
         mBinding.tvNoOnSeat.setVisibility(View.VISIBLE);
     }
 
+    /**
+     * 1. Show current avatar in RecyclerView.
+     * 2. Show control buttons.
+     * 3. Start Sync Member.
+     * 4. Enable Speaker.
+     */
     private void requestSeatOn() {
         AgoraMember mMine = RoomManager.getInstance().getMine();
-        if (mMine != null && mMine.getRole() == AgoraMember.Role.Listener) {
+        if (mMine != null && mMine.getRole() == Constants.CLIENT_ROLE_AUDIENCE) {
+            // Step 1
             onMemberJoin(mMine);
+            // Step 2
             showOnSeatStatus();
 
             int roleNew = Constants.CLIENT_ROLE_BROADCASTER;
-            mMine.setRole(AgoraMember.Role.Speaker);
-            if(mMusicPlayer != null)
-                mMusicPlayer.switchRole(roleNew);
 
             RoomManager.getInstance().changeCurrentRole(roleNew);
-
+            // Step 3
             RoomManager.getInstance().startSyncMember();
+            // Step 4
+            RoomManager.getInstance().toggleSelfAudio(false);
         }
     }
 
     /**
      * 1. Reset lrcControlView music and role.
      * 2. Stop former music player.
-     * 3. Create new music player and initialize it.
+     * 3.1. Create new SingleMusicPlayer and prepare to play the music.
+     * 3.2. Tell LrcView on wait chorus status.
      */
     @SuppressLint("NotifyDataSetChanged")
     private void onMusicChanged(@NonNull MemberMusicModel music) {
+        KTVUtil.logD(music.toString());
         // Step 1
         mBinding.lrcControlView.setMusic(music);
 
-        User mUser = UserManager.Instance().getUserLiveData().getValue();
-        if (mUser != null && ObjectsCompat.equals(music.getUserId(), mUser.getObjectId())) {
+        if (RoomManager.getInstance().isMainSinger()) {
             mBinding.lrcControlView.setRole(LrcControlView.Role.Singer);
         } else {
             mBinding.lrcControlView.setRole(LrcControlView.Role.Listener);
@@ -577,22 +571,22 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> {
             mMusicPlayer.destroy();
         }
 
-        int role = Constants.CLIENT_ROLE_BROADCASTER;
-        AgoraMember mMine = RoomManager.getInstance().getMine();
-        if (mMine != null && mMine.getRole() == AgoraMember.Role.Listener) {
-            role = Constants.CLIENT_ROLE_AUDIENCE;
-        }
-
         // Step 3
-        if (music.getType() == MemberMusicModel.SingType.Single) {
+        // 听众 和 上麦者 —— 没有 播放器
+        if (music.getType() == MemberMusicModel.SingType.Chorus) {
+            mBinding.lrcControlView.onWaitChorusStatus();
+        } else {
             mBinding.lrcControlView.onPrepareStatus();
-            mMusicPlayer = new SingleMusicPlayer(this, role, mPlayer);
+
+            mMusicPlayer = new SingleMusicPlayer(this, mPlayer);
             mMusicPlayer.registerPlayerObserver(mMusicCallback);
             mMusicPlayer.prepare(music);
-        } else {
-            mBinding.lrcControlView.onWaitChorusStatus();
-            mMusicPlayer = new MultipleMusicPlayer(this, role, mPlayer);
-            mMusicPlayer.registerPlayerObserver(mMusicCallback);
+            if( RoomManager.getInstance().isMainSinger()) {
+                ChannelMediaOptions options = new ChannelMediaOptions();
+                options.publishMediaPlayerId = mPlayer.getMediaPlayerId();
+                options.publishMediaPlayerAudioTrack = true;
+                RoomManager.getInstance().getRtcEngine().updateChannelMediaOptions(options);
+            }
         }
 
     }
@@ -608,11 +602,17 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> {
         }
     }
 
+    private void setupLrc(MemberMusicModel music) {
+        File lrcFile = music.getFileLrc();
+        LrcData data = LrcLoadUtils.parse(lrcFile);
+        mBinding.lrcControlView.getLrcView().setLrcData(data);
+        mBinding.lrcControlView.getPitchView().setLrcData(data);
+    }
+
     //<editor-fold desc="Member stuff">
     private void onMemberJoin(@NonNull AgoraMember member) {
         for (int i = 0; i < mRoomSpeakerAdapter.getItemCount(); i++) {
             if (mRoomSpeakerAdapter.getItemData(i) == null) {
-                member.setRole(AgoraMember.Role.Speaker);
                 mRoomSpeakerAdapter.dataList.set(i, member);
                 mRoomSpeakerAdapter.notifyItemChanged(i);
                 break;
@@ -631,12 +631,12 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> {
         }
     }
 
-    private void onMemberApplyJoinChorus(@NonNull MemberMusicModel music) {
-
-    }
-
     private void onMemberJoinedChorus(@NonNull MemberMusicModel music) {
         mBinding.lrcControlView.onMemberJoinedChorus();
+
+        mMusicPlayer = new MultipleMusicPlayer(this, mPlayer);
+        mMusicPlayer.registerPlayerObserver(mMusicCallback);
+        ((MultipleMusicPlayer) mMusicPlayer).onMemberJoinedChorus(music);
     }
 
     private void onMemberChorusReady(@NonNull MemberMusicModel music) {
@@ -684,7 +684,7 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> {
                 .setTitle(R.string.ktv_room_change_music_title)
                 .setMessage(R.string.ktv_room_change_music_msg)
                 .setNegativeButton(R.string.ktv_cancel, null)
-                .setPositiveButton(R.string.ktv_confirm, (dialog, which) -> changeMusic())
+                .setPositiveButton(R.string.ktv_confirm, (dialog, which) -> cutOffMusic())
                 .show();
     }
     //</editor-fold>
@@ -699,8 +699,7 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> {
         stopService(intent);
 
         dismissLoading();
-        stopOnTrialTimer();
-
+//        stopOnTrialTimer();
 
         if (mPlayer != null) {
             mPlayer.destroy();

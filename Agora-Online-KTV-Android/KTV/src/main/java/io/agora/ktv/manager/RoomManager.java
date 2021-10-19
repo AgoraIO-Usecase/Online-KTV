@@ -1,15 +1,14 @@
 package io.agora.ktv.manager;
 
+import static io.agora.ktv.bean.MemberMusicModel.UserStatus.Idle;
 import static io.agora.ktv.bean.MemberMusicModel.UserStatus.Ready;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.os.Bundle;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.util.ObjectsCompat;
 
 import com.agora.data.DataRepositoryImpl;
 import com.agora.data.ExampleData;
@@ -17,7 +16,6 @@ import com.agora.data.R;
 import com.agora.data.manager.UserManager;
 import com.agora.data.model.AgoraMember;
 import com.agora.data.model.AgoraRoom;
-import com.agora.data.model.MusicModel;
 import com.agora.data.model.User;
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
@@ -26,9 +24,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import io.agora.base.internal.ContextUtils;
@@ -42,7 +38,6 @@ import io.agora.rtc2.RtcEngine;
 import io.agora.rtc2.RtcEngineConfig;
 import io.agora.rtc2.RtcEngineEx;
 import io.reactivex.Completable;
-import io.reactivex.functions.Consumer;
 
 /**
  * 房间控制
@@ -72,7 +67,7 @@ public final class RoomManager {
      * key:AgoraMember.id
      * value:AgoraMember
      */
-    private final Map<String, AgoraMember> memberHashMap = new ConcurrentHashMap<>();
+    private final Map<Integer, AgoraMember> memberHashMap = new ConcurrentHashMap<>();
 
     private volatile AgoraRoom mRoom;
     private volatile AgoraMember mCurrentMember;
@@ -84,39 +79,26 @@ public final class RoomManager {
 
     private Integer mStreamId;
 
-    /**
-     * 唱歌人的UserId
-     */
-    private final Set<String> singers = new HashSet<>();
-
-    private Thread syncMemberThread;
-    private Thread syncRequestChorusThread;
-    private Thread syncAcceptChorusThread;
+    private @Nullable Thread syncMemberThread;
+    private @Nullable Thread syncRequestChorusThread;
+    private @Nullable Thread syncAcceptChorusThread;
 
     private final IRtcEngineEventHandler mIRtcEngineEventHandler = new IRtcEngineEventHandler() {
-
-        @Override
-        public void onJoinChannelSuccess(String channel, int uid, int elapsed) {
-            super.onJoinChannelSuccess(channel, uid, elapsed);
-            mLoggerRTC.i("onJoinChannelSuccess() called with: channel = [%s], uid = [%s], elapsed = [%s]", channel, uid, elapsed);
-
-//            if (emitterJoinRTC != null) {
-//                emitterJoinRTC.onSuccess(uid);
-//                emitterJoinRTC = null;
-//            }
-        }
 
         @Override
         public void onUserOffline(int uid, int reason) {
             mLoggerRTC.i("onUserOffline() " + uid);
             super.onUserOffline(uid, reason);
             User user = new User();
-            user.setObjectId(String.valueOf(uid));
+            user.setUserId(uid);
 
             AgoraMember member = new AgoraMember();
-            member.setId(user.getObjectId());
+            member.setId(user.getUserId());
 
             mMainThreadDispatch.onMemberLeave(member);
+
+            if (mCurrentMemberMusic != null && mCurrentMemberMusic.getUserId() == uid)
+                onMusicEmpty();
         }
 
         @Override
@@ -125,9 +107,12 @@ public final class RoomManager {
             JSONObject jsonMsg;
             try {
                 String strMsg = new String(data);
-                KTVUtil.logD(strMsg);
+//                KTVUtil.logD("RECV <<< " +strMsg);
                 jsonMsg = new JSONObject(strMsg);
 
+                /*
+                    Check cmd
+                 */
                 String cmd = null;
                 try {
                     cmd = jsonMsg.getString("cmd");
@@ -137,20 +122,26 @@ public final class RoomManager {
 
                 if (cmd == null) return;
 
-                String remoteUserId = null;
-                try {
-                    remoteUserId = String.valueOf(uid);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                if (remoteUserId == null) return;
+                /*
+                    Get remote user id by uid
+                 */
+//                String remoteUserId = null;
+//                try {
+//                    remoteUserId = String.valueOf(uid);
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//                if (remoteUserId == null) return;
 
+                /*
+                    Check cmd
+                 */
                 switch (cmd) {
                     case RoomManager.countdown: {
                         int time = jsonMsg.getInt("time");
                         String musicId = jsonMsg.getString("musicId");
 
-                        mMainThreadDispatch.onReceivedCountdown(uid, time,musicId);
+                        mMainThreadDispatch.onReceivedCountdown(uid, time, musicId);
                         break;
                     }
                     case RoomManager.syncMusic: {
@@ -164,49 +155,55 @@ public final class RoomManager {
 
 
                         int state = jsonMsg.getInt("state");
-                        boolean shouldPlay = state == 1;
+                        boolean shouldPlay = (state == 1) || (state == 2);
 
-
-                        // 当前不在播放 || 远端更换歌曲 《==》播放远端歌曲
-                        if (shouldPlay && (mCurrentMemberMusic == null ||
-                                (!musicId.equals(mCurrentMemberMusic.getMusicId()) && remoteUserId.equals(mCurrentMemberMusic.getUserId())))) {
+                        // 当前不在播放 ||在countdown|| 远端更换歌曲 《==》播放远端歌曲
+                        if (shouldPlay && (mCurrentMemberMusic == null || (mCurrentMemberMusic.getType() == MemberMusicModel.SingType.Chorus && mCurrentMemberMusic.getUser1Id() == 0) ||
+                                (uid == mCurrentMemberMusic.getUserId() && !musicId.equals(mCurrentMemberMusic.getMusicId())))) {
+                            KTVUtil.logD("syncMusic ---- step1");
                             MemberMusicModel temp = new MemberMusicModel(musicId);
-                            temp.setUserId(remoteUserId);
+                            temp.setUserId(uid);
                             onMusicChanged(temp);
                             // 远端切歌
-                        } else if (state == 0 && remoteUserId.equals(mCurrentMemberMusic.getUserId())) {
+                        } else if (state == 0 && uid == mCurrentMemberMusic.getUserId()) {
+                            KTVUtil.logD("syncMusic ---- step2");
                             onMusicEmpty();
                         }
 
-//                        if (musicId.equals(mCurrentMemberMusic.getMusicId())) {
-//
-//                            long total = jsonMsg.getLong("duration");
-//                            long cur = jsonMsg.getLong("time");
-//                            mMainThreadDispatch.onMusicProgress(total, cur);
-//                        }
+                        if (mCurrentMemberMusic != null && mCurrentMemberMusic.getType() == MemberMusicModel.SingType.Chorus) {
+                            int playerId = -1;
+                            try {
+                                playerId = jsonMsg.getInt("playerUid");
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                            if (playerId != -1) {
+                                mRtcEngine.muteRemoteAudioStream(playerId, true);
+                            }
+                        }
+
                         break;
                     }
                     case RoomManager.syncMember: {
-                        String userId = jsonMsg.getString("userId");
                         int role = jsonMsg.getInt("role");
 
-                        AgoraMember tempMember = memberHashMap.get(userId);
+                        AgoraMember tempMember = memberHashMap.get(uid);
 
                         // Add member
                         if (tempMember == null) {
-                            String avatar = jsonMsg.getString("avatar");
-                            AgoraMember member = new AgoraMember();
-                            User user = new User();
-                            user.setAvatar(avatar);
-                            user.setObjectId(userId);
+                            if (role == 2) {
+                                String avatar = jsonMsg.getString("avatar");
+                                AgoraMember member = new AgoraMember();
+                                User user = new User();
+                                user.setAvatar(avatar);
+                                user.setUserId(uid);
 
-                            member.setId(user.getObjectId());
-                            member.setUser(user);
-                            member.setRole(AgoraMember.Role.parse(role));
-                            memberHashMap.put(userId, member);
-                            mMainThreadDispatch.onMemberJoin(member);
-                        } else if (role == AgoraMember.Role.Listener.getValue()) {
-                            memberHashMap.remove(userId);
+                                member.setUser(user);
+                                memberHashMap.put(uid, member);
+                                mMainThreadDispatch.onMemberJoin(member);
+                            }
+                        } else if (role == 1) {
+                            memberHashMap.remove(uid);
                             mMainThreadDispatch.onMemberLeave(tempMember);
                         }
                         break;
@@ -225,23 +222,23 @@ public final class RoomManager {
 
                         if (isMainSinger()) {
 
-                            String userId = jsonMsg.getString("userId");
-
-                            if (mCurrentMemberMusic.getType() == MemberMusicModel.SingType.Chorus && mCurrentMemberMusic.getUser1Id() == null) {
+                            // 当前为合唱歌曲 && 目前还没有辅唱
+                            if (mCurrentMemberMusic.getType() == MemberMusicModel.SingType.Chorus && mCurrentMemberMusic.getUser1Id() == 0) {
                                 KTVUtil.logD("requestChorus---- case1");
                                 // Mark as accepted
-                                singers.add(userId);
-                                mCurrentMemberMusic.setUser1Id(userId);
+                                mCurrentMemberMusic.setUser1Id(uid);
 
                                 // start prepare and countdown will terminate
                                 mMainThreadDispatch.onMemberJoinedChorus(mCurrentMemberMusic);
 
                                 startSyncAcceptChorus();
-                            } else if (userId.equals(mCurrentMemberMusic.getUser1Id()) && jsonMsg.getInt("musicStatus") == 1
+                                // 辅唱端 汇报自己准备完毕《==》id为辅唱id && status == 1 && 当前不 ready
+                            } else if (uid == mCurrentMemberMusic.getUser1Id() && jsonMsg.getInt("musicStatus") == 1
                                     && (mCurrentMemberMusic.getUserStatus() != Ready || mCurrentMemberMusic.getUser1Status() != Ready)) {
                                 KTVUtil.logD("requestChorus---- case2");
                                 mCurrentMemberMusic.setUser1Status(Ready);
 
+                                // 两端都 read《==》开始播放
                                 if (mCurrentMemberMusic.getUserStatus() == Ready) {
                                     stopSyncAcceptChorus();
                                     sendSyncAcceptChorusMsg();
@@ -263,27 +260,29 @@ public final class RoomManager {
                      */
                     case RoomManager.acceptChorus: {
 
-                        String userId = jsonMsg.getString("userId");
-                        String acceptId = jsonMsg.getString("acceptedUid");
+//                        String userId = jsonMsg.getString("userId");
+                        int acceptId = jsonMsg.getInt("acceptedUid");
 
-                        if (acceptId.equals(UserManager.Instance().getUser().getObjectId())) {
+                        if (acceptId == UserManager.Instance().getUser().getUserId()) {
 
                             if (mCurrentMemberMusic != null && mCurrentMemberMusic.getType() == MemberMusicModel.SingType.Chorus
-                                    && ObjectsCompat.equals(mCurrentMemberMusic.getUserId(), userId)) {
+                                    && uid == mCurrentMemberMusic.getUserId()) {
 
-                                if(  mCurrentMemberMusic.getUser1Id() == null) {
+                                if (mCurrentMemberMusic.getUser1Id() == 0) {
                                     KTVUtil.logD("acceptChorus---- case1");
                                     // Mark as accepted
-                                    mCurrentMemberMusic.setUser1Id(UserManager.Instance().getUser().getObjectId());
+                                    mCurrentMemberMusic.setUser1Id(UserManager.Instance().getUser().getUserId());
                                     // Start Prepare
                                     mMainThreadDispatch.onMemberJoinedChorus(mCurrentMemberMusic);
                                     // 确认是陪唱 && 发消息的是主唱
-                                }else if(isFollowSinger() && jsonMsg.getInt("musicStatus") == 1){
+                                } else if (isFollowSinger() && jsonMsg.getInt("musicStatus") == 1) {
 
-                                    KTVUtil.logD("acceptChorus---- case2");
-                                    mCurrentMemberMusic.setUserStatus(Ready);
-                                    stopSyncRequestChorus();
-                                    mMainThreadDispatch.onMemberChorusReady(mCurrentMemberMusic);
+                                    if (mCurrentMemberMusic.getUserStatus() != Ready) {
+                                        KTVUtil.logD("acceptChorus---- case2");
+                                        mCurrentMemberMusic.setUserStatus(Ready);
+                                        stopSyncRequestChorus();
+                                        mMainThreadDispatch.onMemberChorusReady(mCurrentMemberMusic);
+                                    }
                                 }
                             }
                         }
@@ -312,7 +311,7 @@ public final class RoomManager {
     public Completable initEngine(Context mContext) {
         return Completable.create(emitter -> {
 
-            KTVUtil.logD("initEngine Thread ----"+Thread.currentThread().getName());
+            KTVUtil.logD("initEngine Thread ----" + Thread.currentThread().getName());
             String APP_ID = mContext.getString(R.string.app_id);
             if (TextUtils.isEmpty(APP_ID)) {
                 emitter.onError(new NullPointerException("APP_ID is empty, please check \"strings_config.xml\""));
@@ -343,13 +342,13 @@ public final class RoomManager {
             User mUser = UserManager.Instance().getUserLiveData().getValue();
             if (mUser == null) {
                 emitter.onError(new NullPointerException("mUser is empty"));
-            }else {
+            } else {
                 mCurrentMember = new AgoraMember();
                 mCurrentMember.setRoomId(mRoom);
-                mCurrentMember.setId(mUser.getObjectId());
-                mCurrentMember.setUserId(mUser.getObjectId());
+                mCurrentMember.setId(mUser.getUserId());
+                mCurrentMember.setUserId(mUser.getUserId());
                 mCurrentMember.setUser(mUser);
-                mCurrentMember.setRole(AgoraMember.Role.Listener);
+                mCurrentMember.setRole(Constants.CLIENT_ROLE_AUDIENCE);
 
                 try {
                     ExampleData.updateCoverImage(Integer.parseInt(mRoom.getMv()));
@@ -376,14 +375,22 @@ public final class RoomManager {
             mRtcEngine.setParameters("{\"rtc.audio_fec\":[3,2]}");
             mRtcEngine.setParameters("{\"rtc.audio_resend\":false}");
 
+            // 默认不允许说话
+            ChannelMediaOptions options = new ChannelMediaOptions();
+            options.publishAudioTrack = false;
+            mRtcEngine.updateChannelMediaOptions(options);
+
             mRtcEngine.setClientRole(Constants.CLIENT_ROLE_AUDIENCE);
 
             mLoggerRTC.i("joinRTC() called with: results = [%s]", mRoom);
-            int res = mRtcEngine.joinChannel("", mRoom.getChannelName(), null, Integer.parseInt(mCurrentMember.getId()));
+            int res = mRtcEngine.joinChannel("", mRoom.getChannelName(), null, UserManager.Instance().getUser().getUserId());
+            KTVUtil.logD("res:" + res);
             if (res != Constants.ERR_OK) {
+                KTVUtil.logD("ERROR");
                 mLoggerRTC.e("joinRTC() called error " + res);
                 emitter.onError(new Exception("join rtc room error " + res));
             } else {
+                KTVUtil.logD("COMPLETE");
                 emitter.onComplete();
             }
         });
@@ -393,9 +400,6 @@ public final class RoomManager {
         return mRtcEngine;
     }
 
-    /**
-     * joinChannel之后只能创建5个，leaveChannel之后重置。
-     */
     public Integer getStreamId() {
         if (mStreamId == null) {
             DataStreamConfig cfg = new DataStreamConfig();
@@ -416,10 +420,6 @@ public final class RoomManager {
         return mCurrentMember;
     }
 
-    public boolean isSinger(String userId) {
-        return singers.contains(userId);
-    }
-
     public void addRoomEventCallback(@NonNull RoomEventCallback callback) {
         mMainThreadDispatch.addRoomEventCallback(callback);
     }
@@ -428,61 +428,30 @@ public final class RoomManager {
         mMainThreadDispatch.removeRoomEventCallback(callback);
     }
 
-    private void onMemberRoleChanged(@NonNull AgoraMember member) {
-        mLogger.i("onMemberRoleChanged() called with: member = [%s]", member);
-        mMainThreadDispatch.onRoleChanged(member);
-    }
-
-
     public void onMusicEmpty() {
         mLogger.i("onMusicEmpty() called");
-        if( mCurrentMemberMusic != null) {
+        if (mCurrentMemberMusic != null) {
             sendSyncLrc(mCurrentMemberMusic.getMusicId(), 0, 0, 0);
             mCurrentMemberMusic = null;
         }
-        singers.clear();
+        memberHashMap.clear();
         mMainThreadDispatch.onMusicEmpty();
+        stopSyncRequestChorus();
+        stopSyncAcceptChorus();
     }
 
     @SuppressLint("CheckResult")
     public void onMusicChanged(MemberMusicModel model) {
-        KTVUtil.logD("onMusicChanged() called with: model = [%s]");
+        KTVUtil.logD(model.toString());
         mLogger.i("onMusicChanged() called with: model = [%s]", model);
 
         mCurrentMemberMusic = model;
 
         DataRepositoryImpl.getInstance().getMusic(model.getMusicId()).subscribe(musicModel -> {
             mCurrentMemberMusic.setPropertiesWithMusic(musicModel);
-            // 独唱
-            if (mCurrentMemberMusic.getType() == MemberMusicModel.SingType.Single) {
-                singers.add(model.getUserId());
-            } else if (mCurrentMemberMusic.getType() == MemberMusicModel.SingType.Chorus) {
-                singers.add(model.getUserId());
-                if(model.getUser1Id() != null)
-                    singers.add(model.getUser1Id());
-            }
 
             mMainThreadDispatch.onMusicChanged(model);
         });
-
-    }
-
-    public void onMemberApplyJoinChorus(MemberMusicModel model) {
-        mLogger.i("onMemberApplyJoinChorus() called with: model = [%s]", model);
-        mCurrentMemberMusic = model;
-        mMainThreadDispatch.onMemberApplyJoinChorus(model);
-    }
-
-    public void onMemberJoinedChorus(MemberMusicModel model) {
-        mLogger.i("onMemberJoinedChorus() called with: model = [%s]", model);
-        mCurrentMemberMusic = model;
-        mMainThreadDispatch.onMemberJoinedChorus(model);
-    }
-
-    public void onMemberChorusReady(MemberMusicModel model) {
-        mLogger.i("onMemberChorusReady() called with: model = [%s]", model);
-        mCurrentMemberMusic = model;
-        mMainThreadDispatch.onMemberChorusReady(model);
     }
 
     public boolean isSinger() {
@@ -491,33 +460,52 @@ public final class RoomManager {
 
     public boolean isMainSinger() {
         User mUser = UserManager.Instance().getUserLiveData().getValue();
-        if (mUser == null || mCurrentMemberMusic == null) {
+        if (mUser == null || mCurrentMemberMusic == null || mCurrentMemberMusic.getUserId() == 0) {
             return false;
         }
-        return ObjectsCompat.equals(mCurrentMemberMusic.getUserId(), mUser.getObjectId());
+        return mCurrentMemberMusic.getUserId() == mUser.getUserId();
     }
 
     public boolean isFollowSinger() {
         User mUser = UserManager.Instance().getUserLiveData().getValue();
-        if (mUser == null || mCurrentMemberMusic == null) {
+        if (mUser == null || mCurrentMemberMusic == null || mCurrentMemberMusic.getUser1Id() == 0) {
             return false;
         }
 
-        return ObjectsCompat.equals(mCurrentMemberMusic.getUser1Id(), mUser.getObjectId());
+        return mCurrentMemberMusic.getUser1Id() == mUser.getUserId();
     }
 
-    public boolean isMainSinger(@NonNull AgoraMember member) {
-        if (mCurrentMemberMusic == null) {
-            return false;
+
+    public Completable toggleSelfAudio(boolean mute) {
+        mCurrentMember.setIsSelfMuted(mute ? 1 : 0);
+
+        if (getRtcEngine() != null) {
+            ChannelMediaOptions options = new ChannelMediaOptions();
+            options.publishAudioTrack = !mute;
+            getRtcEngine().updateChannelMediaOptions(options);
         }
 
-        return ObjectsCompat.equals(mCurrentMemberMusic.getUserId(), member.getUserId());
+        return Completable.complete();
     }
 
+    public void changeCurrentRole(int role) {
+        if (mCurrentMember != null)
+            mCurrentMember.setRole(role);
+        if (mRtcEngine != null)
+            getRtcEngine().setClientRole(role);
+    }
+
+
+    //<editor-fold desc="Destroy Stuff">
     public void leaveRoom() {
         stopSyncMember();
         stopSyncAcceptChorus();
         stopSyncRequestChorus();
+
+        if (mCurrentMemberMusic != null) {
+            sendSyncLrc(mCurrentMemberMusic.getMusicId(), 0, 0, 0);
+        }
+
         mMainThreadDispatch.destroy();
         mLogger.i("leaveRoom() called");
 
@@ -534,21 +522,7 @@ public final class RoomManager {
 
         instance = null;
     }
-
-    public Completable toggleSelfAudio(boolean mute) {
-        mCurrentMember.setIsSelfMuted(mute ? 1 : 0);
-
-        if (getRtcEngine() != null) {
-            ChannelMediaOptions options = new ChannelMediaOptions();
-            options.publishAudioTrack = !mute;
-            getRtcEngine().updateChannelMediaOptions(options);
-        }
-        return Completable.complete();
-    }
-
-    public void changeCurrentRole(int role) {
-        getRtcEngine().setClientRole(role);
-    }
+    //</editor-fold>
 
     //<editor-fold desc="Sync Stuff">
 
@@ -556,19 +530,19 @@ public final class RoomManager {
     /////////////////////////////———— SYNC MEMBER ————//////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////
     public void startSyncMember() {
-        if (syncMemberThread == null) {
-            syncMemberThread = new Thread(() -> {
-                while (!syncMemberThread.isInterrupted() && getRtcEngine() != null) {
-                    sendSyncMemberMsg();
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        break;
-                    }
+        if (syncMemberThread != null) syncMemberThread.interrupt();
+
+        syncMemberThread = new Thread(() -> {
+            while (!syncMemberThread.isInterrupted() && getRtcEngine() != null) {
+                sendSyncMemberMsg();
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    break;
                 }
-            });
-            syncMemberThread.start();
-        }
+            }
+        });
+        syncMemberThread.start();
     }
 
     /**
@@ -580,7 +554,7 @@ public final class RoomManager {
         Map<String, Object> msg = new HashMap<>();
         msg.put("cmd", RoomManager.syncMember);
         msg.put("userId", mCurrentMember.getUserId());
-        msg.put("role", mCurrentMember.getRole().getValue());
+        msg.put("role", mCurrentMember.getRole() == Constants.CLIENT_ROLE_BROADCASTER ? 2 : 1);
         msg.put("avatar", mCurrentMember.getUser().getAvatar());
 
         sendStreamMsg(msg);
@@ -591,7 +565,7 @@ public final class RoomManager {
             syncMemberThread.interrupt();
         }
         if (mCurrentMember != null) {
-            mCurrentMember.setRole(AgoraMember.Role.Listener);
+            mCurrentMember.setRole(Constants.CLIENT_ROLE_AUDIENCE);
             sendSyncMemberMsg();
         }
     }
@@ -600,19 +574,19 @@ public final class RoomManager {
     ///////////////////////////// ———— APPLY CHORUS ———— ///////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////
     public void startSyncRequestChorus() {
-        if (syncRequestChorusThread == null) {
-            syncRequestChorusThread = new Thread(() -> {
-                while (!syncRequestChorusThread.isInterrupted() && getRtcEngine() != null && mCurrentMemberMusic != null) {
-                    sendSyncRequestChorusMsg();
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        break;
-                    }
+        if (syncRequestChorusThread != null) syncRequestChorusThread.interrupt();
+
+        syncRequestChorusThread = new Thread(() -> {
+            while (!syncRequestChorusThread.isInterrupted() && getRtcEngine() != null && mCurrentMemberMusic != null) {
+                sendSyncRequestChorusMsg();
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    break;
                 }
-            });
-            syncRequestChorusThread.start();
-        }
+            }
+        });
+        syncRequestChorusThread.start();
     }
 
     /**
@@ -622,7 +596,7 @@ public final class RoomManager {
      * {"userId":2222,"msgId":1,"cmd":"applyChorus","musicId":"6246262727281640","musicStatus":0}
      */
     private void sendSyncRequestChorusMsg() {
-        if ( mCurrentMemberMusic == null || mCurrentMember == null) return;
+        if (mCurrentMemberMusic == null || mCurrentMember == null) return;
 
         Map<String, Object> msg = new HashMap<>();
         msg.put("cmd", RoomManager.requestChorus);
@@ -644,19 +618,20 @@ public final class RoomManager {
     ////////////////////////////////////////////////////////////////////////////////////////
 
     public void startSyncAcceptChorus() {
-        if (syncAcceptChorusThread == null) {
-            syncAcceptChorusThread = new Thread(() -> {
-                while (!syncAcceptChorusThread.isInterrupted() && getRtcEngine() != null && mCurrentMemberMusic != null) {
-                    sendSyncAcceptChorusMsg();
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        break;
-                    }
+        if (syncAcceptChorusThread != null) syncAcceptChorusThread.interrupt();
+
+        syncAcceptChorusThread = new Thread(() -> {
+            while (!syncAcceptChorusThread.isInterrupted() && getRtcEngine() != null && mCurrentMemberMusic != null) {
+                KTVUtil.logD("syncAcceptChorusThread");
+                sendSyncAcceptChorusMsg();
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    break;
                 }
-            });
-            syncAcceptChorusThread.start();
-        }
+            }
+        });
+        syncAcceptChorusThread.start();
     }
 
     /**
@@ -686,8 +661,9 @@ public final class RoomManager {
 
 
     public void sendStreamMsg(Map<String, Object> mapMsg) {
-        if(mRtcEngine != null) {
+        if (mRtcEngine != null) {
             String msg = new JSONObject(mapMsg).toString();
+            KTVUtil.logD("SEND >>> " + msg);
             int res = getRtcEngine().sendStreamMessage(getStreamId(), msg.getBytes());
             if (res < 0)
                 mLogger.e("sendStreamMsg() called returned: ret = [%s], msg = %s", res, msg);
@@ -702,16 +678,16 @@ public final class RoomManager {
         Map<String, Object> msg = new HashMap<>();
         msg.put("cmd", "countdown");
         msg.put("time", time);
+        msg.put("userId", mCurrentMemberMusic.getUserId());
         msg.put("musicId", RoomManager.getInstance().mCurrentMemberMusic.getMusicId());
         sendStreamMsg(msg);
     }
 
+    /**
+     * setLrcTime 主唱每次postition changed的时候广播, 切歌或者自然播完的时候 更新 state = 0, 暂停歌曲 state = 2
+     * {"time":0,"userId":1234,"ts":"1632655517979","lrcId":"6246262727281640","duration":270706,"cmd":"setLrcTime","msgId":5,"playerUid":12341234,"state":1}
+     */
     public void sendSyncLrc(String musicId, long duration, long time, int state) {
-//        int state = 0;
-//        if (mStatus == BaseMusicPlayer.Status.Paused)
-//            state = 2;
-//        else if (mStatus == BaseMusicPlayer.Status.Started)
-//            state = 1;
 
         Map<String, Object> msg = new HashMap<>();
         msg.put("cmd", "setLrcTime");
@@ -719,6 +695,9 @@ public final class RoomManager {
         msg.put("duration", duration);
         msg.put("time", time);//ms
         msg.put("state", state);
+        msg.put("userId", UserManager.Instance().getUser().getUserId());
+        if (mCurrentMemberMusic != null)
+            msg.put("playerUid", mCurrentMemberMusic.getUserPlayerId());
         RoomManager.getInstance().sendStreamMsg(msg);
     }
     //</editor-fold>

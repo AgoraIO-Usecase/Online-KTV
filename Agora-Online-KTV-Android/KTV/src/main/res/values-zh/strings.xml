@@ -62,6 +62,7 @@
     <string name="ktv_permission_alert">缺少运行所需的必要权限，是否确认申请？</string>
     <string name="ktv_permission_refused">运行此功能需要的必要权限未被授予。</string>
 
+    <string name="ktv_network_unavailable">未检测到可用网络，确认继续？</string>
     <!--    Content Description-->
     <string name="ktv_toggle_mic">麦克风启用或静音</string>
     <string name="ktv_choose_cover">选择你喜欢的歌曲封面</string>

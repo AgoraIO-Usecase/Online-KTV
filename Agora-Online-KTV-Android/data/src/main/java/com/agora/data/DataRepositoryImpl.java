@@ -48,9 +48,9 @@ public class DataRepositoryImpl implements IDataRepository {
     }
 
     @Override
-    public Observable<User> login(String userId, String userName) {
+    public Observable<User> login(int userId, String userName) {
         User user = new User();
-        user.setObjectId(userId);
+        user.setUserId(userId);
         user.setAvatar(randomAvatar());
         user.setName(userName);
         return Observable.just(user);

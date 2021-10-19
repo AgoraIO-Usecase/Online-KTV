@@ -51,11 +51,11 @@ public final class UserManager {
         mUserLiveData.setValue(mUser);
     }
 
-    public static String randomId() {
-        return String.valueOf(new Random().nextInt(Integer.MAX_VALUE));
+    public static int randomId() {
+        return new Random().nextInt(Integer.MAX_VALUE);
     }
     public static String randomAvatar() {
-        return String.valueOf(new Random().nextInt(13));
+        return String.valueOf(new Random().nextInt(14));
     }
 
     public static String randomName() {
