@@ -6,6 +6,8 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
+import androidx.annotation.Keep;
+
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -13,6 +15,7 @@ import java.lang.reflect.Type;
 import io.agora.baselibrary.BuildConfig;
 
 @SuppressWarnings("unchecked")
+@Keep
 public class KTVUtil {
     public static void logD(String msg) {
         if(BuildConfig.DEBUG)

@@ -18,7 +18,7 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -31,9 +31,6 @@ android {
 }
 
 dependencies {
-    //RTM
-    implementation 'com.github.agorabuilder:rtm-sdk:1.4.4'
-
     implementation("com.squareup.okhttp3:okhttp:4.9.0")
     api project(':baselibrary')
 }
