@@ -31,11 +31,13 @@
         android:layout_height="wrap_content"
         app:backgroundTint="@color/ktv_colorAccent"
         app:backgroundTintMode="src_atop"
+        android:stateListAnimator="@animator/ktv_scale_on_touch"
         app:shapeAppearance="@style/ktv_roundStyle"
         android:text="@string/ktv_room_choose_song"
         android:textColor="@android:color/white"
         android:textAllCaps="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:targetApi="lollipop" />
 </androidx.constraintlayout.widget.ConstraintLayout>

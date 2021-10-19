@@ -5,14 +5,12 @@ import androidx.annotation.NonNull;
 import com.agora.data.model.AgoraRoom;
 
 import io.agora.baselibrary.base.BaseRecyclerViewAdapter;
-import io.agora.ktv.MyUtil;
 import io.agora.ktv.databinding.KtvItemRoomListBinding;
 
 public class RoomHolder extends BaseRecyclerViewAdapter.BaseViewHolder<KtvItemRoomListBinding, AgoraRoom> {
 
     public RoomHolder(@NonNull KtvItemRoomListBinding mBinding) {
         super(mBinding);
-        MyUtil.scaleOnTouch(mBinding.getRoot());
     }
 
     @Override

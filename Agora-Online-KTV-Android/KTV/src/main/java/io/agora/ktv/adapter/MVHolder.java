@@ -7,7 +7,6 @@ import androidx.annotation.NonNull;
 import com.bumptech.glide.Glide;
 
 import io.agora.baselibrary.base.BaseRecyclerViewAdapter;
-import io.agora.baselibrary.util.KTVUtil;
 import io.agora.ktv.MyUtil;
 import io.agora.ktv.databinding.KtvItemMvBinding;
 

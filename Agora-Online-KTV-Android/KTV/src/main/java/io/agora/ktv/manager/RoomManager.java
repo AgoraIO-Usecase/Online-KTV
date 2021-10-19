@@ -1,6 +1,5 @@
 package io.agora.ktv.manager;
 
-import static io.agora.ktv.bean.MemberMusicModel.UserStatus.Idle;
 import static io.agora.ktv.bean.MemberMusicModel.UserStatus.Ready;
 
 import android.annotation.SuppressLint;

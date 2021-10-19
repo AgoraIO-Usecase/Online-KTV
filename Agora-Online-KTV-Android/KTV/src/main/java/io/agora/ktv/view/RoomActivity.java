@@ -32,7 +32,6 @@ import io.agora.baselibrary.base.BaseRecyclerViewAdapter;
 import io.agora.baselibrary.base.OnItemClickListener;
 import io.agora.baselibrary.util.KTVUtil;
 import io.agora.baselibrary.util.ToastUtil;
-import io.agora.ktv.MyUtil;
 import io.agora.ktv.R;
 import io.agora.ktv.adapter.RoomPeopleHolder;
 import io.agora.ktv.bean.MemberMusicModel;
@@ -215,11 +214,6 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> {
         mBinding.recyclerViewAttRoom.setAdapter(mRoomSpeakerAdapter);
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.R)
             mBinding.recyclerViewAttRoom.setOverScrollMode(View.OVER_SCROLL_NEVER);
-
-        MyUtil.scaleOnTouch(mBinding.btnMicAttRoom);
-        MyUtil.scaleOnTouch(mBinding.btnChangeCoverAttRoom);
-        MyUtil.scaleOnTouch(mBinding.btnChorusAttRoom);
-        MyUtil.scaleOnTouch(mBinding.btnOrderSongAttRoom);
 
         // FIXME what is this for ?????
         Intent intent = new Intent(this, MyForegroundService.class);

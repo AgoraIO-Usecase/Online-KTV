@@ -53,8 +53,7 @@
             android:checked="true"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@id/bgd_control_layout_lrc"
-            app:layout_constraintBottom_toBottomOf="@id/bgd_control_layout_lrc"
-            android:track="@drawable/ktv_selector_switch_background" />
+            app:layout_constraintBottom_toBottomOf="@id/bgd_control_layout_lrc"/>
 
         <ImageButton
             android:id="@+id/ivMusicMenu"

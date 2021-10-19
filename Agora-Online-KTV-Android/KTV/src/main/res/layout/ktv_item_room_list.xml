@@ -1,29 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:stateListAnimator="@animator/ktv_scale_on_touch"
+    tools:targetApi="lollipop">
 
-        <com.google.android.material.imageview.ShapeableImageView
-            android:id="@+id/bgd_item_room_list"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:scaleType="fitXY"
-            app:shapeAppearance="@style/ktv_cornerMediumStyle"
-            app:layout_constraintDimensionRatio="1:1"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:src="@mipmap/icon_room_cover1" />
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/bgd_item_room_list"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:scaleType="fitXY"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:shapeAppearance="@style/ktv_cornerMediumStyle"
+        tools:src="@mipmap/icon_room_cover1" />
 
-        <TextView
-            android:id="@+id/title_item_room_list"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="12dp"
-            tools:text="001"
-            android:textColor="@android:color/white"
-            app:layout_constraintBottom_toBottomOf="@+id/bgd_item_room_list"
-            app:layout_constraintEnd_toEndOf="@+id/bgd_item_room_list"
-            app:layout_constraintStart_toStartOf="@+id/bgd_item_room_list" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    <TextView
+        android:id="@+id/title_item_room_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="12dp"
+        android:textColor="@android:color/white"
+        app:layout_constraintBottom_toBottomOf="@+id/bgd_item_room_list"
+        app:layout_constraintEnd_toEndOf="@+id/bgd_item_room_list"
+        app:layout_constraintStart_toStartOf="@+id/bgd_item_room_list"
+        tools:text="001" />
+</androidx.constraintlayout.widget.ConstraintLayout>
