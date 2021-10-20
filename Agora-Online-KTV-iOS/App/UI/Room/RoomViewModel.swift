@@ -402,7 +402,7 @@ class RoomViewModel {
                            onSuccess: @escaping () -> Void,
                            onError: @escaping (String) -> Void)
     {
-        manager.initChorusMusicPlayer()
+        manager.initChorusMusicPlayer(isMaster: member.userId == music.userId)
             .concatMap { [weak self] result -> Observable<Result<Void>> in
                 guard let weakself = self else { return Observable.empty() }
                 return result.onSuccess {

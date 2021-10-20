@@ -192,7 +192,7 @@ class RtcServer: NSObject {
         return rtcMusicStatePublisher.asObservable().observe(on: MainScheduler.instance)
     }
 
-    func initChorusMusicPlayer() -> Observable<Result<UInt>> {
+    func initChorusMusicPlayer(isMaster: Bool) -> Observable<Result<UInt>> {
         return Single.create { single in
             if self.rtcMusicPlayer is RtcNormalMusicPlayer {
                 self.rtcMusicPlayer?.destory()
@@ -202,11 +202,11 @@ class RtcServer: NSObject {
                 self.rtcMusicPlayer = RtcChorusMusicPlayer(rtcServer: self)
             }
             if let player = self.rtcMusicPlayer {
-                player.initPlayer {
+                player.initPlayer(isMaster: isMaster, onSuccess: {
                     single(.success(Result(success: true, data: player.uid)))
-                } onFailed: { error in
+                }, onFailed: { error in
                     single(.success(Result(success: false, message: error)))
-                }
+                })
             } else {
                 single(.success(Result(success: false, message: "RtcChorusMusicPlayer init error!")))
             }

@@ -197,7 +197,7 @@ private class MusicLyricLabel: UILabel {
     var styleShadowColor = UIColor.black.withAlphaComponent(0.5)
 
     private func renderText() {
-        if let text = self.text {
+        if let text = text {
             if progress <= 0 {
                 textColor = UIColor.white.withAlphaComponent(0.59)
             } else if progress >= 1 {

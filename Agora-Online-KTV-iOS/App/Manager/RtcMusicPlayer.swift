@@ -89,7 +89,7 @@ protocol IRtcMusicPlayer {
     var isPause: Bool { get set }
 
     init(rtcServer: RtcServer)
-    func initPlayer(onSuccess: @escaping () -> Void, onFailed: @escaping (String) -> Void)
+    func initPlayer(isMaster: Bool, onSuccess: @escaping () -> Void, onFailed: @escaping (String) -> Void)
     func play(music: LocalMusic, onSuccess: @escaping () -> Void, onFailed: @escaping (String) -> Void)
     func getAudioTrackCount() -> Int
     func getPlayoutVolume() -> Int32
@@ -148,7 +148,7 @@ class AbstractRtcMusicPlayer: NSObject, IRtcMusicPlayer /* , AgoraRtcMediaPlayer
         // player.setAudioFrameDelegate(self, mode: .readWrite)
     }
 
-    func initPlayer(onSuccess: @escaping () -> Void, onFailed _: @escaping (String) -> Void) {
+    func initPlayer(isMaster _: Bool, onSuccess: @escaping () -> Void, onFailed _: @escaping (String) -> Void) {
         onSuccess()
     }
 
@@ -401,7 +401,7 @@ class RtcChorusMusicPlayer: AbstractRtcMusicPlayer {
     var option: LocalMusicOption!
     private var timer: Timer?
 
-    override func initPlayer(onSuccess: @escaping () -> Void, onFailed: @escaping (String) -> Void) {
+    override func initPlayer(isMaster: Bool, onSuccess: @escaping () -> Void, onFailed: @escaping (String) -> Void) {
         if let player = player, let channelId = rtcServer.channel, let rtc = rtcServer.rtcEngine {
             if player.getPlayerState() == .playing {
                 player.stop()
@@ -411,12 +411,17 @@ class RtcChorusMusicPlayer: AbstractRtcMusicPlayer {
             rtc.setParameters("{\"rtc.audio_resend\":false}")
             rtc.setParameters("{\"rtc.audio.opensl.mode\":0}")
 
-            if connectionId == 0 {
+            if connectionId == 0, isMaster {
                 let option = AgoraRtcChannelMediaOptions()
                 option.clientRoleType = AgoraRtcIntOptional.of(Int32(AgoraClientRole.broadcaster.rawValue))
                 option.publishCameraTrack = AgoraRtcBoolOptional.of(false)
+                option.publishCustomAudioTrack = AgoraRtcBoolOptional.of(false)
+                option.enableAudioRecordingOrPlayout = AgoraRtcBoolOptional.of(false)
                 option.autoSubscribeAudio = AgoraRtcBoolOptional.of(false)
                 option.publishAudioTrack = AgoraRtcBoolOptional.of(false)
+                let id = player.getMediaPlayerId()
+                option.publishMediaPlayerId = AgoraRtcIntOptional.of(id)
+                option.publishMediaPlayerAudioTrack = AgoraRtcBoolOptional.of(true)
                 // var connectionId: UInt = 0
                 let code = rtc.joinChannelEx(byToken: BuildConfig.Token, channelId: channelId, uid: 0, connectionId: &connectionId, delegate: nil, mediaOptions: option) { _, uid, _ in
                     // self.connectionId = connectionId
@@ -445,19 +450,20 @@ class RtcChorusMusicPlayer: AbstractRtcMusicPlayer {
             }
             originMusic(enable: false)
             initDelay()
-            if connectionId == 0 || option == nil {
+            if (isMaster() && connectionId == 0) || option == nil {
                 onFailed("未初始化！")
             } else {
-                rtc.muteRemoteAudioStream(uid, mute: true)
+                rtc.muteRemoteAudioStream(option.masterMusicUid, mute: true)
+//                rtc.muteRemoteAudioStream(uid, mute: true)
                 if isFollower() {
-                    rtc.muteRemoteAudioStream(option.masterMusicUid, mute: true)
+//                    rtc.muteRemoteAudioStream(option.masterMusicUid, mute: true)
                     player.adjustPlayoutVolume(70)
-                    let mediaOption = AgoraRtcChannelMediaOptions()
-                    mediaOption.clientRoleType = AgoraRtcIntOptional.of(Int32(AgoraClientRole.broadcaster.rawValue))
-                    mediaOption.publishCameraTrack = AgoraRtcBoolOptional.of(false)
-                    mediaOption.autoSubscribeAudio = AgoraRtcBoolOptional.of(false)
-                    mediaOption.publishAudioTrack = AgoraRtcBoolOptional.of(false)
-                    rtc.updateChannelEx(with: mediaOption, connectionId: UInt(connectionId))
+//                    let mediaOption = AgoraRtcChannelMediaOptions()
+//                    mediaOption.clientRoleType = AgoraRtcIntOptional.of(Int32(AgoraClientRole.broadcaster.rawValue))
+//                    mediaOption.publishCameraTrack = AgoraRtcBoolOptional.of(false)
+//                    mediaOption.autoSubscribeAudio = AgoraRtcBoolOptional.of(false)
+//                    mediaOption.publishAudioTrack = AgoraRtcBoolOptional.of(false)
+//                    rtc.updateChannelEx(with: mediaOption, connectionId: UInt(connectionId))
 
                     if let timer = timer {
                         timer.invalidate()
@@ -469,15 +475,15 @@ class RtcChorusMusicPlayer: AbstractRtcMusicPlayer {
                         }
                     })
                 } else if isMaster() {
-                    let mediaOption = AgoraRtcChannelMediaOptions()
-                    mediaOption.publishMediaPlayerId = AgoraRtcIntOptional.of(player.getMediaPlayerId())
-                    mediaOption.clientRoleType = AgoraRtcIntOptional.of(Int32(AgoraClientRole.broadcaster.rawValue))
-                    mediaOption.publishCameraTrack = AgoraRtcBoolOptional.of(false)
-                    mediaOption.autoSubscribeAudio = AgoraRtcBoolOptional.of(false)
-                    mediaOption.publishAudioTrack = AgoraRtcBoolOptional.of(false)
-                    mediaOption.publishMediaPlayerAudioTrack = AgoraRtcBoolOptional.of(true)
-                    mediaOption.enableAudioRecordingOrPlayout = AgoraRtcBoolOptional.of(false)
-                    rtc.updateChannelEx(with: mediaOption, connectionId: UInt(connectionId))
+//                    let mediaOption = AgoraRtcChannelMediaOptions()
+//                    mediaOption.publishMediaPlayerId = AgoraRtcIntOptional.of(player.getMediaPlayerId())
+//                    mediaOption.clientRoleType = AgoraRtcIntOptional.of(Int32(AgoraClientRole.broadcaster.rawValue))
+//                    mediaOption.publishCameraTrack = AgoraRtcBoolOptional.of(false)
+//                    mediaOption.autoSubscribeAudio = AgoraRtcBoolOptional.of(false)
+//                    mediaOption.publishAudioTrack = AgoraRtcBoolOptional.of(false)
+//                    mediaOption.publishMediaPlayerAudioTrack = AgoraRtcBoolOptional.of(true)
+//                    mediaOption.enableAudioRecordingOrPlayout = AgoraRtcBoolOptional.of(false)
+//                    rtc.updateChannelEx(with: mediaOption, connectionId: UInt(connectionId))
                 }
                 if player.open(music.path, startPos: 0) == 0 {
                     onSuccess()
@@ -576,7 +582,7 @@ class RtcChorusMusicPlayer: AbstractRtcMusicPlayer {
     private var needSeek = false
     private var waitting = false
     private let delayPlayTime = 1000
-    private let MAX_DELAY_MS = 400
+    private let MAX_DELAY_MS = 40
 
     private func initDelay() {
         delayWithBrod = 0
@@ -608,7 +614,7 @@ class RtcChorusMusicPlayer: AbstractRtcMusicPlayer {
             return false
         }
 
-        if let player = self.player {
+        if let player = player {
             Logger.log(self, message: "receiveThenProcess uid:\(uid) cmd:\(cmd)", level: .info)
             if isFollower(), option.masterUid == uid {
                 // follower receive message from master
@@ -619,15 +625,14 @@ class RtcChorusMusicPlayer: AbstractRtcMusicPlayer {
                     }
                 case "replyTestDelay":
                     if let testDelayTime = data["testDelayTime"] as? String,
-                       let time = data["time"] as? String,
-                       let start = CLongLong(testDelayTime),
-                       let position = Int64(time)
+                       let position = data["position"] as? Int,
+                       let start = CLongLong(testDelayTime)
                     {
 //                        let position = CLongLong(iPosition)
                         let now = CLongLong(round(Date().timeIntervalSince1970 * 1000))
 
                         delay = (now - start) / 2
-                        delayWithBrod = position + delay
+                        delayWithBrod = Int64(position) + delay
                         if needSeek, player.getPlayerState() == .playing {
 //                            let expLocalTs = brodTs - position - delayWithBrod
                             let localPosition = CLongLong(player.getPosition())
@@ -668,7 +673,7 @@ class RtcChorusMusicPlayer: AbstractRtcMusicPlayer {
                                     lastSeekTime = 0
                                     lastExpectLocalPosition = 0
                                 }
-                                if abs(Int(CLongLong(position) - localPosition)) > MAX_DELAY_MS {
+                                if abs(Int(CLongLong(position) + delay - localPosition)) > MAX_DELAY_MS {
                                     needSeek = true
                                 }
                             } else if player.getPlayerState() == .openCompleted {
