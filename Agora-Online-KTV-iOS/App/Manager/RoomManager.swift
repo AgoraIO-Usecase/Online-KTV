@@ -264,9 +264,9 @@ extension RoomManager: IRoomManager {
             .throttle(RxTimeInterval.milliseconds(20), latest: true, scheduler: scheduler)
     }
 
-    func initChorusMusicPlayer() -> Observable<Result<UInt>> {
+    func initChorusMusicPlayer(isMaster: Bool) -> Observable<Result<UInt>> {
         if rtcServer.isJoinChannel {
-            return rtcServer.initChorusMusicPlayer()
+            return rtcServer.initChorusMusicPlayer(isMaster: isMaster)
         } else {
             return Observable.just(Result(success: false, message: "join room first!"))
         }
