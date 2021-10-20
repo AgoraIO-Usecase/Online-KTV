@@ -31,7 +31,7 @@ protocol IRoomManager {
     func subscribeRoom() -> Observable<Result<LiveKtvRoom>>
     func subscribeMembers() -> Observable<Result<[LiveKtvMember]>>
 
-    func initChorusMusicPlayer() -> Observable<Result<UInt>>
+    func initChorusMusicPlayer(isMaster: Bool) -> Observable<Result<UInt>>
     func play(music: LocalMusic, option: LocalMusicOption?) -> Observable<Result<Void>>
     func updateLocalMusic(option: LocalMusicOption?)
     func seekMusic(position: TimeInterval)

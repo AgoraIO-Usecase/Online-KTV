@@ -54,12 +54,12 @@ open class BaseViewContoller: UIViewController {
                 mask.onTap().rx.event.asObservable(),
                 cancelSignal.asObservable(),
             ])
-                .concatMap { [weak self] _ -> Single<Bool> in
-                    guard let weakself = self else { return Observable.empty().asSingle() }
-                    return weakself.dismiss(dialog: dialog)
-                }
-                .subscribe()
-                .disposed(by: disposeBag)
+            .concatMap { [weak self] _ -> Single<Bool> in
+                guard let weakself = self else { return Observable.empty().asSingle() }
+                return weakself.dismiss(dialog: dialog)
+            }
+            .subscribe()
+            .disposed(by: disposeBag)
         }
         if let maskView: UIView = dialogBackgroundMaskView {
             maskView.alpha = 0
@@ -290,7 +290,7 @@ open class BaseViewContoller: UIViewController {
     }
 
     open func dismiss(completion: ((Bool) -> Void)? = nil) {
-        if let navigationController = self.navigationController {
+        if let navigationController = navigationController {
             navigationController.popViewController(animated: true)
             if let completion = completion {
                 completion(true)
@@ -318,7 +318,7 @@ open class BaseViewContoller: UIViewController {
     }
 
     open func pop(completion: ((Bool) -> Void)? = nil) {
-        if let navigationController = self.navigationController {
+        if let navigationController = navigationController {
             Logger.log(message: "pop with navigationController", level: .info)
             UIView.transition(with: self.navigationController!.view!, duration: 0.3, options: .curveEaseOut) {
                 let transition = CATransition()
@@ -499,6 +499,6 @@ open class BaseViewContoller: UIViewController {
             NotificationCenter.default.rx.notification(UIApplication.keyboardWillHideNotification)
                 .map { _ in 0 },
         ])
-            .merge()
+        .merge()
     }
 }
