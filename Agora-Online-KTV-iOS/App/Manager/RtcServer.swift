@@ -94,7 +94,7 @@ private class RtcMusicPlayer: NSObject {
     }
 
     func originMusic(enable: Bool) {
-        rtcServer.rtcEngine?.setAudioMixingDualMonoMode(enable ? .duraMonoL : .duraMonoMix)
+        rtcServer.rtcEngine?.setAudioMixingDualMonoMode(enable ? .L : .R)
     }
 
     func seek(position: Int) {
@@ -243,7 +243,7 @@ class RtcServer: NSObject {
         rtc.enable(inEarMonitoring: isEnableEarloop)
         setRecordingSignalVolume(value: recordingSignalVolume)
         return Single.create { single in
-            let code = rtc.joinChannel(byToken: BuildConfig.Token, channelId: channel, info: nil, uid: 0)
+            let code = rtc.joinChannel(byToken: nil, channelId: channel, info: nil, uid: 0)
             single(.success(code))
             return Disposables.create()
         }.asObservable().subscribe(on: MainScheduler.instance)

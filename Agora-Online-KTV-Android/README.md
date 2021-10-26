@@ -7,9 +7,6 @@
 #### 注册Agora
 前往 [Agora官网](https://console.agora.io/) 注册项目，生产appId，然后替换工程**data**中 **strings_config.xml** 中 **app_id**，如果启用了token模式，需要替换 **token**。
 
-#### 获取Agora SDK
-目前版本需要特殊版SDK才能运行，请联系您的技术支持或者 sales@agora.io 获取SDK。
-
 #### 数据源
 - 本项目目前提供了1种数据接入：**leancloud**。
 - 如果需要自己实现数据源，请参考项目 **data** 代码中实现，主要继承接口 **IDataRepositroy**和 **ISyncManager** 实现具体方法。
