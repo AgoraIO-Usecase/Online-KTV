@@ -24,13 +24,12 @@ private class OrderMusicCell: UITableViewCell {
         didSet {
             nameView.text = "\(music.name)-\(music.singer)"
 //          NOTE: poster url is currently not available from migu
-//            let url = URL(string: music.poster)!
-//            coverView.sd_setImage(with: url) { [weak self] image, _, _, url in
-//                if let weakself = self {
-//                    Logger.log(message: "url: \(url)", level: .info)
-//                    weakself.coverView.image = image
-//                }
-//            }
+            let url = URL(string: music.poster)!
+            coverView.sd_setImage(with: url) { [weak self] image, _, _, _ in
+                if let weakself = self {
+                    weakself.coverView.image = image
+                }
+            }
             orderButton.isEnabled = !delegate.isOrdered(music: music)
             orderButton.backgroundColor = orderButton.isEnabled ? UIColor(hex: Colors.Blue) : UIColor(hex: Colors.Blue).withAlphaComponent(0.3)
         }

@@ -188,7 +188,7 @@ class AbstractRtcMusicPlayer: NSObject, IRtcMusicPlayer /* , AgoraRtcMediaPlayer
     func originMusic(enable: Bool) {
         // monoChannel = enable
         if let player = player {
-            player.setAudioDualMonoMode(enable ? .mixingDuraMonoL : .mixingDuraMonoMix)
+            player.setAudioDualMonoMode(enable ? .mixingDuraMonoL : .mixingDuraMonoR)
         }
     }
 
@@ -363,7 +363,7 @@ class RtcNormalMusicPlayer: AbstractRtcMusicPlayer {
                 player.stop()
             }
             originMusic(enable: false)
-            // rtc.setAudioProfile(.musicHighQualityStereo)
+//            rtc.setAudioProfile(AgoraAudioProfile(rawValue: 8)!)
 
             let option = AgoraRtcChannelMediaOptions()
             option.publishMediaPlayerId = AgoraRtcIntOptional.of(player.getMediaPlayerId())
@@ -422,19 +422,15 @@ class RtcChorusMusicPlayer: AbstractRtcMusicPlayer {
                 let id = player.getMediaPlayerId()
                 option.publishMediaPlayerId = AgoraRtcIntOptional.of(id)
                 option.publishMediaPlayerAudioTrack = AgoraRtcBoolOptional.of(true)
-                // var connectionId: UInt = 0
                 let code = rtc.joinChannelEx(byToken: BuildConfig.Token, channelId: channelId, uid: 0, connectionId: &connectionId, delegate: nil, mediaOptions: option) { _, uid, _ in
-                    // self.connectionId = connectionId
                     Logger.log(self, message: "joinChannelEx success! channelId:\(channelId) uid:\(uid)", level: .info)
                     self.uid = uid
-                    // rtc.muteRemoteAudioStream(uid, mute: true)
                     onSuccess()
                 }
                 if code != 0 {
                     onFailed("joinChannelEx error!")
                 }
             } else {
-                // rtc.muteRemoteAudioStream(uid, mute: true)
                 onSuccess()
             }
         } else {
@@ -454,16 +450,8 @@ class RtcChorusMusicPlayer: AbstractRtcMusicPlayer {
                 onFailed("未初始化！")
             } else {
                 rtc.muteRemoteAudioStream(option.masterMusicUid, mute: true)
-//                rtc.muteRemoteAudioStream(uid, mute: true)
                 if isFollower() {
-//                    rtc.muteRemoteAudioStream(option.masterMusicUid, mute: true)
                     player.adjustPlayoutVolume(70)
-//                    let mediaOption = AgoraRtcChannelMediaOptions()
-//                    mediaOption.clientRoleType = AgoraRtcIntOptional.of(Int32(AgoraClientRole.broadcaster.rawValue))
-//                    mediaOption.publishCameraTrack = AgoraRtcBoolOptional.of(false)
-//                    mediaOption.autoSubscribeAudio = AgoraRtcBoolOptional.of(false)
-//                    mediaOption.publishAudioTrack = AgoraRtcBoolOptional.of(false)
-//                    rtc.updateChannelEx(with: mediaOption, connectionId: UInt(connectionId))
 
                     if let timer = timer {
                         timer.invalidate()
@@ -474,16 +462,6 @@ class RtcChorusMusicPlayer: AbstractRtcMusicPlayer {
                             self.sentTestDelayMessage()
                         }
                     })
-                } else if isMaster() {
-//                    let mediaOption = AgoraRtcChannelMediaOptions()
-//                    mediaOption.publishMediaPlayerId = AgoraRtcIntOptional.of(player.getMediaPlayerId())
-//                    mediaOption.clientRoleType = AgoraRtcIntOptional.of(Int32(AgoraClientRole.broadcaster.rawValue))
-//                    mediaOption.publishCameraTrack = AgoraRtcBoolOptional.of(false)
-//                    mediaOption.autoSubscribeAudio = AgoraRtcBoolOptional.of(false)
-//                    mediaOption.publishAudioTrack = AgoraRtcBoolOptional.of(false)
-//                    mediaOption.publishMediaPlayerAudioTrack = AgoraRtcBoolOptional.of(true)
-//                    mediaOption.enableAudioRecordingOrPlayout = AgoraRtcBoolOptional.of(false)
-//                    rtc.updateChannelEx(with: mediaOption, connectionId: UInt(connectionId))
                 }
                 if player.open(music.path, startPos: 0) == 0 {
                     onSuccess()
@@ -503,6 +481,9 @@ class RtcChorusMusicPlayer: AbstractRtcMusicPlayer {
         if let rtc = rtcServer.rtcEngine {
             if isFollower() {
                 rtc.muteRemoteAudioStream(option.masterMusicUid, mute: false)
+            } else if isMaster(), let channelId = rtcServer.channel, connectionId != 0 {
+                rtc.leaveChannelEx(channelId, connectionId: UInt(connectionId), leaveChannelBlock: nil)
+                connectionId = 0
             }
         }
     }

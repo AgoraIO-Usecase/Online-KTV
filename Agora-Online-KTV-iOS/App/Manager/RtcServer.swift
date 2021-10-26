@@ -52,6 +52,7 @@ class RtcServer: NSObject {
         let config = AgoraRtcEngineConfig()
         config.appId = BuildConfig.AppId
         config.audioScenario = .chorus
+        config.channelProfile = .liveBroadcasting
         rtcEngine = AgoraRtcEngineKit.sharedEngine(with: config, delegate: self)
         if let engine = rtcEngine {
             engine.setChannelProfile(.liveBroadcasting)
