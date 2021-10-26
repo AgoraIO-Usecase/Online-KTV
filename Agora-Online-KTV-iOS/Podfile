@@ -9,6 +9,7 @@ def commonPods
   pod 'RxRelay', '6.1.0'
   pod 'IGListKit', '~> 4.0.0'
   pod 'SwiftFormat/CLI'
+  pod 'SDWebImage', '5.11.1'
 end
 
 target 'Core' do
