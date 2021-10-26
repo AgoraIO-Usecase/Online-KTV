@@ -40,6 +40,36 @@ android {
             outputFileName = "KTV-${versionName}-${variant.buildType.name}-大重构.apk"
         }
     }
+    flavorDimensions "abi"
+    productFlavors {
+        create("armeabi-v7a"){
+            dimension = "abi"
+            ndk {
+                abiFilter "armeabi-v7a"
+            }
+        }
+        create("arm64-v8a"){
+            dimension = "abi"
+            ndk {
+                abiFilter "arm64-v8a"
+            }
+        }
+        create("x86"){
+            dimension = "abi"
+            ndk {
+                abiFilter "x86"
+            }
+        }
+        create("x86_64"){
+            dimension = "abi"
+            ndk {
+                abiFilter "x86_64"
+            }
+        }
+        create("ALL"){
+            dimension = "abi"
+        }
+    }
 }
 
 dependencies {
