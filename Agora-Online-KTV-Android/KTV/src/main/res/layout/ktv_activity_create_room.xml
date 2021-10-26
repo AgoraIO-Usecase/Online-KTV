@@ -1,119 +1,128 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<androidx.constraintlayout.widget.ConstraintLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/root"
+    <androidx.appcompat.widget.Toolbar
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#535353">
-
-        <io.agora.baselibrary.base.CustomToolbar
-            android:id="@id/titleBar"
-            style="@style/ktv_style_titlebar"
-            app:ct_title="@string/ktv_room_list_title"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <View
-            android:id="@+id/top"
-            android:layout_width="match_parent"
-            android:layout_height="300dp"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginEnd="20dp"
-            android:background="@drawable/ktv_shape_create_top_background"
-            app:layout_constraintTop_toBottomOf="@id/titleBar" />
-
+        android:layout_height="wrap_content"
+        android:id="@id/titleBar"
+        app:navigationIcon="@mipmap/ktv_back"
+        app:title=""
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" >
         <TextView
-            android:id="@+id/tvLabel"
+            android:layout_gravity="center"
+            android:text="@string/ktv_room_list_title"
+            android:textColor="@color/ktv_title"
+            android:textAppearance="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:text="@string/ktv_create_room_name_label"
-            android:textColor="#B3FFFFFF"
-            android:textSize="12sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/top" />
+            android:layout_height="wrap_content"/>
+    </androidx.appcompat.widget.Toolbar>
 
-        <TextView
-            android:id="@+id/tvName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:textColor="@android:color/white"
-            android:textSize="@dimen/ktv_title_size"
-            app:layout_constraintBottom_toBottomOf="@+id/top"
-            app:layout_constraintEnd_toStartOf="@+id/ivChangeSong"
-            app:layout_constraintHorizontal_chainStyle="packed"
-            app:layout_constraintStart_toStartOf="@+id/top"
-            app:layout_constraintTop_toTopOf="@+id/top" />
+    <View
+        android:id="@+id/top"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="20dp"
+        android:background="@drawable/ktv_shape_create_top_background"
+        app:layout_constraintTop_toBottomOf="@id/titleBar" />
 
-        <ImageView
-            android:id="@+id/ivChangeSong"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="20dp"
-            android:padding="10dp"
-            android:src="@mipmap/ktv_create_suiji"
-            android:textColor="@android:color/white"
-            android:textSize="10sp"
-            app:layout_constraintBottom_toBottomOf="@+id/top"
-            app:layout_constraintEnd_toEndOf="@+id/top"
-            app:layout_constraintHorizontal_chainStyle="packed"
-            app:layout_constraintStart_toEndOf="@+id/tvName"
-            app:layout_constraintTop_toTopOf="@+id/top" />
+    <TextView
+        android:id="@+id/tvLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="@string/ktv_create_room_name_label"
+        android:textColor="#B3FFFFFF"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/top" />
 
-        <View
-            android:id="@+id/bottom"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_marginStart="20dp"
-            android:layout_marginEnd="20dp"
-            android:background="@drawable/ktv_shape_create_top_background"
-            app:layout_constraintBottom_toBottomOf="@+id/tvTip"
-            app:layout_constraintTop_toTopOf="@+id/ivClose" />
+    <TextView
+        android:id="@+id/tvName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:textColor="@android:color/white"
+        android:textSize="@dimen/ktv_title_size"
+        app:layout_constraintBottom_toBottomOf="@+id/top"
+        app:layout_constraintEnd_toStartOf="@+id/ivChangeSong"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toStartOf="@+id/top"
+        app:layout_constraintTop_toTopOf="@+id/top" />
 
-        <TextView
-            android:id="@+id/tvTip"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:layout_marginEnd="10dp"
-            android:layout_marginBottom="20dp"
-            android:drawableStart="@mipmap/ktv_create_warning"
-            android:drawablePadding="8dp"
-            android:gravity="start|top"
-            android:paddingBottom="20dp"
-            android:text="@string/ktv_create_room_name_label2"
-            android:textColor="#CCFFFFFF"
-            app:layout_constraintBottom_toTopOf="@+id/btCreate"
-            app:layout_constraintEnd_toEndOf="@+id/bottom"
-            app:layout_constraintStart_toStartOf="@+id/bottom" />
+    <ImageView
+        android:id="@+id/ivChangeSong"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="20dp"
+        android:padding="10dp"
+        android:src="@mipmap/ktv_create_suiji"
+        android:textColor="@android:color/white"
+        android:textSize="10sp"
+        app:layout_constraintBottom_toBottomOf="@+id/top"
+        app:layout_constraintEnd_toEndOf="@+id/top"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toEndOf="@+id/tvName"
+        app:layout_constraintTop_toTopOf="@+id/top" />
 
-        <ImageView
-            android:id="@+id/ivClose"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@mipmap/ktv_create_close"
-            app:layout_constraintBottom_toTopOf="@+id/tvTip"
-            app:layout_constraintEnd_toEndOf="@+id/bottom" />
+    <View
+        android:id="@+id/bottom"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:background="@drawable/ktv_shape_create_top_background"
+        app:layout_constraintBottom_toBottomOf="@+id/tvTip"
+        app:layout_constraintTop_toTopOf="@+id/ivClose" />
 
-        <Button
-            android:id="@+id/btCreate"
-            android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
-            android:background="@drawable/ktv_shape_create_button_background"
-            android:text="@string/ktv_create_button"
-            android:textColor="@android:color/white"
-            android:textSize="@dimen/ktv_title_size"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+    <TextView
+        android:id="@+id/tvTip"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="20dp"
+        android:drawablePadding="8dp"
+        android:gravity="start|top"
+        android:paddingBottom="20dp"
+        android:text="@string/ktv_create_room_name_label2"
+        android:textColor="#CCFFFFFF"
+        app:layout_constraintBottom_toTopOf="@+id/btCreate"
+        app:layout_constraintEnd_toEndOf="@+id/bottom"
+        app:layout_constraintStart_toStartOf="@+id/bottom"
+        app:drawableStartCompat="@mipmap/ktv_create_warning" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</layout>
+    <ImageButton
+        android:id="@+id/ivClose"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@mipmap/ktv_create_close"
+        android:background="@null"
+        app:layout_constraintBottom_toTopOf="@+id/tvTip"
+        app:layout_constraintEnd_toEndOf="@+id/bottom" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btCreate"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:insetTop="2dp"
+        android:insetBottom="2dp"
+        android:text="@string/ktv_create_button"
+        app:shapeAppearance="@style/ktv_roundStyle"
+        android:textColor="@android:color/white"
+        android:textSize="@dimen/ktv_title_size"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

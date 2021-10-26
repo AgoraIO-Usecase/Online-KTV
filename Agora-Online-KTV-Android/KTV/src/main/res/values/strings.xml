@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources translatable="false">
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="ktv_app_name">KTV</string>
 
     <string name="ktv_ok">OK</string>
@@ -17,7 +17,7 @@
     <string name="ktv_create_room_name_label2">The application is for test purpose only, please do not use it for commercial purpose. The longest duration per session is 10 minutes, and the maximum of participants per channel is 10.</string>
     <string name="ktv_create_button">Start</string>
 
-    <string name="ktv_dialog_join_msg">Preparing...</string>
+    <string name="ktv_dialog_join_msg">Preparing…</string>
 
     <string name="ktv_room_before_speaker">After wheat, you can order songs and speak</string>
     <string name="ktv_room_owner">Host</string>
@@ -56,4 +56,18 @@
     <string name="ktv_music_menu_dialog_vol1">Vocal volume</string>
     <string name="ktv_music_menu_dialog_vol2">Music volume</string>
     <string name="ktv_music_menu_dialog_effect">Effects</string>
+
+    <string name="ktv_network_unavailable">Network unavailable, sure to continue?</string>
+
+    <string name="ktv_permission_alert">Sure to request Required permission？</string>
+    <string name="ktv_permission_refused">Necessary permissions to run this function have not been granted.</string>
+
+<!--    Content Description-->
+    <string name="ktv_toggle_mic">mute mic or not</string>
+    <string name="ktv_choose_cover">choose the cover you like</string>
+    <string name="ktv_chorus">chorus</string>
+    <string name="ktv_order_song">order song</string>
+
+<!--    String formatter-->
+    <string name="song_and_singer" translatable="false" tools:ignore="ResourceName">%s - %s</string>
 </resources>

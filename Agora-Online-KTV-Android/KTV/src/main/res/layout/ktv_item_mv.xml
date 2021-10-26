@@ -1,26 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:app="http://schemas.android.com/apk/res-auto">
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
 
-    <io.agora.ktv.widget.SquareConstranintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/llRoot"
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/iv"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="0dp"
+        app:layout_constraintDimensionRatio="1:1"
+        android:scaleType="centerCrop"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:strokeColor="@color/ktv_mv_selected"
+        tools:src="@mipmap/ktv_music_background1" />
 
-        <ImageView
-            android:id="@+id/iv"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_margin="1dp"
-            android:scaleType="centerCrop"
-            android:src="@mipmap/ktv_music_background1" />
+    <ImageView
+        android:id="@+id/ivSelected"
+        android:layout_width="match_parent"
+        android:layout_height="26dp"
+        android:background="@color/ktv_mv_selected"
+        android:src="@mipmap/ktv_mv_selected"
+        app:layout_constraintBottom_toBottomOf="@id/iv" />
 
-        <ImageView
-            android:id="@+id/ivSelected"
-            android:layout_width="match_parent"
-            android:layout_height="26dp"
-            android:background="@color/ktv_mv_selected"
-            android:src="@mipmap/ktv_mv_selected"
-            app:layout_constraintBottom_toBottomOf="parent" />
-
-    </io.agora.ktv.widget.SquareConstranintLayout>
-</layout>
+</androidx.constraintlayout.widget.ConstraintLayout>

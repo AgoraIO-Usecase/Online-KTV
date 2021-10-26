@@ -18,6 +18,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,9 +40,9 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
-public class DataRepositroyImpl implements IDataRepositroy {
+public class DataRepositoryImpl implements IDataRepository {
 
-    private Gson mGson = new GsonBuilder()
+    private final Gson mGson = new GsonBuilder()
             .create();
 
     @Override
@@ -111,23 +112,22 @@ public class DataRepositroyImpl implements IDataRepositroy {
 
     @Override
     public Observable<List<MusicModel>> getMusics(@Nullable String searchKey) {
-        LCQuery<LCObject> mLCQuery = LCQuery.getQuery(MusicModel.TABLE_NAME)
-                .limit(500);
-        if (TextUtils.isEmpty(searchKey) == false) {
-            mLCQuery.whereContains(MusicModel.COLUMN_NAME, searchKey);
+        LCQuery<LCObject> mLCQuery = LCQuery.getQuery(MusicModel.TABLE_NAME).limit(500);
+        if (!TextUtils.isEmpty(searchKey)) {
+            LCQuery<LCObject> mSingerQuery = LCQuery.getQuery(MusicModel.TABLE_NAME)
+                    .whereContains("singer", searchKey).limit(500);
+            mLCQuery = LCQuery.or(Arrays.asList(mLCQuery.whereContains(MusicModel.COLUMN_NAME, searchKey), mSingerQuery));
         }
+
         return mLCQuery.findInBackground()
                 .subscribeOn(Schedulers.io())
-                .flatMap(new Function<List<LCObject>, ObservableSource<List<MusicModel>>>() {
-                    @Override
-                    public ObservableSource<List<MusicModel>> apply(@NonNull List<LCObject> LCObjects) throws Exception {
-                        List<MusicModel> list = new ArrayList<>();
-                        for (LCObject object : LCObjects) {
-                            MusicModel item = mGson.fromJson(object.toJSONObject().toJSONString(), MusicModel.class);
-                            list.add(item);
-                        }
-                        return Observable.just(list);
+                .flatMap((Function<List<LCObject>, ObservableSource<List<MusicModel>>>) LCObjects -> {
+                    List<MusicModel> list = new ArrayList<>();
+                    for (LCObject object : LCObjects) {
+                        MusicModel item = mGson.fromJson(object.toJSONObject().toJSONString(), MusicModel.class);
+                        list.add(item);
                     }
+                    return Observable.just(list);
                 });
     }
 

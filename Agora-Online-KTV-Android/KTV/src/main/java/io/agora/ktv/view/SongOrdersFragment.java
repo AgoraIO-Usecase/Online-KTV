@@ -4,14 +4,14 @@ import android.os.Bundle;
 import android.view.View;
 
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.annotation.Nullable;
 
-import java.util.ArrayList;
-
-import io.agora.baselibrary.base.DataBindBaseFragment;
-import io.agora.ktv.R;
-import io.agora.ktv.adapter.SongOrdersAdapter;
+import io.agora.baselibrary.base.BaseFragment;
+import io.agora.baselibrary.base.BaseRecyclerViewAdapter;
+import io.agora.ktv.adapter.ChosenSongViewHolder;
+import io.agora.ktv.bean.MemberMusicModel;
 import io.agora.ktv.databinding.KtvFragmentSongOrderListBinding;
+import io.agora.ktv.databinding.KtvItemChoosedSongListBinding;
 import io.agora.ktv.manager.RoomManager;
 
 /**
@@ -20,46 +20,19 @@ import io.agora.ktv.manager.RoomManager;
  * @author chenhengfei(Aslanchen)
  * @date 2021/6/15
  */
-public class SongOrdersFragment extends DataBindBaseFragment<KtvFragmentSongOrderListBinding> {
+public class SongOrdersFragment extends BaseFragment<KtvFragmentSongOrderListBinding> {
 
-    public static SongOrdersFragment newInstance() {
-        SongOrdersFragment mFragment = new SongOrdersFragment();
-        return mFragment;
-    }
 
-    private SongOrdersAdapter mAdapter;
+    private BaseRecyclerViewAdapter<KtvItemChoosedSongListBinding, MemberMusicModel, ChosenSongViewHolder> mAdapter;
 
     @Override
-    public void iniBundle(@NonNull Bundle bundle) {
-
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        initView();
     }
 
-    @Override
-    public int getLayoutId() {
-        return R.layout.ktv_fragment_song_order_list;
-    }
-
-    @Override
-    public void iniView(View view) {
-        mAdapter = new SongOrdersAdapter(new ArrayList<>(), this);
-        mDataBinding.list.setLayoutManager(new LinearLayoutManager(requireContext()));
-        mDataBinding.list.setAdapter(mAdapter);
-
-        mDataBinding.swipeRefreshLayout.setEnabled(false);
-        mDataBinding.llEmpty.setVisibility(View.GONE);
-    }
-
-    @Override
-    public void iniListener() {
-
-    }
-
-    @Override
-    public void iniData() {
-        loadMusics();
-    }
-
-    private void loadMusics() {
-        mAdapter.setDatas(RoomManager.Instance(requireContext()).getMusics());
+    private void initView() {
+        mAdapter = new BaseRecyclerViewAdapter<>(RoomManager.Instance(requireContext()).getMusics(), ChosenSongViewHolder.class);
+        mBinding.list.setAdapter(mAdapter);
     }
 }

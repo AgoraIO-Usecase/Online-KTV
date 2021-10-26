@@ -18,7 +18,7 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -41,10 +41,6 @@ android {
 }
 
 dependencies {
-    testImplementation 'junit:junit:4.+'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
-
     //leancloud
     leancloudImplementation 'cn.leancloud:storage-android:8.0.1'
     leancloudImplementation 'cn.leancloud:realtime-android:8.0.1'
@@ -52,9 +48,6 @@ dependencies {
     //firebase
 //    firebaseImplementation platform('com.google.firebase:firebase-bom:26.7.0')
 //    firebaseImplementation 'com.google.firebase:firebase-firestore'
-
-    //RTM
-    implementation 'com.github.agorabuilder:rtm-sdk:1.4.4'
 
     api project(':baselibrary')
 }

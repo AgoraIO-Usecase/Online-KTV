@@ -1,112 +1,100 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:tools="http://schemas.android.com/tools">
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/ktv_colorPrimaryDark">
 
-    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
+    <LinearLayout
+        android:id="@+id/container_search_sec_song_list"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/ktv_colorPrimaryDark"
-        android:padding="20dp">
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-        <LinearLayout
-            android:id="@+id/llSearch"
+        <androidx.appcompat.widget.SearchView
+            android:id="@+id/search_view_sec_song_list"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:background="@drawable/ktv_shape_dialog_search_input_background"
-            android:gravity="center"
-            android:orientation="horizontal"
-            android:padding="4dp"
-            app:layout_constraintEnd_toStartOf="@+id/tvSearch"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:closeIcon="@mipmap/ktv_dialog_search_clear"
+            app:iconifiedByDefault="false"
+            app:queryHint="@string/ktv_dialog_music_list_search_hint"
+            app:searchHintIcon="@mipmap/ktv_dialog_search"
+            app:searchIcon="@mipmap/ktv_dialog_search" />
 
-            <EditText
-                android:id="@+id/etSearchKey"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:background="@android:color/transparent"
-                android:drawableStart="@mipmap/ktv_dialog_search"
-                android:drawablePadding="4dp"
-                android:gravity="center_vertical"
-                android:hint="@string/ktv_dialog_music_list_search_hint"
-                android:lines="1"
-                android:maxLength="50"
-                android:maxLines="1"
-                android:padding="4dp"
-                android:singleLine="true"
-                android:textColor="@android:color/white"
-                android:textColorHint="#7E7E7E"
-                android:textSize="16sp" />
-
-            <ImageView
-                android:id="@+id/ivClear"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="4dp"
-                android:src="@mipmap/ktv_dialog_search_clear" />
-        </LinearLayout>
-
-        <TextView
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/tvSearch"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
-            android:background="@drawable/ktv_shape_dialog_search_background"
-            android:paddingStart="15dp"
-            android:paddingTop="6dp"
-            android:paddingEnd="15dp"
-            android:paddingBottom="6dp"
             android:text="@string/ktv_search"
-            android:textColor="#b3ffffff"
+            android:textAllCaps="false"
+            android:textColor="@color/ktv_title"
             app:layout_constraintBottom_toBottomOf="@+id/llSearch"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/llSearch"
-            app:layout_constraintTop_toTopOf="@+id/llSearch" />
+            app:layout_constraintTop_toTopOf="@+id/llSearch"
+            app:shapeAppearance="@style/ktv_roundStyle"
+            app:strokeColor="#FFC1C2C3" />
+    </LinearLayout>
 
-        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-            android:id="@+id/swipeRefreshLayout"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
-            app:layout_constraintBottom_toTopOf="@+id/tvTip"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/llSearch">
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/list"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                tools:listitem="@layout/ktv_item_choose_song_list" />
-        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/refresh_layout_fg_song"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginVertical="12dp"
+        android:fadingEdge="vertical"
+        app:layout_constraintBottom_toTopOf="@id/tvTip"
+        app:layout_constraintTop_toBottomOf="@id/container_search_sec_song_list">
 
-        <LinearLayout
-            android:id="@+id/llEmpty"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_view_fg_song"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="center"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/ktv_dialog_music_list_empty"
-                android:textColor="@color/ktv_dialog_music_list_empty"
-                android:textSize="@dimen/ktv_list_empty_size" />
-        </LinearLayout>
-
-        <TextView
-            android:id="@+id/tvTip"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/ktv_dialog_migu_tip"
-            android:textColor="#66FFFFFF"
+            android:orientation="vertical"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</layout>
+            app:layout_constraintTop_toBottomOf="@id/container_search_sec_song_list"
+            tools:listitem="@layout/ktv_item_choose_song_list" />
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    <TextView
+        android:id="@+id/llEmpty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="@string/ktv_room_list_empty"
+        android:textColor="@color/ktv_list_empty"
+        android:textSize="12sp"
+        android:visibility="gone"
+        app:drawableTopCompat="@mipmap/ktv_room_list_empty"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tvTip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:text="@string/ktv_dialog_migu_tip"
+        android:textColor="#66FFFFFF"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/group_sec_song_list"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:constraint_referenced_ids="container_search_sec_song_list,tvTip" />
+</androidx.constraintlayout.widget.ConstraintLayout>

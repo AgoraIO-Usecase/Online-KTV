@@ -1,110 +1,113 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/ktv_shape_bottom_dialog_background"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="@string/ktv_music_menu_dialog_title"
+        android:textColor="#EEEEEE" />
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/ktv_shape_bottom_dialog_background"
-        android:orientation="vertical"
-        android:padding="20dp">
+        android:layout_marginTop="20dp"
+        android:gravity="center"
+        android:orientation="horizontal">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="@string/ktv_music_menu_dialog_title"
-            android:textColor="#EEEEEE" />
+            android:text="@string/ktv_music_menu_dialog_ear"
+            android:textColor="#9BA2AB" />
 
-        <LinearLayout
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/switchEar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:gravity="center"
-            android:orientation="horizontal">
+            android:layout_marginStart="10dp" />
+    </LinearLayout>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/ktv_music_menu_dialog_ear"
-                android:textColor="#9BA2AB" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:gravity="center"
+        android:orientation="horizontal">
 
-            <Switch
-                android:id="@+id/switchEar"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp" />
-        </LinearLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="false"
+            android:focusable="false"
+            android:text="@string/ktv_music_menu_dialog_vol1"
+            android:textColor="#9BA2AB" />
 
-        <LinearLayout
+        <com.google.android.material.slider.Slider
+            android:id="@+id/sbVol1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:gravity="center"
-            android:orientation="horizontal">
+            android:layout_marginStart="10dp"
+            android:contentDescription="@string/ktv_music_menu_dialog_vol1"
+            android:valueFrom="0"
+            android:valueTo="100" />
+    </LinearLayout>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/ktv_music_menu_dialog_vol1"
-                android:textColor="#9BA2AB" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:gravity="center"
+        android:orientation="horizontal">
 
-            <SeekBar
-                android:id="@+id/sbVol1"
-                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:max="100"
-                android:progress="50" />
-        </LinearLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="false"
+            android:focusable="false"
+            android:text="@string/ktv_music_menu_dialog_vol2"
+            android:textColor="#9BA2AB" />
 
-        <LinearLayout
+        <com.google.android.material.slider.Slider
+            android:id="@+id/sbVol2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:gravity="center"
-            android:orientation="horizontal">
+            android:layout_marginStart="10dp"
+            android:contentDescription="@string/ktv_music_menu_dialog_vol2"
+            android:valueFrom="0"
+            android:valueTo="100" />
+    </LinearLayout>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/ktv_music_menu_dialog_vol2"
-                android:textColor="#9BA2AB" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:gravity="center"
+        android:orientation="horizontal">
 
-            <SeekBar
-                android:id="@+id/sbVol2"
-                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:max="100"
-                android:progress="50" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:gravity="center"
-            android:orientation="horizontal">
+            android:text="@string/ktv_music_menu_dialog_effect"
+            android:textColor="#9BA2AB" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/ktv_music_menu_dialog_effect"
-                android:textColor="#9BA2AB" />
-
-            <Spinner
-                android:id="@+id/ctrlEffect"
-                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:entries="@array/ktv_audioPreset"
-                android:hint="请选择"
-                android:spinnerMode="dropdown" />
-
-        </LinearLayout>
+        <Spinner
+            android:id="@+id/ctrlEffect"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginStart="10dp"
+            android:entries="@array/ktv_audioPreset"
+            android:popupBackground="@color/ktv_list_empty"
+            android:spinnerMode="dropdown"
+            android:theme="@style/ktv_spinnerStyle"
+            app:backgroundTint="@android:color/white" />
 
     </LinearLayout>
-</layout>
+
+</LinearLayout>

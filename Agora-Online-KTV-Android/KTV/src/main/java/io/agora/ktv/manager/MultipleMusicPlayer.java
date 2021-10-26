@@ -19,7 +19,7 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
-import io.agora.baselibrary.util.ToastUtile;
+import io.agora.baselibrary.util.ToastUtil;
 import io.agora.ktv.R;
 import io.agora.ktv.bean.MemberMusicModel;
 import io.agora.mediaplayer.IMediaPlayer;
@@ -118,7 +118,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
 
     @Override
     public void prepare(@NonNull MemberMusicModel music) {
-        User mUser = UserManager.Instance(mContext).getUserLiveData().getValue();
+        User mUser = UserManager.getInstance().getUserLiveData().getValue();
         if (mUser == null) {
             return;
         }
@@ -152,7 +152,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
 
     private void joinChannelEX() {
         mLogger.d("joinChannelEX() called");
-        User mUser = UserManager.Instance(mContext).getUserLiveData().getValue();
+        User mUser = UserManager.getInstance().getUserLiveData().getValue();
         if (mUser == null) {
             return;
         }
@@ -217,7 +217,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
     private int mUid;
 
     private void onJoinChannelExSuccess(int uid) {
-        User mUser = UserManager.Instance(mContext).getUserLiveData().getValue();
+        User mUser = UserManager.getInstance().getUserLiveData().getValue();
         if (mUser == null) {
             return;
         }
@@ -264,7 +264,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
     private volatile boolean isApplyJoinChorus = false;
 
     private void onMemberApplyJoinChorus(@NonNull MemberMusicModel music) {
-        User mUser = UserManager.Instance(mContext).getUserLiveData().getValue();
+        User mUser = UserManager.getInstance().getUserLiveData().getValue();
         if (mUser == null) {
             return;
         }
@@ -305,7 +305,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
     }
 
     private void onMemberJoinedChorus(@NonNull MemberMusicModel music) {
-        User mUser = UserManager.Instance(mContext).getUserLiveData().getValue();
+        User mUser = UserManager.getInstance().getUserLiveData().getValue();
         if (mUser == null) {
             return;
         }
@@ -363,7 +363,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
 
                         @Override
                         public void onError(@NonNull Throwable e) {
-                            ToastUtile.toastShort(mContext, R.string.ktv_lrc_load_fail);
+                            ToastUtil.toastShort(mContext, R.string.ktv_lrc_load_fail);
                         }
                     });
         }
@@ -380,7 +380,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
      * @param music
      */
     private void onMemberChorusReady(@NonNull MemberMusicModel music) {
-        User mUser = UserManager.Instance(mContext).getUserLiveData().getValue();
+        User mUser = UserManager.getInstance().getUserLiveData().getValue();
         if (mUser == null) {
             return;
         }
@@ -437,7 +437,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
 
                         @Override
                         public void onError(@NonNull Throwable e) {
-                            ToastUtile.toastShort(mContext, R.string.ktv_lrc_load_fail);
+                            ToastUtil.toastShort(mContext, R.string.ktv_lrc_load_fail);
                         }
                     });
         }
@@ -452,7 +452,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
             return;
         }
 
-        User mUser = UserManager.Instance(mContext).getUserLiveData().getValue();
+        User mUser = UserManager.getInstance().getUserLiveData().getValue();
         if (mUser == null) {
             return;
         }
@@ -486,7 +486,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
             return;
         }
 
-        User mUser = UserManager.Instance(mContext).getUserLiveData().getValue();
+        User mUser = UserManager.getInstance().getUserLiveData().getValue();
         if (mUser == null) {
             return;
         }
@@ -505,7 +505,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
             return;
         }
 
-        User mUser = UserManager.Instance(mContext).getUserLiveData().getValue();
+        User mUser = UserManager.getInstance().getUserLiveData().getValue();
         if (mUser == null) {
             return;
         }
@@ -530,7 +530,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
             return;
         }
 
-        User mUser = UserManager.Instance(mContext).getUserLiveData().getValue();
+        User mUser = UserManager.getInstance().getUserLiveData().getValue();
         if (mUser == null) {
             return;
         }
@@ -552,7 +552,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
             return;
         }
 
-        User mUser = UserManager.Instance(mContext).getUserLiveData().getValue();
+        User mUser = UserManager.getInstance().getUserLiveData().getValue();
         if (mUser == null) {
             return;
         }
@@ -579,7 +579,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
             return;
         }
 
-        User mUser = UserManager.Instance(mContext).getUserLiveData().getValue();
+        User mUser = UserManager.getInstance().getUserLiveData().getValue();
         if (mUser == null) {
             return;
         }
@@ -614,7 +614,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
             return;
         }
 
-        User mUser = UserManager.Instance(mContext).getUserLiveData().getValue();
+        User mUser = UserManager.getInstance().getUserLiveData().getValue();
         if (mUser == null) {
             return;
         }
@@ -694,7 +694,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
             return;
         }
 
-        User mUser = UserManager.Instance(mContext).getUserLiveData().getValue();
+        User mUser = UserManager.getInstance().getUserLiveData().getValue();
         if (mUser == null) {
             return;
         }

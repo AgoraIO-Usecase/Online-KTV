@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources translatable="false">
+<resources>
     <string name="ktv_app_name">KTV</string>
 
     <string name="ktv_ok">好的</string>
@@ -17,7 +17,7 @@
     <string name="ktv_create_room_name_label2">本应用为测试产品，请勿商用。单次直播最长10分钟，每个频道最多10人。</string>
     <string name="ktv_create_button">创建</string>
 
-    <string name="ktv_dialog_join_msg">准备中，请等待...</string>
+    <string name="ktv_dialog_join_msg">准备中，请等待…</string>
 
     <string name="ktv_room_before_speaker">上麦后可点歌与发言</string>
     <string name="ktv_room_owner">房主</string>
@@ -56,4 +56,14 @@
     <string name="ktv_music_menu_dialog_vol1">人声音量</string>
     <string name="ktv_music_menu_dialog_vol2">伴奏音量</string>
     <string name="ktv_music_menu_dialog_effect">效果</string>
+
+    <string name="ktv_permission_alert">缺少运行所需的必要权限，是否确认申请？</string>
+    <string name="ktv_permission_refused">运行此功能需要的必要权限未被授予。</string>
+
+    <string name="ktv_network_unavailable">未检测到可用网络，确认继续？</string>
+    <!--    Content Description-->
+    <string name="ktv_toggle_mic">麦克风启用或静音</string>
+    <string name="ktv_choose_cover">选择你喜欢的歌曲封面</string>
+    <string name="ktv_chorus">合唱</string>
+    <string name="ktv_order_song">点歌</string>
 </resources>

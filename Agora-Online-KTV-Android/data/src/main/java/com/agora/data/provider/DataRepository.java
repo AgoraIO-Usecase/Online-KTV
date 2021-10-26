@@ -14,24 +14,24 @@ import java.util.List;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 
-public class DataRepositroy implements IDataRepositroy {
-    private volatile static DataRepositroy instance;
+public class DataRepository implements IDataRepository {
+    private volatile static DataRepository instance;
 
     private Context mContext;
 
-    private final IDataRepositroy mIDataRepositroy;
+    private final IDataRepository mIDataRepository;
 
-    private DataRepositroy(Context context) {
+    private DataRepository(Context context) {
         mContext = context.getApplicationContext();
 
-        mIDataRepositroy = new DataRepositroyImpl();
+        mIDataRepository = new DataRepositoryImpl();
     }
 
-    public static synchronized DataRepositroy Instance(Context context) {
+    public static synchronized DataRepository Instance(Context context) {
         if (instance == null) {
-            synchronized (DataRepositroy.class) {
+            synchronized (DataRepository.class) {
                 if (instance == null)
-                    instance = new DataRepositroy(context);
+                    instance = new DataRepository(context);
             }
         }
         return instance;
@@ -39,31 +39,31 @@ public class DataRepositroy implements IDataRepositroy {
 
     @Override
     public Observable<User> login(@NonNull User user) {
-        return mIDataRepositroy.login(user);
+        return mIDataRepository.login(user);
     }
 
     @Override
     public Observable<User> update(@NonNull User user) {
-        return mIDataRepositroy.update(user);
+        return mIDataRepository.update(user);
     }
 
     @Override
     public Observable<User> getUser(@NonNull String userId) {
-        return mIDataRepositroy.getUser(userId);
+        return mIDataRepository.getUser(userId);
     }
 
     @Override
     public Observable<List<MusicModel>> getMusics(@Nullable String searchKey) {
-        return mIDataRepositroy.getMusics(searchKey);
+        return mIDataRepository.getMusics(searchKey);
     }
 
     @Override
     public Observable<MusicModel> getMusic(@NonNull String musicId) {
-        return mIDataRepositroy.getMusic(musicId);
+        return mIDataRepository.getMusic(musicId);
     }
 
     @Override
     public Completable download(@NonNull File file, @NonNull String url) {
-        return mIDataRepositroy.download(file, url);
+        return mIDataRepository.download(file, url);
     }
 }
