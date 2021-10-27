@@ -11,10 +11,10 @@ import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
 
 import io.agora.baselibrary.base.BaseRecyclerViewAdapter;
+import io.agora.baselibrary.util.KTVUtil;
 import io.agora.ktv.R;
 import io.agora.ktv.databinding.KtvItemChooseSongListBinding;
 import io.agora.ktv.manager.RoomManager;
-import io.agora.ktv.view.dialog.RoomChooseSongDialog;
 
 /**
  * The holder of Item ChooseSong
@@ -27,8 +27,16 @@ public class ChooseSongViewHolder extends BaseRecyclerViewAdapter.BaseViewHolder
     @Override
     public void binding(MusicModel data, int selectedIndex) {
         if (data != null) {
-            mBinding.btnItemSongList.setOnClickListener(v -> RoomChooseSongDialog.finishChooseMusic(itemView.getContext(), data));
+            mBinding.btnItemSongList.setOnClickListener(this::onItemClick);
+
             mBinding.titleItemSongList.setText(mBinding.getRoot().getContext().getString(R.string.song_and_singer, data.getName(), data.getSinger()));
+            mBinding.titleItemSongList.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    v.setSelected(!v.isSelected());
+                    return true;
+                }
+            });
 
             if (URLUtil.isValidUrl(data.getPoster())) {
                 mBinding.coverItemSongList.setVisibility(View.VISIBLE);
@@ -40,13 +48,13 @@ public class ChooseSongViewHolder extends BaseRecyclerViewAdapter.BaseViewHolder
                 mBinding.coverItemSongList.setVisibility(View.GONE);
             }
 
-        if (RoomManager.Instance(itemView.getContext()).isInMusicOrderList(data)) {
-            mBinding.btnItemSongList.setEnabled(false);
-            mBinding.btnItemSongList.setText(R.string.ktv_room_choosed_song);
-        } else {
-            mBinding.btnItemSongList.setEnabled(true);
-            mBinding.btnItemSongList.setText(R.string.ktv_room_choose_song);
-        }
+            if (RoomManager.Instance(itemView.getContext()).isInMusicOrderList(data)) {
+                mBinding.btnItemSongList.setEnabled(false);
+                mBinding.btnItemSongList.setText(R.string.ktv_room_choosed_song);
+            } else {
+                mBinding.btnItemSongList.setEnabled(true);
+                mBinding.btnItemSongList.setText(R.string.ktv_room_choose_song);
+            }
 
         }
     }

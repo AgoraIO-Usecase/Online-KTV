@@ -2,6 +2,7 @@ package io.agora.ktv.view;
 
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -20,6 +21,7 @@ import java.util.List;
 import io.agora.baselibrary.base.BaseFragment;
 import io.agora.baselibrary.base.BaseRecyclerViewAdapter;
 import io.agora.baselibrary.base.OnItemClickListener;
+import io.agora.baselibrary.util.KTVUtil;
 import io.agora.baselibrary.util.ToastUtil;
 import io.agora.ktv.adapter.ChooseSongViewHolder;
 import io.agora.ktv.bean.MemberMusicModel;
@@ -50,9 +52,9 @@ public class SongsFragment extends BaseFragment<KtvFragmentSongListBinding> impl
     }
 
     private void initView() {
-        mAdapter = new BaseRecyclerViewAdapter<>(null, ChooseSongViewHolder.class);
+        mAdapter = new BaseRecyclerViewAdapter<>(null,this, ChooseSongViewHolder.class);
         mBinding.recyclerViewFgSong.setAdapter(mAdapter);
-        mBinding.recyclerViewFgSong.addItemDecoration(new DividerDecoration(1,20,2));
+        mBinding.recyclerViewFgSong.addItemDecoration(new DividerDecoration(1,20,8));
     }
 
     private void initListener() {
@@ -104,7 +106,10 @@ public class SongsFragment extends BaseFragment<KtvFragmentSongListBinding> impl
     }
 
     @Override
-    public void onItemClick(@NonNull MusicModel data, View view, int position, long id) {
+    public void onItemClick(@NonNull MusicModel data, View view, int position, long viewType) {
+
+        if(!(view instanceof Button)) return;
+
         AgoraRoom mRoom = RoomManager.Instance(requireContext()).getRoom();
         if (mRoom == null) {
             return;
@@ -136,11 +141,13 @@ public class SongsFragment extends BaseFragment<KtvFragmentSongListBinding> impl
 
                         RoomManager.Instance(requireContext()).onMusicAdd(musicModel);
                         mAdapter.notifyItemChanged(position);
+                        dismissLoading();
                     }
 
                     @Override
                     public void onFail(AgoraException exception) {
                         ToastUtil.toastShort(requireContext(), exception.getMessage());
+                        dismissLoading();
                     }
                 });
     }

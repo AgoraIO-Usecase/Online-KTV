@@ -85,7 +85,7 @@ public class RoomListActivity extends BaseActivity<KtvActivityRoomListBinding> {
 
         mAdapter = new BaseRecyclerViewAdapter<>(null, new OnItemClickListener<AgoraRoom>() {
             @Override
-            public void onItemClick(@NonNull AgoraRoom data, View view, int position, long id) {
+            public void onItemClick(@NonNull AgoraRoom data, View view, int position, long viewType) {
                 mAdapter.selectedIndex = position;
                 ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
                 NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
@@ -124,7 +124,8 @@ public class RoomListActivity extends BaseActivity<KtvActivityRoomListBinding> {
                 .subscribe(new DataObserver<User>(this) {
                     @Override
                     public void handleError(@NonNull BaseError e) {
-
+                        ToastUtil.toastLong(RoomListActivity.this, e.getMessage());
+                        mBinding.swipeRefreshLayout.setRefreshing(false);
                     }
 
                     @Override

@@ -26,7 +26,7 @@ import io.agora.baselibrary.util.KTVUtil;
 public class BaseRecyclerViewAdapter<B extends ViewBinding, T,H extends BaseRecyclerViewAdapter.BaseViewHolder<B,T>> extends RecyclerView.Adapter<H> {
 
     public List<T> dataList;
-    private OnItemClickListener<T> mOnItemClickListener;
+    private final OnItemClickListener<T> mOnItemClickListener;
     public int selectedIndex = -1;
 
     private Class<B> bindingClass;
@@ -45,12 +45,11 @@ public class BaseRecyclerViewAdapter<B extends ViewBinding, T,H extends BaseRecy
             this.dataList = new ArrayList<>(dataList);
         }
 
-        if (listener != null) {
-            this.mOnItemClickListener = (OnItemClickListener<T>) listener;
-        }
+        this.mOnItemClickListener = listener;
     }
 
-    public H createHolder(ViewBinding mBinding) {
+    @Nullable
+    private H createHolder(B mBinding) {
         ensureBindingClass();
         try {
             Constructor<H> constructor = viewHolderClass.getConstructor(bindingClass);
@@ -67,17 +66,18 @@ public class BaseRecyclerViewAdapter<B extends ViewBinding, T,H extends BaseRecy
     public H onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         B mBinding = getViewBindingByReflect(LayoutInflater.from(parent.getContext()), parent);
         H holder = createHolder(mBinding);
-        holder.mListener = (BaseViewHolder.OnTempItemClickListener) (view, position, id) -> {
-            if (BaseRecyclerViewAdapter.this.mOnItemClickListener != null) {
-                T data = getItemData(position);
-                if (data == null) {
-                    BaseRecyclerViewAdapter.this.mOnItemClickListener.onItemClick(view, position, id);
-                } else {
-                    BaseRecyclerViewAdapter.this.mOnItemClickListener.onItemClick(data, view, position, id);
-                }
 
-            }
-        };
+        assert holder != null;
+
+        if(mOnItemClickListener != null) {
+            holder.mListener = (view, position, itemViewType) -> {
+                T itemData = getItemData(position);
+                if (itemData == null)
+                    mOnItemClickListener.onItemClick(view, position, viewType);
+                else
+                    mOnItemClickListener.onItemClick(itemData, view, position, viewType);
+            };
+        }
         return holder;
     }
 
@@ -211,7 +211,7 @@ public class BaseRecyclerViewAdapter<B extends ViewBinding, T,H extends BaseRecy
             bindingClass = getGenericClass(viewHolderClass, 0);
     }
     public static abstract class BaseViewHolder<B extends ViewBinding, T> extends RecyclerView.ViewHolder {
-        public OnTempItemClickListener mListener;
+        public OnHolderItemClickListener mListener;
         public final B mBinding;
 
         public BaseViewHolder(@NonNull B mBinding) {
@@ -220,15 +220,14 @@ public class BaseRecyclerViewAdapter<B extends ViewBinding, T,H extends BaseRecy
             mBinding.getRoot().setOnClickListener(this::onItemClick);
         }
 
-        protected void onItemClick(View view) {
+        public void onItemClick(View view) {
             if (mListener != null) {
-                final int position = getAdapterPosition();
-                mListener.onItemClick(view, position, getItemId());
+                mListener.onItemClick(view, getAdapterPosition(), getItemViewType());
             }
         }
 
-        interface OnTempItemClickListener {
-            void onItemClick(View view, int position, long id);
+        interface OnHolderItemClickListener {
+            void onItemClick(View view, int position, int itemViewType);
         }
         public abstract void binding(@Nullable T data, int selectedIndex);
     }

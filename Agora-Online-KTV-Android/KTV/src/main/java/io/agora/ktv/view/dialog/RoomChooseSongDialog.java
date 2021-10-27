@@ -10,11 +10,18 @@ import androidx.fragment.app.Fragment;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import com.agora.data.manager.UserManager;
+import com.agora.data.model.AgoraRoom;
 import com.agora.data.model.MusicModel;
 import com.agora.data.model.User;
+import com.agora.data.provider.AgoraObject;
+import com.agora.data.sync.AgoraException;
+import com.agora.data.sync.SyncManager;
 import com.google.android.material.tabs.TabLayoutMediator;
 
+import io.agora.baselibrary.base.BaseActivity;
 import io.agora.baselibrary.base.BaseBottomSheetDialogFragment;
+import io.agora.baselibrary.base.BaseFragment;
+import io.agora.baselibrary.util.ToastUtil;
 import io.agora.ktv.R;
 import io.agora.ktv.bean.MemberMusicModel;
 import io.agora.ktv.databinding.KtvDialogChooseSongBinding;
@@ -65,22 +72,5 @@ public class RoomChooseSongDialog extends BaseBottomSheetDialogFragment<KtvDialo
             else
                 tab.setText(R.string.ktv_room_choosed_song);
         }).attach();
-    }
-
-    public static void finishChooseMusic(Context context, MusicModel music){
-        User mUser = UserManager.getInstance().getUserLiveData().getValue();
-        if (mUser != null) {
-            // Construct a MemberMusicModel
-            MemberMusicModel model = new MemberMusicModel(music);
-            model.setUserId(mUser.getObjectId());
-            model.setMusicId(music.getMusicId());
-            model.setType(RoomChooseSongDialog.isChorus? MemberMusicModel.SingType.Chorus : MemberMusicModel.SingType.Single);
-
-            RoomManager.Instance(context).onMusicChanged(model);
-
-            // Chose this dialog
-            if(context instanceof RoomActivity)
-                ((RoomActivity)context).onBackPressed();
-        }
     }
 }

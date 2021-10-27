@@ -819,7 +819,7 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> implement
     }
 
     @Override
-    public void onItemClick(@NonNull AgoraMember data, View view, int position, long id) {
+    public void onItemClick(@NonNull AgoraMember data, View view, int position, long viewType) {
         AgoraMember mMine = RoomManager.Instance(this).getMine();
         if (mMine == null) {
             return;
