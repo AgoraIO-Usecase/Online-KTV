@@ -33,7 +33,7 @@ import io.reactivex.disposables.Disposable;
 
 /**
  * 1.起始函数{@link MultipleMusicPlayer#prepare}。
- * 2.陪唱点击按钮"加入合唱"后，触发申请{@link io.agora.ktv.view.RoomActivity#joinChorus}，然后触发{@link MultipleMusicPlayer#onMemberApplyJoinChorus}，主唱把第一个人设置成陪唱。
+ * 2.陪唱点击按钮"加入合唱"后，触发申请 ，然后触发{@link MultipleMusicPlayer#onMemberApplyJoinChorus}，主唱把第一个人设置成陪唱。
  * 3.有陪唱加入后，会收到回调{@link MultipleMusicPlayer#onMemberJoinedChorus}，开始下载资源。
  * 4.{@link MultipleMusicPlayer#joinChannelEX}之后，修改状态成Ready，当所有唱歌的人都Ready后，会触发{@link MultipleMusicPlayer#onMemberChorusReady}
  */
@@ -249,26 +249,6 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
 
                         }
                     });
-        } else if (ObjectsCompat.equals(musicModelReady.getUser1Id(), mUser.getObjectId())) {
-            HashMap<String, Object> maps = new HashMap<>();
-            maps.put(MemberMusicModel.COLUMN_USER1STATUS, MemberMusicModel.UserStatus.Ready.value);
-            maps.put(MemberMusicModel.COLUMN_USER1BGID, streamId);
-
-            SyncManager.Instance()
-                    .getRoom(mRoom.getId())
-                    .collection(MemberMusicModel.TABLE_NAME)
-                    .document(musicModelReady.getId())
-                    .update(maps, new SyncManager.DataItemCallback() {
-                        @Override
-                        public void onSuccess(AgoraObject result) {
-
-                        }
-
-                        @Override
-                        public void onFail(AgoraException exception) {
-
-                        }
-                    });
         }
     }
 
@@ -353,7 +333,31 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
                                 joinChannelEX();
                             } else if (ObjectsCompat.equals(mUser.getObjectId(), music.getUser1Id())) {
                                 startNetTestTask();
-                                joinChannelEX();
+
+                                AgoraRoom room = RoomManager.Instance(mContext).getRoom();
+                                if (room == null) {
+                                    return;
+                                }
+
+                                HashMap<String, Object> maps = new HashMap<>();
+                                maps.put(MemberMusicModel.COLUMN_USER1STATUS, MemberMusicModel.UserStatus.Ready.value);
+                                maps.put(MemberMusicModel.COLUMN_USER1BGID, mUid);
+
+                                SyncManager.Instance()
+                                        .getRoom(room.getId())
+                                        .collection(MemberMusicModel.TABLE_NAME)
+                                        .document(musicModelReady.getId())
+                                        .update(maps, new SyncManager.DataItemCallback() {
+                                            @Override
+                                            public void onSuccess(AgoraObject result) {
+
+                                            }
+
+                                            @Override
+                                            public void onFail(AgoraException exception) {
+
+                                            }
+                                        });
                             }
                         }
 
@@ -389,16 +393,9 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
         if (ObjectsCompat.equals(music.getUserId(), mUser.getObjectId())) {
             //唱歌人，主唱，joinChannel 需要屏蔽的uid
             RoomManager.Instance(mContext).getRtcEngine().muteRemoteAudioStream(music.getUserbgId().intValue(), true);
-            RoomManager.Instance(mContext).getRtcEngine().muteRemoteAudioStream(music.getUser1bgId().intValue(), true);
-            RoomManager.Instance(mContext).getRtcEngine().muteRemoteAudioStreamEx(mMine.getStreamId().intValue(), true, mRtcConnection);
         } else if (ObjectsCompat.equals(music.getUser1Id(), mUser.getObjectId())) {
             //唱歌人，陪唱人，joinChannel 需要屏蔽的uid
             RoomManager.Instance(mContext).getRtcEngine().muteRemoteAudioStream(music.getUserbgId().intValue(), true);
-            RoomManager.Instance(mContext).getRtcEngine().muteRemoteAudioStream(music.getUser1bgId().intValue(), true);
-            RoomManager.Instance(mContext).getRtcEngine().muteRemoteAudioStreamEx(mMine.getStreamId().intValue(), true, mRtcConnection);
-        } else {
-            //观众，需要屏蔽陪唱背景音乐
-            RoomManager.Instance(mContext).getRtcEngine().muteRemoteAudioStream(music.getUser1bgId().intValue(), true);
         }
 
         if (ObjectsCompat.equals(music.getUserId(), mUser.getObjectId())
@@ -467,15 +464,6 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
 
             try {
                 synchronized (this) {
-//                    long now = System.currentTimeMillis();
-//                    long remoteTs = now - offsetTS;
-//                    long offset = remoteTs - time;
-//                    long waitTime = PLAY_WAIT - offset;
-//                    mLogger.d("onReceivedStatusPlay() called with: waitTime = [%s]", waitTime);
-//                    if (waitTime > 0) {
-//                        wait(waitTime);
-//                    }
-
                     long waitTime = PLAY_WAIT - netRtt;
                     mLogger.d("onReceivedStatusPlay() called with: waitTime = [%s]", waitTime);
                     if (waitTime > 0) {
@@ -485,7 +473,6 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-
             play();
         }
     }
@@ -529,30 +516,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
             if (mStatus == Status.Paused) {
                 resume();
             }
-
-//            long now = System.currentTimeMillis();
-//            long offsetTs = now - offsetTS - ts;
-//
-//            long remotePos = position + offsetTs;
-//            long localPos = mPlayer.getPlayPosition();
-//            long offsetPos = localPos - remotePos;
-//            if (Math.abs(offsetPos) > 500) {
-//                if (offsetPos > 0) {
-//                    seek(remotePos + 100);
-//                } else {
-//                    seek(remotePos - 100);
-//                }
-//            }
-//            mLogger.d("onReceivedSetLrcTime() called with: position = [%s], remotePos = [%s], localPos = [%s], offsetPos = [%s], offsetTs = [%s]", position, remotePos, localPos, offsetPos, offsetTs);
-
-            long remotePos = position + (netRtt / 2);
-            long localPos = mPlayer.getPlayPosition();
-            long offsetPos = localPos - remotePos;
-            if (Math.abs(offsetPos) > 500) {
-                seek(remotePos);
-            }
-            mLogger.d("onReceivedSetLrcTime() called with: remotePos = [%s], localPos = [%s], offsetPos = [%s]", remotePos, localPos, offsetPos);
-        } else {
+      } else {
             super.onReceivedSetLrcTime(uid, position);
         }
     }
@@ -578,10 +542,11 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
 
     private long offsetTS = 0;
     private long netRtt = 0;
+    private long delayWithBrod = 0;
 
     @Override
-    protected void onReceivedReplyTestDelay(int uid, long testDelayTime, long time) {
-        super.onReceivedReplyTestDelay(uid, testDelayTime, time);
+    protected void onReceivedReplyTestDelay(int uid, long testDelayTime, long time, long position) {
+        super.onReceivedReplyTestDelay(uid, testDelayTime, time, position);
         MemberMusicModel mMemberMusicModel = RoomManager.Instance(mContext).getMusicModel();
         if (mMemberMusicModel == null) {
             return;
@@ -594,10 +559,15 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
 
         if (ObjectsCompat.equals(mMemberMusicModel.getUser1Id(), mUser.getObjectId())) {
             long localTs = System.currentTimeMillis();
-            long rtt = localTs - testDelayTime;
-            offsetTS = localTs - time - rtt / 2;
-            netRtt = System.currentTimeMillis() - testDelayTime;
+            netRtt = (localTs - testDelayTime) / 2;
+            delayWithBrod = position + netRtt;
             mLogger.d("TestDelay offsetTS= [%s], netRtt = [%s]", offsetTS, netRtt);
+
+            long localPos = mPlayer.getPlayPosition();
+            long diff = localPos - delayWithBrod;
+            if (Math.abs(diff) > 40) {
+                seek(delayWithBrod);
+            }
         }
     }
 
@@ -670,6 +640,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
         msg.put("cmd", "replyTestDelay");
         msg.put("testDelayTime", String.valueOf(receiveTime));
         msg.put("time", String.valueOf(System.currentTimeMillis()));
+        msg.put("position", mPlayer.getDuration());
         JSONObject jsonMsg = new JSONObject(msg);
         int streamId = RoomManager.Instance(mContext).getStreamId();
         int ret = RoomManager.Instance(mContext).getRtcEngine().sendStreamMessage(streamId, jsonMsg.toString().getBytes());
@@ -730,6 +701,18 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
 
         if (ObjectsCompat.equals(mMemberMusicModel.getUserId(), mUser.getObjectId())) {
             sendTrackMode(i);
+        }
+    }
+
+    @Override
+    public void stop() {
+        super.stop();
+        if (mRole == Constants.CLIENT_ROLE_BROADCASTER) {
+            RoomManager.Instance(mContext).getRtcEngine().muteAllRemoteAudioStreams(false);
+            if (!TextUtils.isEmpty(channelName)) {
+                RoomManager.Instance(mContext).getRtcEngine().leaveChannelEx(channelName, mRtcConnection);
+            }
+            mRtcConnection = null;
         }
     }
 

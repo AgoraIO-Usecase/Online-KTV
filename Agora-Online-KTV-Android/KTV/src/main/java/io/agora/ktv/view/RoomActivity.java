@@ -956,7 +956,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
             mMusicPlayer = new SingleMusicPlayer(this, role, mPlayer);
         } else if (music.getType() == MemberMusicModel.SingType.Chorus) {
             mDataBinding.lrcControlView.onWaitChorusStatus();
-            if (music != null && mMine != null) {
+            if (music != null && mMine != null && music.getUser1Id() != null) {
                 if (music.getUser1Id().equals(mMine.getUserId())) {
                     role = Constants.CLIENT_ROLE_BROADCASTER;
                 }

@@ -120,7 +120,9 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
                 Bundle data = msg.getData();
                 int uid = data.getInt("uid");
                 int time = data.getInt("time");
-                onReceivedCountdown(uid, time);
+                if (mRole == Constants.CLIENT_ROLE_BROADCASTER) {
+                    onReceivedCountdown(uid, time);
+                }
             } else if (msg.what == ACTION_ON_RECEIVED_PLAY) {
                 onReceivedStatusPlay((Integer) msg.obj);
             } else if (msg.what == ACTION_ON_RECEIVED_PAUSE) {
@@ -140,7 +142,8 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
                 int uid = data.getInt("uid");
                 long testDelayTime = data.getLong("testDelayTime");
                 long time = data.getLong("time");
-                onReceivedReplyTestDelay(uid, testDelayTime, time);
+                long position = data.getLong("position");
+                onReceivedReplyTestDelay(uid, testDelayTime, time, position);
             } else if (msg.what == ACTION_ON_RECEIVED_CHANGED_ORIGLE) {
                 Bundle data = msg.getData();
                 int uid = data.getInt("uid");
@@ -480,9 +483,11 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
             } else if (jsonMsg.getString("cmd").equals("replyTestDelay")) {
                 long testDelayTime = jsonMsg.getLong("testDelayTime");
                 long time = jsonMsg.getLong("time");
+                long position = jsonMsg.getLong("position");
                 Bundle bundle = new Bundle();
                 bundle.putInt("uid", uid);
                 bundle.putLong("time", time);
+                bundle.putLong("position", position);
                 bundle.putLong("testDelayTime", testDelayTime);
                 Message message = Message.obtain(mHandler, ACTION_ON_RECEIVED_REPLAY_TEST_DELAY);
                 message.setData(bundle);
@@ -521,7 +526,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
     protected void onReceivedTestDelay(int uid, long time) {
     }
 
-    protected void onReceivedReplyTestDelay(int uid, long testDelayTime, long time) {
+    protected void onReceivedReplyTestDelay(int uid, long testDelayTime, long time, long position) {
     }
 
     protected void onReceivedOrigleChanged(int uid, int mode) {
