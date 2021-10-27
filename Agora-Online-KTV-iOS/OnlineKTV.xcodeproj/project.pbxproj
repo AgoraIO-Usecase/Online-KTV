@@ -7,20 +7,16 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		2286E14579B4C41428ADC844 /* Pods_OnlineKTV_Firebase.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B761F18FE8145F50224BD9B /* Pods_OnlineKTV_Firebase.framework */; };
 		3080660D297D9239CC1F3C8A /* Pods_LrcView.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C1A6B7D5EC88E0E3F8BDBBFB /* Pods_LrcView.framework */; };
 		570997CB265756EC00B87998 /* AppDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 570997CA265756EC00B87998 /* AppDataManager.swift */; };
 		571AA46E2629862700B82B35 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 571AA46D2629862700B82B35 /* AppDelegate.swift */; };
 		571AA4702629862700B82B35 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 571AA46F2629862700B82B35 /* SceneDelegate.swift */; };
 		571AA47A2629862800B82B35 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 571AA4792629862800B82B35 /* Assets.xcassets */; };
 		571AA47D2629862800B82B35 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 571AA47B2629862800B82B35 /* LaunchScreen.storyboard */; };
-		57233DBA267C98080066004B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5791A95D267AF2FB00A02B30 /* Main.storyboard */; };
 		574C9CA12668B62100822A95 /* ServiceLocator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 574C9CA02668B62100822A95 /* ServiceLocator.swift */; };
 		574C9CB4266A0B4300822A95 /* LiveKtv.h in Headers */ = {isa = PBXBuildFile; fileRef = 574C9CB2266A0B4300822A95 /* LiveKtv.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		574C9CB7266A0B4300822A95 /* app.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 574C9CB0266A0B4200822A95 /* app.framework */; };
 		574C9CB8266A0B4300822A95 /* app.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 574C9CB0266A0B4200822A95 /* app.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		574C9CBC266A0B7E00822A95 /* app.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 574C9CB0266A0B4200822A95 /* app.framework */; };
-		574C9CBD266A0B7E00822A95 /* app.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 574C9CB0266A0B4200822A95 /* app.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		574C9CC0266A0BDB00822A95 /* Core.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5757D048262D834700B4A785 /* Core.framework */; };
 		574C9CCA266A0C4300822A95 /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = 574C9CC9266A0C4300822A95 /* Model.swift */; };
 		574C9CCC266A1E7E00822A95 /* Media.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 574C9CCB266A1E7E00822A95 /* Media.xcassets */; };
@@ -49,9 +45,6 @@
 		5757D165262DB9DB00B4A785 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 5757D163262DB9DB00B4A785 /* Model.xcdatamodeld */; };
 		5757D21F262EB8F300B4A785 /* ActivityIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5757D21E262EB8F300B4A785 /* ActivityIndicator.swift */; };
 		5762F7E026568019003B042D /* AppTargets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5762F7DC26567BAA003B042D /* AppTargets.swift */; };
-		5762F7E12656801C003B042D /* AppTargets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5762F7DC26567BAA003B042D /* AppTargets.swift */; };
-		5762F80426568446003B042D /* Core.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5757D048262D834700B4A785 /* Core.framework */; };
-		5762F80526568446003B042D /* Core.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 5757D048262D834700B4A785 /* Core.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		5764BB91266DCD9F00293B73 /* Icon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5764BB90266DCD9F00293B73 /* Icon.swift */; };
 		5764BB94266DD0B500293B73 /* CreateRoomController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5764BB93266DD0B500293B73 /* CreateRoomController.swift */; };
 		5764BB97266DF6A700293B73 /* Header.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5764BB96266DF6A700293B73 /* Header.swift */; };
@@ -83,24 +76,15 @@
 		5782AC95269C4B0200B4162A /* 003.xml in Resources */ = {isa = PBXBuildFile; fileRef = 5782AC94269C4B0200B4162A /* 003.xml */; };
 		5783FE942664B571000B39F3 /* SyncManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5783FE932664B571000B39F3 /* SyncManager.swift */; };
 		5783FEA62666250B000B39F3 /* SyncManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5783FEA52666250B000B39F3 /* SyncManager.swift */; };
-		5783FEA926662555000B39F3 /* SyncManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5783FEA72666253D000B39F3 /* SyncManager.swift */; };
 		5783FEAB26662859000B39F3 /* UserManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5783FEAA26662859000B39F3 /* UserManager.swift */; };
 		5783FEB026662D0B000B39F3 /* LeanCloudHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5783FEAE26662C37000B39F3 /* LeanCloudHelper.swift */; };
 		5783FEBF2667338E000B39F3 /* UserManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5783FEAC2666299A000B39F3 /* UserManager.swift */; };
-		5783FEDB26678197000B39F3 /* UserManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5783FEC526673A0B000B39F3 /* UserManager.swift */; };
-		5783FEDC26678340000B39F3 /* FirebaseHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5783FEC2266738AC000B39F3 /* FirebaseHelper.swift */; };
 		578545462689CF0B00605ABE /* Dialog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 578545452689CF0B00605ABE /* Dialog.swift */; };
 		5791A95C2678D89800A02B30 /* MusicListDialog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5791A95B2678D89800A02B30 /* MusicListDialog.swift */; };
 		5791A95E267AF2FB00A02B30 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5791A95D267AF2FB00A02B30 /* Main.storyboard */; };
 		57AC4627268B202500A62DD1 /* DownloadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57AC4626268B202500A62DD1 /* DownloadManager.swift */; };
-		57E8D504264A2C03007001BC /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 571AA46D2629862700B82B35 /* AppDelegate.swift */; };
-		57E8D505264A2C03007001BC /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 571AA46F2629862700B82B35 /* SceneDelegate.swift */; };
-		57E8D50E264A2C03007001BC /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 571AA47B2629862800B82B35 /* LaunchScreen.storyboard */; };
-		57E8D50F264A2C03007001BC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 571AA4792629862800B82B35 /* Assets.xcassets */; };
 		57E8D545264A31B2007001BC /* Core.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5757D048262D834700B4A785 /* Core.framework */; };
 		57E8D546264A31B2007001BC /* Core.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 5757D048262D834700B4A785 /* Core.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		57E8D61B264A6A57007001BC /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 57E8D60C264A5904007001BC /* GoogleService-Info.plist */; };
-		57E8D621264A6FDC007001BC /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 57E8D624264A6FDC007001BC /* Localizable.strings */; };
 		57E8D62A264A7306007001BC /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 57E8D624264A6FDC007001BC /* Localizable.strings */; };
 		57F6396D263000C300B45C0B /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 57F6396F263000C300B45C0B /* Localizable.strings */; };
 		57F639732630015200B45C0B /* Media.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 57F639722630015200B45C0B /* Media.xcassets */; };
@@ -139,21 +123,7 @@
 			remoteGlobalIDString = 574C9CAF266A0B4200822A95;
 			remoteInfo = LiveKtv;
 		};
-		574C9CBE266A0B7E00822A95 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 571AA4622629862700B82B35 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 574C9CAF266A0B4200822A95;
-			remoteInfo = LiveKtv;
-		};
 		574C9CC2266A0BDB00822A95 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 571AA4622629862700B82B35 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 5757D047262D834700B4A785;
-			remoteInfo = Core;
-		};
-		5762F80626568446003B042D /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 571AA4622629862700B82B35 /* Project object */;
 			proxyType = 1;
@@ -190,18 +160,6 @@
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		57E8D512264A2C03007001BC /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				574C9CBD266A0B7E00822A95 /* app.framework in Embed Frameworks */,
-				5762F80526568446003B042D /* Core.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -211,7 +169,6 @@
 		15A2E68AA95F4351506F2576 /* Pods-InteractivePodcast_Firebase.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-InteractivePodcast_Firebase.release.xcconfig"; path = "Target Support Files/Pods-InteractivePodcast_Firebase/Pods-InteractivePodcast_Firebase.release.xcconfig"; sourceTree = "<group>"; };
 		2A8F295F68F52286E70D8202 /* Pods_Database_LeanCloud.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Database_LeanCloud.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		2F2E9D9950E2E75E750E77D4 /* Pods_Database_Firebase.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Database_Firebase.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		3B761F18FE8145F50224BD9B /* Pods_OnlineKTV_Firebase.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_OnlineKTV_Firebase.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		4970F4FEDBE05B422D4F2534 /* Pods_InteractivePodcast_LeanCloud.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_InteractivePodcast_LeanCloud.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		4E7CA52467C27A6A39401A7F /* Pods_BlindDate_LeanCloud.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_BlindDate_LeanCloud.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		506CF18D26D33A2258104251 /* Pods-BlindDate_LeanCloud.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BlindDate_LeanCloud.debug.xcconfig"; path = "Target Support Files/Pods-BlindDate_LeanCloud/Pods-BlindDate_LeanCloud.debug.xcconfig"; sourceTree = "<group>"; };
@@ -308,7 +265,6 @@
 		5791A95B2678D89800A02B30 /* MusicListDialog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicListDialog.swift; sourceTree = "<group>"; };
 		5791A95D267AF2FB00A02B30 /* Main.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		57AC4626268B202500A62DD1 /* DownloadManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadManager.swift; sourceTree = "<group>"; };
-		57E8D519264A2C03007001BC /* OnlineKTV_Firebase.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OnlineKTV_Firebase.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		57E8D60C264A5904007001BC /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = SOURCE_ROOT; };
 		57E8D623264A6FDC007001BC /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		57F6396E263000C300B45C0B /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
@@ -319,7 +275,6 @@
 		57FFD42526A02DEA00668BE0 /* MMCQ.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMCQ.swift; sourceTree = "<group>"; };
 		5E10D1E8C56ADBA341AB43AE /* Pods-Core_LeanCloud.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Core_LeanCloud.debug.xcconfig"; path = "Target Support Files/Pods-Core_LeanCloud/Pods-Core_LeanCloud.debug.xcconfig"; sourceTree = "<group>"; };
 		5F8E2FB0C8FCBF6C320DEE8A /* Pods-OnlineKTV_LeanCloud.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OnlineKTV_LeanCloud.debug.xcconfig"; path = "Target Support Files/Pods-OnlineKTV_LeanCloud/Pods-OnlineKTV_LeanCloud.debug.xcconfig"; sourceTree = "<group>"; };
-		62FCFC75A3DE87EC24840504 /* Pods-OnlineKTV_Firebase.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OnlineKTV_Firebase.release.xcconfig"; path = "Target Support Files/Pods-OnlineKTV_Firebase/Pods-OnlineKTV_Firebase.release.xcconfig"; sourceTree = "<group>"; };
 		6D2AB6714D68EC1998AFC756 /* Pods-InteractivePodcast_LeanCloud.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-InteractivePodcast_LeanCloud.debug.xcconfig"; path = "Target Support Files/Pods-InteractivePodcast_LeanCloud/Pods-InteractivePodcast_LeanCloud.debug.xcconfig"; sourceTree = "<group>"; };
 		6EBE036E339C16D90188E502 /* Pods-app.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-app.release.xcconfig"; path = "Target Support Files/Pods-app/Pods-app.release.xcconfig"; sourceTree = "<group>"; };
 		7B7A6D6F466688183D0F5FD5 /* Pods-Scene-Examples.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Scene-Examples.debug.xcconfig"; path = "Target Support Files/Pods-Scene-Examples/Pods-Scene-Examples.debug.xcconfig"; sourceTree = "<group>"; };
@@ -333,7 +288,6 @@
 		8BBB784E26BE6C1B00096F8E /* LrcView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LrcView.h; sourceTree = "<group>"; };
 		8BBB784F26BE6C1B00096F8E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		937BFF1E7F912D5BF2A75B63 /* Pods-LiveKtv.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-LiveKtv.release.xcconfig"; path = "Target Support Files/Pods-LiveKtv/Pods-LiveKtv.release.xcconfig"; sourceTree = "<group>"; };
-		9CE9588A4C98EFF802BB1A4E /* Pods-OnlineKTV_Firebase.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OnlineKTV_Firebase.debug.xcconfig"; path = "Target Support Files/Pods-OnlineKTV_Firebase/Pods-OnlineKTV_Firebase.debug.xcconfig"; sourceTree = "<group>"; };
 		9E1E16F362FBD9C432044155 /* Pods-Database_LeanCloud.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Database_LeanCloud.debug.xcconfig"; path = "Target Support Files/Pods-Database_LeanCloud/Pods-Database_LeanCloud.debug.xcconfig"; sourceTree = "<group>"; };
 		A0D7AE253FD40BFF3FC44E37 /* Pods_Core.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Core.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A289AA6F7379CBD4C64ABF0F /* Pods-LrcView.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-LrcView.release.xcconfig"; path = "Target Support Files/Pods-LrcView/Pods-LrcView.release.xcconfig"; sourceTree = "<group>"; };
@@ -387,16 +341,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		57E8D508264A2C03007001BC /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				574C9CBC266A0B7E00822A95 /* app.framework in Frameworks */,
-				5762F80426568446003B042D /* Core.framework in Frameworks */,
-				2286E14579B4C41428ADC844 /* Pods_OnlineKTV_Firebase.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		8BBB784926BE6C1B00096F8E /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -426,7 +370,6 @@
 			children = (
 				571AA46A2629862700B82B35 /* OnlineKTV_LeanCloud.app */,
 				5757D048262D834700B4A785 /* Core.framework */,
-				57E8D519264A2C03007001BC /* OnlineKTV_Firebase.app */,
 				574C9CB0266A0B4200822A95 /* app.framework */,
 				8BBB784C26BE6C1B00096F8E /* LrcView.framework */,
 			);
@@ -752,8 +695,6 @@
 				53A21D478558F81DF5D75531 /* Pods-Database_LeanCloud.release.xcconfig */,
 				14F32E28B2836AA08824DB69 /* Pods-LiveKtv.debug.xcconfig */,
 				937BFF1E7F912D5BF2A75B63 /* Pods-LiveKtv.release.xcconfig */,
-				9CE9588A4C98EFF802BB1A4E /* Pods-OnlineKTV_Firebase.debug.xcconfig */,
-				62FCFC75A3DE87EC24840504 /* Pods-OnlineKTV_Firebase.release.xcconfig */,
 				5F8E2FB0C8FCBF6C320DEE8A /* Pods-OnlineKTV_LeanCloud.debug.xcconfig */,
 				FDC8A807C5564B30AE7560A9 /* Pods-OnlineKTV_LeanCloud.release.xcconfig */,
 				FC0DC180B241497C009B1960 /* Pods-app.debug.xcconfig */,
@@ -778,7 +719,6 @@
 				A0D7AE253FD40BFF3FC44E37 /* Pods_Core.framework */,
 				2F2E9D9950E2E75E750E77D4 /* Pods_Database_Firebase.framework */,
 				2A8F295F68F52286E70D8202 /* Pods_Database_LeanCloud.framework */,
-				3B761F18FE8145F50224BD9B /* Pods_OnlineKTV_Firebase.framework */,
 				55CA5154BEFE30CEC188B4E6 /* Pods_OnlineKTV_LeanCloud.framework */,
 				D4C940726440F80BCBE3DFF6 /* Pods_app.framework */,
 				C1A6B7D5EC88E0E3F8BDBBFB /* Pods_LrcView.framework */,
@@ -880,29 +820,6 @@
 			productReference = 5757D048262D834700B4A785 /* Core.framework */;
 			productType = "com.apple.product-type.framework";
 		};
-		57E8D4F8264A2C03007001BC /* OnlineKTV_Firebase */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 57E8D516264A2C03007001BC /* Build configuration list for PBXNativeTarget "OnlineKTV_Firebase" */;
-			buildPhases = (
-				57E8D4FF264A2C03007001BC /* [CP] Check Pods Manifest.lock */,
-				57E8D500264A2C03007001BC /* Sources */,
-				57E8D508264A2C03007001BC /* Frameworks */,
-				57E8D50D264A2C03007001BC /* Resources */,
-				57E8D511264A2C03007001BC /* [CP] Embed Pods Frameworks */,
-				57E8D512264A2C03007001BC /* Embed Frameworks */,
-				574C9CE0266A7C3400822A95 /* ShellScript */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				5762F80726568446003B042D /* PBXTargetDependency */,
-				574C9CBF266A0B7E00822A95 /* PBXTargetDependency */,
-			);
-			name = OnlineKTV_Firebase;
-			productName = "Scene-Examples";
-			productReference = 57E8D519264A2C03007001BC /* OnlineKTV_Firebase.app */;
-			productType = "com.apple.product-type.application";
-		};
 		8BBB784B26BE6C1B00096F8E /* LrcView */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 8BBB785526BE6C1B00096F8E /* Build configuration list for PBXNativeTarget "LrcView" */;
@@ -962,7 +879,6 @@
 			projectRoot = "";
 			targets = (
 				571AA4692629862700B82B35 /* OnlineKTV_LeanCloud */,
-				57E8D4F8264A2C03007001BC /* OnlineKTV_Firebase */,
 				5757D047262D834700B4A785 /* Core */,
 				574C9CAF266A0B4200822A95 /* app */,
 				8BBB784B26BE6C1B00096F8E /* LrcView */,
@@ -1003,18 +919,6 @@
 			files = (
 				57F639732630015200B45C0B /* Media.xcassets in Resources */,
 				57F6396D263000C300B45C0B /* Localizable.strings in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		57E8D50D264A2C03007001BC /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				57E8D621264A6FDC007001BC /* Localizable.strings in Resources */,
-				57233DBA267C98080066004B /* Main.storyboard in Resources */,
-				57E8D61B264A6A57007001BC /* GoogleService-Info.plist in Resources */,
-				57E8D50E264A2C03007001BC /* LaunchScreen.storyboard in Resources */,
-				57E8D50F264A2C03007001BC /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1088,62 +992,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n\"${PODS_ROOT}/SwiftFormat/CommandLineTool/swiftformat\" . --exclude Pods,Generated\n";
-		};
-		574C9CE0266A7C3400822A95 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n\"${PODS_ROOT}/SwiftFormat/CommandLineTool/swiftformat\" . --exclude Pods,Generated\n";
-		};
-		57E8D4FF264A2C03007001BC /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-OnlineKTV_Firebase-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		57E8D511264A2C03007001BC /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-OnlineKTV_Firebase/Pods-OnlineKTV_Firebase-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-OnlineKTV_Firebase/Pods-OnlineKTV_Firebase-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-OnlineKTV_Firebase/Pods-OnlineKTV_Firebase-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
 		};
 		C0376A113C16BCE26A0D86BE /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1292,19 +1140,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		57E8D500264A2C03007001BC /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				5783FEDB26678197000B39F3 /* UserManager.swift in Sources */,
-				57E8D504264A2C03007001BC /* AppDelegate.swift in Sources */,
-				57E8D505264A2C03007001BC /* SceneDelegate.swift in Sources */,
-				5783FEDC26678340000B39F3 /* FirebaseHelper.swift in Sources */,
-				5762F7E12656801C003B042D /* AppTargets.swift in Sources */,
-				5783FEA926662555000B39F3 /* SyncManager.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		8BBB784826BE6C1B00096F8E /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1333,20 +1168,10 @@
 			target = 574C9CAF266A0B4200822A95 /* app */;
 			targetProxy = 574C9CB5266A0B4300822A95 /* PBXContainerItemProxy */;
 		};
-		574C9CBF266A0B7E00822A95 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 574C9CAF266A0B4200822A95 /* app */;
-			targetProxy = 574C9CBE266A0B7E00822A95 /* PBXContainerItemProxy */;
-		};
 		574C9CC3266A0BDB00822A95 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 5757D047262D834700B4A785 /* Core */;
 			targetProxy = 574C9CC2266A0BDB00822A95 /* PBXContainerItemProxy */;
-		};
-		5762F80726568446003B042D /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 5757D047262D834700B4A785 /* Core */;
-			targetProxy = 5762F80626568446003B042D /* PBXContainerItemProxy */;
 		};
 		8B0C3A3626BE7F10004C7F27 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -1525,7 +1350,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 0703;
+				CURRENT_PROJECT_VERSION = 1026;
 				DEVELOPMENT_TEAM = JDPG69R49Z;
 				INFOPLIST_FILE = "$(SRCROOT)/OnlineKTV/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
@@ -1533,9 +1358,9 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.4.200;
+				MARKETING_VERSION = 3.5.1;
 				OTHER_SWIFT_FLAGS = "$(inherited) -D COCOAPODS -DLEANCLOUD";
-				PRODUCT_BUNDLE_IDENTIFIER = io.agora.OnlineKTV;
+				PRODUCT_BUNDLE_IDENTIFIER = io.agora.scenes.OnlineKTV;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
@@ -1552,6 +1377,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1026;
 				DEVELOPMENT_TEAM = JDPG69R49Z;
 				INFOPLIST_FILE = "$(SRCROOT)/OnlineKTV/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
@@ -1559,9 +1385,9 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.4.200;
+				MARKETING_VERSION = 3.5.1;
 				OTHER_SWIFT_FLAGS = "$(inherited) -D COCOAPODS -DLEANCLOUD";
-				PRODUCT_BUNDLE_IDENTIFIER = io.agora.OnlineKTV;
+				PRODUCT_BUNDLE_IDENTIFIER = io.agora.scenes.OnlineKTV;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
@@ -1711,56 +1537,6 @@
 			};
 			name = Release;
 		};
-		57E8D517264A2C03007001BC /* Debug */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 9CE9588A4C98EFF802BB1A4E /* Pods-OnlineKTV_Firebase.debug.xcconfig */;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = "$(inherited)";
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Manual;
-				DEVELOPMENT_TEAM = "";
-				INFOPLIST_FILE = "$(SRCROOT)/OnlineKTV/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				OTHER_SWIFT_FLAGS = "$(inherited) -D COCOAPODS -DFIREBASE";
-				PRODUCT_BUNDLE_IDENTIFIER = io.agora.OnlineKTV;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
-			};
-			name = Debug;
-		};
-		57E8D518264A2C03007001BC /* Release */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 62FCFC75A3DE87EC24840504 /* Pods-OnlineKTV_Firebase.release.xcconfig */;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = "$(inherited)";
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Manual;
-				DEVELOPMENT_TEAM = "";
-				INFOPLIST_FILE = "$(SRCROOT)/OnlineKTV/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				OTHER_SWIFT_FLAGS = "$(inherited) -D COCOAPODS -DFIREBASE";
-				PRODUCT_BUNDLE_IDENTIFIER = io.agora.OnlineKTV;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
-			};
-			name = Release;
-		};
 		8BBB785626BE6C1B00096F8E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = B463897AA0F897B9B5481F21 /* Pods-LrcView.debug.xcconfig */;
@@ -1858,15 +1634,6 @@
 			buildConfigurations = (
 				5757D052262D834700B4A785 /* Debug */,
 				5757D053262D834700B4A785 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		57E8D516264A2C03007001BC /* Build configuration list for PBXNativeTarget "OnlineKTV_Firebase" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				57E8D517264A2C03007001BC /* Debug */,
-				57E8D518264A2C03007001BC /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

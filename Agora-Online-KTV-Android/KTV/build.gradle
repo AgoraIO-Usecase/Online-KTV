@@ -20,7 +20,7 @@ android {
         minSdkVersion MINSDKVERSION
         targetSdkVersion TARGETSDKVERSION
         versionCode 9
-        versionName "1.0.8"
+        versionName "3.5.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -57,7 +57,7 @@ android {
     if (isModule.toBoolean()) {
         applicationVariants.all { variant ->
             variant.outputs.all {
-                outputFileName = "KTV-${versionName}-${variant.buildType.name}-主版.apk"
+                outputFileName = "KTV-${versionName}.apk"
             }
         }
     }
@@ -70,7 +70,7 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
     //Arogra SDK
-//    implementation 'io.agora.rtc:full-sdk:3.3.0'
+    implementation 'io.agora.rtc:full-sdk:3.5.1'
 
     implementation 'jp.wasabeef:glide-transformations:4.0.0'
     implementation 'com.google.code.gson:gson:2.8.7'

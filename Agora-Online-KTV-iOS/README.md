@@ -8,9 +8,6 @@
 #### 注册Agora
 前往 [Agora官网](https://console.agora.io/) 注册项目，生产appId，然后替换 **Config.swift** 中 **AppId**。
 
-#### 获取Agora SDK
-目前版本需要特殊版SDK才能运行，请联系您的技术支持或者 sales@agora.io 获取SDK。
-
 ##### 注册Leancloud
 1. 前往 [Leancloud官网](https://www.leancloud.cn/) 注册项目，生产 appId、appKey、server_url。
 - 替换 **Config.swift** 中 **LeanCloudAppId**、**LeanCloudAppKey**、**LeanCloudServerUrl**。
