@@ -252,7 +252,7 @@ public final class RoomManager {
 
         DataRepository.Instance(mContext)
                 .getUser(member.getUserId())
-                .subscribe(new DataObserver<User>(mContext) {
+                .subscribe(new DataObserver<User>() {
                     @Override
                     public void handleError(@NonNull BaseError e) {
 
@@ -607,7 +607,7 @@ public final class RoomManager {
     }
 
     public boolean isMainSinger() {
-        User mUser = UserManager.getInstance().getUserLiveData().getValue();
+        User mUser = UserManager.getInstance().mUser;
         if (mUser == null) {
             return false;
         }
@@ -620,7 +620,7 @@ public final class RoomManager {
     }
 
     public boolean isFollowSinger() {
-        User mUser = UserManager.getInstance().getUserLiveData().getValue();
+        User mUser = UserManager.getInstance().mUser;
         if (mUser == null) {
             return false;
         }
@@ -715,7 +715,7 @@ public final class RoomManager {
     public Completable joinRoom(AgoraRoom room) {
         this.mRoom = room;
 
-        User mUser = UserManager.getInstance().getUserLiveData().getValue();
+        User mUser = UserManager.getInstance().mUser;
         if (mUser == null) {
             return Completable.error(new NullPointerException("mUser is empty"));
         }
@@ -823,7 +823,7 @@ public final class RoomManager {
 
                                 if (ObjectsCompat.equals(member, mMine)) {
                                     mMine = member;
-                                    User mUser = UserManager.getInstance().getUserLiveData().getValue();
+                                    User mUser = UserManager.getInstance().mUser;
                                     mMine.setUser(mUser);
                                 }
 
@@ -833,7 +833,7 @@ public final class RoomManager {
 
                                 DataRepository.Instance(mContext)
                                         .getUser(member.getUserId())
-                                        .subscribe(new DataObserver<User>(mContext) {
+                                        .subscribe(new DataObserver<User>() {
                                             @Override
                                             public void handleError(@NonNull BaseError e) {
 
@@ -974,7 +974,7 @@ public final class RoomManager {
                 DocumentReference dcRoom = SyncManager.Instance()
                         .collection(AgoraRoom.TABLE_NAME)
                         .document(mRoom.getId());
-                User mUser = UserManager.getInstance().getUserLiveData().getValue();
+                User mUser = UserManager.getInstance().mUser;
                 if (mUser != null) {
                     //清理 Music 表
                     SyncManager.Instance()

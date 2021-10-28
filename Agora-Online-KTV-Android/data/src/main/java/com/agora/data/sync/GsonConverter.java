@@ -12,7 +12,7 @@ import com.google.gson.GsonBuilder;
  */
 public class GsonConverter extends Converter {
 
-    private Gson mGson = new GsonBuilder()
+    private final Gson mGson = new GsonBuilder()
             .registerTypeAdapter(AgoraMember.Role.class, new EnumRoleSerializer())
             .create();
 

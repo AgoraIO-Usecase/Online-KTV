@@ -1,7 +1,5 @@
 package com.agora.data.observer;
 
-import android.content.Context;
-
 import androidx.annotation.NonNull;
 
 import com.agora.data.BaseError;
@@ -17,10 +15,7 @@ import io.reactivex.disposables.Disposable;
  */
 public abstract class DataObserver<T> implements Observer<T> {
 
-    private Context context;
-
-    public DataObserver(Context context) {
-        this.context = context;
+    public DataObserver() {
     }
 
     @Override

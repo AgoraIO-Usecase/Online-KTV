@@ -45,7 +45,7 @@ public class SingleMusicPlayer extends BaseMusicPlayer {
 
     @Override
     public void prepare(@NonNull MemberMusicModel music) {
-        User mUser = UserManager.getInstance().getUserLiveData().getValue();
+        User mUser = UserManager.getInstance().mUser;
         if (mUser == null) {
             return;
         }

@@ -1,8 +1,5 @@
 package com.agora.data;
 
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
-
 import com.agora.data.model.AgoraRoom;
 import com.agora.data.model.MusicModel;
 import com.google.gson.Gson;
@@ -89,18 +86,4 @@ public class ExampleData {
         }.getType());
         exampleSongs.addAll(data);
     }
-
-    /**
-     * 歌房封面图
-     */
-    private static final MutableLiveData<Integer> mvImage = new MutableLiveData<>(0);
-
-    public static LiveData<Integer> getMvImage() {
-        return mvImage;
-    }
-
-    public static void updateCoverImage(int index) {
-        mvImage.postValue(index);
-    }
-
 }

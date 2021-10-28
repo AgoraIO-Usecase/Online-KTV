@@ -114,7 +114,7 @@ public class SongsFragment extends BaseFragment<KtvFragmentSongListBinding> impl
             return;
         }
 
-        User mUser = UserManager.getInstance().getUserLiveData().getValue();
+        User mUser = UserManager.getInstance().mUser;
         if (mUser == null) {
             return;
         }

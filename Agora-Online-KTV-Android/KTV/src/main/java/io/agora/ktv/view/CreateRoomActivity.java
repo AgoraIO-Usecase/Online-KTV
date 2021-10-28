@@ -86,7 +86,7 @@ public class CreateRoomActivity extends BaseActivity<KtvActivityCreateRoomBindin
 
     @SuppressLint("CheckResult")
     private void createRoom(View v) {
-        User mUser = UserManager.getInstance().getUserLiveData().getValue();
+        User mUser = UserManager.getInstance().mUser;
         if (mUser == null) {
             return;
         }

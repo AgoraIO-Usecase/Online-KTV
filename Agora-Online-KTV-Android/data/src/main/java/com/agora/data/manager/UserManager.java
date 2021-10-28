@@ -1,8 +1,7 @@
 package com.agora.data.manager;
 
 import android.content.Context;
-
-import androidx.lifecycle.MutableLiveData;
+import android.util.Log;
 
 import com.agora.data.model.User;
 import com.agora.data.provider.DataRepository;
@@ -10,14 +9,13 @@ import com.agora.data.provider.IDataRepository;
 
 import java.util.Random;
 
-import io.agora.baselibrary.util.KTVUtil;
 import io.reactivex.Observable;
 
 public final class UserManager {
 
     private volatile static UserManager instance;
 
-    private final MutableLiveData<User> mUserLiveData = new MutableLiveData<>();
+    public User mUser;
 
     private IDataRepository iDataRepository;
 
@@ -34,38 +32,34 @@ public final class UserManager {
         return instance;
     }
 
-    public MutableLiveData<User> getUserLiveData() {
-        return mUserLiveData;
-    }
-
     public void initDataRepository(Context context){
         this.iDataRepository = DataRepository.Instance(context);
     }
 
     public boolean isLogin() {
-        return UserManager.getInstance().getUserLiveData().getValue() != null;
+        return mUser != null;
     }
 
     public Observable<User> loginIn() {
-        User user = UserManager.getInstance().getUserLiveData().getValue();
-        if (user == null) {
+        if (mUser == null) {
 
             User mUser = new User();
             mUser.setName(randomName());
             mUser.setAvatar(randomAvatar());
 
             return iDataRepository
-                    .login(mUser).doOnError(throwable -> KTVUtil.logE(throwable.getMessage())).doOnNext(user1 -> {
-                        KTVUtil.logD("loginIn success user= "+ user1);
+                    .login(mUser).doOnError(throwable -> Log.e("UserManager",throwable.getMessage()))
+                    .doOnNext(user1 -> {
+                        Log.d("UserManager","loginIn success user= "+ user1);
                         onLoginIn(user1);
                     });
         } else {
-            return Observable.just(user);
+            return Observable.just(mUser);
         }
     }
 
     public void onLoginIn(User mUser) {
-        mUserLiveData.postValue(mUser);
+        this.mUser = mUser;
     }
 
 

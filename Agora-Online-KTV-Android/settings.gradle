@@ -1,3 +1,4 @@
+rootProject.name = "AgoraKTV"
 include ':data'
 include ':baselibrary'
 include ':KTV'

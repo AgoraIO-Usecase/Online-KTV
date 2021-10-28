@@ -118,7 +118,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
 
     @Override
     public void prepare(@NonNull MemberMusicModel music) {
-        User mUser = UserManager.getInstance().getUserLiveData().getValue();
+        User mUser = UserManager.getInstance().mUser;
         if (mUser == null) {
             return;
         }
@@ -152,7 +152,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
 
     private void joinChannelEX() {
         mLogger.d("joinChannelEX() called");
-        User mUser = UserManager.getInstance().getUserLiveData().getValue();
+        User mUser = UserManager.getInstance().mUser;
         if (mUser == null) {
             return;
         }
@@ -217,7 +217,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
     private int mUid;
 
     private void onJoinChannelExSuccess(int uid) {
-        User mUser = UserManager.getInstance().getUserLiveData().getValue();
+        User mUser = UserManager.getInstance().mUser;
         if (mUser == null) {
             return;
         }
@@ -264,7 +264,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
     private volatile boolean isApplyJoinChorus = false;
 
     private void onMemberApplyJoinChorus(@NonNull MemberMusicModel music) {
-        User mUser = UserManager.getInstance().getUserLiveData().getValue();
+        User mUser = UserManager.getInstance().mUser;
         if (mUser == null) {
             return;
         }
@@ -305,7 +305,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
     }
 
     private void onMemberJoinedChorus(@NonNull MemberMusicModel music) {
-        User mUser = UserManager.getInstance().getUserLiveData().getValue();
+        User mUser = UserManager.getInstance().mUser;
         if (mUser == null) {
             return;
         }
@@ -380,7 +380,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
      * @param music
      */
     private void onMemberChorusReady(@NonNull MemberMusicModel music) {
-        User mUser = UserManager.getInstance().getUserLiveData().getValue();
+        User mUser = UserManager.getInstance().mUser;
         if (mUser == null) {
             return;
         }
@@ -452,7 +452,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
             return;
         }
 
-        User mUser = UserManager.getInstance().getUserLiveData().getValue();
+        User mUser = UserManager.getInstance().mUser;
         if (mUser == null) {
             return;
         }
@@ -486,7 +486,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
             return;
         }
 
-        User mUser = UserManager.getInstance().getUserLiveData().getValue();
+        User mUser = UserManager.getInstance().mUser;
         if (mUser == null) {
             return;
         }
@@ -505,7 +505,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
             return;
         }
 
-        User mUser = UserManager.getInstance().getUserLiveData().getValue();
+        User mUser = UserManager.getInstance().mUser;
         if (mUser == null) {
             return;
         }
@@ -530,7 +530,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
             return;
         }
 
-        User mUser = UserManager.getInstance().getUserLiveData().getValue();
+        User mUser = UserManager.getInstance().mUser;
         if (mUser == null) {
             return;
         }
@@ -552,7 +552,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
             return;
         }
 
-        User mUser = UserManager.getInstance().getUserLiveData().getValue();
+        User mUser = UserManager.getInstance().mUser;
         if (mUser == null) {
             return;
         }
@@ -579,7 +579,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
             return;
         }
 
-        User mUser = UserManager.getInstance().getUserLiveData().getValue();
+        User mUser = UserManager.getInstance().mUser;
         if (mUser == null) {
             return;
         }
@@ -614,7 +614,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
             return;
         }
 
-        User mUser = UserManager.getInstance().getUserLiveData().getValue();
+        User mUser = UserManager.getInstance().mUser;
         if (mUser == null) {
             return;
         }
@@ -694,7 +694,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
             return;
         }
 
-        User mUser = UserManager.getInstance().getUserLiveData().getValue();
+        User mUser = UserManager.getInstance().mUser;
         if (mUser == null) {
             return;
         }

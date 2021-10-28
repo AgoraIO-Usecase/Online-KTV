@@ -106,7 +106,6 @@ public class RoomListActivity extends BaseActivity<KtvActivityRoomListBinding> {
             mBinding.list.setOverScrollMode(View.OVER_SCROLL_NEVER);
 
         mBinding.btnCreateAttRoomList.setOnClickListener(this::gotoCreateRoom);
-        UserManager.getInstance().getUserLiveData().observe(this, user -> loadRooms());
     }
 
     private void refreshData() {
@@ -121,9 +120,10 @@ public class RoomListActivity extends BaseActivity<KtvActivityRoomListBinding> {
         UserManager.getInstance()
                 .loginIn()
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new DataObserver<User>(this) {
+                .subscribe(new DataObserver<User>() {
                     @Override
                     public void handleError(@NonNull BaseError e) {
+                        e.printStackTrace();
                         ToastUtil.toastLong(RoomListActivity.this, e.getMessage());
                         mBinding.swipeRefreshLayout.setRefreshing(false);
                     }
@@ -154,6 +154,7 @@ public class RoomListActivity extends BaseActivity<KtvActivityRoomListBinding> {
                     public void onError(@NonNull Throwable e) {
                         mBinding.swipeRefreshLayout.setRefreshing(false);
                         ToastUtil.toastShort(RoomListActivity.this, e.getMessage());
+                        e.printStackTrace();
                     }
 
                     @Override

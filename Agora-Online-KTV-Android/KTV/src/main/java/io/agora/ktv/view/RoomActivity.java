@@ -406,7 +406,7 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> implement
             }
         });
 
-        User mUser = UserManager.getInstance().getUserLiveData().getValue();
+        User mUser = UserManager.getInstance().mUser;
         if (mUser == null) {
             ToastUtil.toastShort(this, "please login in");
             finish();
@@ -532,7 +532,7 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> implement
             return;
         }
 
-        User mUser = UserManager.getInstance().getUserLiveData().getValue();
+        User mUser = UserManager.getInstance().mUser;
         if (mUser == null) {
             return;
         }
@@ -883,7 +883,7 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> implement
 
         mRoomSpeakerAdapter.notifyDataSetChanged();
 
-        User mUser = UserManager.getInstance().getUserLiveData().getValue();
+        User mUser = UserManager.getInstance().mUser;
         if (mUser == null) {
             return;
         }
