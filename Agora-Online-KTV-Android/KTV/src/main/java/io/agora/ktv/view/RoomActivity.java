@@ -60,6 +60,7 @@ import io.agora.ktv.manager.SimpleRoomEventCallback;
 import io.agora.ktv.manager.SingleMusicPlayer;
 import io.agora.ktv.service.MyForegroundService;
 import io.agora.ktv.util.BlurTransformation;
+import io.agora.ktv.view.dialog.MoreDialog;
 import io.agora.ktv.view.dialog.MusicSettingDialog;
 import io.agora.ktv.view.dialog.RoomChooseSongDialog;
 import io.agora.ktv.view.dialog.RoomMVDialog;
@@ -320,6 +321,7 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> implement
         mBinding.toolBarAttRoom.setNavigationOnClickListener(this::showLeaveConfirmDialog);
         mBinding.btnMicAttRoom.setOnClickListener(this::toggleMic);
         mBinding.btnChangeCoverAttRoom.setOnClickListener(this::showBackgroundPicDialog);
+        mBinding.btnMoreAttRoom.setOnClickListener(this::showMoreDialog);
         mBinding.btnOrderSongAttRoom.setOnClickListener(this::showChooseSongDialog);
         mBinding.btnChorusAttRoom.setOnClickListener(this::showChooseSongDialog);
 
@@ -647,6 +649,9 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> implement
         }
 
         new RoomMVDialog().show(getSupportFragmentManager(), Integer.parseInt(room.getMv()) - 1);
+    }
+    private void showMoreDialog(View v) {
+        new MoreDialog(mSetting).show(getSupportFragmentManager(), MoreDialog.TAG);
     }
 
     private void doLeave() {

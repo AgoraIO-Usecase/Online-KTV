@@ -64,7 +64,6 @@ public class RoomMVDialog extends BaseBottomSheetDialogFragment<KtvDialogMvBindi
             dismiss();
             return;
         }
-        ((BaseActivity<?>)requireActivity()).showLoading();
         SyncManager.Instance()
                 .getRoom(mRoom.getId())
                 .update(AgoraRoom.COLUMN_MV, String.valueOf(position + 1), new SyncManager.DataItemCallback() {
@@ -74,13 +73,11 @@ public class RoomMVDialog extends BaseBottomSheetDialogFragment<KtvDialogMvBindi
                         mAdapter.selectedIndex = position;
                         mAdapter.notifyItemChanged(formerIndex);
                         mAdapter.notifyItemChanged(position);
-                        ((BaseActivity<?>)requireActivity()).dismissLoading();
                     }
 
                     @Override
                     public void onFail(AgoraException exception) {
                         ToastUtil.toastShort(requireContext(), exception.getMessage());
-                        ((BaseActivity<?>)requireActivity()).dismissLoading();
                     }
                 });
     }

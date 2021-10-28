@@ -62,6 +62,18 @@
         app:layout_constraintStart_toEndOf="@+id/btn_mic_att_room"
         tools:targetApi="lollipop" />
 
+    <ImageButton
+        android:id="@+id/btn_more_att_room"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:background="@null"
+        android:contentDescription="@string/ktv_choose_cover"
+        android:src="@drawable/ic_more"
+        app:layout_constraintBottom_toBottomOf="@+id/btn_mic_att_room"
+        app:layout_constraintStart_toEndOf="@+id/btn_change_cover_att_room"
+        tools:targetApi="lollipop" />
+
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_chorus_att_room"
         style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
@@ -73,7 +85,6 @@
         android:insetTop="0dp"
         android:insetBottom="0dp"
         android:text="@string/ktv_chorus"
-        android:textSize="18sp"
         app:backgroundTint="@null"
         app:layout_constraintEnd_toStartOf="@+id/btn_order_song_att_room"
         app:layout_constraintTop_toTopOf="@+id/btn_order_song_att_room" />
@@ -90,7 +101,6 @@
         android:outlineProvider="background"
         android:insetBottom="0dp"
         android:text="@string/ktv_order_song"
-        android:textSize="18sp"
         app:backgroundTint="@null"
         app:icon="@drawable/ktv_ic_mic"
         app:iconPadding="2dp"
@@ -115,6 +125,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        app:constraint_referenced_ids="btn_mic_att_room,btn_change_cover_att_room,btn_chorus_att_room,btn_order_song_att_room"
+        app:constraint_referenced_ids="btn_mic_att_room,btn_change_cover_att_room,btn_more_att_room,btn_chorus_att_room,btn_order_song_att_room"
         tools:visibility="visible" />
 </androidx.constraintlayout.widget.ConstraintLayout>

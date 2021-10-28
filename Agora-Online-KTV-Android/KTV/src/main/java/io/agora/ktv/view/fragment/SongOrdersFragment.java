@@ -1,4 +1,4 @@
-package io.agora.ktv.view;
+package io.agora.ktv.view.fragment;
 
 import android.os.Bundle;
 import android.view.View;

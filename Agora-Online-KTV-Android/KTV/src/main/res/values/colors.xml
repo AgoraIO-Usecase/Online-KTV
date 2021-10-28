@@ -11,4 +11,6 @@
     <color name="ktv_lrc_highligh">#FFFFFFFF</color>
     <color name="ktv_lrc_nomal">#99FFFFFF</color>
     <color name="ktv_pitch_nomal">#BFCEE4</color>
+
+    <color name="ktv_alphaColorAccent">#660088EB</color>
 </resources>

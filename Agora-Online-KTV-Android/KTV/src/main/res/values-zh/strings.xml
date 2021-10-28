@@ -61,6 +61,10 @@
     <string name="ktv_permission_refused">运行此功能需要的必要权限未被授予。</string>
 
     <string name="ktv_network_unavailable">未检测到可用网络，确认继续？</string>
+
+
+    <string name="ktv_beauty_voice">美声</string>
+    <string name="ktv_beauty_effect">音效</string>
     <!--    Content Description-->
     <string name="ktv_create_room">创建房间</string>
     <string name="ktv_toggle_mic">麦克风启用或静音</string>

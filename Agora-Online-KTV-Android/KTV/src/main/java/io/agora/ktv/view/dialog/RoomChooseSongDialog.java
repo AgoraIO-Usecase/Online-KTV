@@ -1,6 +1,5 @@
 package io.agora.ktv.view.dialog;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
 
@@ -9,26 +8,13 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
-import com.agora.data.manager.UserManager;
-import com.agora.data.model.AgoraRoom;
-import com.agora.data.model.MusicModel;
-import com.agora.data.model.User;
-import com.agora.data.provider.AgoraObject;
-import com.agora.data.sync.AgoraException;
-import com.agora.data.sync.SyncManager;
 import com.google.android.material.tabs.TabLayoutMediator;
 
-import io.agora.baselibrary.base.BaseActivity;
 import io.agora.baselibrary.base.BaseBottomSheetDialogFragment;
-import io.agora.baselibrary.base.BaseFragment;
-import io.agora.baselibrary.util.ToastUtil;
 import io.agora.ktv.R;
-import io.agora.ktv.bean.MemberMusicModel;
 import io.agora.ktv.databinding.KtvDialogChooseSongBinding;
-import io.agora.ktv.manager.RoomManager;
-import io.agora.ktv.view.RoomActivity;
-import io.agora.ktv.view.SongOrdersFragment;
-import io.agora.ktv.view.SongsFragment;
+import io.agora.ktv.view.fragment.SongOrdersFragment;
+import io.agora.ktv.view.fragment.SongsFragment;
 
 /**
  * 点歌菜单

@@ -1,4 +1,4 @@
-package io.agora.ktv.view;
+package io.agora.ktv.view.fragment;
 
 import android.os.Bundle;
 import android.view.View;
@@ -119,7 +119,6 @@ public class SongsFragment extends BaseFragment<KtvFragmentSongListBinding> impl
             return;
         }
 
-        showLoading();
         MemberMusicModel model = new MemberMusicModel(data);
         model.setRoomId(mRoom);
         model.setUserId(mUser.getObjectId());
@@ -140,13 +139,11 @@ public class SongsFragment extends BaseFragment<KtvFragmentSongListBinding> impl
 
                         RoomManager.Instance(requireContext()).onMusicAdd(musicModel);
                         mAdapter.notifyItemChanged(position);
-                        dismissLoading();
                     }
 
                     @Override
                     public void onFail(AgoraException exception) {
                         ToastUtil.toastShort(requireContext(), exception.getMessage());
-                        dismissLoading();
                     }
                 });
     }

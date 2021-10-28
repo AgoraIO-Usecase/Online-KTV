@@ -62,6 +62,9 @@
     <string name="ktv_permission_alert">Sure to request Required permission？</string>
     <string name="ktv_permission_refused">Necessary permissions to run this function have not been granted.</string>
 
+
+    <string name="ktv_beauty_voice">Beauty Voice</string>
+    <string name="ktv_beauty_effect">Beauty Effect</string>
 <!--    Content Description-->
     <string name="ktv_create_room">create room</string>
     <string name="ktv_toggle_mic">mute mic or not</string>
