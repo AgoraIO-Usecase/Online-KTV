@@ -67,7 +67,7 @@
     <string name="ktv_toggle_mic">mute mic or not</string>
     <string name="ktv_choose_cover">choose the cover you like</string>
     <string name="ktv_chorus">chorus</string>
-    <string name="ktv_order_song">order song</string>
+    <string name="ktv_order_song">order</string>
     <string name="ktv_random_room_name">Get a random room name</string>
 
 <!--    String formatter-->

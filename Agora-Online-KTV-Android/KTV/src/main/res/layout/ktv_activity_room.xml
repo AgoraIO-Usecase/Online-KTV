@@ -63,31 +63,40 @@
         tools:targetApi="lollipop" />
 
     <com.google.android.material.button.MaterialButton
-        style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
         android:id="@+id/btn_chorus_att_room"
+        style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
         android:layout_width="wrap_content"
-        android:layout_height="40dp"
+        android:layout_height="wrap_content"
         android:layout_marginEnd="10dp"
         android:background="@drawable/ktv_gradient_btn"
         android:contentDescription="@string/ktv_chorus"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
         android:text="@string/ktv_chorus"
+        android:textSize="18sp"
         app:backgroundTint="@null"
         app:layout_constraintEnd_toStartOf="@+id/btn_order_song_att_room"
         app:layout_constraintTop_toTopOf="@+id/btn_order_song_att_room" />
 
     <com.google.android.material.button.MaterialButton
-        style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
         android:id="@+id/btn_order_song_att_room"
+        style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
         android:layout_width="wrap_content"
-        app:icon="@drawable/ktv_ic_mic"
-        android:layout_height="40dp"
+        android:layout_height="wrap_content"
         android:layout_marginEnd="12dp"
         android:background="@drawable/ktv_gradient_btn"
         android:contentDescription="@string/ktv_order_song"
+        android:insetTop="0dp"
+        android:outlineProvider="background"
+        android:insetBottom="0dp"
         android:text="@string/ktv_order_song"
+        android:textSize="18sp"
         app:backgroundTint="@null"
+        app:icon="@drawable/ktv_ic_mic"
+        app:iconPadding="2dp"
         app:layout_constraintBottom_toBottomOf="@+id/btn_mic_att_room"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:targetApi="lollipop" />
 
     <TextView
         android:id="@+id/tvNoOnSeat"
