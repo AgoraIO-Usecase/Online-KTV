@@ -1,28 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout">
 
-    <LinearLayout
+    <androidx.cardview.widget.CardView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:background="@drawable/ktv_shape_waiting_dialog_background"
-        android:orientation="horizontal"
-        android:padding="10dp">
+        app:cardBackgroundColor="#99000000"
+        app:cardCornerRadius="@dimen/ktv_space_small"
+        android:id="@+id/ilPrepare"
+        app:cardElevation="0dp"
+        app:contentPadding="@dimen/ktv_space_normal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-        <ProgressBar
-            android:id="@+id/pb"
-            android:layout_width="30dp"
-            android:layout_height="30dp" />
-
-        <TextView
-            android:id="@+id/tvMsg"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginStart="10dp"
-            android:text="@string/ktv_lrc_loading"
-            android:textColor="@android:color/white" />
-    </LinearLayout>
-</FrameLayout>
+            android:orientation="horizontal">
+
+            <ProgressBar
+                android:id="@+id/pb"
+                android:layout_width="30dp"
+                android:layout_height="30dp" />
+
+            <TextView
+                android:id="@+id/tvMsg"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginStart="10dp"
+                android:text="@string/ktv_lrc_loading"
+                android:textColor="@android:color/white" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+</merge>
