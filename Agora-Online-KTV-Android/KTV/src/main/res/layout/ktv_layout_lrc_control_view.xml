@@ -31,10 +31,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
-                android:drawablePadding="4dp"
+                android:drawablePadding="6dp"
                 android:gravity="center"
                 android:textColor="@android:color/white"
-                app:drawableStartCompat="@mipmap/ktv_room_music_name"
+                app:drawableStartCompat="@drawable/ktv_ic_music"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />

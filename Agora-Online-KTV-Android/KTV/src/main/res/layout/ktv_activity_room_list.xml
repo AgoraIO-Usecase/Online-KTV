@@ -46,16 +46,15 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/titleBar"
-        app:drawableTopCompat="@mipmap/ktv_room_list_empty" />
+        app:drawableTopCompat="@drawable/ktv_ic_empty" />
 
-    <Button
+    <ImageButton
         android:id="@+id/btn_create_att_room_list"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"
-        android:background="@mipmap/ktv_create"
-        app:backgroundTint="@android:color/transparent"
-        app:backgroundTintMode="src_atop"
+        android:contentDescription="@string/ktv_create_room"
+        android:background="@drawable/ktv_ic_create_room"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -28,9 +28,33 @@
         <item name="cornerSize">50%</item>
     </style>
 
-    <style name="ktv_cornerMediumStyle">
+    <style name="ktv_cornerTinyStyle">
         <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">12dp</item>
+        <item name="cornerSize">4dp</item>
+    </style>
+
+    <style name="ktv_cornerSmallStyle">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/ktv_space_small</item>
+    </style>
+
+    <style name="ktv_cornerNormalStyle">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/ktv_space_normal</item>
+    </style>
+
+    <style name="ktv_cornerBigStyle">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/ktv_space_big</item>
+    </style>
+
+    <style name="ktv_cornerTinyBottomStyle">
+        <item name="cornerFamilyBottomLeft">rounded</item>
+        <item name="cornerFamilyBottomRight">rounded</item>
+        <item name="cornerSizeBottomLeft">4dp</item>
+        <item name="cornerSizeBottomRight">4dp</item>
+        <item name="cornerSizeTopLeft">0dp</item>
+        <item name="cornerSizeTopRight">0dp</item>
     </style>
 
     <style name="ktv_spinnerStyle" parent="Widget.AppCompat.Light.DropDownItem.Spinner">

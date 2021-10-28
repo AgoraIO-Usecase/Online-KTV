@@ -13,6 +13,7 @@ import com.agora.data.provider.AgoraObject;
 import com.agora.data.sync.AgoraException;
 import com.agora.data.sync.SyncManager;
 
+import io.agora.baselibrary.base.BaseActivity;
 import io.agora.baselibrary.base.BaseBottomSheetDialogFragment;
 import io.agora.baselibrary.base.BaseRecyclerViewAdapter;
 import io.agora.baselibrary.base.OnItemClickListener;
@@ -63,19 +64,23 @@ public class RoomMVDialog extends BaseBottomSheetDialogFragment<KtvDialogMvBindi
             dismiss();
             return;
         }
-
-        mAdapter.selectedIndex = position;
+        ((BaseActivity<?>)requireActivity()).showLoading();
         SyncManager.Instance()
                 .getRoom(mRoom.getId())
                 .update(AgoraRoom.COLUMN_MV, String.valueOf(position + 1), new SyncManager.DataItemCallback() {
                     @Override
                     public void onSuccess(AgoraObject result) {
-
+                        int formerIndex = mAdapter.selectedIndex;
+                        mAdapter.selectedIndex = position;
+                        mAdapter.notifyItemChanged(formerIndex);
+                        mAdapter.notifyItemChanged(position);
+                        ((BaseActivity<?>)requireActivity()).dismissLoading();
                     }
 
                     @Override
                     public void onFail(AgoraException exception) {
                         ToastUtil.toastShort(requireContext(), exception.getMessage());
+                        ((BaseActivity<?>)requireActivity()).dismissLoading();
                     }
                 });
     }

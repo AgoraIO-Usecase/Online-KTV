@@ -35,6 +35,8 @@
         android:insetTop="2dp"
         android:insetBottom="2dp"
         android:text="@string/ktv_room_seat_off"
+        app:backgroundTint="@color/ktv_colorAccent"
+        app:backgroundTintMode="src_atop"
         android:textColor="@android:color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

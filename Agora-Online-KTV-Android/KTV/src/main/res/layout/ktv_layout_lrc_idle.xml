@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/ilIDLE"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -7,24 +8,14 @@
     android:gravity="center"
     android:orientation="vertical">
 
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@mipmap/ktv_music_no" />
-
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
-        android:text="@string/ktv_room_no_sing_1"
+        android:text="@string/ktv_room_no_sing"
         android:textColor="#CCFFFFFF"
-        android:textSize="14sp" />
+        android:textSize="14sp"
+        android:gravity="center"
+        android:drawablePadding="@dimen/ktv_space_normal"
+        app:drawableTopCompat="@drawable/ktv_ic_song_empty" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="@string/ktv_room_no_sing_2"
-        android:textColor="#CCFFFFFF"
-        android:textSize="14sp" />
 </LinearLayout>

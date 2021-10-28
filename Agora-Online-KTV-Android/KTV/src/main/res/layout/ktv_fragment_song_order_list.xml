@@ -3,8 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/ktv_colorPrimaryDark">
+    android:layout_height="match_parent">
 
     <TextView
         android:id="@+id/llEmpty"
@@ -12,11 +11,12 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:gravity="center"
+        android:drawablePadding="@dimen/ktv_space_normal"
         android:text="@string/ktv_room_list_empty"
         android:textColor="@color/ktv_list_empty"
         android:textSize="@dimen/ktv_list_empty_size"
         android:visibility="gone"
-        app:drawableTopCompat="@mipmap/ktv_room_list_empty" />
+        app:drawableTopCompat="@drawable/ktv_ic_empty" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/list"

@@ -249,9 +249,9 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> implement
             AgoraMember mMine = RoomManager.Instance(RoomActivity.this).getMine();
             if (ObjectsCompat.equals(member, mMine)) {
                 if (member.getIsSelfMuted() == 1) {
-                    mBinding.btnMicAttRoom.setImageResource(R.mipmap.ktv_room_unmic);
+                    mBinding.btnMicAttRoom.setImageResource(R.drawable.ktv_ic_mic_disable);
                 } else {
-                    mBinding.btnMicAttRoom.setImageResource(R.mipmap.ktv_room_mic);
+                    mBinding.btnMicAttRoom.setImageResource(R.drawable.ktv_ic_mic_enable);
                 }
             }
         }
@@ -695,7 +695,7 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> implement
                         options.publishAudioTrack = !newValue;
                         RoomManager.Instance(RoomActivity.this).getRtcEngine().updateChannelMediaOptions(options);
 
-                        mBinding.btnMicAttRoom.setImageResource(newValue ? R.mipmap.ktv_room_unmic : R.mipmap.ktv_room_mic);
+                        mBinding.btnMicAttRoom.setImageResource(newValue ? R.drawable.ktv_ic_mic_disable : R.drawable.ktv_ic_mic_enable);
                     }
 
                     @Override

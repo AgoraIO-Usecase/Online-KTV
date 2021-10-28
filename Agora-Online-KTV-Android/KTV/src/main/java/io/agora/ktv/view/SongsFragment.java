@@ -21,7 +21,6 @@ import java.util.List;
 import io.agora.baselibrary.base.BaseFragment;
 import io.agora.baselibrary.base.BaseRecyclerViewAdapter;
 import io.agora.baselibrary.base.OnItemClickListener;
-import io.agora.baselibrary.util.KTVUtil;
 import io.agora.baselibrary.util.ToastUtil;
 import io.agora.ktv.adapter.ChooseSongViewHolder;
 import io.agora.ktv.bean.MemberMusicModel;

@@ -184,7 +184,8 @@ public class LrcControlView extends FrameLayout implements View.OnClickListener 
         mDataBinding.ilPrepare.getRoot().setVisibility(View.GONE);
         mDataBinding.ilActive.getRoot().setVisibility(View.VISIBLE);
 
-        mDataBinding.ilActive.ivMusicStart.setImageResource(R.mipmap.ktv_room_music_pause);
+        mDataBinding.ilActive.ivMusicStart.setIconResource(R.drawable.ktv_ic_pause);
+//        mDataBinding.ilActive.ivMusicStart.setImageResource(R.mipmap.ktv_room_music_pause);
     }
 
     public void onPauseStatus() {
@@ -194,7 +195,8 @@ public class LrcControlView extends FrameLayout implements View.OnClickListener 
         mDataBinding.ilPrepare.getRoot().setVisibility(View.GONE);
         mDataBinding.ilActive.getRoot().setVisibility(View.VISIBLE);
 
-        mDataBinding.ilActive.ivMusicStart.setImageResource(R.mipmap.ktv_room_music_play);
+        mDataBinding.ilActive.ivMusicStart.setIconResource(R.drawable.ktv_ic_play);
+//        mDataBinding.ilActive.ivMusicStart.setImageResource(R.mipmap.ktv_room_music_play);
     }
 
     public void onIdleStatus() {

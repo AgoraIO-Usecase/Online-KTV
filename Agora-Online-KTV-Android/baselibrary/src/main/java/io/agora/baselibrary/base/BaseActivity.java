@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.widget.ContentLoadingProgressBar;
 import androidx.viewbinding.ViewBinding;
 
 import java.lang.reflect.Type;
@@ -51,7 +52,7 @@ public abstract class BaseActivity<B extends ViewBinding> extends AppCompatActiv
         if (mLoadingDialog == null) {
             mLoadingDialog = new AlertDialog.Builder(this).create();
             mLoadingDialog.getWindow().getDecorView().setBackgroundColor(Color.TRANSPARENT);
-            ProgressBar progressBar = new ProgressBar(this);
+            ProgressBar progressBar = new ContentLoadingProgressBar(this);
             progressBar.setIndeterminate(true);
             progressBar.setLayoutParams(new FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT));
             mLoadingDialog.setView(progressBar);

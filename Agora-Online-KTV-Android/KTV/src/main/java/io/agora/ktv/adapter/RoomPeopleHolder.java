@@ -22,7 +22,7 @@ public class RoomPeopleHolder extends BaseRecyclerViewAdapter.BaseViewHolder<Ktv
     @Override
     public void binding(AgoraMember member, int selectedIndex) {
         mBinding.titleItemRoomSpeaker.setText(String.valueOf(getAdapterPosition() + 1));
-        mBinding.avatarItemRoomSpeaker.setImageResource(R.mipmap.ktv_room_speaker_default);
+        mBinding.avatarItemRoomSpeaker.setImageResource(R.drawable.ktv_ic_seat);
 
         if (member == null) return;
 
@@ -37,8 +37,6 @@ public class RoomPeopleHolder extends BaseRecyclerViewAdapter.BaseViewHolder<Ktv
                     .load(mUser.getAvatarRes())
                     .circleCrop()
                     .into(mBinding.avatarItemRoomSpeaker);
-        } else {
-            mBinding.avatarItemRoomSpeaker.setImageResource(R.mipmap.default_head);
         }
 
         MemberMusicModel mMusicModel = RoomManager.Instance(mContext).getMusicModel();

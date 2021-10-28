@@ -43,8 +43,6 @@ public class UserSeatMenuDialog extends BaseBottomSheetDialogFragment<KtvDialogU
         mBinding.tvName.setText(mUser.getName());
         Glide.with(this)
                 .load(mUser.getAvatarRes())
-                .placeholder(R.mipmap.default_head)
-                .error(R.mipmap.default_head)
                 .into(mBinding.ivUser);
     }
 

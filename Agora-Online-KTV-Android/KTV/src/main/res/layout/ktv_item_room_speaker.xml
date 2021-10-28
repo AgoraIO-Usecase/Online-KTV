@@ -12,7 +12,7 @@
         app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintTop_toTopOf="parent"
         app:shapeAppearance="@style/ktv_roundStyle"
-        tools:src="@mipmap/ktv_room_speaker_default" />
+        tools:src="@drawable/ktv_ic_seat" />
 
     <TextView
         android:id="@+id/title_item_room_speaker"
