@@ -5,10 +5,8 @@ import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 
-import com.agora.data.manager.UserManager;
 import com.agora.data.model.AgoraMember;
 import com.agora.data.model.AgoraRoom;
-import com.agora.data.model.User;
 
 import org.json.JSONObject;
 
@@ -112,12 +110,6 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
 
         MemberMusicModel currentMusic = RoomManager.getInstance().mCurrentMemberMusic;
 
-        mLogger.d("joinChannelEX() called");
-        User mUser = UserManager.Instance().getUserLiveData().getValue();
-        if (mUser == null) {
-            return;
-        }
-
         AgoraRoom mRoom = RoomManager.getInstance().getRoom();
         assert mRoom != null;
         channelName = mRoom.getId();
@@ -144,7 +136,6 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
             return;
         }
 
-        mLogger.d("leaveChannelEX() called");
         RoomManager.getInstance().getRtcEngine().muteAllRemoteAudioStreams(false);
         if (!TextUtils.isEmpty(channelName)) {
             RoomManager.getInstance().getRtcEngine().leaveChannelEx(channelName, mRtcConnection);
@@ -154,7 +145,6 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
 
     @Override
     public void onMusicOpenCompleted() {
-        mLogger.i("onMusicOpenCompleted() called");
         mStatus = Status.Opened;
 
         startDisplayLrc();
@@ -242,11 +232,6 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
             return;
         }
 
-        User mUser = UserManager.Instance().getUserLiveData().getValue();
-        if (mUser == null) {
-            return;
-        }
-
         if (RoomManager.getInstance().isFollowSinger()) {
             if (mStatus == Status.Started) {
                 return;
@@ -264,7 +249,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
 //                    }
 
                     long waitTime = PLAY_WAIT - netRtt;
-                    mLogger.d("onReceivedStatusPlay() called with: waitTime = [%s]", waitTime);
+                    KTVUtil.logD("onReceivedStatusPlay() called with: waitTime = "+ waitTime);
                     if (waitTime > 0) {
                         wait(waitTime);
                     }
@@ -315,7 +300,6 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
                 KTVUtil.logD("remotePos:"+remotePos);
                 seek(remotePos);
             }
-            mLogger.d("onReceivedSetLrcTime() called with: remotePos = [%s], localPos = [%s], offsetPos = [%s]", remotePos, localPos, offsetPos);
         } else {
             super.onReceivedSetLrcTime(uid, position);
         }
@@ -327,11 +311,6 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
 
         MemberMusicModel mMemberMusicModel = RoomManager.getInstance().mCurrentMemberMusic;
         if (mMemberMusicModel == null) {
-            return;
-        }
-
-        User mUser = UserManager.Instance().getUserLiveData().getValue();
-        if (mUser == null) {
             return;
         }
 
@@ -350,18 +329,12 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
             return;
         }
 
-        User mUser = UserManager.Instance().getUserLiveData().getValue();
-        if (mUser == null) {
-            return;
-        }
-
         if (RoomManager.getInstance().isFollowSinger()) {
             long localTs = System.currentTimeMillis();
             long rtt = localTs - time;
             long offsetTS = localTs - time - rtt / 2;
 //            netRtt = System.currentTimeMillis() - testDelayTime;
             netRtt = rtt /2;
-            mLogger.d("TestDelay offsetTS= [%s], netRtt = [%s]", offsetTS, netRtt);
         }
     }
 
@@ -370,11 +343,6 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
         super.onReceivedOriginalChanged(uid, mode);
         MemberMusicModel mMemberMusicModel = RoomManager.getInstance().mCurrentMemberMusic;
         if (mMemberMusicModel == null) {
-            return;
-        }
-
-        User mUser = UserManager.Instance().getUserLiveData().getValue();
-        if (mUser == null) {
             return;
         }
 
@@ -387,11 +355,6 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
     protected void startPublish() {
         MemberMusicModel mMemberMusicModel = RoomManager.getInstance().mCurrentMemberMusic;
         if (mMemberMusicModel == null) {
-            return;
-        }
-
-        User mUser = UserManager.Instance().getUserLiveData().getValue();
-        if (mUser == null) {
             return;
         }
 
@@ -415,14 +378,14 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
         Map<String, Object> msg = new HashMap<>();
         msg.put("cmd", "replyTestDelay");
         msg.put("time", receiveTime);
-        msg.put("userId", UserManager.Instance().getUser().getUserId());
+        msg.put("userId", UserManager.getInstance().mUser.getUserId());
         RoomManager.getInstance().sendStreamMsg(msg);
     }
 
     public void sendTestDelay() {
         Map<String, Object> msg = new HashMap<>();
         msg.put("cmd", "testDelay");
-        msg.put("userId", UserManager.Instance().getUser().getUserId());
+        msg.put("userId", UserManager.getInstance().mUser.getUserId());
         msg.put("time", System.currentTimeMillis());
         RoomManager.getInstance().sendStreamMsg(msg);
     }
@@ -450,11 +413,6 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
             return;
         }
 
-        User mUser = UserManager.Instance().getUserLiveData().getValue();
-        if (mUser == null) {
-            return;
-        }
-
         if (RoomManager.getInstance().isMainSinger()) {
             sendTrackMode(i);
         }
@@ -468,7 +426,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
         int streamId = RoomManager.getInstance().getStreamId();
         int ret = RoomManager.getInstance().getRtcEngine().sendStreamMessage(streamId, jsonMsg.toString().getBytes());
         if (ret < 0) {
-            mLogger.e("sendTrackMode() sendStreamMessage called returned: ret = [%s]", ret);
+            KTVUtil.logE("sendTrackMode() sendStreamMessage called returned: ret ="+ret);
         }
     }
 }

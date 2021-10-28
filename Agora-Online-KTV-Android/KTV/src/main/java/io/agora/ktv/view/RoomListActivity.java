@@ -1,15 +1,14 @@
 package io.agora.ktv.view;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
-import android.telecom.ConnectionService;
 import android.view.View;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -18,10 +17,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 
-import com.agora.data.DataRepositoryImpl;
-import com.agora.data.ExampleData;
-import com.agora.data.manager.UserManager;
+import io.agora.ktv.manager.UserManager;
 import com.agora.data.model.AgoraRoom;
+import com.agora.data.model.User;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,10 +32,12 @@ import io.agora.ktv.R;
 import io.agora.ktv.adapter.RoomHolder;
 import io.agora.ktv.databinding.KtvActivityRoomListBinding;
 import io.agora.ktv.databinding.KtvItemRoomListBinding;
+import io.agora.ktv.repo.DataRepositoryImpl;
 import io.agora.ktv.widget.DividerDecoration;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
 
 /**
  * Remember, this room list uses the R.mipmap.cover_xxx
@@ -103,7 +103,6 @@ public class RoomListActivity extends BaseActivity<KtvActivityRoomListBinding> {
         mBinding.list.addItemDecoration(new DividerDecoration(2));
         mBinding.swipeRefreshLayout.setOnRefreshListener(this::loadRooms);
 
-        UserManager.Instance().getUserLiveData().observe(this, user -> loadRooms());
     }
 
     protected void initData() {
@@ -111,10 +110,17 @@ public class RoomListActivity extends BaseActivity<KtvActivityRoomListBinding> {
         login();
     }
 
+    @SuppressLint("CheckResult")
     private void login() {
         mBinding.swipeRefreshLayout.setRefreshing(true);
-        if (!UserManager.Instance().alreadyLoggedIn())
-            UserManager.Instance().loginIn();
+        if (!UserManager.getInstance().alreadyLoggedIn())
+            DataRepositoryImpl.getInstance().login(UserManager.randomId(), UserManager.randomName()).subscribe(new Consumer<User>() {
+                @Override
+                public void accept(User user) {
+                    UserManager.getInstance().onLoginIn(user);
+                    loadRooms();
+                }
+            });
     }
 
     private void loadRooms() {

@@ -13,8 +13,7 @@ import androidx.annotation.Nullable;
 import androidx.core.util.ObjectsCompat;
 import androidx.fragment.app.Fragment;
 
-import com.agora.data.ExampleData;
-import com.agora.data.manager.UserManager;
+import io.agora.ktv.repo.ExampleData;
 import com.agora.data.model.AgoraMember;
 import com.agora.data.model.AgoraRoom;
 import com.agora.data.model.User;
@@ -43,6 +42,7 @@ import io.agora.ktv.manager.MultipleMusicPlayer;
 import io.agora.ktv.manager.RoomManager;
 import io.agora.ktv.manager.SimpleRoomEventCallback;
 import io.agora.ktv.manager.SingleMusicPlayer;
+import io.agora.ktv.manager.UserManager;
 import io.agora.ktv.service.MyForegroundService;
 import io.agora.ktv.view.dialog.MusicSettingDialog;
 import io.agora.ktv.view.dialog.RoomChooseSongDialog;
@@ -151,9 +151,9 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> {
             AgoraMember mMine = RoomManager.getInstance().getMine();
             if (ObjectsCompat.equals(member, mMine)) {
                 if (member.getIsSelfMuted() == 1) {
-                    mBinding.btnMicAttRoom.setImageResource(R.mipmap.ktv_room_unmic);
+                    mBinding.btnMicAttRoom.setImageResource(R.drawable.ktv_ic_mic_disable);
                 } else {
-                    mBinding.btnMicAttRoom.setImageResource(R.mipmap.ktv_room_mic);
+                    mBinding.btnMicAttRoom.setImageResource(R.drawable.ktv_ic_mic_enable);
                 }
             }
         }
@@ -290,7 +290,7 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> {
             }
         });
 
-        ExampleData.getMvImage().observe(this, index -> mBinding.lrcControlView.setLrcViewBackground(ExampleData.exampleBackgrounds.get(index)));
+        RoomManager.getInstance().getMvImage().observe(this, index -> mBinding.lrcControlView.setLrcViewBackground(ExampleData.exampleBackgrounds.get(index)));
     }
 
     /**
@@ -324,7 +324,7 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> {
             }
         });
         // Step 2
-        User mUser = UserManager.Instance().getUserLiveData().getValue();
+        User mUser = UserManager.getInstance().mUser;
         if (mUser == null) {
             ToastUtil.toastShort(this, "please login in");
             finish();
@@ -336,7 +336,7 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> {
         mBinding.toolBarAttRoom.setTitle(mRoom.getId());
         Glide.with(this)
                 .asDrawable()
-                .load(mRoom.getCoverRes())
+                .load(ExampleData.getCoverRes(mRoom.getCover()))
                 .apply(RequestOptions.bitmapTransform(new BlurTransformation(25, 3)))
                 .into(new CustomTarget<Drawable>() {
                     @Override
@@ -372,9 +372,7 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> {
 
                     @Override
                     public void onError(@NonNull Throwable e) {
-                        KTVUtil.logD("onError");
                         ToastUtil.toastLong(RoomActivity.this, getString(R.string.ktv_join_error, e.getMessage()));
-                        e.printStackTrace();
                         dismissLoading();
                         finish();
                     }
@@ -447,7 +445,7 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> {
 
                         @Override
                         public void onComplete() {
-                            mBinding.btnMicAttRoom.setImageResource(desireMute ? R.mipmap.ktv_room_unmic : R.mipmap.ktv_room_mic);
+                            mBinding.btnMicAttRoom.setImageResource(desireMute ? R.drawable.ktv_ic_mic_disable : R.drawable.ktv_ic_mic_enable);
                         }
 
                         @Override

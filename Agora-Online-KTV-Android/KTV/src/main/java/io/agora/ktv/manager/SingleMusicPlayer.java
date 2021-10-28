@@ -4,9 +4,6 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 
-import com.agora.data.manager.UserManager;
-import com.agora.data.model.User;
-
 import io.agora.baselibrary.util.KTVUtil;
 import io.agora.baselibrary.util.ToastUtil;
 import io.agora.ktv.R;
@@ -48,10 +45,6 @@ public class SingleMusicPlayer extends BaseMusicPlayer {
 
     @Override
     public void prepare(@NonNull MemberMusicModel music) {
-        User mUser = UserManager.Instance().getUserLiveData().getValue();
-        if (mUser == null) {
-            return;
-        }
 
         onPrepareResource();
 

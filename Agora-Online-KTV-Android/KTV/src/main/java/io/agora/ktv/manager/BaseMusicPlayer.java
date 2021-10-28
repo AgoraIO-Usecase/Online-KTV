@@ -9,10 +9,6 @@ import android.os.Message;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 
-import com.agora.data.manager.UserManager;
-import com.elvishew.xlog.Logger;
-import com.elvishew.xlog.XLog;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -26,8 +22,6 @@ import io.agora.rtc2.Constants;
 import io.agora.rtc2.IRtcEngineEventHandler;
 
 public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements IMediaPlayerObserver {
-    protected final Logger.Builder mLogger = XLog.tag("MusicPlayer");
-
     protected final Context mContext;
     protected int mRole = Constants.CLIENT_ROLE_BROADCASTER;
 
@@ -190,7 +184,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
                     bundle = new Bundle();
                     bundle.putInt("uid", uid);
                     bundle.putLong("time", time);
-                    bundle.putInt("userId", UserManager.Instance().getUser().getUserId());
+                    bundle.putInt("userId", UserManager.getInstance().mUser.getUserId());
                     what = ACTION_ON_RECEIVED_TEST_DELAY;
                     break;
                 }
@@ -199,7 +193,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
                     long time = jsonMsg.getLong("time");
                     bundle = new Bundle();
                     bundle.putInt("uid", uid);
-                    bundle.putInt("userId", UserManager.Instance().getUser().getUserId());
+                    bundle.putInt("userId", UserManager.getInstance().mUser.getUserId());
                     bundle.putLong("time", time);
                     bundle.putLong("testDelayTime", testDelayTime);
                     what = ACTION_ON_RECEIVED_REPLAY_TEST_DELAY;
@@ -210,7 +204,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
                     bundle = new Bundle();
                     bundle.putInt("uid", uid);
                     bundle.putInt("mode", mode);
-                    bundle.putInt("userId", UserManager.Instance().getUser().getUserId());
+                    bundle.putInt("userId", UserManager.getInstance().mUser.getUserId());
                     what = ACTION_ON_RECEIVED_CHANGED_ORIGLE;
                     break;
                 }
@@ -221,7 +215,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
                 message.sendToTarget();
             }
         } catch (JSONException exp) {
-            mLogger.e("onStreamMessage: failed parse json, error: " + exp.toString());
+            exp.printStackTrace();
         }
     }
 
@@ -255,24 +249,24 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
 //        }
 
         if (mStatus.isAtLeast(Status.Opened)) {
-            mLogger.e("open error: current player is in playing state already, abort playing");
+            KTVUtil.logE("open error: current player is in playing state already, abort playing");
             return -2;
         }
 
         if (!mStopDisplayLrc) {
-            mLogger.e("open error: current player is recving remote streams, abort playing");
+            KTVUtil.logE("open error: current player is recving remote streams, abort playing");
             return -3;
         }
 
         File fileMusic = currentMusic.getFileMusic();
         if (!fileMusic.exists()) {
-            mLogger.e("open error: fileMusic is not exists");
+            KTVUtil.logE("open error: fileMusic is not exists");
             return -4;
         }
 
         File fileLrc = currentMusic.getFileLrc();
         if (!fileLrc.exists()) {
-            mLogger.e("open error: fileLrc is not exists");
+            KTVUtil.logE("open error: fileLrc is not exists");
             return -5;
         }
 
@@ -283,12 +277,12 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
         stopDisplayLrc();
 
         mAudioTrackIndex = 1;
-        mLogger.i("open() called with: currentMusic = [%s]", currentMusic);
+        KTVUtil.logD("open() called with: currentMusic = ["+ currentMusic +"]");
         return mPlayer.open(fileMusic.getAbsolutePath(), 0);
     }
 
     protected void play() {
-        mLogger.i("play() called");
+        KTVUtil.logD("play() called");
         if (!mStatus.isAtLeast(Status.Opened)) {
             return;
         }
@@ -301,7 +295,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
     }
 
     public void stop() {
-        mLogger.i("stop() called");
+        KTVUtil.logD("stop() called");
         if (!mStatus.isAtLeast(Status.Started)) {
             return;
         }
@@ -310,7 +304,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
     }
 
     protected void pause() {
-        mLogger.i("pause() called");
+        KTVUtil.logD("pause() called");
         if (!mStatus.isAtLeast(Status.Opened)) {
             return;
         }
@@ -322,7 +316,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
     }
 
     protected void resume() {
-        mLogger.i("resume() called");
+        KTVUtil.logD("resume() called");
         if (!mStatus.isAtLeast(Status.Opened)) {
             return;
         }
@@ -420,7 +414,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
 
     private void startSyncLrc(String musicId, long duration) {
         mSyncLrcThread = new Thread(() -> {
-            mLogger.i("startSyncLrc: " + musicId);
+            KTVUtil.logD("startSyncLrc: " + musicId);
             mStopSyncLrc = false;
             while (mPlayer != null && !mStopSyncLrc && mStatus.isAtLeast(Status.Started)
                     && !Thread.currentThread().isInterrupted()) {
@@ -480,12 +474,12 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
     }
 
     protected void onReceivedOriginalChanged(int uid, int mode) {
-        mLogger.d("onReceivedOriginalChanged() called with: uid = [%s], mode = [%s]", uid, mode);
+        KTVUtil.logD("onReceivedOriginalChanged() called with: uid = ["+ uid +"], mode = ["+ mode +"]");
     }
 
     @Override
     public void onPlayerStateChanged(io.agora.mediaplayer.Constants.MediaPlayerState state, io.agora.mediaplayer.Constants.MediaPlayerError error) {
-        mLogger.i("onPlayerStateChanged: " + state + ", error: " + error);
+        KTVUtil.logD("onPlayerStateChanged: " + state + ", error: " + error);
         switch (state) {
             case PLAYER_STATE_OPENING:
                 onMusicOpening();
@@ -504,7 +498,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
                 break;
             case PLAYER_STATE_FAILED:
                 onMusicOpenError(io.agora.mediaplayer.Constants.MediaPlayerError.getValue(error));
-                mLogger.e("onPlayerStateChanged: failed to play, error " + error);
+                KTVUtil.logE("onPlayerStateChanged: failed to play, error " + error);
                 break;
             default:
         }
@@ -537,12 +531,12 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
     }
 
     private void onMusicOpening() {
-        mLogger.i("onMusicOpening() called");
+        KTVUtil.logD("onMusicOpening() called");
         mHandler.obtainMessage(ACTION_ONMUSIC_OPENING).sendToTarget();
     }
 
     public void onMusicOpenCompleted() {
-        mLogger.i("onMusicOpenCompleted() called");
+        KTVUtil.logD("onMusicOpenCompleted() called");
         mStatus = Status.Opened;
 
         play();
@@ -551,21 +545,21 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
     }
 
     private void onMusicOpenError(int error) {
-        mLogger.i("onMusicOpenError() called with: error = [%s]", error);
+        KTVUtil.logD("onMusicOpenError() called with: error = ["+ error +"]");
         reset();
 
         mHandler.obtainMessage(ACTION_ON_MUSIC_OPENERROR, error).sendToTarget();
     }
 
     protected void onMusicPlayingByListener() {
-        mLogger.i("onMusicPlayingByListener() called");
+        KTVUtil.logD("onMusicPlayingByListener() called");
         mStatus = Status.Started;
 
         mHandler.obtainMessage(ACTION_ON_MUSIC_PLAING).sendToTarget();
     }
 
     protected void onMusicPlaying() {
-        mLogger.i("onMusicPlaying() called");
+        KTVUtil.logD("onMusicPlaying() called");
         mStatus = Status.Started;
 
         if (mStopSyncLrc && RoomManager.getInstance().isSinger())
@@ -575,14 +569,14 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
     }
 
     private void onMusicPause() {
-        mLogger.i("onMusicPause() called");
+        KTVUtil.logD("onMusicPause() called");
         mStatus = Status.Paused;
 
         mHandler.obtainMessage(ACTION_ON_MUSIC_PAUSE).sendToTarget();
     }
 
     private void onMusicStop() {
-        mLogger.i("onMusicStop() called");
+        KTVUtil.logD("onMusicStop() called");
         mStatus = Status.Stopped;
 
         stopDisplayLrc();
@@ -593,7 +587,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
     }
 
     private void onMusicCompleted() {
-        mLogger.i("onMusicCompleted() called");
+        KTVUtil.logD("onMusicCompleted() called");
         mPlayer.stop();
         stopDisplayLrc();
         stopPublish();
@@ -603,7 +597,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
     }
 
     public void destroy() {
-        mLogger.i("destroy() called");
+        KTVUtil.logD("destroy() called");
         stopPublish();
         mPlayer.unRegisterPlayerObserver(this);
         RoomManager.getInstance().getRtcEngine().removeHandler(this);

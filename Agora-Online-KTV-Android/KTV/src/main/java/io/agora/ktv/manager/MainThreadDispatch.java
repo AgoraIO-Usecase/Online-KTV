@@ -9,19 +9,17 @@ import androidx.annotation.NonNull;
 
 import com.agora.data.model.AgoraMember;
 import com.agora.data.model.AgoraRoom;
-import com.elvishew.xlog.Logger;
-import com.elvishew.xlog.XLog;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import io.agora.baselibrary.util.KTVUtil;
 import io.agora.ktv.bean.MemberMusicModel;
 
 /**
  * 主要将房间内事件切换到主线程，然后丢给界面。
  */
 public class MainThreadDispatch implements RoomEventCallback {
-    private final Logger.Builder mLogger = XLog.tag("MainThreadDispatch");
 
     private static final int ON_MEMBER_JOIN = 1;
     private static final int ON_MEMBER_LEAVE = ON_MEMBER_JOIN + 1;
@@ -164,31 +162,31 @@ public class MainThreadDispatch implements RoomEventCallback {
 
     @Override
     public void onMemberJoin(@NonNull AgoraMember member) {
-        mLogger.d("onMemberJoin() called with: member = [%s]", member);
+        KTVUtil.logD("onMemberJoin() called with: member = ["+ member+"]");
         mHandler.obtainMessage(ON_MEMBER_JOIN, member).sendToTarget();
     }
 
     @Override
     public void onMemberLeave(@NonNull AgoraMember member) {
-        mLogger.d("onMemberLeave() called with: member = [%s]", member);
+        KTVUtil.logD("onMemberLeave() called with: member = ["+ member+"]");
         mHandler.obtainMessage(ON_MEMBER_LEAVE, member).sendToTarget();
     }
 
     @Override
     public void onRoleChanged(@NonNull AgoraMember member) {
-        mLogger.d("onRoleChanged() called with: member = [%s]", member);
+        KTVUtil.logD("onRoleChanged() called with: member = ["+ member+"]");
         mHandler.obtainMessage(ON_ROLE_CHANGED, member).sendToTarget();
     }
 
     @Override
     public void onAudioStatusChanged(@NonNull AgoraMember member) {
-        mLogger.d("onAudioStatusChanged() called with: member = [%s]", member);
+        KTVUtil.logD("onAudioStatusChanged() called with: member = ["+ member+"]");
         mHandler.obtainMessage(ON_AUDIO_CHANGED, member).sendToTarget();
     }
 
     @Override
     public void onRoomError(int error, String msg) {
-        mLogger.d("onRoomError() called with: error = [%s], msg = [%s]", error, msg);
+        KTVUtil.logD("onRoomError() called with: error = ["+ error +"], msg = ["+ msg +"]");
         Bundle bundle = new Bundle();
         bundle.putInt("error", error);
         bundle.putString("msg", msg);
@@ -200,43 +198,43 @@ public class MainThreadDispatch implements RoomEventCallback {
 
     @Override
     public void onMusicAdd(@NonNull MemberMusicModel music) {
-        mLogger.d("onMusicAdd() called with: music = [%s]", music);
+        KTVUtil.logD("onMusicAdd() called with: music = ["+ music+"]");
         mHandler.obtainMessage(ON_MUSIC_ADD, music).sendToTarget();
     }
 
     @Override
     public void onMusicDelete(@NonNull MemberMusicModel music) {
-        mLogger.d("onMusicDelete() called with: music = [%s]", music);
+        KTVUtil.logD("onMusicDelete() called with: music = ["+ music+"]");
         mHandler.obtainMessage(ON_MUSIC_DELETE, music).sendToTarget();
     }
 
     @Override
     public void onMusicChanged(@NonNull MemberMusicModel music) {
-        mLogger.d("onMusicChanged() called with: music = [%s]", music);
+        KTVUtil.logD("onMusicChanged() called with: music = ["+ music+"]");
         mHandler.obtainMessage(ON_MUSIC_CHANGED, music).sendToTarget();
     }
 
     @Override
     public void onMusicEmpty() {
-        mLogger.d("onMusicEmpty() called");
+        KTVUtil.logD("onMusicEmpty() called");
         mHandler.obtainMessage(ON_MUSIC_EMPTY).sendToTarget();
     }
 
     @Override
     public void onMemberJoinedChorus(@NonNull MemberMusicModel music) {
-        mLogger.d("onMemberJoinChorus() called with: music = [%s]", music);
+        KTVUtil.logD("onMemberJoinChorus() called with: music = ["+ music+"]");
         mHandler.obtainMessage(ON_MEMBER_JOIN_CHORUS, music).sendToTarget();
     }
 
     @Override
     public void onMemberChorusReady(@NonNull MemberMusicModel music) {
-        mLogger.d("onMemberChorusReady() called with: music = [%s]", music);
+        KTVUtil.logD("onMemberChorusReady() called with: music = ["+ music+"]");
         mHandler.obtainMessage(ON_MEMBER_CHORUS_READY, music).sendToTarget();
     }
 
     @Override
     public void onMusicProgress(long total, long cur) {
-        mLogger.d("onMusicProgress() called with: total = [%s], cur = [%s]", total, cur);
+        KTVUtil.logD("onMusicProgress() called with: total = ["+ total +"], cur = ["+ cur +"]");
         Bundle bundle = new Bundle();
         bundle.putLong("total", total);
         bundle.putLong("cur", cur);

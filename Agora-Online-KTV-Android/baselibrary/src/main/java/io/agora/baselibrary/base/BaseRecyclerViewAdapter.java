@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.Size;
@@ -23,6 +24,7 @@ import io.agora.baselibrary.util.KTVUtil;
  *
  * @author chenhengfei@agora.io
  */
+@Keep
 public class BaseRecyclerViewAdapter<B extends ViewBinding, T,H extends BaseRecyclerViewAdapter.BaseViewHolder<B,T>> extends RecyclerView.Adapter<H> {
 
     public List<T> dataList;
@@ -210,6 +212,7 @@ public class BaseRecyclerViewAdapter<B extends ViewBinding, T,H extends BaseRecy
         if (bindingClass == null)
             bindingClass = getGenericClass(viewHolderClass, 0);
     }
+    @Keep
     public static abstract class BaseViewHolder<B extends ViewBinding, T> extends RecyclerView.ViewHolder {
         public OnTempItemClickListener mListener;
         public final B mBinding;

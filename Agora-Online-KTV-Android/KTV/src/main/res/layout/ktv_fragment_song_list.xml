@@ -3,9 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/ktv_colorPrimaryDark"
-    android:padding="20dp">
+    android:layout_height="match_parent">
 
     <LinearLayout
         android:id="@+id/container_search_sec_song_list"
@@ -22,11 +20,11 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@drawable/ktv_shape_dialog_search_input_background"
-            app:closeIcon="@mipmap/ktv_dialog_search_clear"
+            app:closeIcon="@drawable/ktv_ic_clear"
             app:iconifiedByDefault="false"
             app:queryHint="@string/ktv_dialog_music_list_search_hint"
-            app:searchHintIcon="@mipmap/ktv_dialog_search"
-            app:searchIcon="@mipmap/ktv_dialog_search" />
+            app:searchHintIcon="@drawable/ktv_ic_search"
+            app:searchIcon="@drawable/ktv_ic_search" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/tvSearch"
@@ -68,10 +66,13 @@
         android:id="@+id/llEmpty"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:drawablePadding="@dimen/ktv_space_normal"
+        android:gravity="center"
         android:text="@string/ktv_room_list_empty"
         android:textColor="@color/ktv_list_empty"
         android:textSize="12sp"
-        app:drawableTopCompat="@mipmap/ktv_room_list_empty"
+        android:visibility="gone"
+        app:drawableTopCompat="@drawable/ktv_ic_empty"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

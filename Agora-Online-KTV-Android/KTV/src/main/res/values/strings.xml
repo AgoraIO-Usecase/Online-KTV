@@ -29,11 +29,11 @@
     <string name="ktv_room_accompany">Accompaniment</string>
     <string name="ktv_room_change_song">Cut song</string>
     <string name="ktv_room_seat_off">Seat off</string>
+    <string name="ktv_room_cut_off_song">Cut Off</string>
     <string name="ktv_room_choose_song">Sing</string>
     <string name="ktv_room_choosed_song">Requested</string>
     <string name="ktv_room_sing2">Singing</string>
-    <string name="ktv_room_no_sing_1">There\'s no one singing now</string>
-    <string name="ktv_room_no_sing_2">Click "Sing" to pick a song and start singing</string>
+    <string name="ktv_room_no_sing">There\'s no one singing now\nClick "Sing" to pick a song and start singing</string>
     <string name="ktv_dialog_migu_tip">The music is provided by MIGU music</string>
     <string name="ktv_dialog_music_list_empty">No related search results were found</string>
     <string name="ktv_dialog_music_list_search_hint">Search</string>
@@ -65,10 +65,12 @@
     <string name="ktv_permission_refused">Necessary permissions to run this function have not been granted.</string>
 
 <!--    Content Description-->
+    <string name="ktv_create_room">create room</string>
     <string name="ktv_toggle_mic">mute mic or not</string>
     <string name="ktv_choose_cover">choose the cover you like</string>
     <string name="ktv_chorus">chorus</string>
     <string name="ktv_order_song">order song</string>
+    <string name="ktv_random_room_name">Get a random room name</string>
 
 <!--    String formatter-->
     <string name="song_and_singer" translatable="false" tools:ignore="ResourceName">%s - %s</string>

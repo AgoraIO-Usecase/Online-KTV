@@ -9,6 +9,7 @@ import io.agora.baselibrary.base.BaseRecyclerViewAdapter;
 import io.agora.ktv.MyUtil;
 import io.agora.ktv.R;
 import io.agora.ktv.databinding.KtvItemRoomSpeakerBinding;
+import io.agora.ktv.repo.ExampleData;
 
 public class RoomPeopleHolder extends BaseRecyclerViewAdapter.BaseViewHolder<KtvItemRoomSpeakerBinding, AgoraMember> {
     public RoomPeopleHolder(@NonNull KtvItemRoomSpeakerBinding mBinding) {
@@ -23,16 +24,16 @@ public class RoomPeopleHolder extends BaseRecyclerViewAdapter.BaseViewHolder<Ktv
         mBinding.titleItemRoomSpeaker.setText(String.valueOf(getAdapterPosition() + 1));
 
         if (member == null) {
-            mBinding.avatarItemRoomSpeaker.setImageResource(R.mipmap.ktv_room_speaker_default);
+            mBinding.avatarItemRoomSpeaker.setImageResource(R.drawable.ktv_ic_seat);
             MyUtil.scaleOnTouch(itemView);
         }else {
             MyUtil.clearStateListAnimator(itemView);
             // User's special avatar
             User mUser = member.getUser();
             if (mUser != null) {
-                mBinding.avatarItemRoomSpeaker.setImageResource(mUser.getAvatarRes());
+                mBinding.avatarItemRoomSpeaker.setImageResource(ExampleData.getAvatarRes(mUser.getAvatar()));
             } else {
-                mBinding.avatarItemRoomSpeaker.setImageResource(R.mipmap.default_head);
+                mBinding.avatarItemRoomSpeaker.setImageResource(R.drawable.ic_avatar);
             }
 
         }

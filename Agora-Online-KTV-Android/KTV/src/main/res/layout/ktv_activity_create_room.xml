@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@id/titleBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:navigationIcon="@drawable/ktv_ic_back_round"
+        app:title="@string/ktv_room_list_title"
+        app:titleTextAppearance="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
+        app:titleTextColor="@color/ktv_title" />
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/container_att_create_room"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_margin="@dimen/ktv_space_normal"
+        android:background="#63000000"
+        app:layout_constraintDimensionRatio="345:276"
+        app:layout_constraintTop_toBottomOf="@id/titleBar"
+        app:shapeAppearance="@style/ktv_cornerSmallStyle" />
+
+    <TextView
+        android:id="@+id/tvLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="@string/ktv_create_room_name_label"
+        android:textColor="@color/ktv_title"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/container_att_create_room" />
+
+    <TextView
+        android:id="@+id/tvName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/white"
+        android:textSize="@dimen/ktv_room_text"
+        app:layout_constraintBottom_toBottomOf="@+id/container_att_create_room"
+        app:layout_constraintEnd_toEndOf="@id/container_att_create_room"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toStartOf="@+id/container_att_create_room"
+        app:layout_constraintTop_toTopOf="@+id/container_att_create_room"
+        tools:text="@string/ktv_app_name" />
+
+    <ImageButton
+        android:id="@+id/ivChangeSong"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/ktv_space_small"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/ktv_random_room_name"
+        android:src="@drawable/ktv_ic_dice"
+        app:layout_constraintBottom_toBottomOf="@+id/container_att_create_room"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toEndOf="@+id/tvName"
+        app:layout_constraintTop_toTopOf="@+id/container_att_create_room"
+        tools:targetApi="lollipop" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/tvTip"
+        style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/ktv_space_normal"
+        android:clickable="false"
+        android:focusable="false"
+        android:gravity="start|center_vertical"
+        android:padding="@dimen/ktv_space_normal"
+        android:text="@string/ktv_create_room_name_label2"
+        android:textColor="#CCFFFFFF"
+        app:backgroundTint="#63000000"
+        app:icon="@drawable/ktv_ic_icon_warning"
+        app:iconTint="@android:color/transparent"
+        app:iconTintMode="src_atop"
+        app:layout_constraintBottom_toTopOf="@+id/btCreate"
+        app:shapeAppearance="@style/ktv_cornerSmallStyle" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btCreate"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:insetTop="2dp"
+        android:insetBottom="2dp"
+        android:text="@string/ktv_create_button"
+        android:textColor="@android:color/white"
+        android:textSize="@dimen/ktv_title_size"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:shapeAppearance="@style/ktv_roundStyle" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -6,7 +6,7 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.agora.data.ExampleData;
+import io.agora.ktv.repo.ExampleData;
 import com.agora.data.model.AgoraRoom;
 
 import io.agora.baselibrary.base.BaseBottomSheetDialogFragment;
@@ -36,7 +36,7 @@ public class RoomMVDialog extends BaseBottomSheetDialogFragment<KtvDialogMvBindi
 
     public void initView() {
         mAdapter = new BaseRecyclerViewAdapter<>(ExampleData.exampleBackgrounds, this, MVHolder.class);
-        Integer index = ExampleData.getMvImage().getValue();
+        Integer index = RoomManager.getInstance().getMvImage().getValue();
         mAdapter.selectedIndex = index == null ? 0 : index;
         mBinding.rvList.setAdapter(mAdapter);
         mBinding.rvList.addItemDecoration(new DividerDecoration(3));
@@ -53,11 +53,7 @@ public class RoomMVDialog extends BaseBottomSheetDialogFragment<KtvDialogMvBindi
         mAdapter.selectedIndex = position;
         mAdapter.notifyItemChanged(formerIndex);
         mAdapter.notifyItemChanged(position);
-        ExampleData.updateCoverImage(position);
+        RoomManager.getInstance().updateCoverImage(position);
     }
 
-    @Override
-    public void onItemClick(View view, int position, long id) {
-
-    }
 }

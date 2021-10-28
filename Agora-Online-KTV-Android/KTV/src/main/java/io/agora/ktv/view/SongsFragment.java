@@ -6,7 +6,7 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.agora.data.DataRepositoryImpl;
+import io.agora.ktv.repo.DataRepositoryImpl;
 import com.agora.data.model.MusicModel;
 
 import java.util.List;

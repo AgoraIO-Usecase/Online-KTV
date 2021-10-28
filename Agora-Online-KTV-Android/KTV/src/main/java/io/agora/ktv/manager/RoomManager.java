@@ -8,16 +8,14 @@ import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
-import com.agora.data.DataRepositoryImpl;
-import com.agora.data.ExampleData;
-import com.agora.data.R;
-import com.agora.data.manager.UserManager;
+import io.agora.ktv.R;
+import io.agora.ktv.repo.DataRepositoryImpl;
 import com.agora.data.model.AgoraMember;
 import com.agora.data.model.AgoraRoom;
 import com.agora.data.model.User;
-import com.elvishew.xlog.Logger;
-import com.elvishew.xlog.XLog;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -55,9 +53,6 @@ public final class RoomManager {
     public static final String acceptChorus = "acceptChorus";
     public static final String countdown = "countdown";
 
-    private final Logger.Builder mLogger = XLog.tag("RoomManager");
-    private final Logger.Builder mLoggerRTC = XLog.tag("RTC");
-
     private volatile static RoomManager instance;
 
     private final MainThreadDispatch mMainThreadDispatch = new MainThreadDispatch();
@@ -86,7 +81,6 @@ public final class RoomManager {
 
         @Override
         public void onUserOffline(int uid, int reason) {
-            mLoggerRTC.i("onUserOffline() " + uid);
             super.onUserOffline(uid, reason);
             User user = new User();
             user.setUserId(uid);
@@ -262,7 +256,7 @@ public final class RoomManager {
 //                        String userId = jsonMsg.getString("userId");
                         int acceptId = jsonMsg.getInt("acceptedUid");
 
-                        if (acceptId == UserManager.Instance().getUser().getUserId()) {
+                        if (acceptId == UserManager.getInstance().mUser.getUserId()) {
 
                             if (mCurrentMemberMusic != null && mCurrentMemberMusic.getType() == MemberMusicModel.SingType.Chorus
                                     && uid == mCurrentMemberMusic.getUserId()) {
@@ -270,7 +264,7 @@ public final class RoomManager {
                                 if (mCurrentMemberMusic.getUser1Id() == 0) {
                                     KTVUtil.logD("acceptChorus---- case1");
                                     // Mark as accepted
-                                    mCurrentMemberMusic.setUser1Id(UserManager.Instance().getUser().getUserId());
+                                    mCurrentMemberMusic.setUser1Id(UserManager.getInstance().mUser.getUserId());
                                     // Start Prepare
                                     mMainThreadDispatch.onMemberJoinedChorus(mCurrentMemberMusic);
                                     // 确认是陪唱 && 发消息的是主唱
@@ -294,6 +288,7 @@ public final class RoomManager {
         }
     };
 
+    //<editor-fold desc="INIT">
     private RoomManager() {
     }
 
@@ -323,22 +318,19 @@ public final class RoomManager {
             config.mChannelProfile = Constants.CHANNEL_PROFILE_LIVE_BROADCASTING;
             config.mAudioScenario = Constants.AUDIO_SCENARIO_CHORUS;
 
-            try {
-                mRtcEngine = (RtcEngineEx) RtcEngine.create(config);
-                emitter.onComplete();
-            } catch (Exception e) {
-                emitter.onError(e);
-            }
+            mRtcEngine = (RtcEngineEx) RtcEngine.create(config);
+            emitter.onComplete();
         });
     }
 
 
     public Completable joinRoom(AgoraRoom room) {
+        if(mRtcEngine == null) return Completable.complete();
         return Completable.create(emitter -> {
             KTVUtil.logD("joinRoom ---" + Thread.currentThread().getName());
             RoomManager.this.mRoom = room;
 
-            User mUser = UserManager.Instance().getUserLiveData().getValue();
+            User mUser = UserManager.getInstance().mUser;
             if (mUser == null) {
                 emitter.onError(new NullPointerException("mUser is empty"));
             } else {
@@ -350,7 +342,7 @@ public final class RoomManager {
                 mCurrentMember.setRole(Constants.CLIENT_ROLE_AUDIENCE);
 
                 try {
-                    ExampleData.updateCoverImage(Integer.parseInt(mRoom.getMv()));
+                    updateCoverImage(Integer.parseInt(mRoom.getMv()));
                     onJoinRoom();
                     emitter.onComplete();
                 } catch (NumberFormatException e) {
@@ -366,6 +358,7 @@ public final class RoomManager {
     }
 
     public Completable joinRTC() {
+        if(mRtcEngine == null) return Completable.complete();
         return Completable.create(emitter -> {
             KTVUtil.logD("Thread joinRTC:" + Thread.currentThread().getName());
             mRtcEngine.setChannelProfile(Constants.CHANNEL_PROFILE_LIVE_BROADCASTING);
@@ -381,12 +374,10 @@ public final class RoomManager {
 
             mRtcEngine.setClientRole(Constants.CLIENT_ROLE_AUDIENCE);
 
-            mLoggerRTC.i("joinRTC() called with: results = [%s]", mRoom);
-            int res = mRtcEngine.joinChannel("", mRoom.getChannelName(), null, UserManager.Instance().getUser().getUserId());
+            int res = mRtcEngine.joinChannel("", mRoom.getChannelName(), null, UserManager.getInstance().mUser.getUserId());
             KTVUtil.logD("res:" + res);
             if (res != Constants.ERR_OK) {
-                KTVUtil.logD("ERROR");
-                mLoggerRTC.e("joinRTC() called error " + res);
+                KTVUtil.logD("joinRTC() called error " + res);
                 emitter.onError(new Exception("join rtc room error " + res));
             } else {
                 KTVUtil.logD("COMPLETE");
@@ -394,6 +385,7 @@ public final class RoomManager {
             }
         });
     }
+    //</editor-fold>
 
     public RtcEngineEx getRtcEngine() {
         return mRtcEngine;
@@ -428,7 +420,7 @@ public final class RoomManager {
     }
 
     public void onMusicEmpty() {
-        mLogger.i("onMusicEmpty() called");
+        KTVUtil.logD("onMusicEmpty() called");
         if (mCurrentMemberMusic != null) {
             sendSyncLrc(mCurrentMemberMusic.getMusicId(), 0, 0, 0);
             mCurrentMemberMusic = null;
@@ -441,8 +433,7 @@ public final class RoomManager {
 
     @SuppressLint("CheckResult")
     public void onMusicChanged(MemberMusicModel model) {
-        KTVUtil.logD(model.toString());
-        mLogger.i("onMusicChanged() called with: model = [%s]", model);
+        KTVUtil.logD("onMusicChanged() called with: model = " + model);
 
         mCurrentMemberMusic = model;
 
@@ -458,7 +449,7 @@ public final class RoomManager {
     }
 
     public boolean isMainSinger() {
-        User mUser = UserManager.Instance().getUserLiveData().getValue();
+        User mUser = UserManager.getInstance().mUser;
         if (mUser == null || mCurrentMemberMusic == null || mCurrentMemberMusic.getUserId() == 0) {
             return false;
         }
@@ -466,7 +457,7 @@ public final class RoomManager {
     }
 
     public boolean isFollowSinger() {
-        User mUser = UserManager.Instance().getUserLiveData().getValue();
+        User mUser = UserManager.getInstance().mUser;
         if (mUser == null || mCurrentMemberMusic == null || mCurrentMemberMusic.getUser1Id() == 0) {
             return false;
         }
@@ -494,6 +485,18 @@ public final class RoomManager {
             getRtcEngine().setClientRole(role);
     }
 
+    /**
+     * 歌房封面图
+     */
+    private final MutableLiveData<Integer> mvImage = new MutableLiveData<>(0);
+
+    public LiveData<Integer> getMvImage() {
+        return mvImage;
+    }
+
+    public void updateCoverImage(int index) {
+        mvImage.postValue(index);
+    }
 
     //<editor-fold desc="Destroy Stuff">
     public void leaveRoom() {
@@ -506,9 +509,8 @@ public final class RoomManager {
         }
 
         mMainThreadDispatch.destroy();
-        mLogger.i("leaveRoom() called");
+        KTVUtil.logD("leaveRoom() called");
 
-        mLoggerRTC.i("leaveChannel() called");
         if (mRtcEngine != null) {
             mRtcEngine.leaveChannel();
         }
@@ -664,8 +666,6 @@ public final class RoomManager {
             String msg = new JSONObject(mapMsg).toString();
             KTVUtil.logD("SEND >>> " + msg);
             int res = getRtcEngine().sendStreamMessage(getStreamId(), msg.getBytes());
-            if (res < 0)
-                mLogger.e("sendStreamMsg() called returned: ret = [%s], msg = %s", res, msg);
         }
     }
 
@@ -694,7 +694,7 @@ public final class RoomManager {
         msg.put("duration", duration);
         msg.put("time", time);//ms
         msg.put("state", state);
-        msg.put("userId", UserManager.Instance().getUser().getUserId());
+        msg.put("userId", UserManager.getInstance().mUser.getUserId());
         if (mCurrentMemberMusic != null)
             msg.put("playerUid", mCurrentMemberMusic.getUserPlayerId());
         RoomManager.getInstance().sendStreamMsg(msg);

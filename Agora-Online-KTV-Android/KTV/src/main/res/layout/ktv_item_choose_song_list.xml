@@ -1,43 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="50dp"
-    xmlns:tools="http://schemas.android.com/tools">
+    android:layout_height="50dp">
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/cover_item_song_list"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        app:shapeAppearance="@style/ktv_roundStyle"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:shapeAppearance="@style/ktv_cornerNormalStyle" />
 
     <TextView
         android:id="@+id/title__item_song_list"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
-        tools:text="@string/app_name"
         android:textColor="@android:color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@+id/cover_item_song_list"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="@string/ktv_app_name" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_item_song_list"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:backgroundTint="@color/ktv_colorAccent"
-        app:backgroundTintMode="src_atop"
         android:stateListAnimator="@animator/ktv_scale_on_touch"
-        app:shapeAppearance="@style/ktv_roundStyle"
         android:text="@string/ktv_room_choose_song"
-        android:textColor="@android:color/white"
         android:textAllCaps="false"
+        android:textColor="@android:color/white"
+        app:backgroundTint="@color/selector_btn_color"
+        app:backgroundTintMode="src_atop"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:shapeAppearance="@style/ktv_roundStyle"
         tools:targetApi="lollipop" />
 </androidx.constraintlayout.widget.ConstraintLayout>

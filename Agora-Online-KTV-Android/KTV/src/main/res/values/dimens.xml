@@ -4,4 +4,9 @@
     <dimen name="ktv_room_text">18sp</dimen>
 
     <dimen name="ktv_item_channel_spacing">4dp</dimen>
+
+    <dimen name="ktv_space_small">8dp</dimen>
+    <dimen name="ktv_space_normal">12dp</dimen>
+    <dimen name="ktv_space_medium">16dp</dimen>
+    <dimen name="ktv_space_big">24dp</dimen>
 </resources>

@@ -1,11 +1,12 @@
 package com.agora.data.provider;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import com.agora.data.model.AgoraRoom;
 import com.agora.data.model.MusicModel;
 import com.agora.data.model.User;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.List;
@@ -23,9 +24,9 @@ public interface IDataRepository {
 
     Observable<List<MusicModel>> getMusics(@Nullable String searchKey);
 
-    Observable<MusicModel> getMusic(@NonNull String musicId);
+    Observable<MusicModel> getMusic(@NotNull String musicId);
 
     Observable<List<AgoraRoom>> getRooms();
 
-    Completable download(@NonNull File file, @NonNull String url);
+    Completable download(@NotNull File file, @NotNull String url);
 }

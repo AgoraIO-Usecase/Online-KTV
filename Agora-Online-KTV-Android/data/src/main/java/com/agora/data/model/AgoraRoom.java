@@ -1,17 +1,7 @@
 package com.agora.data.model;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
-import androidx.annotation.DrawableRes;
-
-import com.agora.data.ExampleData;
-import com.agora.data.R;
-
 import java.io.Serializable;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Random;
 
 public class AgoraRoom implements Serializable {
 
@@ -24,16 +14,6 @@ public class AgoraRoom implements Serializable {
 
     public AgoraRoom() {
     }
-
-    protected AgoraRoom(Parcel in) {
-        id = in.readString();
-        channelName = in.readString();
-        userId = in.readString();
-        cover = in.readString();
-        mv = in.readString();
-        createdAt = (Date) in.readSerializable();
-    }
-
 
     public String getId() {
         return id;
@@ -81,40 +61,6 @@ public class AgoraRoom implements Serializable {
 
     public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
-    }
-
-    public void radomCover() {
-        int value = new Random().nextInt(8) + 1;
-        cover = String.valueOf(value);
-    }
-
-    public void radomMV() {
-        int value = new Random().nextInt(5) + 1;
-        mv = String.valueOf(value);
-    }
-
-    @DrawableRes
-    public int getCoverRes() {
-        int index = 0;
-        try {
-            index = Integer.parseInt(cover);
-        } catch (NumberFormatException e) {
-            e.printStackTrace();
-        }
-        if(index >= ExampleData.exampleCovers.size()|| index < 0) index = 0;
-        return ExampleData.exampleCovers.get(index);
-    }
-
-    @DrawableRes
-    public int getMVRes() {
-        int index = 0;
-        try {
-            index = Integer.parseInt(mv);
-        } catch (NumberFormatException e) {
-            e.printStackTrace();
-        }
-        if(index >= ExampleData.exampleBackgrounds.size()|| index < 0) index = 0;
-        return ExampleData.exampleBackgrounds.get(index);
     }
 
     @Override

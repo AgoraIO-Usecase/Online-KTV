@@ -4,10 +4,9 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 
-import com.agora.data.DataRepositoryImpl;
+import io.agora.baselibrary.util.KTVUtil;
+import io.agora.ktv.repo.DataRepositoryImpl;
 import com.agora.data.model.MusicModel;
-import com.elvishew.xlog.Logger;
-import com.elvishew.xlog.XLog;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -31,7 +30,6 @@ import io.reactivex.functions.Function;
  * @date 2021/06/01
  */
 public final class ResourceManager {
-    private final Logger.Builder mLogger = XLog.tag("MusicRes");
 
     private volatile static ResourceManager instance;
     private final String resourceRoot;
@@ -90,7 +88,7 @@ public final class ResourceManager {
             musicModel.setFileMusic(fileMusic);
             musicModel.setFileLrc(fileLrc);
 
-            mLogger.i("prepareMusic down %s", musicModel);
+            KTVUtil.logD("prepareMusic down "+ musicModel);
             Completable mCompletable = DataRepositoryImpl.getInstance().download(fileLrc, musicModel.getLrc());
             if (model.getLrc().endsWith("zip")) {
                 mCompletable = mCompletable.andThen(Completable.create(emitter -> {
@@ -112,7 +110,7 @@ public final class ResourceManager {
     }
 
     private void unzipLrc(File src, File des) throws Exception {
-        mLogger.i("prepareMusic unzipLrc %s", des);
+       KTVUtil.logD("prepareMusic unzipLrc "+ des);
 
         ZipInputStream inZip = new ZipInputStream(new FileInputStream(src));
         ZipEntry zipEntry;

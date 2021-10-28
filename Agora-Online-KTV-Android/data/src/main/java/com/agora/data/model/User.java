@@ -1,9 +1,6 @@
 package com.agora.data.model;
 
-import androidx.annotation.NonNull;
-
-import com.agora.data.ExampleData;
-import com.agora.data.R;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
 
@@ -58,7 +55,7 @@ public class User implements Serializable, Cloneable {
         return res;
     }
 
-    @NonNull
+    @NotNull
     @Override
     public User clone() {
         try {
@@ -69,20 +66,7 @@ public class User implements Serializable, Cloneable {
         return new User();
     }
 
-    public int getAvatarRes() {
-        int temp = 0;
-        try {
-            temp = Integer.parseInt(avatar);
-        } catch (NumberFormatException e) {
-            e.printStackTrace();
-        }
-
-        if(temp < 0 || temp >= ExampleData.exampleAvatars.size())
-            temp = 0;
-        return ExampleData.exampleAvatars.get(temp);
-    }
-
-    @NonNull
+    @NotNull
     @Override
     public String toString() {
         return "User{" +

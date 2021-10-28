@@ -18,12 +18,16 @@ import io.agora.baselibrary.BuildConfig;
 @Keep
 public class KTVUtil {
     public static void logD(String msg) {
-        if(BuildConfig.DEBUG)
+//        if(BuildConfig.DEBUG)
             Log.d("AGORA-KTV", msg);
     }
     public static void logE(String msg) {
         if(BuildConfig.DEBUG)
             Log.e("AGORA-KTV", msg);
+    }
+    public static void logE(Throwable e) {
+        if(BuildConfig.DEBUG)
+            Log.e("AGORA-KTV", e.getMessage());
     }
 
     public static float dp2px(int dp) {
@@ -37,7 +41,36 @@ public class KTVUtil {
     }
 
     public static Object getViewBinding(Class<?> bindingClass, LayoutInflater inflater) {
+        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        StringBuilder stringBuilder = new StringBuilder();
+        for (StackTraceElement stackTraceElement : stackTrace) {
+            stringBuilder.append(stackTraceElement.getMethodName());
+        }
+        KTVUtil.logD(stringBuilder.toString());
         try {
+            Method[] declaredMethods = bindingClass.getDeclaredMethods();
+            Method[] methods = bindingClass.getMethods();
+            KTVUtil.logD("Class Name: " + bindingClass.getName());
+            for (Method declaredMethod : declaredMethods) {
+                Class<?>[] parameterTypes = declaredMethod.getParameterTypes();
+
+                StringBuilder sb = new StringBuilder();
+                for (Class<?> parameterType : parameterTypes) {
+                    sb.append(parameterType.getSimpleName()).append(",");
+                }
+
+                KTVUtil.logD("{"+ declaredMethod.getName() +"("+ sb.toString() +")}");
+            }
+            for (Method declaredMethod : methods) {
+                Class<?>[] parameterTypes = declaredMethod.getParameterTypes();
+
+                StringBuilder sb = new StringBuilder();
+                for (Class<?> parameterType : parameterTypes) {
+                    sb.append(parameterType.getSimpleName()).append(",");
+                }
+
+                KTVUtil.logD("{"+ declaredMethod.getName() +"("+ sb.toString() +")}");
+            }
             Method inflateMethod = bindingClass.getDeclaredMethod("inflate", LayoutInflater.class);
             return inflateMethod.invoke(null, inflater);
         } catch (Exception e) {

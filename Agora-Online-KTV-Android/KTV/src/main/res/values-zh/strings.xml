@@ -29,11 +29,11 @@
     <string name="ktv_room_accompany">伴奏</string>
     <string name="ktv_room_change_song">切歌</string>
     <string name="ktv_room_seat_off">下麦</string>
+    <string name="ktv_room_cut_off_song">切歌</string>
     <string name="ktv_room_choose_song">点歌</string>
     <string name="ktv_room_choosed_song">已点</string>
     <string name="ktv_room_sing2">正在演唱</string>
-    <string name="ktv_room_no_sing_1">当前无人演唱</string>
-    <string name="ktv_room_no_sing_2">点击“点歌”一展歌喉</string>
+    <string name="ktv_room_no_sing">当前无人演唱\n点击“点歌”一展歌喉</string>
     <string name="ktv_dialog_migu_tip">歌曲来自咪咕音乐</string>
     <string name="ktv_dialog_music_list_empty">未找到相关搜索结果</string>
     <string name="ktv_dialog_music_list_search_hint">搜索歌曲或歌手</string>
@@ -64,8 +64,10 @@
 
     <string name="ktv_network_unavailable">未检测到可用网络，确认继续？</string>
     <!--    Content Description-->
+    <string name="ktv_create_room">创建房间</string>
     <string name="ktv_toggle_mic">麦克风启用或静音</string>
     <string name="ktv_choose_cover">选择你喜欢的歌曲封面</string>
     <string name="ktv_chorus">合唱</string>
     <string name="ktv_order_song">点歌</string>
+    <string name="ktv_random_room_name">随机生成一个房间名称</string>
 </resources>

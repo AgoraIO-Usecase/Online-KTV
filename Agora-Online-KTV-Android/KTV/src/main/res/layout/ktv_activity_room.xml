@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent"
-        app:navigationIcon="@mipmap/ktv_room_close"
+        app:navigationIcon="@drawable/ktv_ic_close_round"
         app:titleTextColor="@android:color/white"
         tools:title="@string/ktv_app_name" />
 
@@ -45,7 +45,7 @@
         android:layout_marginBottom="12dp"
         android:background="@null"
         android:contentDescription="@string/ktv_toggle_mic"
-        android:src="@mipmap/ktv_room_mic"
+        android:src="@drawable/ktv_ic_mic_enable"
         android:stateListAnimator="@animator/ktv_scale_on_touch"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -58,35 +58,40 @@
         android:layout_marginStart="10dp"
         android:background="@null"
         android:contentDescription="@string/ktv_choose_cover"
-        android:src="@mipmap/ktv_room_mv"
+        android:src="@drawable/ktv_ic_image"
         android:stateListAnimator="@animator/ktv_scale_on_touch"
         app:layout_constraintBottom_toBottomOf="@+id/btn_mic_att_room"
         app:layout_constraintStart_toEndOf="@+id/btn_mic_att_room"
         tools:targetApi="lollipop" />
 
-    <ImageButton
+    <com.google.android.material.button.MaterialButton
+        style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
         android:id="@+id/btn_chorus_att_room"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="40dp"
         android:layout_marginEnd="10dp"
-        android:background="@null"
+        android:background="@drawable/ktv_gradient_btn"
         android:contentDescription="@string/ktv_chorus"
-        android:src="@mipmap/ktv_chorus"
         android:stateListAnimator="@animator/ktv_scale_on_touch"
+        android:text="@string/ktv_chorus"
+        app:backgroundTint="@null"
         app:layout_constraintEnd_toStartOf="@+id/btn_order_song_att_room"
         app:layout_constraintTop_toTopOf="@+id/btn_order_song_att_room"
         tools:targetApi="lollipop" />
 
-    <ImageButton
+    <com.google.android.material.button.MaterialButton
+        style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
         android:id="@+id/btn_order_song_att_room"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        app:icon="@drawable/ktv_ic_mic"
+        android:layout_height="40dp"
         android:layout_marginEnd="12dp"
-        android:background="@null"
+        android:background="@drawable/ktv_gradient_btn"
         android:contentDescription="@string/ktv_order_song"
         android:orientation="horizontal"
-        android:src="@mipmap/ktv_room_choose_song"
         android:stateListAnimator="@animator/ktv_scale_on_touch"
+        android:text="@string/ktv_order_song"
+        app:backgroundTint="@null"
         app:layout_constraintBottom_toBottomOf="@+id/btn_mic_att_room"
         app:layout_constraintEnd_toEndOf="parent"
         tools:targetApi="lollipop" />
