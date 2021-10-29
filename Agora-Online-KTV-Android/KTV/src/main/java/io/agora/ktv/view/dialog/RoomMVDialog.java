@@ -27,7 +27,7 @@ import io.agora.ktv.widget.DividerDecoration;
 /**
  * 房间MV菜单
  *
- * @author chenhengfei@agora.io
+ * @author liuqiang
  */
 public class RoomMVDialog extends BaseBottomSheetDialogFragment<KtvDialogMvBinding> implements OnItemClickListener<Integer> {
     public static final String TAG = RoomMVDialog.class.getSimpleName();
@@ -51,9 +51,7 @@ public class RoomMVDialog extends BaseBottomSheetDialogFragment<KtvDialogMvBindi
     }
 
     public void show(@NonNull FragmentManager manager, int index) {
-        Bundle mBundle = new Bundle();
-        mBundle.putInt(TAG_MV_INDEX, index);
-        setArguments(mBundle);
+        this.index = index;
         super.show(manager, TAG);
     }
 
