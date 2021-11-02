@@ -5,6 +5,9 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.Observer;
+
+import java.util.List;
 
 import io.agora.baselibrary.base.BaseFragment;
 import io.agora.baselibrary.base.BaseRecyclerViewAdapter;
@@ -34,5 +37,7 @@ public class SongOrdersFragment extends BaseFragment<KtvFragmentSongOrderListBin
     private void initView() {
         mAdapter = new BaseRecyclerViewAdapter<>(RoomManager.Instance(requireContext()).getMusics(), ChosenSongViewHolder.class);
         mBinding.list.setAdapter(mAdapter);
+
+        RoomManager.Instance(requireContext()).getLiveDataMusics().observe(getViewLifecycleOwner(), memberMusicModels -> mAdapter.setDataList(memberMusicModels));
     }
 }

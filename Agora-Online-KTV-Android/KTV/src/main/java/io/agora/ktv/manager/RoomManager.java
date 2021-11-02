@@ -7,6 +7,8 @@ import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.util.ObjectsCompat;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
 import com.agora.data.BaseError;
 import com.agora.data.R;
@@ -289,6 +291,7 @@ public final class RoomManager {
         }
 
         musics.add(model);
+        liveDataMusics.postValue(musics);
 
         mMainThreadDispatch.onMusicAdd(model);
 
@@ -300,6 +303,7 @@ public final class RoomManager {
     private void onMusicDelete(MemberMusicModel model) {
         mLogger.i("onMusicDelete() called with: model = [%s]", model);
         musics.remove(model);
+        liveDataMusics.postValue(musics);
         mMainThreadDispatch.onMusicDelete(model);
 
         if (musics.size() > 0) {
@@ -314,6 +318,7 @@ public final class RoomManager {
         mMusicModel = null;
         singers.clear();
         musics.clear();
+        liveDataMusics.postValue(musics);
         mMainThreadDispatch.onMusicEmpty();
     }
 
@@ -558,6 +563,16 @@ public final class RoomManager {
     private final static Object musicObject = new Object();
     private volatile List<MemberMusicModel> musics = new ArrayList<>();
 
+    // only for SongOrdersFragment
+    private final MutableLiveData<List<MemberMusicModel>> liveDataMusics = new MutableLiveData<>();
+    public LiveData<List<MemberMusicModel>> getLiveDataMusics(){
+        return liveDataMusics;
+    }
+
+    public List<MemberMusicModel> getMusics() {
+        return musics;
+    }
+
     public Single<List<MemberMusicModel>> getMusicOrderList() {
         return Single.create(new SingleOnSubscribe<List<MemberMusicModel>>() {
             @Override
@@ -596,6 +611,7 @@ public final class RoomManager {
             public void accept(List<MemberMusicModel> musicModels) throws Exception {
                 synchronized (musicObject) {
                     musics = musicModels;
+                    liveDataMusics.postValue(musics);
                 }
             }
         });
@@ -638,10 +654,6 @@ public final class RoomManager {
         }
 
         return ObjectsCompat.equals(mMusicModel.getUserId(), member.getUserId());
-    }
-
-    public List<MemberMusicModel> getMusics() {
-        return musics;
     }
 
     public boolean isInMusicOrderList(MusicModel item) {

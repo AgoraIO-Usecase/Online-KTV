@@ -25,6 +25,10 @@ public class KTVUtil {
         if(BuildConfig.DEBUG)
             Log.e("AGORA-KTV", msg);
     }
+    public static void logE(Throwable e) {
+        if(BuildConfig.DEBUG)
+            Log.e("AGORA-KTV", e.getMessage());
+    }
 
     public static float dp2px(int dp) {
         return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, Resources.getSystem().getDisplayMetrics());
