@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
+import android.net.Network;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
@@ -19,7 +20,6 @@ import androidx.appcompat.app.AlertDialog;
 
 import io.agora.ktv.manager.UserManager;
 import com.agora.data.model.AgoraRoom;
-import com.agora.data.model.User;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +37,6 @@ import io.agora.ktv.widget.DividerDecoration;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
 
 /**
  * Remember, this room list uses the R.mipmap.cover_xxx
@@ -82,9 +81,18 @@ public class RoomListActivity extends BaseActivity<KtvActivityRoomListBinding> {
             @Override
             public void onItemClick(@NonNull AgoraRoom data, View view, int position, long id) {
                 // 判断网络
+                boolean hasActiveNetwork = false;
                 ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-                NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-                if(activeNetworkInfo!=null && activeNetworkInfo.isConnected()) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    Network activeNetwork = connectivityManager.getActiveNetwork();
+                    hasActiveNetwork = connectivityManager.getNetworkCapabilities(activeNetwork) != null;
+                }else {
+                    NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+                    if (activeNetworkInfo != null && activeNetworkInfo.isConnected())
+                        hasActiveNetwork = true;
+                }
+
+                if(hasActiveNetwork) {
                     mAdapter.selectedIndex = position;
                     handlePermissionStuff();
                 }else {
@@ -114,12 +122,9 @@ public class RoomListActivity extends BaseActivity<KtvActivityRoomListBinding> {
     private void login() {
         mBinding.swipeRefreshLayout.setRefreshing(true);
         if (!UserManager.getInstance().alreadyLoggedIn())
-            DataRepositoryImpl.getInstance().login(UserManager.randomId(), UserManager.randomName()).subscribe(new Consumer<User>() {
-                @Override
-                public void accept(User user) {
-                    UserManager.getInstance().onLoginIn(user);
-                    loadRooms();
-                }
+            DataRepositoryImpl.getInstance().login(UserManager.randomId(), UserManager.randomName()).subscribe(user -> {
+                UserManager.getInstance().onLoginIn(user);
+                loadRooms();
             });
     }
 

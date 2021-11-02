@@ -35,6 +35,7 @@ import io.agora.rtc2.RtcEngine;
 import io.agora.rtc2.RtcEngineConfig;
 import io.agora.rtc2.RtcEngineEx;
 import io.reactivex.Completable;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * 房间控制
@@ -304,8 +305,6 @@ public final class RoomManager {
 
     public Completable initEngine(Context mContext) {
         return Completable.create(emitter -> {
-
-            KTVUtil.logD("initEngine Thread ----" + Thread.currentThread().getName());
             String APP_ID = mContext.getString(R.string.app_id);
             if (TextUtils.isEmpty(APP_ID)) {
                 emitter.onError(new NullPointerException("APP_ID is empty, please check \"strings_config.xml\""));
@@ -320,12 +319,11 @@ public final class RoomManager {
 
             mRtcEngine = (RtcEngineEx) RtcEngine.create(config);
             emitter.onComplete();
-        });
+        }).observeOn(Schedulers.io());
     }
 
 
     public Completable joinRoom(AgoraRoom room) {
-        if(mRtcEngine == null) return Completable.complete();
         return Completable.create(emitter -> {
             KTVUtil.logD("joinRoom ---" + Thread.currentThread().getName());
             RoomManager.this.mRoom = room;
@@ -358,7 +356,8 @@ public final class RoomManager {
     }
 
     public Completable joinRTC() {
-        if(mRtcEngine == null) return Completable.complete();
+//        KTVUtil.logD("Thread joinRTC1:" + Thread.currentThread().getName());
+//        if(mRtcEngine == null) return Completable.complete();
         return Completable.create(emitter -> {
             KTVUtil.logD("Thread joinRTC:" + Thread.currentThread().getName());
             mRtcEngine.setChannelProfile(Constants.CHANNEL_PROFILE_LIVE_BROADCASTING);

@@ -24,6 +24,7 @@ import com.bumptech.glide.request.transition.Transition;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.concurrent.Callable;
 
 import io.agora.baselibrary.base.BaseActivity;
 import io.agora.baselibrary.base.BaseBottomSheetDialogFragment;
@@ -44,6 +45,7 @@ import io.agora.ktv.manager.SimpleRoomEventCallback;
 import io.agora.ktv.manager.SingleMusicPlayer;
 import io.agora.ktv.manager.UserManager;
 import io.agora.ktv.service.MyForegroundService;
+import io.agora.ktv.util.BlurTransformation;
 import io.agora.ktv.view.dialog.MusicSettingDialog;
 import io.agora.ktv.view.dialog.RoomChooseSongDialog;
 import io.agora.ktv.view.dialog.RoomMVDialog;
@@ -54,11 +56,12 @@ import io.agora.lrcview.bean.LrcData;
 import io.agora.mediaplayer.IMediaPlayer;
 import io.agora.rtc2.ChannelMediaOptions;
 import io.agora.rtc2.Constants;
+import io.reactivex.Completable;
 import io.reactivex.CompletableObserver;
+import io.reactivex.CompletableSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
-import jp.wasabeef.glide.transformations.BlurTransformation;
 
 /**
  * 房间界面
@@ -337,7 +340,7 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> {
         Glide.with(this)
                 .asDrawable()
                 .load(ExampleData.getCoverRes(mRoom.getCover()))
-                .apply(RequestOptions.bitmapTransform(new BlurTransformation(25, 3)))
+                .apply(RequestOptions.bitmapTransform(new BlurTransformation(this)))
                 .into(new CustomTarget<Drawable>() {
                     @Override
                     public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
@@ -353,8 +356,8 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> {
         mBinding.lrcControlView.setRole(LrcControlView.Role.Listener);
         // Step 4
         RoomManager.getInstance().initEngine(this)
-                .andThen(RoomManager.getInstance().joinRoom(mRoom))
-                .andThen(RoomManager.getInstance().joinRTC())
+                .andThen(Completable.defer(() -> RoomManager.getInstance().joinRoom(mRoom)))
+                .andThen(Completable.defer(() -> RoomManager.getInstance().joinRTC()))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new CompletableObserver() {

@@ -17,6 +17,7 @@ import io.agora.baselibrary.util.KTVUtil;
 import io.agora.ktv.adapter.ChooseSongViewHolder;
 import io.agora.ktv.databinding.KtvFragmentSongListBinding;
 import io.agora.ktv.databinding.KtvItemChooseSongListBinding;
+import io.agora.ktv.widget.DividerDecoration;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -42,7 +43,8 @@ public class SongsFragment extends BaseFragment<KtvFragmentSongListBinding> {
     private void initView() {
         mAdapter = new BaseRecyclerViewAdapter<>(null, ChooseSongViewHolder.class);
         mBinding.list.setAdapter(mAdapter);
-    }
+        mBinding.list.addItemDecoration(new DividerDecoration(1,20,8));
+}
 
     private void initListener() {
         mBinding.llEmpty.setOnClickListener(this::doLoadMusics);
