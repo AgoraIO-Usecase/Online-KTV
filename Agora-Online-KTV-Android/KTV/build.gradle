@@ -19,8 +19,8 @@ android {
         }
         minSdkVersion MINSDKVERSION
         targetSdkVersion TARGETSDKVERSION
-        versionCode 9
-        versionName "1.0.9"
+        versionCode 10
+        versionName "1.0.10"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -57,7 +57,7 @@ android {
     if (isModule.toBoolean()) {
         applicationVariants.all { variant ->
             variant.outputs.all {
-                outputFileName = "KTV-${versionName}-${variant.buildType.name}-大重构.apk"
+                outputFileName = "Chorus-${versionName}.apk"
             }
         }
     }

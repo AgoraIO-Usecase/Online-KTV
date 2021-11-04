@@ -646,6 +646,7 @@ class MVPlayer: NSObject {
 
         switch state.type {
         case .position:
+            //Logger.log(self, message: "scrollLyric: \(TimeInterval(state.position)), \(TimeInterval(state.duration))", level: .info)
             musicLyricView.scrollLyric(currentTime: TimeInterval(state.position), totalTime: TimeInterval(state.duration))
             if let playerState = state.state {
                 switch playerState {

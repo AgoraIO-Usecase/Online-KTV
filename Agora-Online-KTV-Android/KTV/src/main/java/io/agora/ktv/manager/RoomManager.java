@@ -137,7 +137,10 @@ public final class RoomManager {
                     return;
 
                 if (jsonMsg.getString("cmd").equals("setLrcTime")) {
-                    if (!jsonMsg.getString("lrcId").equals(mMusicModel.getMusicId())) {
+                    if (jsonMsg.has("lrcId") && !jsonMsg.getString("lrcId").equals(mMusicModel.getMusicId())) {
+                        return;
+                    }
+                    if (!jsonMsg.has("duration")) {
                         return;
                     }
 

@@ -210,8 +210,8 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
         RoomManager.Instance(mContext).getRtcEngine().muteAllRemoteAudioStreams(false);
         if (!TextUtils.isEmpty(channelName)) {
             RoomManager.Instance(mContext).getRtcEngine().leaveChannelEx(channelName, mRtcConnection);
+            mRtcConnection = null;
         }
-        mRtcConnection = null;
     }
 
     private int mUid;
@@ -561,11 +561,11 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
             long localTs = System.currentTimeMillis();
             netRtt = (localTs - testDelayTime) / 2;
             delayWithBrod = position + netRtt;
-            mLogger.d("TestDelay offsetTS= [%s], netRtt = [%s]", offsetTS, netRtt);
 
             long localPos = mPlayer.getPlayPosition();
             long diff = localPos - delayWithBrod;
             if (Math.abs(diff) > 40) {
+                mLogger.d("xn123 seek= [%s], remotePos = [%s], localPos = [%s]", delayWithBrod, position, localPos);
                 seek(delayWithBrod);
             }
         }
@@ -640,7 +640,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
         msg.put("cmd", "replyTestDelay");
         msg.put("testDelayTime", String.valueOf(receiveTime));
         msg.put("time", String.valueOf(System.currentTimeMillis()));
-        msg.put("position", mPlayer.getDuration());
+        msg.put("position", mPlayer.getPlayPosition());
         JSONObject jsonMsg = new JSONObject(msg);
         int streamId = RoomManager.Instance(mContext).getStreamId();
         int ret = RoomManager.Instance(mContext).getRtcEngine().sendStreamMessage(streamId, jsonMsg.toString().getBytes());
@@ -707,12 +707,15 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
     @Override
     public void stop() {
         super.stop();
+        if (mRtcConnection == null) {
+            return;
+        }
         if (mRole == Constants.CLIENT_ROLE_BROADCASTER) {
             RoomManager.Instance(mContext).getRtcEngine().muteAllRemoteAudioStreams(false);
             if (!TextUtils.isEmpty(channelName)) {
                 RoomManager.Instance(mContext).getRtcEngine().leaveChannelEx(channelName, mRtcConnection);
+                mRtcConnection = null;
             }
-            mRtcConnection = null;
         }
     }
 

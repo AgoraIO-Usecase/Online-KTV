@@ -623,7 +623,7 @@ class RtcChorusMusicPlayer: AbstractRtcMusicPlayer {
 //                                lastExpectLocalPosition = expSeek
 //                                lastSeekTime = now
                                 player.seek(toPosition: Int(delayWithBrod))
-                                Logger.log(self, message: "checkTestDelay:\(delay) seekTime:\(seekTime) diff:\(diff)", level: .info)
+                                //Logger.log(self, message: "toPosition:\(delayWithBrod) from:\(localPosition) remote:\(position)", level: .info)
                             }
                         }
                     }
@@ -670,7 +670,6 @@ class RtcChorusMusicPlayer: AbstractRtcMusicPlayer {
                         }
                     }
                     return false
-                // sentTestDelayMessage()
                 default:
                     break
                 }

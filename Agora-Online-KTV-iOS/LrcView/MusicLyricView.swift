@@ -473,6 +473,7 @@ public class MusicLyricView: UIView, UITableViewDataSource, UITableViewDelegate 
                         let current = currentLyric.startMsTime() + consume
                         self.pitchView.time = current
                         self.scrollLyric(currentTime: current, totalTime: totalTime)
+                        //Logger.log(self, message: "scrollLyric: \(current), \(totalTime)", level: .info)
                     }
                 }
             }
