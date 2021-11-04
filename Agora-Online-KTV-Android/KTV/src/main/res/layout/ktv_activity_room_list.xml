@@ -1,72 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:tools="http://schemas.android.com/tools">
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
-    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
+    <TextView
+        android:id="@id/titleBar"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/ktv_colorPrimaryDark">
+        android:layout_height="?android:attr/actionBarSize"
+        android:background="@color/ktv_colorPrimary"
+        android:gravity="center"
+        android:text="@string/ktv_room_list_title"
+        android:textAppearance="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
+        android:textColor="@color/ktv_title"
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <io.agora.baselibrary.base.CustomToolbar
-            android:id="@id/titleBar"
-            style="@style/ktv_style_titlebar"
-            app:ct_showback="false"
-            app:ct_title="@string/ktv_room_list_title"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefreshLayout"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/titleBar">
 
-        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-            android:id="@+id/swipeRefreshLayout"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/list"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/titleBar">
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/list"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-                tools:listitem="@layout/ktv_item_room_list" />
-        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-
-        <LinearLayout
-            android:id="@+id/llEmpty"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:gravity="center"
+            android:layout_height="match_parent"
             android:orientation="vertical"
-            app:layout_constraintBottom_toBottomOf="@+id/swipeRefreshLayout"
-            app:layout_constraintEnd_toEndOf="@+id/swipeRefreshLayout"
-            app:layout_constraintStart_toStartOf="@+id/swipeRefreshLayout"
-            app:layout_constraintTop_toTopOf="@+id/swipeRefreshLayout">
+            app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+            app:spanCount="2"
+            tools:listitem="@layout/ktv_item_room_list" />
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@mipmap/ktv_room_list_empty" />
+    <TextView
+        android:id="@+id/view_empty_att_room_list"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawablePadding="12dp"
+        android:gravity="center"
+        android:text="@string/ktv_room_list_empty"
+        android:textColor="@color/ktv_list_empty"
+        android:textSize="@dimen/ktv_list_empty_size"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/titleBar"
+        app:drawableTopCompat="@drawable/ktv_ic_empty" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:text="@string/ktv_room_list_empty"
-                android:textColor="@color/ktv_list_empty"
-                android:textSize="@dimen/ktv_list_empty_size" />
-        </LinearLayout>
-
-        <Button
-            android:id="@+id/btCrateRoom"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:background="@mipmap/ktv_create"
-            android:gravity="center"
-            android:textAllCaps="false"
-            android:textColor="@android:color/white"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</layout>
+    <ImageButton
+        android:id="@+id/btn_create_att_room_list"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:contentDescription="@string/ktv_create_room"
+        android:background="@drawable/ktv_ic_create_room"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>

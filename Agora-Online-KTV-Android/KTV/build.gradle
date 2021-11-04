@@ -27,11 +27,11 @@ android {
         multiDexEnabled true
     }
 
-    resourcePrefix "ktv_"
-
     buildTypes {
         release {
-            minifyEnabled false
+            shrinkResources = true
+            zipAlignEnabled = true
+            minifyEnabled = true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -42,15 +42,44 @@ android {
     }
 
     buildFeatures {
-        dataBinding = true
+        viewBinding true
     }
 
-    flavorDimensions "test"
+    flavorDimensions "test","abi"
     productFlavors {
-        leancloud {
+        create("armeabi-v7a"){
+            dimension = "abi"
+            ndk {
+                abiFilter "armeabi-v7a"
+            }
         }
-//
-//        firebase {
+        create("arm64-v8a"){
+            dimension = "abi"
+            ndk {
+                abiFilter "arm64-v8a"
+            }
+        }
+        create("x86"){
+            dimension = "abi"
+            ndk {
+                abiFilter "x86"
+            }
+        }
+        create("x86_64"){
+            dimension = "abi"
+            ndk {
+                abiFilter "x86_64"
+            }
+        }
+        create("ALL"){
+            dimension = "abi"
+        }
+
+        create("leancloud"){
+            dimension = "test"
+        }
+//        create("firebase"){
+//            dimension = "test"
 //        }
     }
 
@@ -65,18 +94,12 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    testImplementation 'junit:junit:4.+'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
-
-    implementation 'com.huawei.multimedia:audiokit:1.0.3'
 
     // Agora SDK
 //  implementation 'io.agora.rtc:full-sdk:3.3.0'
 
-    implementation 'jp.wasabeef:glide-transformations:4.0.0'
-    implementation 'com.google.code.gson:gson:2.8.7'
     implementation 'androidx.palette:palette:1.0.0'
+    api project(':baselibrary')
     api project(':data')
     api project(':lrcview')
 }

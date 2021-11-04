@@ -1,138 +1,82 @@
 package io.agora.ktv.view.dialog;
 
 import android.os.Bundle;
-import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentManager;
-import androidx.recyclerview.widget.GridLayoutManager;
 
+import com.agora.data.ExampleData;
 import com.agora.data.model.AgoraRoom;
 import com.agora.data.provider.AgoraObject;
 import com.agora.data.sync.AgoraException;
 import com.agora.data.sync.SyncManager;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import io.agora.baselibrary.base.DataBindBaseDialog;
+import io.agora.baselibrary.base.BaseActivity;
+import io.agora.baselibrary.base.BaseBottomSheetDialogFragment;
+import io.agora.baselibrary.base.BaseRecyclerViewAdapter;
 import io.agora.baselibrary.base.OnItemClickListener;
-import io.agora.baselibrary.util.ToastUtile;
-import io.agora.ktv.R;
-import io.agora.ktv.adapter.MVAdapter;
+import io.agora.baselibrary.util.ToastUtil;
+import io.agora.ktv.adapter.MVHolder;
 import io.agora.ktv.databinding.KtvDialogMvBinding;
+import io.agora.ktv.databinding.KtvItemMvBinding;
 import io.agora.ktv.manager.RoomManager;
-import io.agora.ktv.widget.SpaceItemDecoration;
+import io.agora.ktv.widget.DividerDecoration;
 
 /**
  * 房间MV菜单
  *
- * @author chenhengfei@agora.io
+ * @author liuqiang
  */
-public class RoomMVDialog extends DataBindBaseDialog<KtvDialogMvBinding> implements OnItemClickListener<MVAdapter.MVModel> {
-    private static final String TAG = RoomMVDialog.class.getSimpleName();
+public class RoomMVDialog extends BaseBottomSheetDialogFragment<KtvDialogMvBinding> implements OnItemClickListener<Integer> {
+    public static final String TAG = RoomMVDialog.class.getSimpleName();
 
     private static final String TAG_MV_INDEX = "mvIndex";
 
     private int index = 0;
-    private MVAdapter mAdapter;
+    private BaseRecyclerViewAdapter<KtvItemMvBinding, Integer, MVHolder> mAdapter;
 
-    @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
-        Window win = getDialog().getWindow();
-        WindowManager.LayoutParams params = win.getAttributes();
-        params.gravity = Gravity.BOTTOM;
-        params.width = ViewGroup.LayoutParams.MATCH_PARENT;
-        params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        win.setAttributes(params);
-        return super.onCreateView(inflater, container, savedInstanceState);
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        initView();
     }
+    private void initView() {
+        mAdapter =new BaseRecyclerViewAdapter<>(ExampleData.exampleBackgrounds, this, MVHolder.class);
+        mAdapter.selectedIndex = index;
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setStyle(STYLE_NORMAL, R.style.Dialog_Bottom);
-    }
-
-    @Override
-    public void iniBundle(@NonNull Bundle bundle) {
-        index = bundle.getInt(TAG_MV_INDEX);
-    }
-
-    @Override
-    public int getLayoutId() {
-        return R.layout.ktv_dialog_mv;
-    }
-
-    @Override
-    public void iniView() {
-        List<MVAdapter.MVModel> list = new ArrayList<>();
-        list.add(new MVAdapter.MVModel(R.mipmap.ktv_music_background1));
-        list.add(new MVAdapter.MVModel(R.mipmap.ktv_music_background2));
-        list.add(new MVAdapter.MVModel(R.mipmap.ktv_music_background3));
-        list.add(new MVAdapter.MVModel(R.mipmap.ktv_music_background4));
-        list.add(new MVAdapter.MVModel(R.mipmap.ktv_music_background5));
-        list.add(new MVAdapter.MVModel(R.mipmap.ktv_music_background6));
-        list.add(new MVAdapter.MVModel(R.mipmap.ktv_music_background7));
-        list.add(new MVAdapter.MVModel(R.mipmap.ktv_music_background8));
-        list.add(new MVAdapter.MVModel(R.mipmap.ktv_music_background9));
-
-        mAdapter = new MVAdapter(list, this);
-        mDataBinding.rvList.setLayoutManager(new GridLayoutManager(requireContext(), 3));
-        mDataBinding.rvList.setAdapter(mAdapter);
-        mDataBinding.rvList.addItemDecoration(new SpaceItemDecoration(requireContext()));
-    }
-
-    @Override
-    public void iniListener() {
-    }
-
-    @Override
-    public void iniData() {
-        mAdapter.setSelectIndex(index);
+        mBinding.rvList.setAdapter(mAdapter);
+        mBinding.rvList.addItemDecoration(new DividerDecoration(3));
     }
 
     public void show(@NonNull FragmentManager manager, int index) {
-        Bundle mBundle = new Bundle();
-        mBundle.putInt(TAG_MV_INDEX, index);
-        setArguments(mBundle);
+        this.index = index;
         super.show(manager, TAG);
     }
 
     @Override
-    public void onItemClick(@NonNull MVAdapter.MVModel data, View view, int position, long id) {
+    public void onItemClick(@NonNull Integer data, View view, int position, long viewType) {
         AgoraRoom mRoom = RoomManager.Instance(requireContext()).getRoom();
         if (mRoom == null) {
             dismiss();
             return;
         }
-
-        mAdapter.setSelectIndex(position);
         SyncManager.Instance()
                 .getRoom(mRoom.getId())
                 .update(AgoraRoom.COLUMN_MV, String.valueOf(position + 1), new SyncManager.DataItemCallback() {
                     @Override
                     public void onSuccess(AgoraObject result) {
-
+                        int formerIndex = mAdapter.selectedIndex;
+                        mAdapter.selectedIndex = position;
+                        mAdapter.notifyItemChanged(formerIndex);
+                        mAdapter.notifyItemChanged(position);
                     }
 
                     @Override
                     public void onFail(AgoraException exception) {
-                        ToastUtile.toastShort(requireContext(), exception.getMessage());
+                        ToastUtil.toastShort(requireContext(), exception.getMessage());
                     }
                 });
-    }
-
-    @Override
-    public void onItemClick(View view, int position, long id) {
-
     }
 }

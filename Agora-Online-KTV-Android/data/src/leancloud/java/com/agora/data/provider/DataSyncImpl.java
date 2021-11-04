@@ -2,9 +2,11 @@ package com.agora.data.provider;
 
 import android.content.Context;
 import android.text.TextUtils;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.agora.data.BuildConfig;
 import com.agora.data.R;
 import com.agora.data.model.AgoraRoom;
 import com.agora.data.sync.AgoraException;
@@ -34,7 +36,6 @@ import cn.leancloud.livequery.LCLiveQueryEventHandler;
 import cn.leancloud.livequery.LCLiveQuerySubscribeCallback;
 import cn.leancloud.push.PushService;
 import cn.leancloud.types.LCNull;
-import io.agora.baselibrary.BuildConfig;
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
 import io.reactivex.Observer;
@@ -44,7 +45,7 @@ import io.reactivex.schedulers.Schedulers;
 
 public class DataSyncImpl implements ISyncManager {
 
-    private Gson mGson = new Gson();
+    private final Gson mGson = new Gson();
 
     public DataSyncImpl(Context mContext) {
         if (BuildConfig.DEBUG) {

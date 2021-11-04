@@ -1,82 +1,81 @@
 package io.agora.baselibrary.base;
 
-import android.content.Intent;
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+
+import android.graphics.Color;
 import android.os.Bundle;
-import android.view.View;
+import android.view.LayoutInflater;
+import android.widget.FrameLayout;
+import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.lifecycle.Lifecycle;
+import androidx.core.widget.ContentLoadingProgressBar;
+import androidx.viewbinding.ViewBinding;
 
-import com.trello.lifecycle2.android.lifecycle.AndroidLifecycle;
-import com.trello.rxlifecycle3.LifecycleProvider;
+import java.lang.reflect.Type;
 
-import io.agora.baselibrary.R;
-import pub.devrel.easypermissions.EasyPermissions;
+import io.agora.baselibrary.util.KTVUtil;
+import io.agora.baselibrary.util.ToastUtil;
+
 
 /**
  * 基础
  *
  * @author chenhengfei@agora.io
  */
-public abstract class BaseActivity extends AppCompatActivity {
-    protected final LifecycleProvider<Lifecycle.Event> mLifecycleProvider = AndroidLifecycle.createLifecycleProvider(this);
 
-    protected Toolbar titleBar;
+public abstract class BaseActivity<B extends ViewBinding> extends AppCompatActivity {
+    public B mBinding;
+    private AlertDialog mLoadingDialog = null;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mBinding = getViewBindingByReflect(getLayoutInflater());
+        if(mBinding == null) {
+            ToastUtil.toastShort(this, "Inflate Error");
+            finish();
+        }else
+            setContentView(mBinding.getRoot());
 
-        Intent intent = getIntent();
-        Bundle bundle = intent.getExtras();
-        if (bundle != null) {
-            iniBundle(bundle);
+//        WindowCompat.setDecorFitsSystemWindows(getWindow(), true)
+    }
+
+    public void showLoading() {
+        showLoading(true);
+    }
+
+    public void showLoading(Boolean cancelable) {
+        if (mLoadingDialog == null) {
+            mLoadingDialog = new AlertDialog.Builder(this).create();
+            mLoadingDialog.getWindow().getDecorView().setBackgroundColor(Color.TRANSPARENT);
+            ProgressBar progressBar = new ContentLoadingProgressBar(this);
+            progressBar.setIndeterminate(true);
+            progressBar.setLayoutParams(new FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT));
+            mLoadingDialog.setView(progressBar);
         }
-
-        setCusContentView();
-
-        titleBar = findViewById(R.id.titleBar);
-        if (titleBar != null) {
-            titleBar.setNavigationOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    navigationOnClickListener();
-                }
-            });
-        }
-
-        iniView();
-        iniListener();
-        iniData();
+        mLoadingDialog.setCancelable(cancelable);
+        mLoadingDialog.show();
     }
 
-    public void navigationOnClickListener() {
-        finish();
+    public void dismissLoading() {
+        if(mLoadingDialog != null)
+            mLoadingDialog.dismiss();
     }
 
-    protected void setCusContentView() {
-        setContentView(getLayoutId());
-    }
-
-    protected abstract void iniBundle(@NonNull Bundle bundle);
-
-    protected abstract int getLayoutId();
-
-    protected abstract void iniView();
-
-    protected abstract void iniListener();
-
-    protected abstract void iniData();
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (this instanceof EasyPermissions.PermissionCallbacks) {
-            EasyPermissions
-                    .onRequestPermissionsResult(requestCode, permissions, grantResults, this);
+    @SuppressWarnings("unchecked")
+    private B getViewBindingByReflect(@NonNull LayoutInflater inflater) {
+        try {
+            Type type = getClass().getGenericSuperclass();
+            if(type == null) return null;
+            Class<B> c = KTVUtil.getGenericClass(getClass(),0);
+            return (B) KTVUtil.getViewBinding(c, inflater);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
     }
 }

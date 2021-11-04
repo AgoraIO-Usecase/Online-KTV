@@ -19,3 +19,7 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+-keep class io.agora.rtc2.**{*;}
+-keep class io.agora.mediaplayer.**{*;}
+-keep class io.agora.ktv.bean.**{*;}
+-keep class com.agora.data.model.**{*;}

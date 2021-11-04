@@ -7,6 +7,8 @@ import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.util.ObjectsCompat;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
 import com.agora.data.BaseError;
 import com.agora.data.R;
@@ -17,7 +19,7 @@ import com.agora.data.model.MusicModel;
 import com.agora.data.model.User;
 import com.agora.data.observer.DataObserver;
 import com.agora.data.provider.AgoraObject;
-import com.agora.data.provider.DataRepositroy;
+import com.agora.data.provider.DataRepository;
 import com.agora.data.sync.AgoraException;
 import com.agora.data.sync.DocumentReference;
 import com.agora.data.sync.OrderBy;
@@ -253,9 +255,9 @@ public final class RoomManager {
         memberHashMap.put(member.getId(), member);
         mMainThreadDispatch.onMemberJoin(member);
 
-        DataRepositroy.Instance(mContext)
+        DataRepository.Instance(mContext)
                 .getUser(member.getUserId())
-                .subscribe(new DataObserver<User>(mContext) {
+                .subscribe(new DataObserver<User>() {
                     @Override
                     public void handleError(@NonNull BaseError e) {
 
@@ -292,6 +294,7 @@ public final class RoomManager {
         }
 
         musics.add(model);
+        liveDataMusics.postValue(musics);
 
         mMainThreadDispatch.onMusicAdd(model);
 
@@ -303,6 +306,7 @@ public final class RoomManager {
     private void onMusicDelete(MemberMusicModel model) {
         mLogger.i("onMusicDelete() called with: model = [%s]", model);
         musics.remove(model);
+        liveDataMusics.postValue(musics);
         mMainThreadDispatch.onMusicDelete(model);
 
         if (musics.size() > 0) {
@@ -317,6 +321,7 @@ public final class RoomManager {
         mMusicModel = null;
         singers.clear();
         musics.clear();
+        liveDataMusics.postValue(musics);
         mMainThreadDispatch.onMusicEmpty();
     }
 
@@ -561,6 +566,16 @@ public final class RoomManager {
     private final static Object musicObject = new Object();
     private volatile List<MemberMusicModel> musics = new ArrayList<>();
 
+    // only for SongOrdersFragment
+    private final MutableLiveData<List<MemberMusicModel>> liveDataMusics = new MutableLiveData<>();
+    public LiveData<List<MemberMusicModel>> getLiveDataMusics(){
+        return liveDataMusics;
+    }
+
+    public List<MemberMusicModel> getMusics() {
+        return musics;
+    }
+
     public Single<List<MemberMusicModel>> getMusicOrderList() {
         return Single.create(new SingleOnSubscribe<List<MemberMusicModel>>() {
             @Override
@@ -599,6 +614,7 @@ public final class RoomManager {
             public void accept(List<MemberMusicModel> musicModels) throws Exception {
                 synchronized (musicObject) {
                     musics = musicModels;
+                    liveDataMusics.postValue(musics);
                 }
             }
         });
@@ -610,7 +626,7 @@ public final class RoomManager {
     }
 
     public boolean isMainSinger() {
-        User mUser = UserManager.Instance(mContext).getUserLiveData().getValue();
+        User mUser = UserManager.getInstance().mUser;
         if (mUser == null) {
             return false;
         }
@@ -623,7 +639,7 @@ public final class RoomManager {
     }
 
     public boolean isFollowSinger() {
-        User mUser = UserManager.Instance(mContext).getUserLiveData().getValue();
+        User mUser = UserManager.getInstance().mUser;
         if (mUser == null) {
             return false;
         }
@@ -641,10 +657,6 @@ public final class RoomManager {
         }
 
         return ObjectsCompat.equals(mMusicModel.getUserId(), member.getUserId());
-    }
-
-    public List<MemberMusicModel> getMusics() {
-        return musics;
     }
 
     public boolean isInMusicOrderList(MusicModel item) {
@@ -718,7 +730,7 @@ public final class RoomManager {
     public Completable joinRoom(AgoraRoom room) {
         this.mRoom = room;
 
-        User mUser = UserManager.Instance(mContext).getUserLiveData().getValue();
+        User mUser = UserManager.getInstance().mUser;
         if (mUser == null) {
             return Completable.error(new NullPointerException("mUser is empty"));
         }
@@ -826,7 +838,7 @@ public final class RoomManager {
 
                                 if (ObjectsCompat.equals(member, mMine)) {
                                     mMine = member;
-                                    User mUser = UserManager.Instance(mContext).getUserLiveData().getValue();
+                                    User mUser = UserManager.getInstance().mUser;
                                     mMine.setUser(mUser);
                                 }
 
@@ -834,9 +846,9 @@ public final class RoomManager {
                                     owner = member;
                                 }
 
-                                DataRepositroy.Instance(mContext)
+                                DataRepository.Instance(mContext)
                                         .getUser(member.getUserId())
-                                        .subscribe(new DataObserver<User>(mContext) {
+                                        .subscribe(new DataObserver<User>() {
                                             @Override
                                             public void handleError(@NonNull BaseError e) {
 
@@ -977,7 +989,7 @@ public final class RoomManager {
                 DocumentReference dcRoom = SyncManager.Instance()
                         .collection(AgoraRoom.TABLE_NAME)
                         .document(mRoom.getId());
-                User mUser = UserManager.Instance(mContext).getUserLiveData().getValue();
+                User mUser = UserManager.getInstance().mUser;
                 if (mUser != null) {
                     //清理 Music 表
                     SyncManager.Instance()

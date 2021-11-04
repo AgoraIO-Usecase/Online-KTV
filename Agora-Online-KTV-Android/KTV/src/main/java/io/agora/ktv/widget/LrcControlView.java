@@ -1,6 +1,10 @@
 package io.agora.ktv.widget;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.CountDownTimer;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -10,8 +14,10 @@ import android.widget.FrameLayout;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.databinding.DataBindingUtil;
+import androidx.core.content.ContextCompat;
+import androidx.palette.graphics.Palette;
 
+import io.agora.baselibrary.util.KTVUtil;
 import io.agora.ktv.R;
 import io.agora.ktv.bean.MemberMusicModel;
 import io.agora.ktv.databinding.KtvLayoutLrcControlViewBinding;
@@ -46,13 +52,11 @@ public class LrcControlView extends FrameLayout implements View.OnClickListener 
     private OnLrcActionListener mOnLrcActionListener;
 
     public LrcControlView(@NonNull Context context) {
-        super(context);
-        init(context);
+        this(context, null);
     }
 
     public LrcControlView(@NonNull Context context, @Nullable AttributeSet attrs) {
-        super(context, attrs);
-        init(context);
+        this(context, attrs, 0);
     }
 
     public LrcControlView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
@@ -61,7 +65,8 @@ public class LrcControlView extends FrameLayout implements View.OnClickListener 
     }
 
     private void init(Context context) {
-        mDataBinding = DataBindingUtil.inflate(LayoutInflater.from(context), R.layout.ktv_layout_lrc_control_view, this, true);
+        mDataBinding = KtvLayoutLrcControlViewBinding.inflate(LayoutInflater.from(context),this, true);
+//        mDataBinding = DataBindingUtil.inflate(LayoutInflater.from(context), R.layout.ktv_layout_lrc_control_view, this, true);
 
         mDataBinding.ilIDLE.getRoot().setVisibility(View.VISIBLE);
         mDataBinding.ilActive.getRoot().setVisibility(View.GONE);
@@ -75,6 +80,7 @@ public class LrcControlView extends FrameLayout implements View.OnClickListener 
         mDataBinding.ilActive.ivMusicMenu.setOnClickListener(this);
         mDataBinding.ilActive.ivMusicStart.setOnClickListener(this);
         mDataBinding.ilActive.ivChangeSong.setOnClickListener(this);
+
     }
 
     public void setOnLrcClickListener(OnLrcActionListener mOnLrcActionListener) {
@@ -85,6 +91,8 @@ public class LrcControlView extends FrameLayout implements View.OnClickListener 
     private CountDownTimer mCountDownLatch;
 
     private void startTimer() {
+        if(mCountDownLatch != null) mCountDownLatch.cancel();
+
         mCountDownLatch = new CountDownTimer(20 * 1000, 999) {
             @Override
             public void onTick(long millisUntilFinished) {
@@ -122,12 +130,15 @@ public class LrcControlView extends FrameLayout implements View.OnClickListener 
             mDataBinding.ilChorus.tvWaitingTime.setText(
                     getContext().getString(R.string.ktv_room_time_wait_join_chorus, 0, 20));
             mDataBinding.ilChorus.btChorus.setText(R.string.ktv_music_chorus_start_now);
-            mDataBinding.ilChorus.btChorus.setBackgroundResource(R.drawable.ktv_shape_wait_chorus_button);
+            mDataBinding.ilChorus.btChorus.setStrokeWidth((int) KTVUtil.dp2px(1));
+            mDataBinding.ilChorus.btChorus.setBackgroundTintList(ColorStateList.valueOf(Color.TRANSPARENT));
+
         } else if (mRole == Role.Listener) {
             mDataBinding.ilChorus.tvWaitingTime.setText(
                     getContext().getString(R.string.ktv_room_time_join_chorus_, 0, 20));
             mDataBinding.ilChorus.btChorus.setText(R.string.ktv_music_join_chorus);
-            mDataBinding.ilChorus.btChorus.setBackgroundResource(R.drawable.ktv_shape_start_chorus_button);
+            mDataBinding.ilChorus.btChorus.setStrokeWidth(0);
+            mDataBinding.ilChorus.btChorus.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.ktv_colorAccent)));
         }
 
         if (mRole == Role.Singer) {
@@ -173,7 +184,8 @@ public class LrcControlView extends FrameLayout implements View.OnClickListener 
         mDataBinding.ilPrepare.getRoot().setVisibility(View.GONE);
         mDataBinding.ilActive.getRoot().setVisibility(View.VISIBLE);
 
-        mDataBinding.ilActive.ivMusicStart.setImageResource(R.mipmap.ktv_room_music_pause);
+        mDataBinding.ilActive.ivMusicStart.setIconResource(R.drawable.ktv_ic_pause);
+//        mDataBinding.ilActive.ivMusicStart.setImageResource(R.mipmap.ktv_room_music_pause);
     }
 
     public void onPauseStatus() {
@@ -183,7 +195,8 @@ public class LrcControlView extends FrameLayout implements View.OnClickListener 
         mDataBinding.ilPrepare.getRoot().setVisibility(View.GONE);
         mDataBinding.ilActive.getRoot().setVisibility(View.VISIBLE);
 
-        mDataBinding.ilActive.ivMusicStart.setImageResource(R.mipmap.ktv_room_music_play);
+        mDataBinding.ilActive.ivMusicStart.setIconResource(R.drawable.ktv_ic_play);
+//        mDataBinding.ilActive.ivMusicStart.setImageResource(R.mipmap.ktv_room_music_play);
     }
 
     public void onIdleStatus() {
@@ -229,21 +242,18 @@ public class LrcControlView extends FrameLayout implements View.OnClickListener 
     }
 
     public void setLrcViewBackground(@DrawableRes int resId) {
-//        Bitmap mBitmap = BitmapFactory.decodeResource(getResources(), resId);
-//        Palette.from(mBitmap).generate(new Palette.PaletteAsyncListener() {
-//            @Override
-//            public void onGenerated(@Nullable Palette palette) {
-//                if (palette == null) {
-//                    return;
-//                }
-//
-//                int defaultColor = ContextCompat.getColor(getContext(), R.color.ktv_lrc_highligh);
-//                mDataBinding.ilActive.lrcView.setCurrentColor(palette.getLightVibrantColor(defaultColor));
-//
-//                defaultColor = ContextCompat.getColor(getContext(), R.color.ktv_lrc_nomal);
-//                mDataBinding.ilActive.lrcView.setNormalColor(palette.getLightMutedColor(defaultColor));
-//            }
-//        });
+        Bitmap mBitmap = BitmapFactory.decodeResource(getResources(), resId);
+        Palette.from(mBitmap).generate(palette -> {
+            if (palette == null) {
+                return;
+            }
+
+            int defaultColor = ContextCompat.getColor(getContext(), R.color.ktv_lrc_highligh);
+            mDataBinding.ilActive.lrcView.setCurrentColor(palette.getLightVibrantColor(defaultColor));
+
+            defaultColor = ContextCompat.getColor(getContext(), R.color.ktv_lrc_nomal);
+            mDataBinding.ilActive.lrcView.setNormalColor(palette.getLightMutedColor(defaultColor));
+        });
         mDataBinding.clActive.setBackgroundResource(resId);
     }
 
@@ -271,20 +281,20 @@ public class LrcControlView extends FrameLayout implements View.OnClickListener 
     }
 
     public interface OnLrcActionListener extends LrcView.OnActionListener {
-        void onSwitchOriginalClick();
+        default void onSwitchOriginalClick(){ }
 
-        void onMenuClick();
+        default void onMenuClick() { }
 
-        void onPlayClick();
+        default void onPlayClick() { }
 
-        void onChangeMusicClick();
+        default void onChangeMusicClick() { }
 
-        void onStartSing();
+        default void onStartSing() { }
 
-        void onJoinChorus();
+        default void onJoinChorus() { }
 
-        void onWaitTimeOut();
+        default void onWaitTimeOut() { }
 
-        void onCountTime(int time);
+        default void onCountTime(int time) { }
     }
 }

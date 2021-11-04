@@ -18,8 +18,8 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            minifyEnabled true
+            consumerProguardFiles 'proguard-rules.pro'
         }
     }
 
@@ -41,20 +41,21 @@ android {
 }
 
 dependencies {
-    testImplementation 'junit:junit:4.+'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
-
-    //leancloud
-    leancloudImplementation 'cn.leancloud:storage-android:8.0.1'
-    leancloudImplementation 'cn.leancloud:realtime-android:8.0.1'
+    //LeanCloud
+    leancloudImplementation ('cn.leancloud:storage-android:8.0.1'){
+        exclude group: 'androidx.legacy', module: 'legacy-support-v4'
+//        exclude group: 'cn.leancloud', module: 'storage-core'
+    }
+    leancloudImplementation ('cn.leancloud:realtime-android:8.0.1'){
+        exclude group: 'androidx.legacy', module: 'legacy-support-v4'
+    }
 
     //firebase
 //    firebaseImplementation platform('com.google.firebase:firebase-bom:26.7.0')
 //    firebaseImplementation 'com.google.firebase:firebase-firestore'
 
-    //RTM
-    implementation 'com.github.agorabuilder:rtm-sdk:1.4.4'
+    api 'com.google.code.gson:gson:2.8.7'
 
-    api project(':baselibrary')
+    //日志
+    api 'com.elvishew:xlog:1.6.1'
 }

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/root_dialog_more"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/ktv_shape_bottom_dialog_background"
+    android:gravity="center"
+    android:orientation="horizontal"
+    android:padding="@dimen/ktv_space_normal">
+
+    <com.google.android.material.chip.Chip
+        android:id="@+id/chip_voice_dialog_more"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/ktv_space_normal"
+        android:text="@string/ktv_beauty_voice"
+        app:chipEndPadding="@dimen/ktv_space_normal"
+        app:chipStartPadding="@dimen/ktv_space_normal" />
+
+    <com.google.android.material.chip.Chip
+        android:id="@+id/chip_effect_dialog_more"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/ktv_beauty_effect"
+        android:visibility="gone"
+        app:chipEndPadding="@dimen/ktv_space_normal"
+        app:chipStartPadding="@dimen/ktv_space_normal" />
+</LinearLayout>

@@ -8,7 +8,7 @@ import androidx.core.util.ObjectsCompat;
 import com.agora.data.manager.UserManager;
 import com.agora.data.model.User;
 
-import io.agora.baselibrary.util.ToastUtile;
+import io.agora.baselibrary.util.ToastUtil;
 import io.agora.ktv.R;
 import io.agora.ktv.bean.MemberMusicModel;
 import io.agora.mediaplayer.IMediaPlayer;
@@ -45,7 +45,7 @@ public class SingleMusicPlayer extends BaseMusicPlayer {
 
     @Override
     public void prepare(@NonNull MemberMusicModel music) {
-        User mUser = UserManager.Instance(mContext).getUserLiveData().getValue();
+        User mUser = UserManager.getInstance().mUser;
         if (mUser == null) {
             return;
         }
@@ -71,7 +71,7 @@ public class SingleMusicPlayer extends BaseMusicPlayer {
 
                         @Override
                         public void onError(@NonNull Throwable e) {
-                            ToastUtile.toastShort(mContext, R.string.ktv_lrc_load_fail);
+                            ToastUtil.toastShort(mContext, R.string.ktv_lrc_load_fail);
                         }
                     });
         } else {
@@ -94,7 +94,7 @@ public class SingleMusicPlayer extends BaseMusicPlayer {
 
                         @Override
                         public void onError(@NonNull Throwable e) {
-                            ToastUtile.toastShort(mContext, R.string.ktv_lrc_load_fail);
+                            ToastUtil.toastShort(mContext, R.string.ktv_lrc_load_fail);
                         }
                     });
         }

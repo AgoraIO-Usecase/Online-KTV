@@ -3,13 +3,8 @@ package io.agora.ktv.view;
 import android.content.Intent;
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
-import io.agora.baselibrary.base.DataBindBaseActivity;
-import io.agora.ktv.AppApplication;
-import io.agora.ktv.R;
-import io.agora.ktv.databinding.KtvActivitySplashBinding;
+import androidx.appcompat.app.AppCompatActivity;
 
 
 /**
@@ -17,37 +12,19 @@ import io.agora.ktv.databinding.KtvActivitySplashBinding;
  *
  * @author chenhengfei@agora.io
  */
-public class SplashActivity extends DataBindBaseActivity<KtvActivitySplashBinding> {
+public class SplashActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        if ((getIntent().getFlags() & Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT) != 0)
+        if ((getIntent().getFlags() & Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT) != 0) {
             finish();
-        super.onCreate(savedInstanceState);
+        }else{
+            super.onCreate(savedInstanceState);
+            initData();
+        }
     }
 
-    @Override
-    protected void iniBundle(@NonNull Bundle bundle) {
-
-    }
-
-    @Override
-    protected int getLayoutId() {
-        return R.layout.ktv_activity_splash;
-    }
-
-    @Override
-    protected void iniView() {
-
-    }
-
-    @Override
-    protected void iniListener() {
-
-    }
-
-    @Override
-    protected void iniData() {
+    private void initData() {
         Intent intent = getIntent();
         if (!this.isTaskRoot() && intent != null) {
             String action = intent.getAction();
