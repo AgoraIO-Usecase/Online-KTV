@@ -24,7 +24,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="gone"
-            tools:background="@mipmap/ktv_music_background1">
+            tools:background="@drawable/ktv_music_background1">
 
             <TextView
                 android:id="@+id/tvMusicName"
@@ -45,7 +45,6 @@
                 android:visibility="gone" />
 
             <include
-                android:id="@+id/ilPrepare"
                 layout="@layout/ktv_layout_lrc_prepare"
                 android:visibility="gone" />
 
