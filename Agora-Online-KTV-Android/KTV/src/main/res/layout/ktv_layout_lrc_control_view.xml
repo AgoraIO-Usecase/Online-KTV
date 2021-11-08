@@ -45,7 +45,6 @@
                 android:visibility="gone" />
 
             <include
-                android:id="@+id/ilPrepare"
                 layout="@layout/ktv_layout_lrc_prepare"
                 android:visibility="gone" />
 
