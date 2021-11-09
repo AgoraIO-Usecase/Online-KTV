@@ -311,13 +311,13 @@ private class MusicLyricCell: UITableViewCell {
     }
 }
 
-public protocol MusicLyricViewDelegate: NSObject {
+@objc public protocol MusicLyricViewDelegate: NSObjectProtocol {
     func userEndSeeking(time: TimeInterval) -> Void
 }
 
-public class MusicLyricView: UIView, UITableViewDataSource, UITableViewDelegate {
+@objc public class MusicLyricView: UIView, UITableViewDataSource, UITableViewDelegate {
     public static var hightColor = UIColor.white
-    public weak var delegate: MusicLyricViewDelegate?
+    @objc public weak var delegate: MusicLyricViewDelegate?
     // ms
     private var seekTime: TimeInterval = 0
     private var Distance = 3
@@ -325,7 +325,7 @@ public class MusicLyricView: UIView, UITableViewDataSource, UITableViewDelegate 
     private(set) var isWillDraging: Bool = false
     private(set) var isScrolling: Bool = false
     private(set) var lyricIndex: Int = 0
-    public var lyrics: [LrcSentence]? {
+    @objc public var lyrics: [LrcSentence]? {
         didSet {
             DispatchQueue.main.async { [weak self] in
                 if let self = self {
@@ -443,11 +443,11 @@ public class MusicLyricView: UIView, UITableViewDataSource, UITableViewDelegate 
             let totalTime = self.totalTime
             let curLyricsTimestamp = self.curLyricsTimestamp
             var offset: TimeInterval = (Date().timeIntervalSince1970 * 1000 - curLyricsTimestamp)
-            pitchView.time = currentTime + offset
 
             if abs(offset) > 1500 {
                 offset = 0
             }
+            pitchView.time = currentTime + offset
 
             if currentTime < currentLyric.startMsTime() {
                 return
@@ -473,7 +473,6 @@ public class MusicLyricView: UIView, UITableViewDataSource, UITableViewDelegate 
                         let current = currentLyric.startMsTime() + consume
                         self.pitchView.time = current
                         self.scrollLyric(currentTime: current, totalTime: totalTime)
-                        //Logger.log(self, message: "scrollLyric: \(current), \(totalTime)", level: .info)
                     }
                 }
             }
@@ -517,7 +516,7 @@ public class MusicLyricView: UIView, UITableViewDataSource, UITableViewDelegate 
         fatalError("init(coder:) has not been implemented")
     }
 
-    public func scrollLyric(currentTime: TimeInterval, totalTime: TimeInterval) {
+    @objc public func scrollLyric(currentTime: TimeInterval, totalTime: TimeInterval) {
         if self.currentTime == currentTime && self.totalTime == totalTime {
             return
         }
@@ -569,14 +568,12 @@ public class MusicLyricView: UIView, UITableViewDataSource, UITableViewDelegate 
     }
 
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell: MusicLyricCell = tableView.dequeueReusableCell(withIdentifier: NSStringFromClass(MusicLyricCell.self), for: indexPath) as? MusicLyricCell else { return MusicLyricCell(style: .default, reuseIdentifier: NSStringFromClass(MusicLyricCell.self)) }
+        let cell: MusicLyricCell = tableView.dequeueReusableCell(withIdentifier: NSStringFromClass(MusicLyricCell.self), for: indexPath) as! MusicLyricCell
         cell.lyricLabel.textColor = normalLyricTextColor
         if cell.selectedBackgroundView == nil {
             cell.selectedBackgroundView = UIView()
         }
         cell.backgroundColor = .clear
-        cell.selectionStyle = .none
-
         let lyricsCount = lyrics?.count ?? 0
         let index = indexPath.row - Distance
         let current = lyricIndex + Distance

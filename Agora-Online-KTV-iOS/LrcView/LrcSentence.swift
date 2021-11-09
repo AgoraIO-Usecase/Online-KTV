@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-public class PitchData {
+@objc public class PitchData: NSObject {
     let value: Int
     let start: TimeInterval
     let duration: TimeInterval
@@ -24,7 +24,7 @@ public class PitchData {
     }
 }
 
-public protocol LrcSentence {
+@objc public protocol LrcSentence {
     func startMsTime() -> TimeInterval
     func endMsTime() -> TimeInterval
     func render(with: UILabel) -> Void

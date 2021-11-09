@@ -62,7 +62,7 @@ extension UIColor {
 
 public var screenWidth: CGFloat { return UIScreen.main.bounds.width }
 
-extension UIView {
+public extension UIView {
     enum Relation {
         case equal
         case greaterOrEqual
@@ -209,14 +209,14 @@ extension UIView {
         return self
     }
 
-    func fill(view: UIView, leading: CGFloat = 0, top: CGFloat = 0, trailing: CGFloat = 0, bottom: CGFloat = 0) -> UIView {
+    @objc func fill(view: UIView, leading: CGFloat = 0, top: CGFloat = 0, trailing: CGFloat = 0, bottom: CGFloat = 0) -> UIView {
         return marginLeading(anchor: view.leadingAnchor, constant: leading)
             .marginTop(anchor: view.topAnchor, constant: top)
             .marginTrailing(anchor: view.trailingAnchor, constant: trailing)
             .marginBottom(anchor: view.bottomAnchor, constant: bottom)
     }
 
-    func active() {
+    @objc func active() {
         translatesAutoresizingMaskIntoConstraints = false
     }
 
@@ -302,7 +302,7 @@ extension UITableView {
         })
     }
 
-    func scroll(to: ScrollsTo, animated: Bool) {
+    func scroll(to: scrollsTo, animated: Bool) {
         DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(300)) {
             let numberOfSections = self.numberOfSections
             let numberOfRows = self.numberOfRows(inSection: numberOfSections - 1)
@@ -321,7 +321,7 @@ extension UITableView {
         }
     }
 
-    enum ScrollsTo {
+    enum scrollsTo {
         case top, bottom
     }
 }
@@ -341,17 +341,15 @@ extension UIWindow {
     }
 
     class func getVisibleViewControllerFrom(_ vc: UIViewController) -> UIViewController {
-        if let navigationController = vc as? UINavigationController,
-           let visibleViewController = navigationController.visibleViewController
-        {
-            return UIWindow.getVisibleViewControllerFrom(visibleViewController)
-        } else if let tabBarController = vc as? UITabBarController,
-                  let selectedViewController = tabBarController.selectedViewController
-        {
-            return UIWindow.getVisibleViewControllerFrom(selectedViewController)
+        if vc.isKind(of: UINavigationController.self) {
+            let navigationController = vc as! UINavigationController
+            return UIWindow.getVisibleViewControllerFrom(navigationController.visibleViewController!)
+        } else if vc.isKind(of: UITabBarController.self) {
+            let tabBarController = vc as! UITabBarController
+            return UIWindow.getVisibleViewControllerFrom(tabBarController.selectedViewController!)
         } else {
             if let presentedViewController = vc.presentedViewController {
-                return UIWindow.getVisibleViewControllerFrom(presentedViewController)
+                return UIWindow.getVisibleViewControllerFrom(presentedViewController.presentedViewController!)
             } else {
                 return vc
             }

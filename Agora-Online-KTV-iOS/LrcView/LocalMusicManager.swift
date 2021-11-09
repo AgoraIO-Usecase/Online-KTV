@@ -8,14 +8,14 @@
 import Foundation
 import Zip
 
-public struct LocalMusic {
-    public let id: String
-    public let name: String
-    public let path: String
-    public let lrcPath: String
-    public let singer: String
-    public let poster: String
-    public init(id: String, name: String, path: String, lrcPath: String, singer: String, poster: String) {
+@objc public class LocalMusic: NSObject {
+    @objc public var id: String = ""
+    @objc public var name: String = ""
+    @objc public var path: String = ""
+    @objc public var lrcPath: String = ""
+    @objc public var singer: String = ""
+    @objc public var poster: String = ""
+    @objc public init(id: String, name: String, path: String, lrcPath: String, singer: String, poster: String) {
         self.id = id
         self.name = name
         self.path = path
@@ -25,20 +25,14 @@ public struct LocalMusic {
     }
 }
 
-public struct LocalMusicOption {
-    public let masterUid: UInt
-    public let masterMusicUid: UInt
-    public let followerUid: UInt
-    public let followerMusicUid: UInt
-    public init(masterUid: UInt, masterMusicUid: UInt, followerUid: UInt, followerMusicUid: UInt) {
-        self.masterUid = masterUid
-        self.masterMusicUid = masterMusicUid
-        self.followerUid = followerUid
-        self.followerMusicUid = followerMusicUid
-    }
+@objc public class LocalMusicOption: NSObject {
+    let masterUid: UInt = 0
+    let masterMusicUid: UInt = 0
+    let followerUid: UInt = 0
+    let followerMusicUid: UInt = 0
 }
 
-public class LocalMusicManager {
+@objc public class LocalMusicManager: NSObject {
 //    let localMusicList = [
 //        LocalMusic(
 //            id: "music0",
@@ -57,9 +51,9 @@ public class LocalMusicManager {
 //    static func parseLyric(music: LocalMusic) -> [LyricModel] {
 //        return LyricParser.parseLyric(filePath: music.lrcPath)
 //    }
-    public init() {}
+   // public init() {}
 
-    public static func parseLyric(music: LocalMusic) -> [LrcSentence] {
+    @objc public static func parseLyric(music: LocalMusic) -> [LrcSentence] {
         Logger.log(self, message: "parseLyric \(music.lrcPath)", level: .info)
         if music.lrcPath.hasSuffix(".lrc") {
             let lyrics = LyricParser.parseLyric(filePath: music.lrcPath)
