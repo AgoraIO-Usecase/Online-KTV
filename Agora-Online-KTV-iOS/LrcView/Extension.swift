@@ -62,7 +62,7 @@ extension UIColor {
 
 public var screenWidth: CGFloat { return UIScreen.main.bounds.width }
 
-extension UIView {
+public extension UIView {
     enum Relation {
         case equal
         case greaterOrEqual
@@ -209,14 +209,14 @@ extension UIView {
         return self
     }
 
-    func fill(view: UIView, leading: CGFloat = 0, top: CGFloat = 0, trailing: CGFloat = 0, bottom: CGFloat = 0) -> UIView {
+    @objc func fill(view: UIView, leading: CGFloat = 0, top: CGFloat = 0, trailing: CGFloat = 0, bottom: CGFloat = 0) -> UIView {
         return marginLeading(anchor: view.leadingAnchor, constant: leading)
             .marginTop(anchor: view.topAnchor, constant: top)
             .marginTrailing(anchor: view.trailingAnchor, constant: trailing)
             .marginBottom(anchor: view.bottomAnchor, constant: bottom)
     }
 
-    func active() {
+    @objc func active() {
         translatesAutoresizingMaskIntoConstraints = false
     }
 
