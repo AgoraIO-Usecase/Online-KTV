@@ -311,13 +311,13 @@ private class MusicLyricCell: UITableViewCell {
     }
 }
 
-public protocol MusicLyricViewDelegate: NSObject {
+@objc public protocol MusicLyricViewDelegate: NSObjectProtocol {
     func userEndSeeking(time: TimeInterval) -> Void
 }
 
-public class MusicLyricView: UIView, UITableViewDataSource, UITableViewDelegate {
+@objc public class MusicLyricView: UIView, UITableViewDataSource, UITableViewDelegate {
     public static var hightColor = UIColor.white
-    public weak var delegate: MusicLyricViewDelegate?
+    @objc public weak var delegate: MusicLyricViewDelegate?
     // ms
     private var seekTime: TimeInterval = 0
     private var Distance = 3
@@ -325,7 +325,7 @@ public class MusicLyricView: UIView, UITableViewDataSource, UITableViewDelegate 
     private(set) var isWillDraging: Bool = false
     private(set) var isScrolling: Bool = false
     private(set) var lyricIndex: Int = 0
-    public var lyrics: [LrcSentence]? {
+    @objc public var lyrics: [LrcSentence]? {
         didSet {
             DispatchQueue.main.async { [weak self] in
                 if let self = self {
@@ -516,7 +516,7 @@ public class MusicLyricView: UIView, UITableViewDataSource, UITableViewDelegate 
         fatalError("init(coder:) has not been implemented")
     }
 
-    public func scrollLyric(currentTime: TimeInterval, totalTime: TimeInterval) {
+    @objc public func scrollLyric(currentTime: TimeInterval, totalTime: TimeInterval) {
         if self.currentTime == currentTime && self.totalTime == totalTime {
             return
         }
