@@ -159,7 +159,8 @@ class LrcEntry {
                 }
 
                 float percent = (time - tone.begin) / (float) (tone.end - tone.begin);
-                curLen = wordLen * percent;
+
+                curLen = wordLen * (percent > 0 ? percent : 0);
                 break;
             }
         }
