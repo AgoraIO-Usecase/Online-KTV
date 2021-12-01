@@ -29,8 +29,6 @@ class LrcLoadMiguUtils {
     public static class SongGeneral {
         public String name;
         public String singer;
-        public int type;
-        public String mode_type;
     }
 
     public static class SongMidi {
@@ -108,10 +106,6 @@ class LrcLoadMiguUtils {
                 general.name = readText(parser);
             } else if (name.equals("singer")) {
                 general.singer = readText(parser);
-//            } else if (name.equals("type")) {
-//                general.type = Integer.parseInt(readText(parser));
-            } else if (name.equals("mode_type")) {
-                general.mode_type = readText(parser);
             } else {
                 skip(parser);
             }
