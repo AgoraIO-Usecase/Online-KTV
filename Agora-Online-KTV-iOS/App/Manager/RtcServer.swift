@@ -20,6 +20,7 @@ enum RtcServerStateType {
 
 class RtcServer: NSObject {
     var rtcEngine: AgoraRtcEngineKit?
+    let voicePitchRelay: BehaviorRelay<[Double]> = BehaviorRelay(value: [])
     private var rtcMusicPlayer: IRtcMusicPlayer?
     private let statePublisher: PublishRelay<Result<RtcServerStateType>> = PublishRelay()
     private let rtcMusicStatePublisher: PublishRelay<Result<RtcMusicState>> = PublishRelay()
@@ -93,6 +94,7 @@ class RtcServer: NSObject {
         }
         rtc.enableAudio()
         rtc.disableVideo()
+        rtc.enableAudioVolumeIndication(200, smooth: 3, reportvad: true)
         muteLocalMicrophone(mute: member.isSelfMuted)
         rtc.enable(inEarMonitoring: isEnableEarloop)
         setRecordingSignalVolume(value: recordingSignalVolume)
@@ -314,6 +316,18 @@ class RtcServer: NSObject {
 //        return (rtcMusicPlayer?.getAudioTrackCount() ?? 0) > 1
     }
 
+    func setPitch(pitch _: Int) {
+        if let player = rtcMusicPlayer {
+//            player.setPitch(pitch: pitch)
+        }
+//        Logger.log(self, message: "setPitch \(pitch), result is \(String(describing: ret))", level: .info)
+    }
+
+    func setVoiceEffect(effect: AgoraAudioEffectPreset) {
+        let ret = rtcEngine?.setAudioEffectPreset(effect)
+        Logger.log(self, message: "setAudioEffectPreset \(effect.rawValue), result is \(String(describing: ret))", level: .info)
+    }
+
     func originMusic(enable: Bool) {
         if isSupportSwitchOriginMusic() {
             if let player = rtcMusicPlayer {
@@ -470,6 +484,10 @@ extension RtcServer: AgoraRtcEngineDelegate {
             Logger.log(self, message: error.localizedDescription, level: .error)
         }
     }
+
+    func rtcEngine(_: AgoraRtcEngineKit, reportAudioVolumeIndicationOfSpeakers speakers: [AgoraRtcAudioVolumeInfo], totalVolume _: Int) {
+        voicePitchRelay.accept(speakers.map { $0.voicePitch })
+    }
 }
 
 enum RtcServerError: Int {
@@ -506,5 +524,35 @@ extension RtcServer: ErrorDescription {
                 return "Unknown Error".localized
             }
         }
+    }
+}
+
+public extension AgoraAudioEffectPreset {
+    func description() -> String {
+        switch self {
+        case .off: return "原声"
+        case .roomAcousticsKTV: return "KTV"
+        case .roomAcousVocalConcer: return "演唱会"
+        case .roomAcousStudio: return "录音棚"
+        case .roomAcousPhonograph: return "留声机"
+        case .roomAcousSpatial: return "空旷"
+        case .roomAcousEthereal: return "空灵"
+        case .styleTransformationPopular: return "流行"
+        case .styleTransformationRnb: return "R&B"
+        default:
+            return "原声"
+        }
+    }
+
+    static func fmDefault(with agoraKit: AgoraRtcEngineKit) {
+        changeVoice(with: agoraKit, type: .off)
+    }
+
+    static func changeVoice(with agoraKit: AgoraRtcEngineKit, type: AgoraAudioEffectPreset) {
+        agoraKit.setAudioEffectPreset(type)
+    }
+
+    func character(with agoraKit: AgoraRtcEngineKit) {
+        AgoraAudioEffectPreset.changeVoice(with: agoraKit, type: self)
     }
 }

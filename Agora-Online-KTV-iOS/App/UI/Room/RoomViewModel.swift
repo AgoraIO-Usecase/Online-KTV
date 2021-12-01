@@ -5,6 +5,7 @@
 //  Created by XC on 2021/6/9.
 //
 
+import AgoraRtcKit
 import Core
 import Foundation
 import LrcView
@@ -568,6 +569,10 @@ class RoomViewModel {
         manager.setRecordingSignalVolume(value: volume)
     }
 
+    func setPitch(pitch: Int) {
+        manager.setPitch(pitch: pitch)
+    }
+
     func setPlayoutVolume(volume: Float) {
         manager.setPlayoutVolume(value: volume)
     }
@@ -648,6 +653,10 @@ class RoomViewModel {
                 onWaiting(false)
             }
             .disposed(by: disposeBag)
+    }
+
+    func setVoiceEffect(effect: AgoraAudioEffectPreset) {
+        manager.setVoiceEffect(effect: effect)
     }
 
 //    func _musicDataSource(music: String) -> Observable<Result<[LocalMusic]>> {

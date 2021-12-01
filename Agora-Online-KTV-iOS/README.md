@@ -1,36 +1,33 @@
-# 前提条件
-开始前，请确保你的开发环境满足如下条件：
-- Xcode 12.0 或以上版本。
-- Cocoapods。你可以参考 [Getting Started with CocoaPods](https://guides.cocoapods.org/using/getting-started.html#getting-started) 安装。
-- iOS 11.0 或以上版本的设备。部分模拟机可能无法支持本项目的全部功能，所以推荐使用真机。
+# Agora Online KTV
 
-# 操作步骤
-#### 注册Agora
-前往 [Agora官网](https://console.agora.io/) 注册项目，生产appId，然后替换 **Config.swift** 中 **AppId**。
+## 场景描述
+在线 K 歌房是 Agora 提供的线上 K 歌场景化解决方案，结合 Agora RTC SDK 和 Agora 内容中心等产品，将其复杂的 API 进行模块整合，实现了功能组件化，降低了开发门槛。在此方案中，歌房里的主播可以点歌成为主唱，跟随歌曲伴奏演唱给歌房内的听众。在演唱过程中：
+主唱可以控制歌曲的暂停、播放和切换，并且可以自己调节伴奏和人声音量。
+歌房内有歌词板块，唱歌时会根据歌曲播放进度显示对应的歌词。
+Agora 内容中心提供热门歌曲曲库，连麦主播可以搜索想唱的歌曲，点歌并查看已点列表。
+听众可以通过上麦点歌进行排麦演唱，并随时与房主和其他连麦主播进行实时音频互动。
+房间内的角色及描述
+| 角色     | 描述                                           |
+| -------- | ---------------------------------------------- |
+| 房主     | 歌房创建者                                     |
+| 连麦主播 | 进入歌房后，通过上麦成为连麦主播               |
+| 主唱     | 连麦主播点歌后进行排麦演唱，正在演唱者成为主唱 |
+| 听众     | 进入歌房的倾听者                               |
 
-#### 获取Agora SDK
-目前版本需要特殊版SDK才能运行，请联系您的技术支持或者 sales@agora.io 获取SDK。
+在线 K 歌房场景化解决方案提供以下核心功能：
+## 实时音频互动
+超低延时下，听众实时接收房主和连麦主播的音频流，保证互动的流畅性。
+## 互动连麦
+听众可自主上麦成为连麦主播，房间内所有用户都可以实时观看麦上主播互动。
+## 热门曲库
+Agora 内容中心提供热门歌曲的曲库，曲库支持搜索功能。
+## 点歌排麦
+连麦主播从 Agora 内容中心点歌，歌曲进入已点列表；当同时上麦人数大于 1 时，根据每首点播歌曲的排麦顺序上麦演唱。
+## 歌词模块
+歌曲播放时，根据播放进度显示对应的歌词；
+滑动歌词可以改变歌曲进度；
+主唱可以改变歌词背景。
 
-##### 注册Leancloud
-1. 前往 [Leancloud官网](https://www.leancloud.cn/) 注册项目，生产 appId、appKey、server_url。
-- 替换 **Config.swift** 中 **LeanCloudAppId**、**LeanCloudAppKey**、**LeanCloudServerUrl**。
-2. 启用LiveQuery，前往 [Leancloud控制台](https://www.leancloud.cn/)，打开**数据存储**-**服务设置**-**启用 LiveQuery**。
+## License
 
-#### 运行示例项目
-1. 在iOS项目路径下，使用 "pod install" 命令去链接所有需要依赖的库。
-2. 最后使用 Xcode 打开 OnlineKtv.xcworkspace，连接 iPhone／iPad 测试设备，设置有效的开发者签名后即可运行。
-
-## 联系我们
-
-- 如果你遇到了困难，可以先参阅 [常见问题](https://docs.agora.io/cn/faq)
-- 如果你想了解更多官方示例，可以参考 [官方SDK示例](https://github.com/AgoraIO)
-- 如果你想了解声网SDK在复杂场景下的应用，可以参考 [官方场景案例](https://github.com/AgoraIO-usecase)
-- 如果你想了解声网的一些社区开发者维护的项目，可以查看 [社区](https://github.com/AgoraIO-Community)
-- 完整的 API 文档见 [文档中心](https://docs.agora.io/cn/)
-- 若遇到问题需要开发者帮助，你可以到 [开发者社区](https://rtcdeveloper.com/) 提问
-- 如果需要售后技术支持，你可以在 [Agora Dashboard](https://dashboard.agora.io) 提交工单
-- 如果发现了示例代码的 bug，欢迎提交 [issue](https://github.com/AgoraIO-Usecase/InteractivePodcast/issues)
-
-## 代码许可
-
-The MIT License (MIT)
+The MIT License (MIT).

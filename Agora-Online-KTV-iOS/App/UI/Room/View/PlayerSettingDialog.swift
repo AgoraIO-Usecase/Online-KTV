@@ -18,6 +18,8 @@ struct PlayerSettingDialogParam {
 class PlayerSettingDialog: Dialog {
     weak var delegate: RoomController!
 
+    var pitchValue: Int = 0
+
     var isEnableEarloop: Bool! {
         didSet {
             switcher.isOn = isEnableEarloop
@@ -57,6 +59,36 @@ class PlayerSettingDialog: Dialog {
     var switcher: UISwitch = {
         let view = UISwitch()
         view.onTintColor = UIColor(hex: Colors.Blue)
+        return view
+    }()
+
+    var labelPitchCtrl: UILabel = {
+        let view = UILabel()
+        view.font = UIFont.systemFont(ofSize: 14)
+        view.numberOfLines = 1
+        view.textColor = UIColor(hex: Colors.Text).withAlphaComponent(0.5)
+        view.text = "升降调"
+        return view
+    }()
+
+    var buttonPitchPlus: UIButton = {
+        let view = UIButton()
+        view.setImage(UIImage(named: "iconPlus", in: Utils.bundle, with: nil), for: .normal)
+        return view
+    }()
+
+    var buttonPitchMinus: UIButton = {
+        let view = UIButton()
+        view.setImage(UIImage(named: "iconMinus", in: Utils.bundle, with: nil), for: .normal)
+        return view
+    }()
+
+    var labelPitchValue: UILabel = {
+        let view = UILabel()
+        view.font = UIFont.systemFont(ofSize: 14)
+        view.numberOfLines = 1
+        view.textColor = UIColor(hex: Colors.Text).withAlphaComponent(0.5)
+        view.text = "0"
         return view
     }()
 
@@ -100,6 +132,11 @@ class PlayerSettingDialog: Dialog {
         addSubview(label0)
         addSubview(switcher)
 
+        addSubview(labelPitchCtrl)
+        addSubview(buttonPitchPlus)
+        addSubview(buttonPitchMinus)
+        addSubview(labelPitchValue)
+
         addSubview(label1)
         addSubview(slider1)
 
@@ -118,7 +155,20 @@ class PlayerSettingDialog: Dialog {
             .marginLeading(anchor: label0.trailingAnchor, constant: 6)
             .active()
 
-        label1.marginTop(anchor: label0.bottomAnchor, constant: 26)
+        labelPitchCtrl.marginTop(anchor: titleView.bottomAnchor, constant: 56)
+            .marginLeading(anchor: leadingAnchor, constant: 15)
+            .active()
+        buttonPitchMinus.centerY(anchor: labelPitchCtrl.centerYAnchor)
+            .marginLeading(anchor: labelPitchCtrl.trailingAnchor, constant: 20)
+            .active()
+        labelPitchValue.centerY(anchor: labelPitchCtrl.centerYAnchor)
+            .marginLeading(anchor: buttonPitchMinus.trailingAnchor, constant: 20)
+            .active()
+        buttonPitchPlus.centerY(anchor: labelPitchCtrl.centerYAnchor)
+            .marginLeading(anchor: labelPitchValue.trailingAnchor, constant: 20)
+            .active()
+
+        label1.marginTop(anchor: label0.bottomAnchor, constant: 56)
             .marginLeading(anchor: leadingAnchor, constant: 15)
             .active()
         slider1.centerY(anchor: label1.centerYAnchor)
@@ -138,6 +188,25 @@ class PlayerSettingDialog: Dialog {
         switcher.addTarget(self, action: #selector(onTapSwitcher), for: .valueChanged)
         slider1.addTarget(self, action: #selector(onSlideRecordingSignalVolume), for: .valueChanged)
         slider2.addTarget(self, action: #selector(onSlidePlayoutVolume), for: .valueChanged)
+
+        buttonPitchPlus.addTarget(self, action: #selector(onTapPitchPlus(sender:)), for: .touchUpInside)
+        buttonPitchMinus.addTarget(self, action: #selector(onTapPitchMinus(sender:)), for: .touchUpInside)
+    }
+
+    @objc func onTapPitchPlus(sender _: UIButton) {
+        if pitchValue < 12 {
+            pitchValue += 1
+            labelPitchValue.text = String(pitchValue)
+            delegate.viewModel.setPitch(pitch: pitchValue)
+        }
+    }
+
+    @objc func onTapPitchMinus(sender _: UIButton) {
+        if pitchValue > -12 {
+            pitchValue -= 1
+            labelPitchValue.text = String(pitchValue)
+            delegate.viewModel.setPitch(pitch: pitchValue)
+        }
     }
 
     @objc func onTapSwitcher() {

@@ -14,6 +14,7 @@ class SpeakerToolbar {
     weak var root: UIView!
     weak var micView: UIButton!
     weak var switchMVView: UIButton!
+    weak var moreOptionsView: UIButton!
     weak var orderMusicView: UIButton!
     weak var orderChorusMusicView: UIButton!
 
@@ -35,6 +36,11 @@ class SpeakerToolbar {
         switchMVView.addTarget(self, action: #selector(onTapSwitchMV), for: .touchUpInside)
         orderMusicView.addTarget(self, action: #selector(onTapOrderMusicView), for: .touchUpInside)
         orderChorusMusicView.addTarget(self, action: #selector(onTapOrderChorusMusicView), for: .touchUpInside)
+        moreOptionsView.addTarget(self, action: #selector(onTapMoreOptionsView), for: .touchUpInside)
+    }
+
+    @objc private func onTapMoreOptionsView() {
+        MoreDialog().show(delegate: delegate)
     }
 
     @objc private func onTapMicView() {
@@ -65,6 +71,7 @@ class SpeakerToolbar {
 
     func onMusicListChanged() {
         switchMVView.isHidden = delegate.viewModel.musicList.count == 0
+        moreOptionsView.isHidden = delegate.viewModel.musicList.count == 0
         if let dialog = musicListDialog {
             dialog.reload()
         }

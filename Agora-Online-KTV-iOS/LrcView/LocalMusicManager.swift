@@ -26,10 +26,16 @@ import Zip
 }
 
 @objc public class LocalMusicOption: NSObject {
-    let masterUid: UInt = 0
-    let masterMusicUid: UInt = 0
-    let followerUid: UInt = 0
-    let followerMusicUid: UInt = 0
+    @objc public var masterUid: UInt = 0
+    @objc public var masterMusicUid: UInt = 0
+    @objc public var followerUid: UInt = 0
+    @objc public var followerMusicUid: UInt = 0
+    @objc public init(masterUid: UInt, masterMusicUid: UInt, followerUid: UInt, followerMusicUid: UInt) {
+        self.masterUid = masterUid
+        self.masterMusicUid = masterMusicUid
+        self.followerUid = followerUid
+        self.followerMusicUid = followerMusicUid
+    }
 }
 
 @objc public class LocalMusicManager: NSObject {
@@ -51,7 +57,7 @@ import Zip
 //    static func parseLyric(music: LocalMusic) -> [LyricModel] {
 //        return LyricParser.parseLyric(filePath: music.lrcPath)
 //    }
-   // public init() {}
+    // public init() {}
 
     @objc public static func parseLyric(music: LocalMusic) -> [LrcSentence] {
         Logger.log(self, message: "parseLyric \(music.lrcPath)", level: .info)

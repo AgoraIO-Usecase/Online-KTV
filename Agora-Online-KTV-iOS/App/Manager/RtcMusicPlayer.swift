@@ -188,7 +188,7 @@ class AbstractRtcMusicPlayer: NSObject, IRtcMusicPlayer /* , AgoraRtcMediaPlayer
     func originMusic(enable: Bool) {
         // monoChannel = enable
         if let player = player {
-            player.setAudioDualMonoMode(enable ? .mixingDuraMonoL : .mixingDuraMonoR)
+            player.setAudioDualMonoMode(enable ? .duraMonoL : .duraMonoR)
         }
     }
 
@@ -241,7 +241,6 @@ class AbstractRtcMusicPlayer: NSObject, IRtcMusicPlayer /* , AgoraRtcMediaPlayer
         do {
             let jsonData = try jsonEncoder.encode(msg)
             let str = NSString(data: jsonData, encoding: String.Encoding.utf8.rawValue)
-            Logger.log(message: "xn: \(str ?? "")", level: .info)
             let code = rtcEngine.sendStreamMessage(streamId, data: jsonData)
             if code != 0 {
                 Logger.log(self, message: "sendRtcStreamMessage error(\(code)", level: .error)
@@ -397,7 +396,8 @@ class RtcNormalMusicPlayer: AbstractRtcMusicPlayer {
 }
 
 class RtcChorusMusicPlayer: AbstractRtcMusicPlayer {
-    private(set) var connectionId: UInt = 0
+    private(set) var connection: AgoraRtcConnection?
+    private let playerUid = UInt.random(in: 1001 ... 2000)
     var option: LocalMusicOption!
     private var timer: Timer?
 
@@ -411,7 +411,7 @@ class RtcChorusMusicPlayer: AbstractRtcMusicPlayer {
             rtc.setParameters("{\"rtc.audio_resend\":false}")
             rtc.setParameters("{\"rtc.audio.opensl.mode\":0}")
 
-            if connectionId == 0, isMaster {
+            if connection == nil, isMaster {
                 let option = AgoraRtcChannelMediaOptions()
                 option.clientRoleType = AgoraRtcIntOptional.of(Int32(AgoraClientRole.broadcaster.rawValue))
                 option.publishCameraTrack = AgoraRtcBoolOptional.of(false)
@@ -422,13 +422,16 @@ class RtcChorusMusicPlayer: AbstractRtcMusicPlayer {
                 let id = player.getMediaPlayerId()
                 option.publishMediaPlayerId = AgoraRtcIntOptional.of(id)
                 option.publishMediaPlayerAudioTrack = AgoraRtcBoolOptional.of(true)
-                let code = rtc.joinChannelEx(byToken: BuildConfig.Token, channelId: channelId, uid: 0, connectionId: &connectionId, delegate: nil, mediaOptions: option) { _, uid, _ in
+                connection = AgoraRtcConnection()
+                connection?.localUid = playerUid
+                connection?.channelId = channelId
+                let code = rtc.joinChannelEx(byToken: BuildConfig.Token, connection: connection!, delegate: nil, mediaOptions: option) { _, uid, _ in
                     Logger.log(self, message: "joinChannelEx success! channelId:\(channelId) uid:\(uid)", level: .info)
                     self.uid = uid
                     onSuccess()
                 }
                 if code != 0 {
-                    onFailed("joinChannelEx error!")
+                    onFailed("joinChannelEx error! \(code)")
                 }
             } else {
                 onSuccess()
@@ -446,7 +449,7 @@ class RtcChorusMusicPlayer: AbstractRtcMusicPlayer {
             }
             originMusic(enable: false)
             initDelay()
-            if (isMaster() && connectionId == 0) || option == nil {
+            if (isMaster() && connection == nil) || option == nil {
                 onFailed("未初始化！")
             } else {
                 rtc.muteRemoteAudioStream(option.masterMusicUid, mute: true)
@@ -481,9 +484,9 @@ class RtcChorusMusicPlayer: AbstractRtcMusicPlayer {
         if let rtc = rtcServer.rtcEngine {
             if isFollower() {
                 rtc.muteRemoteAudioStream(option.masterMusicUid, mute: false)
-            } else if isMaster(), let channelId = rtcServer.channel, connectionId != 0 {
-                rtc.leaveChannelEx(channelId, connectionId: UInt(connectionId), leaveChannelBlock: nil)
-                connectionId = 0
+            } else if isMaster(), let _ = rtcServer.channel, let _ = connection {
+                rtc.leaveChannelEx(connection!, leaveChannelBlock: nil)
+                connection = nil
             }
         }
     }
@@ -623,7 +626,7 @@ class RtcChorusMusicPlayer: AbstractRtcMusicPlayer {
 //                                lastExpectLocalPosition = expSeek
 //                                lastSeekTime = now
                                 player.seek(toPosition: Int(delayWithBrod))
-                                //Logger.log(self, message: "toPosition:\(delayWithBrod) from:\(localPosition) remote:\(position)", level: .info)
+                                // Logger.log(self, message: "toPosition:\(delayWithBrod) from:\(localPosition) remote:\(position)", level: .info)
                             }
                         }
                     }
@@ -692,9 +695,9 @@ class RtcChorusMusicPlayer: AbstractRtcMusicPlayer {
     override func destory() {
         super.destory()
         if let rtc = rtcServer.rtcEngine {
-            if let channelId = rtcServer.channel, connectionId != 0 {
-                rtc.leaveChannelEx(channelId, connectionId: UInt(connectionId), leaveChannelBlock: nil)
-                connectionId = 0
+            if let _ = rtcServer.channel, let _ = connection {
+                rtc.leaveChannelEx(connection!, leaveChannelBlock: nil)
+                connection = nil
             }
         }
     }

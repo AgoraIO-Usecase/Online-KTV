@@ -108,7 +108,6 @@ private class MusicLyricPitchView: UIView {
             if p0.x <= startX, p1.x >= startX {
                 // Logger.log(self, message: "\(pitch.key ?? "--")", level: .info)
             }
-
             p0.y = y
             p1.y = y
 
@@ -179,7 +178,7 @@ private class MusicLyricPitchView: UIView {
         return TimeInterval(width * 1000 / MusicLyricPitchView.perSecPixel)
     }
 
-    private func pitchToY(_ rect: CGRect, min: Int, max: Int, _ value: Int) -> CGFloat {
+    public func pitchToY(_ rect: CGRect, min: Int, max: Int, _ value: Int) -> CGFloat {
         return (rect.height / 3) * (1 - CGFloat(Float(value - min) / Float(max - min)))
     }
 }
@@ -260,11 +259,6 @@ private class MusicLyricLabel: UILabel {
             if MusicLyricLabel.STYLE {
                 let _shadowOffset = shadowOffset
                 let _shadowColor = shadowColor
-                //            super.draw(rect)
-                //            context.setLineWidth(1)
-                //            context.setLineJoin(.round)
-                //            context.setTextDrawingMode(.stroke)
-                //            textColor = MusicLyricView.hightColor
                 shadowOffset = CGSize(width: 0, height: 1)
                 shadowColor = styleShadowColor
                 super.draw(rect)
@@ -316,12 +310,15 @@ private class MusicLyricCell: UITableViewCell {
 }
 
 @objc public class MusicLyricView: UIView, UITableViewDataSource, UITableViewDelegate {
-    public static var hightColor = UIColor.white
+    @objc public static var hightColor = UIColor.white
+    @objc public static var pastTextColor = UIColor.white.withAlphaComponent(0.59)
+    @objc public static var normalLyricTextColor = UIColor.white.withAlphaComponent(0.59)
+
     @objc public weak var delegate: MusicLyricViewDelegate?
     // ms
     private var seekTime: TimeInterval = 0
+
     private var Distance = 3
-    private let normalLyricTextColor = UIColor.white.withAlphaComponent(0.59)
     private(set) var isWillDraging: Bool = false
     private(set) var isScrolling: Bool = false
     private(set) var lyricIndex: Int = 0
@@ -334,6 +331,8 @@ private class MusicLyricCell: UITableViewCell {
             }
         }
     }
+
+    @objc public var enablePitch: Bool = true
 
     private var timer: DispatchSourceTimer?
 
@@ -361,7 +360,7 @@ private class MusicLyricCell: UITableViewCell {
 
     private lazy var timelineView: UIView = {
         let view = UIView()
-        view.backgroundColor = normalLyricTextColor
+        view.backgroundColor = MusicLyricView.normalLyricTextColor
         view.isHidden = true
         return view
     }()
@@ -380,18 +379,38 @@ private class MusicLyricCell: UITableViewCell {
         return view
     }()
 
+    private lazy var cursorView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .white
+        view.layer.cornerRadius = 10
+        view.layer.masksToBounds = true
+        return view
+    }()
+
     private var curLyricsTimestamp: TimeInterval = 0
     private var currentTime: TimeInterval = 0
     private var totalTime: TimeInterval = 0
     public var paused: Bool = false
+    private var cursorTopCons: NSLayoutConstraint?
 
     override init(frame: CGRect) {
         super.init(frame: frame)
         backgroundColor = .clear
 
-        addSubview(pitchView)
-        pitchView.fill(view: self)
-            .active()
+        if enablePitch {
+            addSubview(pitchView)
+            addSubview(cursorView)
+            pitchView.fill(view: self)
+                .active()
+            let w = (UIScreen.main.bounds.width - 60) / 3
+            cursorView
+                .marginLeading(anchor: pitchView.leadingAnchor, constant: w)
+                .height(constant: 20)
+                .width(constant: 20)
+                .active()
+            cursorTopCons = cursorView.topAnchor.constraint(equalTo: pitchView.topAnchor, constant: 35)
+            cursorTopCons?.isActive = true
+        }
 
         addSubview(lyricTable)
         lyricTable.fill(view: self, top: 60)
@@ -422,6 +441,22 @@ private class MusicLyricCell: UITableViewCell {
             }
             timer.schedule(deadline: .now(), repeating: .milliseconds(1000 / 30))
             timer.activate()
+        }
+    }
+
+    public func setVoicePitch(_ voicePitch: [Double]) {
+        guard pitchView.time > 0 else { return }
+        let h = frame.height / 2
+        var rect = frame
+        rect.size.height = h
+        voicePitch.forEach {
+            var y = pitchView.pitchToY(rect, min: 35, max: Int(h), Int($0))
+            y = y < 0 ? 0 : y > 35 ? 35 : y
+            cursorTopCons?.constant = y
+            UIView.animate(withDuration: 0.2) {
+                self.cursorTopCons?.isActive = true
+                self.layoutIfNeeded()
+            }
         }
     }
 
@@ -569,7 +604,7 @@ private class MusicLyricCell: UITableViewCell {
 
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell: MusicLyricCell = tableView.dequeueReusableCell(withIdentifier: NSStringFromClass(MusicLyricCell.self), for: indexPath) as! MusicLyricCell
-        cell.lyricLabel.textColor = normalLyricTextColor
+        cell.lyricLabel.textColor = MusicLyricView.normalLyricTextColor
         if cell.selectedBackgroundView == nil {
             cell.selectedBackgroundView = UIView()
         }
@@ -586,7 +621,12 @@ private class MusicLyricCell: UITableViewCell {
             if indexPath.row == current {
                 cell.lyricLabel.font = UIFont.systemFont(ofSize: 20, weight: .medium)
                 lyrics?[index].render(with: cell.lyricLabel)
+            } else if indexPath.row < current {
+                cell.lyricLabel.textColor = MusicLyricView.pastTextColor
+                cell.lyricLabel.font = UIFont.systemFont(ofSize: 16)
+                cell.progress = 0
             } else {
+                cell.lyricLabel.textColor = MusicLyricView.normalLyricTextColor
                 cell.lyricLabel.font = UIFont.systemFont(ofSize: 16)
                 cell.progress = 0
             }

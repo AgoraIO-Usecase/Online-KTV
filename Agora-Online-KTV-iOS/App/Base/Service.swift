@@ -5,6 +5,7 @@
 //  Created by XC on 2021/6/8.
 //
 
+import AgoraRtcKit
 import Core
 import Foundation
 import LrcView
@@ -50,9 +51,13 @@ protocol IRoomManager {
     func setPlayoutVolume(value: Float)
     func isSupportSwitchOriginMusic() -> Bool
     func originMusic(enable: Bool)
+    func setPitch(pitch: Int)
+    func setVoiceEffect(effect: AgoraAudioEffectPreset)
 
     func subscribeMusicList() -> Observable<Result<[LiveKtvMusic]>>
     func subscribeRtcMusicState() -> Observable<Result<RtcMusicState>>
+
+    func subscribeVoicePitch() -> Observable<[Double]>
 
     func order(musicId: String, name: String, singer: String, poster: String) -> Observable<Result<Void>>
     func handsUp() -> Observable<Result<Void>>

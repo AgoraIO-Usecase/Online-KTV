@@ -5,6 +5,7 @@
 //  Created by XC on 2021/6/7.
 //
 
+import AgoraRtcKit
 import Core
 import Foundation
 import LrcView
@@ -43,6 +44,7 @@ protocol RoomControlDelegate: AnyObject {
     func onMusic(state: RtcMusicState)
     func show(processing: Bool)
     func onError(message: String?)
+    func onSelectVoiceEffect(effect: AgoraAudioEffectPreset)
 }
 
 class RoomController: BaseViewContoller, DialogDelegate {
@@ -266,6 +268,12 @@ class RoomController: BaseViewContoller, DialogDelegate {
         }
     }
 
+    @IBOutlet var moreOptionsView: UIButton! {
+        didSet {
+            speakerToolbar.moreOptionsView = moreOptionsView
+        }
+    }
+
     @IBOutlet var switchMVView: UIButton! {
         didSet {
             speakerToolbar.switchMVView = switchMVView
@@ -457,6 +465,10 @@ extension RoomController: RoomControlDelegate {
 
     func onError(message: String?) {
         show(message: message, type: .error)
+    }
+
+    func onSelectVoiceEffect(effect: AgoraAudioEffectPreset) {
+        viewModel.setVoiceEffect(effect: effect)
     }
 }
 

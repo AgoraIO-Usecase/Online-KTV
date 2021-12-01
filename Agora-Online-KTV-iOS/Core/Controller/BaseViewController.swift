@@ -54,12 +54,12 @@ open class BaseViewContoller: UIViewController {
                 mask.onTap().rx.event.asObservable(),
                 cancelSignal.asObservable(),
             ])
-                .concatMap { [weak self] _ -> Single<Bool> in
-                    guard let weakself = self else { return Observable.empty().asSingle() }
-                    return weakself.dismiss(dialog: dialog)
-                }
-                .subscribe()
-                .disposed(by: disposeBag)
+            .concatMap { [weak self] _ -> Single<Bool> in
+                guard let weakself = self else { return Observable.empty().asSingle() }
+                return weakself.dismiss(dialog: dialog)
+            }
+            .subscribe()
+            .disposed(by: disposeBag)
         }
         if let maskView: UIView = dialogBackgroundMaskView {
             maskView.alpha = 0
@@ -499,6 +499,6 @@ open class BaseViewContoller: UIViewController {
             NotificationCenter.default.rx.notification(UIApplication.keyboardWillHideNotification)
                 .map { _ in 0 },
         ])
-            .merge()
+        .merge()
     }
 }

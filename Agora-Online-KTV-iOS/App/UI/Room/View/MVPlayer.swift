@@ -8,6 +8,7 @@
 import Core
 import Foundation
 import LrcView
+import RxSwift
 import UIKit
 
 private class ChorusMasterView: UIView {
@@ -182,6 +183,7 @@ private class ChorusFollowerView: UIView {
 
 class MVPlayer: NSObject {
     private static let COUNTDOWN_SECOND = 20
+    private let disposeBag = DisposeBag()
     enum Status {
         case stop
         case play
@@ -201,6 +203,10 @@ class MVPlayer: NSObject {
     weak var player: UIView! {
         didSet {
             player.addSubview(musicLyricView)
+            RoomManager.shared().subscribeVoicePitch().subscribe { result in
+                guard let value = result.element else { return }
+                self.musicLyricView.setVoicePitch(value)
+            }.disposed(by: disposeBag)
             musicLyricView.fill(view: player, leading: 0, top: 32, trailing: 0, bottom: 32)
                 .active()
         }
@@ -646,7 +652,7 @@ class MVPlayer: NSObject {
 
         switch state.type {
         case .position:
-            //Logger.log(self, message: "scrollLyric: \(TimeInterval(state.position)), \(TimeInterval(state.duration))", level: .info)
+            // Logger.log(self, message: "scrollLyric: \(TimeInterval(state.position)), \(TimeInterval(state.duration))", level: .info)
             musicLyricView.scrollLyric(currentTime: TimeInterval(state.position), totalTime: TimeInterval(state.duration))
             if let playerState = state.state {
                 switch playerState {

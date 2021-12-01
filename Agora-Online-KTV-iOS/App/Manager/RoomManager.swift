@@ -5,6 +5,7 @@
 //  Created by XC on 2021/6/8.
 //
 
+import AgoraRtcKit
 import Core
 import Foundation
 import LrcView
@@ -332,6 +333,14 @@ extension RoomManager: IRoomManager {
         rtcServer.setPlayoutVolume(value: value)
     }
 
+    func setPitch(pitch: Int) {
+        rtcServer.setPitch(pitch: pitch)
+    }
+
+    func setVoiceEffect(effect: AgoraAudioEffectPreset) {
+        rtcServer.setVoiceEffect(effect: effect)
+    }
+
     func isSupportSwitchOriginMusic() -> Bool {
         return rtcServer.isSupportSwitchOriginMusic()
     }
@@ -423,5 +432,9 @@ extension RoomManager: IRoomManager {
 
     func isMicrophoneClose() -> Bool {
         return rtcServer.muted
+    }
+
+    func subscribeVoicePitch() -> Observable<[Double]> {
+        return rtcServer.voicePitchRelay.asObservable()
     }
 }
