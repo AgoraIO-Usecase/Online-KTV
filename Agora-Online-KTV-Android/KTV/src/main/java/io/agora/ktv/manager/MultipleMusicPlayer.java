@@ -185,7 +185,9 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
         }
 
         mRtcConnection = new RtcConnection();
-        RoomManager.Instance(mContext).getRtcEngine().joinChannelEx("", channelName, uid, options, new IRtcEngineEventHandler() {
+        mRtcConnection.channelId = channelName;
+        mRtcConnection.localUid = uid;
+        RoomManager.Instance(mContext).getRtcEngine().joinChannelEx("", mRtcConnection, options, new IRtcEngineEventHandler() {
             @Override
             public void onJoinChannelSuccess(String channel, int uid, int elapsed) {
                 super.onJoinChannelSuccess(channel, uid, elapsed);
@@ -198,7 +200,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
                 super.onLeaveChannel(stats);
                 mLogger.d("onLeaveChannelEX() called with: stats = [%s]", stats);
             }
-        }, mRtcConnection);
+        });
     }
 
     private void leaveChannelEX() {
@@ -209,7 +211,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
         mLogger.d("leaveChannelEX() called");
         RoomManager.Instance(mContext).getRtcEngine().muteAllRemoteAudioStreams(false);
         if (!TextUtils.isEmpty(channelName)) {
-            RoomManager.Instance(mContext).getRtcEngine().leaveChannelEx(channelName, mRtcConnection);
+            RoomManager.Instance(mContext).getRtcEngine().leaveChannelEx(mRtcConnection);
             mRtcConnection = null;
         }
     }
@@ -713,7 +715,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
         if (mRole == Constants.CLIENT_ROLE_BROADCASTER) {
             RoomManager.Instance(mContext).getRtcEngine().muteAllRemoteAudioStreams(false);
             if (!TextUtils.isEmpty(channelName)) {
-                RoomManager.Instance(mContext).getRtcEngine().leaveChannelEx(channelName, mRtcConnection);
+                RoomManager.Instance(mContext).getRtcEngine().leaveChannelEx(mRtcConnection);
                 mRtcConnection = null;
             }
         }
