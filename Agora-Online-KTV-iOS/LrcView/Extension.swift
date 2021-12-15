@@ -62,7 +62,7 @@ extension UIColor {
 
 public var screenWidth: CGFloat { return UIScreen.main.bounds.width }
 
-public extension UIView {
+extension UIView {
     enum Relation {
         case equal
         case greaterOrEqual
