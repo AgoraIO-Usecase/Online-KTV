@@ -173,7 +173,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
             options.enableAudioRecordingOrPlayout = false;
         }
 
-        int uid = 0;
+        int uid = (int)(Math.random() * (Integer.MAX_VALUE / 2));
         if (ObjectsCompat.equals(mUser.getObjectId(), musicModelReady.getUserId())) {
             if (musicModelReady.getUserbgId() != null) {
                 uid = musicModelReady.getUserbgId().intValue();
