@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 51;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -109,6 +109,12 @@
 		8BBB785C26BE6CEE00096F8E /* MusicLyricView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5764BBE52673AE1F00293B73 /* MusicLyricView.swift */; };
 		8BF822EF2750BCBC00CF9829 /* MoreDialog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BF822EE2750BCBC00CF9829 /* MoreDialog.swift */; };
 		8BF822F12750E91800CF9829 /* VoiceEffectDialog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BF822F02750E91800CF9829 /* VoiceEffectDialog.swift */; };
+		8BFCC188276C9E4F0099176E /* Agoraffmpeg.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BFCC184276C9E3E0099176E /* Agoraffmpeg.xcframework */; };
+		8BFCC189276C9E4F0099176E /* Agoraffmpeg.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 8BFCC184276C9E3E0099176E /* Agoraffmpeg.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		8BFCC18A276C9E4F0099176E /* AgoraRtcKit.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BFCC185276C9E3E0099176E /* AgoraRtcKit.xcframework */; };
+		8BFCC18B276C9E4F0099176E /* AgoraRtcKit.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 8BFCC185276C9E3E0099176E /* AgoraRtcKit.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		8BFCC18C276C9E550099176E /* Agoraffmpeg.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BFCC184276C9E3E0099176E /* Agoraffmpeg.xcframework */; };
+		8BFCC18D276C9E5A0099176E /* AgoraRtcKit.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BFCC185276C9E3E0099176E /* AgoraRtcKit.xcframework */; };
 		8DBFDF9E1F5B67064C73BC9C /* Pods_app.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D4C940726440F80BCBE3DFF6 /* Pods_app.framework */; };
 /* End PBXBuildFile section */
 
@@ -158,6 +164,8 @@
 			dstSubfolderSpec = 10;
 			files = (
 				8BBB785426BE6C1B00096F8E /* LrcView.framework in Embed Frameworks */,
+				8BFCC189276C9E4F0099176E /* Agoraffmpeg.xcframework in Embed Frameworks */,
+				8BFCC18B276C9E4F0099176E /* AgoraRtcKit.xcframework in Embed Frameworks */,
 				57E8D546264A31B2007001BC /* Core.framework in Embed Frameworks */,
 				574C9CB8266A0B4300822A95 /* app.framework in Embed Frameworks */,
 			);
@@ -297,6 +305,8 @@
 		8BBB784F26BE6C1B00096F8E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8BF822EE2750BCBC00CF9829 /* MoreDialog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoreDialog.swift; sourceTree = "<group>"; };
 		8BF822F02750E91800CF9829 /* VoiceEffectDialog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceEffectDialog.swift; sourceTree = "<group>"; };
+		8BFCC184276C9E3E0099176E /* Agoraffmpeg.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = Agoraffmpeg.xcframework; sourceTree = "<group>"; };
+		8BFCC185276C9E3E0099176E /* AgoraRtcKit.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = AgoraRtcKit.xcframework; sourceTree = "<group>"; };
 		937BFF1E7F912D5BF2A75B63 /* Pods-LiveKtv.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-LiveKtv.release.xcconfig"; path = "Target Support Files/Pods-LiveKtv/Pods-LiveKtv.release.xcconfig"; sourceTree = "<group>"; };
 		9E1E16F362FBD9C432044155 /* Pods-Database_LeanCloud.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Database_LeanCloud.debug.xcconfig"; path = "Target Support Files/Pods-Database_LeanCloud/Pods-Database_LeanCloud.debug.xcconfig"; sourceTree = "<group>"; };
 		A0D7AE253FD40BFF3FC44E37 /* Pods_Core.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Core.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -329,7 +339,9 @@
 				574C9CB7266A0B4300822A95 /* app.framework in Frameworks */,
 				8BBB785326BE6C1B00096F8E /* LrcView.framework in Frameworks */,
 				57E8D545264A31B2007001BC /* Core.framework in Frameworks */,
+				8BFCC188276C9E4F0099176E /* Agoraffmpeg.xcframework in Frameworks */,
 				6B7246CCC6D98958270A218F /* Pods_OnlineKTV_LeanCloud.framework in Frameworks */,
+				8BFCC18A276C9E4F0099176E /* AgoraRtcKit.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -338,6 +350,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				8B0C3A3326BE7F10004C7F27 /* LrcView.framework in Frameworks */,
+				8BFCC18C276C9E550099176E /* Agoraffmpeg.xcframework in Frameworks */,
+				8BFCC18D276C9E5A0099176E /* AgoraRtcKit.xcframework in Frameworks */,
 				574C9CC0266A0BDB00822A95 /* Core.framework in Frameworks */,
 				8DBFDF9E1F5B67064C73BC9C /* Pods_app.framework in Frameworks */,
 			);
@@ -389,6 +403,8 @@
 		571AA46C2629862700B82B35 /* OnlineKTV */ = {
 			isa = PBXGroup;
 			children = (
+				8BFCC184276C9E3E0099176E /* Agoraffmpeg.xcframework */,
+				8BFCC185276C9E3E0099176E /* AgoraRtcKit.xcframework */,
 				5764BBD52673505100293B73 /* Res */,
 				5783FE952664B741000B39F3 /* Manager */,
 				571AA46D2629862700B82B35 /* AppDelegate.swift */,
@@ -1380,7 +1396,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 0923;
+				CURRENT_PROJECT_VERSION = 1217;
 				DEVELOPMENT_TEAM = YS397FG5PA;
 				INFOPLIST_FILE = "$(SRCROOT)/OnlineKTV/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
@@ -1388,9 +1404,9 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.5.200211;
+				MARKETING_VERSION = 3.6.211;
 				OTHER_SWIFT_FLAGS = "$(inherited) -D COCOAPODS -DLEANCLOUD";
-				PRODUCT_BUNDLE_IDENTIFIER = io.agora.Chorus;
+				PRODUCT_BUNDLE_IDENTIFIER = io.agora.api.scenes.chorus;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
@@ -1407,7 +1423,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 0923;
+				CURRENT_PROJECT_VERSION = 1217;
 				DEVELOPMENT_TEAM = YS397FG5PA;
 				INFOPLIST_FILE = "$(SRCROOT)/OnlineKTV/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
@@ -1415,9 +1431,9 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.5.200211;
+				MARKETING_VERSION = 3.6.211;
 				OTHER_SWIFT_FLAGS = "$(inherited) -D COCOAPODS -DLEANCLOUD";
-				PRODUCT_BUNDLE_IDENTIFIER = io.agora.Chorus;
+				PRODUCT_BUNDLE_IDENTIFIER = io.agora.api.scenes.chorus;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;

@@ -96,6 +96,7 @@ protocol IRtcMusicPlayer {
     func adjustPlayoutVolume(value: Int32)
     func originMusic(enable: Bool)
     func seek(position: Int)
+    func setPitch(pitch: Int)
     func pause()
     func resume()
     func stop()
@@ -188,7 +189,14 @@ class AbstractRtcMusicPlayer: NSObject, IRtcMusicPlayer /* , AgoraRtcMediaPlayer
     func originMusic(enable: Bool) {
         // monoChannel = enable
         if let player = player {
-            player.setAudioDualMonoMode(enable ? .duraMonoL : .duraMonoR)
+            player.setAudioDualMonoMode(enable ? .L : .R)
+        }
+    }
+
+    func setPitch(pitch: Int) {
+        // monoChannel = enable
+        if let player = player {
+            player.setAudioMixingPitch(pitch)
         }
     }
 

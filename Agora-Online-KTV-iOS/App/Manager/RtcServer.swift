@@ -316,9 +316,9 @@ class RtcServer: NSObject {
 //        return (rtcMusicPlayer?.getAudioTrackCount() ?? 0) > 1
     }
 
-    func setPitch(pitch _: Int) {
+    func setPitch(pitch: Int) {
         if let player = rtcMusicPlayer {
-//            player.setPitch(pitch: pitch)
+            player.setPitch(pitch: pitch)
         }
 //        Logger.log(self, message: "setPitch \(pitch), result is \(String(describing: ret))", level: .info)
     }
