@@ -38,6 +38,7 @@ public class MainThreadDispatch implements RoomEventCallback {
     private static final int ON_MEMBER_APPLY_JOIN_CHORUS = ON_ROOM_INFO_CHANGED + 1;
     private static final int ON_MEMBER_JOIN_CHORUS = ON_MEMBER_APPLY_JOIN_CHORUS + 1;
     private static final int ON_MEMBER_CHORUS_READY = ON_MEMBER_JOIN_CHORUS + 1;
+    private static final int ON_LOCAL_PITCH = ON_MEMBER_CHORUS_READY + 1;
 
     private final List<RoomEventCallback> enevtCallbacks = new CopyOnWriteArrayList<>();
 
@@ -124,6 +125,10 @@ public class MainThreadDispatch implements RoomEventCallback {
             } else if (msg.what == ON_MEMBER_CHORUS_READY) {
                 for (RoomEventCallback callback : enevtCallbacks) {
                     callback.onMemberChorusReady((MemberMusicModel) msg.obj);
+                }
+            } else if (msg.what == ON_LOCAL_PITCH) {
+                for (RoomEventCallback callback : enevtCallbacks) {
+                    callback.onLocalPitch(msg.getData().getDouble("pitch"));
                 }
             }
             return false;
@@ -236,5 +241,15 @@ public class MainThreadDispatch implements RoomEventCallback {
         Message message = mHandler.obtainMessage(ON_MUSIC_PROGRESS);
         message.setData(bundle);
         message.sendToTarget();
+    }
+
+    @Override
+    public void onLocalPitch(double pitch) {
+        Bundle bundle = new Bundle();
+        bundle.putDouble("pitch", pitch);
+        Message message = mHandler.obtainMessage(ON_LOCAL_PITCH);
+        message.setData(bundle);
+        message.sendToTarget();
+
     }
 }

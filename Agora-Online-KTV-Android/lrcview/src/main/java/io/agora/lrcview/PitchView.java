@@ -1,5 +1,7 @@
 package io.agora.lrcview;
 
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -8,7 +10,12 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.Shader;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.AttributeSet;
+import android.util.FloatProperty;
+import android.util.Property;
+import android.util.TypedValue;
 import android.view.View;
 
 import androidx.annotation.Nullable;
@@ -30,6 +37,7 @@ public class PitchView extends View {
     private static final int START_PERCENT = 40;
 
     private static volatile LrcData lrcData;
+    private Handler mHandler;
 
     private float widthPerSecond = 0.2F;//1ms对应像素px
 
@@ -38,6 +46,7 @@ public class PitchView extends View {
 
     private int pitchMax = 0;//最大值
     private int pitchMin = 100;//最小值
+    private int indicatorRadius;
 
     private final Paint mPaint = new Paint();
     private int mNormalTextColor;
@@ -70,14 +79,20 @@ public class PitchView extends View {
     }
 
     private void init(@Nullable AttributeSet attrs) {
+        indicatorRadius = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 7, getResources().getDisplayMetrics());
         if (attrs == null) {
             return;
         }
-
+        this.mHandler = new Handler(Looper.myLooper());
         TypedArray ta = getContext().obtainStyledAttributes(attrs, R.styleable.PitchView);
         mNormalTextColor = ta.getColor(R.styleable.PitchView_pitchNormalTextColor, getResources().getColor(R.color.lrc_normal_text_color));
         mDoneTextColor = ta.getColor(R.styleable.PitchView_pitchDoneTextColor, getResources().getColor(R.color.lrc_current_text_color));
         ta.recycle();
+
+        int startColor = getResources().getColor(R.color.pitch_start);
+        int endColor = getResources().getColor(R.color.pitch_end);
+        linearGradient = new LinearGradient(dotPointX, 0, 0, 0, startColor, endColor, Shader.TileMode.CLAMP);
+
     }
 
     @Override
@@ -106,7 +121,30 @@ public class PitchView extends View {
         super.onDraw(canvas);
 
         drawStartLine(canvas);
+        drawLocalPitch(canvas);
         drawItems(canvas);
+    }
+
+    private void drawLocalPitch(Canvas canvas) {
+        mPaint.setShader(null);
+        mPaint.setColor(mNormalTextColor);
+        float value = getPitchHeight();
+        if(value >= 0){
+            canvas.drawCircle(dotPointX, value, indicatorRadius, mPaint);
+        }
+    }
+
+    private float getPitchHeight() {
+        float res = 0;
+        if(mLocalPitch!=0 && pitchMax != 0 && pitchMin != 100){
+            float realPitchMax = pitchMax + 5;
+            float realPitchMin = pitchMin - 5;
+            res = (float) (1 - ((mLocalPitch - pitchMin)  / (realPitchMax - realPitchMin)) ) * getHeight();
+        }
+        else if(mLocalPitch == 0){
+            res = getHeight();
+        }
+        return res;
     }
 
     private void drawStartLine(Canvas canvas) {
@@ -191,6 +229,28 @@ public class PitchView extends View {
     }
 
     private long mCurrentTime = 0;
+    private float mLocalPitch = 0;
+
+    private void setMLocalPitch(float mLocalPitch) {
+        this.mLocalPitch = mLocalPitch;
+    }
+    /**
+     * 更新音调
+     *
+     * @param pitch 单位hz
+     */
+    public void updateLocalPitch(double pitch) {
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if(mLocalPitch == pitch){
+                    mLocalPitch = 0;
+                }
+            }
+        }, 2000l);
+        ObjectAnimator.ofFloat(this, "mLocalPitch", this.mLocalPitch, (float) pitch).setDuration(50).start();
+        invalidate();
+    }
 
     /**
      * 更新进度，单位毫秒

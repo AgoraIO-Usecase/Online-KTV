@@ -6,6 +6,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.CountDownTimer;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +18,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.palette.graphics.Palette;
+
+import java.text.DecimalFormat;
 
 import io.agora.baselibrary.util.KTVUtil;
 import io.agora.ktv.databinding.KtvLayoutLrcPrepareBinding;
@@ -50,7 +54,12 @@ public class LrcControlView extends FrameLayout implements View.OnClickListener 
     }
 
     private Role mRole = Role.Listener;
+    private MemberMusicModel mMusic;
     private OnLrcActionListener mOnLrcActionListener;
+    private Handler mHandler = new Handler(Looper.myLooper());
+
+    private double localPitch = 0;
+    private double musicPitch = 0;
 
     public LrcControlView(@NonNull Context context) {
         this(context, null);
@@ -247,6 +256,40 @@ public class LrcControlView extends FrameLayout implements View.OnClickListener 
         } else if (mRole == Role.Listener) {
             mBinding.ilChorus.tvWaitingTime.setText(
                     getContext().getString(R.string.ktv_room_time_join_chorus_, 0, time));
+        }
+    }
+
+    public void setLocalPitch(double pitch) {
+        localPitch = pitch;
+        updateName();
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if(localPitch == pitch){
+                    localPitch = 0;
+                }
+            }
+        }, 1000l);
+    }
+
+    public void setMusicPitch(double pitch) {
+        musicPitch = pitch;
+        updateName();
+    }
+
+    private void updateName() {
+        if(mMusic == null)
+            return;
+        StringBuffer buf = new StringBuffer();
+        buf.append(mMusic.getName());
+        if (localPitch > 0) buf.append(" local: " + new DecimalFormat("#.0").format(localPitch));
+        if (musicPitch > 0) buf.append(" music: " + musicPitch);
+        mBinding.tvMusicName.setText(buf.toString());
+        if(Math.abs(localPitch - musicPitch) < 20){
+            mBinding.ivGood.setVisibility(VISIBLE);
+        }
+        else {
+            mBinding.ivGood.setVisibility(INVISIBLE);
         }
     }
 

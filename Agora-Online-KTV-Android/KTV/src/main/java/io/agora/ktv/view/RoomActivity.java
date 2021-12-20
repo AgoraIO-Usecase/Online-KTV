@@ -56,6 +56,7 @@ import io.agora.ktv.widget.DividerDecoration;
 import io.agora.ktv.widget.LrcControlView;
 import io.agora.lrcview.LrcLoadUtils;
 import io.agora.lrcview.bean.LrcData;
+import io.agora.lrcview.bean.LrcEntryData;
 import io.agora.mediaplayer.IMediaPlayer;
 import io.agora.rtc2.ChannelMediaOptions;
 import io.agora.rtc2.Constants;
@@ -71,6 +72,8 @@ import io.reactivex.disposables.Disposable;
  */
 public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> implements OnItemClickListener<AgoraMember> {
     public static final String TAG_ROOM = "room";
+
+    private List<LrcEntryData> toneList;
 
     public static Intent newIntent(Context context, AgoraRoom mRoom) {
         Intent intent = new Intent(context, RoomActivity.class);
@@ -95,6 +98,7 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> implement
         public void onResourceReady(@NonNull MemberMusicModel music) {
             File lrcFile = music.getFileLrc();
             LrcData data = LrcLoadUtils.parse(lrcFile);
+            toneList = data.entrys;
             mBinding.lrcControlView.getLrcView().setLrcData(data);
             mBinding.lrcControlView.getPitchView().setLrcData(data);
         }
@@ -139,6 +143,10 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> implement
         public void onMusicPositionChanged(long position) {
             mBinding.lrcControlView.getLrcView().updateTime(position);
             mBinding.lrcControlView.getPitchView().updateTime(position);
+            double pitch = getMusicPitch(position);
+            if(pitch > 0){
+                mBinding.lrcControlView.setMusicPitch(pitch);
+            }
         }
 
         @Override
@@ -147,7 +155,30 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> implement
         }
     };
 
+    private double getMusicPitch(long position) {
+        double pitch = 0;
+        for(LrcEntryData entry : this.toneList){
+            if(position > entry.getStartTime() && position < entry.tones.get(entry.tones.size()-1).end){
+                for(LrcEntryData.Tone item: entry.tones){
+                    if(position > item.begin && position < item.end){
+                        pitch = item.pitch;
+                        break;
+                    }
+                }
+            }
+        }
+        return pitch;
+    }
+
     private final SimpleRoomEventCallback mRoomEventCallback = new SimpleRoomEventCallback() {
+
+        @Override
+        public void onLocalPitch(double pitch) {
+            super.onLocalPitch(pitch);
+            mBinding.lrcControlView.setLocalPitch(pitch);
+            mBinding.lrcControlView.getPitchView().updateLocalPitch(pitch);
+//            mMusicPlayer.writePitchToLog(pitch);
+        }
 
         @Override
         public void onRoomError(int error, String msg) {

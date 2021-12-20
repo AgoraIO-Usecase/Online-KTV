@@ -82,4 +82,6 @@ public interface RoomEventCallback {
      * @param cur   总共时间，毫秒
      */
     void onMusicProgress(long total, long cur);
+
+    void onLocalPitch(double pitch);
 }

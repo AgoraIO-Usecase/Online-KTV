@@ -1,7 +1,10 @@
 package io.agora.ktv.manager;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
@@ -152,6 +155,17 @@ public final class RoomManager {
                 }
             } catch (JSONException exp) {
                 exp.printStackTrace();
+            }
+        }
+
+        @Override
+        public void onAudioVolumeIndication(AudioVolumeInfo[] speakers, int totalVolume) {
+            mLoggerRTC.i("onAudioVolumeIndication: " + speakers.length);
+            for(AudioVolumeInfo info : speakers){
+                if(info.uid == 0 && info.voicePitch > 0){
+                    mLoggerRTC.i("on local pitch: " + info.voicePitch);
+                    mMainThreadDispatch.onLocalPitch(info.voicePitch);
+                }
             }
         }
     };
@@ -791,6 +805,7 @@ public final class RoomManager {
             emitterJoinRTC = emitter;
             getRtcEngine().setChannelProfile(Constants.CHANNEL_PROFILE_LIVE_BROADCASTING);
             getRtcEngine().enableAudio();
+            getRtcEngine().enableAudioVolumeIndication(30, 10, true);
             getRtcEngine().setParameters("{\"rtc.audio.opensl.mode\":0}");
             getRtcEngine().setParameters("{\"rtc.audio_fec\":[3,2]}");
             getRtcEngine().setParameters("{\"rtc.audio_resend\":false}");
