@@ -8,12 +8,14 @@ public class MusicSettingBean {
     private int volMic;
     private int volMusic;
     private int effect;
+    private int toneValue;
 
-    public MusicSettingBean(boolean isEar, int volMic, int volMusic, MusicSettingDialog.Callback mCallback) {
+    public MusicSettingBean(boolean isEar, int volMic, int volMusic,int toneValue, MusicSettingDialog.Callback mCallback) {
         this.isEar = isEar;
         this.volMic = volMic;
         this.volMusic = volMusic;
         this.mCallback = mCallback;
+        this.toneValue = toneValue;
     }
 
     public MusicSettingDialog.Callback getCallback() {
@@ -54,5 +56,14 @@ public class MusicSettingBean {
     public void setEffect(int effect) {
         this.effect = effect;
         this.mCallback.onEffectChanged(effect);
+    }
+
+    public int getToneValue() {
+        return toneValue;
+    }
+
+    public void setToneValue(int newToneValue) {
+        this.toneValue = newToneValue;
+        this.mCallback.onToneChanged(newToneValue);
     }
 }

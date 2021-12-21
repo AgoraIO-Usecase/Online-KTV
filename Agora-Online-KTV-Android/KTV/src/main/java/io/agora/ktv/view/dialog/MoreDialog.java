@@ -5,6 +5,9 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.FragmentTransaction;
 
 import io.agora.baselibrary.base.BaseBottomSheetDialogFragment;
@@ -25,12 +28,20 @@ public class MoreDialog extends BaseBottomSheetDialogFragment<KtvDialogMoreBindi
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        // Edge to edge
+        ViewCompat.setOnApplyWindowInsetsListener(requireDialog().getWindow().getDecorView(), (v, insets) -> {
+            Insets inset = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            mBinding.getRoot().setPadding(inset.left, 0, inset.right, inset.bottom);
+            return WindowInsetsCompat.CONSUMED;
+        });
         initView();
     }
 
     private void initView() {
-        mBinding.chipVoiceDialogMore.setOnClickListener(this::showVoicePage);
-        mBinding.chipEffectDialogMore.setOnClickListener(this::showEffectPage);
+        mBinding.btnVoiceDialogMore.setOnClickListener(this::showVoicePage);
+        mBinding.btnEffectDialogMore.setOnClickListener(this::showEffectPage);
+//        mBinding.btnCameraDialogMore.setOnClickListener(this::toggleCamera);
     }
 
     private void showVoicePage(View v) {

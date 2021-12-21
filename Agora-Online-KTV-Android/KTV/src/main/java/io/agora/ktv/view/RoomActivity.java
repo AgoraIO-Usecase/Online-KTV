@@ -404,7 +404,7 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> implement
     }
 
     private void initData() {
-        mSetting = new MusicSettingBean(false, 100, 100, new MusicSettingDialog.Callback() {
+        mSetting = new MusicSettingBean(false, 100, 100, 0, new MusicSettingDialog.Callback() {
             @Override
             public void onEarChanged(boolean isEar) {
                 RoomManager.Instance(RoomActivity.this).getRtcEngine().enableInEarMonitoring(isEar);
@@ -423,6 +423,11 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> implement
             @Override
             public void onEffectChanged(int effect) {
                 RoomManager.Instance(RoomActivity.this).getRtcEngine().setAudioEffectPreset(getEffectIndex(effect));
+            }
+
+            @Override
+            public void onToneChanged(int newToneValue) {
+                mMusicPlayer.setAudioMixingPitch(newToneValue);
             }
         });
 
