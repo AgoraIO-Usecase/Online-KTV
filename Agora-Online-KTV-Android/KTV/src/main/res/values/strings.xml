@@ -53,6 +53,7 @@
 
     <string name="ktv_music_menu_dialog_title">Sound effect settings</string>
     <string name="ktv_music_menu_dialog_ear">Headphone Foldback</string>
+    <string name="ktv_music_menu_dialog_tone">Change Tone</string>
     <string name="ktv_music_menu_dialog_vol1">Vocal volume</string>
     <string name="ktv_music_menu_dialog_vol2">Music volume</string>
     <string name="ktv_music_menu_dialog_effect">Effects</string>
@@ -72,6 +73,8 @@
     <string name="ktv_chorus">chorus</string>
     <string name="ktv_order_song">order</string>
     <string name="ktv_random_room_name">Get a random room name</string>
+    <string name="ktv_tone_down">Click to set tone down</string>
+    <string name="ktv_tone_up">Click to set tone up</string>
 
 <!--    String formatter-->
     <string name="song_and_singer" translatable="false">%s - %s</string>
