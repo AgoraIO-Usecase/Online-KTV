@@ -23,8 +23,7 @@
         android:screenOrientation="portrait"
         android:supportsRtl="true"
         android:theme="@style/ktv_AppTheme"
-        tools:ignore="GoogleAppIndexingWarning"
-        tools:replace="android:label,android:allowBackup">
+        tools:ignore="GoogleAppIndexingWarning">
         <meta-data
             android:name="android.max_aspect"
             android:value="2.4" />
