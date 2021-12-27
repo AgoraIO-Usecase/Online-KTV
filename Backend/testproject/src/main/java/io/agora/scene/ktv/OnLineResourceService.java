@@ -3,6 +3,7 @@ package io.agora.scene.ktv;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import okhttp3.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 
 import java.io.IOException;
@@ -12,7 +13,11 @@ public class OnLineResourceService {
 
     private static final Gson gson = new Gson();
 
-    private static final String appid = "80e54398fed94ae8a010acf782f569b7";
+    @Value("appid")
+    private static final String appid = "";
+
+    @Value("token")
+    private static final String token = "";
 
     private String getUrl(){
         return String.format(SERVER_PREFIX+ "%s/ktv-service/", appid);
@@ -31,7 +36,7 @@ public class OnLineResourceService {
 
     private String getMethod(String url) throws IOException {
         Request request = new Request.Builder()
-                .header("Authorization", "Basic MjdiZjhjMmRkNTNhNGQwZGEwMWQxNmM4MTllOWE5Yzc6YjM2N2NiMjRiOTExNDQyYTg5YjU5YTdmN2Y0YjM1OWM=")
+                .header("Authorization", "Basic " + token)
                 .url(url)
                 .get()
                 .build();
