@@ -657,7 +657,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
                 .setPositiveButton(R.string.ktv_confirm, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        changeMusic();
+                        mMusicPlayer.stop();
                     }
                 })
                 .show();
