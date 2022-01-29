@@ -20,16 +20,27 @@ import java.util.HashMap;
 import java.util.Map;
 
 import io.agora.ktv.bean.MemberMusicModel;
+import io.agora.mediaplayer.IMediaPlayer;
+import io.agora.mediaplayer.IMediaPlayerObserver;
 import io.agora.rtc.Constants;
 import io.agora.rtc.IRtcEngineEventHandler;
 import io.agora.rtc.RtcEngine;
 import io.agora.rtc.models.DataStreamConfig;
+
+import static io.agora.mediaplayer.Constants.AudioDualMonoMode.AUDIO_DUAL_MONO_L;
+import static io.agora.mediaplayer.Constants.AudioDualMonoMode.AUDIO_DUAL_MONO_R;
+import static io.agora.mediaplayer.Constants.MediaPlayerState.PLAYER_STATE_FAILED;
+import static io.agora.mediaplayer.Constants.MediaPlayerState.PLAYER_STATE_OPEN_COMPLETED;
+import static io.agora.mediaplayer.Constants.MediaPlayerState.PLAYER_STATE_PAUSED;
+import static io.agora.mediaplayer.Constants.MediaPlayerState.PLAYER_STATE_PLAYING;
+import static io.agora.mediaplayer.Constants.MediaPlayerState.PLAYER_STATE_STOPPED;
 
 public class MusicPlayer extends IRtcEngineEventHandler {
     private Logger.Builder mLogger = XLog.tag("MusicPlayer");
 
     private Context mContext;
     private RtcEngine mRtcEngine;
+    private IMediaPlayer player;
     private int mRole = Constants.CLIENT_ROLE_BROADCASTER;
 
     private boolean mStopSyncLrc = true;
@@ -94,11 +105,11 @@ public class MusicPlayer extends IRtcEngineEventHandler {
                 }
             } else if (msg.what == ACTION_ON_MUSIC_OPENCOMPLETED) {
                 if (mCallback != null) {
-                    mCallback.onMusicOpenCompleted((int) msg.obj);
+                    mCallback.onMusicOpenCompleted(Long.valueOf((long) msg.obj).intValue());
                 }
             } else if (msg.what == ACTION_ON_MUSIC_OPENERROR) {
                 if (mCallback != null) {
-                    mCallback.onMusicOpenError((int) msg.obj);
+                    mCallback.onMusicOpenError(Long.valueOf((long) msg.obj).intValue());
                 }
             } else if (msg.what == ACTION_ON_MUSIC_PLAING) {
                 if (mCallback != null) {
@@ -128,7 +139,8 @@ public class MusicPlayer extends IRtcEngineEventHandler {
     public MusicPlayer(Context mContext, RtcEngine mRtcEngine) {
         this.mContext = mContext;
         this.mRtcEngine = mRtcEngine;
-
+        this.player = mRtcEngine.createMediaPlayer();
+        this.player.registerPlayerObserver(iMediaPlayerObserver);
         reset();
 
         mRtcEngine.addHandler(this);
@@ -197,7 +209,7 @@ public class MusicPlayer extends IRtcEngineEventHandler {
         MusicPlayer.mMusicModel = mMusicModel;
         mLogger.i("play() called with: mMusicModel = [%s]", mMusicModel);
         onMusicOpening();
-        int ret = mRtcEngine.startAudioMixing(fileMusic.getAbsolutePath(), false, false, 1);
+        int ret = player.open(fileMusic.getAbsolutePath(), 0);
         mLogger.i("play() called ret= %s", ret);
         return 0;
     }
@@ -212,7 +224,7 @@ public class MusicPlayer extends IRtcEngineEventHandler {
             return;
         }
 
-        mRtcEngine.stopAudioMixing();
+        player.stop();
     }
 
     private void pause() {
@@ -220,7 +232,7 @@ public class MusicPlayer extends IRtcEngineEventHandler {
         if (!mStatus.isAtLeast(Status.Started))
             return;
 
-        mRtcEngine.pauseAudioMixing();
+        player.pause();
     }
 
     private void resume() {
@@ -228,7 +240,7 @@ public class MusicPlayer extends IRtcEngineEventHandler {
         if (!mStatus.isAtLeast(Status.Started))
             return;
 
-        mRtcEngine.resumeAudioMixing();
+        player.resume();
     }
 
     public void togglePlay() {
@@ -250,18 +262,18 @@ public class MusicPlayer extends IRtcEngineEventHandler {
         mAudioTrackIndex = i;
 
         if (mMusicModel.getType() == MemberMusicModel.Type.Default) {
-            mRtcEngine.selectAudioTrack(mAudioTrackIndex);
+            player.selectAudioTrack(mAudioTrackIndex);
         } else {
             if (mAudioTrackIndex == 0) {
-                mRtcEngine.setAudioMixingDualMonoMode(Constants.AudioMixingDualMonoMode.getValue(Constants.AudioMixingDualMonoMode.AUDIO_MIXING_DUAL_MONO_L));
+                player.setAudioDualMonoMode(AUDIO_DUAL_MONO_L);
             } else {
-                mRtcEngine.setAudioMixingDualMonoMode(Constants.AudioMixingDualMonoMode.getValue(Constants.AudioMixingDualMonoMode.AUDIO_MIXING_DUAL_MONO_R));
+                player.setAudioDualMonoMode(AUDIO_DUAL_MONO_R);
             }
         }
     }
 
     public void seek(long time) {
-        mRtcEngine.setAudioMixingPosition((int) time);
+        player.seek(time);
     }
 
     public boolean hasAccompaniment() {
@@ -277,7 +289,8 @@ public class MusicPlayer extends IRtcEngineEventHandler {
     }
 
     public void setMusicVolume(int v) {
-        mRtcEngine.adjustAudioMixingVolume(v);
+        player.adjustPublishSignalVolume(v);
+        player.adjustPlayoutVolume(v);
     }
 
     public void setMicVolume(int v) {
@@ -340,7 +353,7 @@ public class MusicPlayer extends IRtcEngineEventHandler {
                 mStopSyncLrc = false;
                 while (!mStopSyncLrc && mStatus.isAtLeast(Status.Started)) {
                     if (mStatus == Status.Started) {
-                        mRecvedPlayPosition = mRtcEngine.getAudioMixingCurrentPosition();
+                        mRecvedPlayPosition = player.getPlayPosition();
                         mLastRecvPlayPosTime = System.currentTimeMillis();
 
                         sendSyncLrc(lrcId, duration, mRecvedPlayPosition);
@@ -380,7 +393,7 @@ public class MusicPlayer extends IRtcEngineEventHandler {
     }
 
     private void startPublish() {
-        startSyncLrc(mMusicModel.getMusicId(), mRtcEngine.getAudioMixingDuration());
+        startSyncLrc(mMusicModel.getMusicId(), player.getDuration());
     }
 
     private void stopPublish() {
@@ -389,7 +402,6 @@ public class MusicPlayer extends IRtcEngineEventHandler {
 
     private void initAudioTracks() {
         mAudioTrackIndex = 1;
-//        mAudioTracksCount = mRtcEngine.getAudioTrackCount();
         mAudioTracksCount = 2;
     }
 
@@ -432,25 +444,6 @@ public class MusicPlayer extends IRtcEngineEventHandler {
         mLastRecvPlayPosTime = System.currentTimeMillis();
     }
 
-    @Override
-    public void onAudioMixingStateChanged(int state, int errorCode) {
-        super.onAudioMixingStateChanged(state, errorCode);
-        mLogger.d("onAudioMixingStateChanged() called with: state = [%s], errorCode = [%s]", state, errorCode);
-        if (state == Constants.MEDIA_ENGINE_AUDIO_EVENT_MIXING_PLAY) {
-            if (mStatus == Status.IDLE) {
-                onMusicOpenCompleted();
-            }
-            onMusicPlaing();
-        } else if (state == Constants.MEDIA_ENGINE_AUDIO_EVENT_MIXING_PAUSED) {
-            onMusicPause();
-        } else if (state == Constants.MEDIA_ENGINE_AUDIO_EVENT_MIXING_STOPPED) {
-            onMusicStop();
-            onMusicCompleted();
-        } else if (state == Constants.MEDIA_ENGINE_AUDIO_EVENT_MIXING_ERROR) {
-            onMusicOpenError(errorCode);
-        }
-    }
-
     private void onMusicOpening() {
         mLogger.i("onMusicOpening() called");
         mHandler.obtainMessage(ACTION_ONMUSIC_OPENING).sendToTarget();
@@ -463,7 +456,7 @@ public class MusicPlayer extends IRtcEngineEventHandler {
         initAudioTracks();
 
         startDisplayLrc();
-        mHandler.obtainMessage(ACTION_ON_MUSIC_OPENCOMPLETED, mRtcEngine.getAudioMixingDuration()).sendToTarget();
+        mHandler.obtainMessage(ACTION_ON_MUSIC_OPENCOMPLETED, player.getDuration()).sendToTarget();
     }
 
     private void onMusicOpenError(int error) {
@@ -595,4 +588,61 @@ public class MusicPlayer extends IRtcEngineEventHandler {
          */
         void onMusicPositionChanged(long position);
     }
+
+    private IMediaPlayerObserver iMediaPlayerObserver = new IMediaPlayerObserver() {
+        @Override
+        public void onPlayerStateChanged(io.agora.mediaplayer.Constants.MediaPlayerState state, io.agora.mediaplayer.Constants.MediaPlayerError error) {
+            mLogger.d("onPlayerStateChanged() called with: state = [%s], errorCode = [%s]", state, error);
+            if (state == PLAYER_STATE_PLAYING) {
+                if (mStatus == Status.IDLE) {
+                    onMusicOpenCompleted();
+                }
+                onMusicPlaing();
+            } else if(state == PLAYER_STATE_OPEN_COMPLETED){
+                player.play();
+            } else if (state == PLAYER_STATE_PAUSED) {
+                onMusicPause();
+            } else if (state == PLAYER_STATE_STOPPED) {
+                onMusicStop();
+                onMusicCompleted();
+            } else if (state == PLAYER_STATE_FAILED) {
+                onMusicOpenError(error.ordinal());
+            }
+        }
+
+        @Override
+        public void onPositionChanged(long position) {
+
+        }
+
+        @Override
+        public void onPlayerEvent(io.agora.mediaplayer.Constants.MediaPlayerEvent eventCode, long elapsedTime, String message) {
+
+        }
+
+        @Override
+        public void onMetaData(io.agora.mediaplayer.Constants.MediaPlayerMetadataType type, byte[] data) {
+
+        }
+
+        @Override
+        public void onPlayBufferUpdated(long playCachedBuffer) {
+
+        }
+
+        @Override
+        public void onPreloadEvent(String src, io.agora.mediaplayer.Constants.MediaPlayerPreloadEvent event) {
+
+        }
+
+        @Override
+        public void onCompleted() {
+
+        }
+
+        @Override
+        public void onAgoraCDNTokenWillExpire() {
+
+        }
+    };
 }
