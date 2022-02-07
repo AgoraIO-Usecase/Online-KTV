@@ -41,6 +41,8 @@ protocol IRoomManager {
     func resumeMusic()
     func stopMusic()
     func stop(music: LiveKtvMusic) -> Observable<Result<Void>>
+    func getPostion() -> Int
+    func getDuration() -> Int
 
     func enable(earloop: Bool)
     func isEnableEarloop() -> Bool

@@ -32,6 +32,14 @@ class RoomViewModel {
         return member.isManager
     }
 
+    var postion: Int {
+        manager.getPostion()
+    }
+
+    var duration: Int {
+        manager.getDuration()
+    }
+
     var role: LiveKtvRoomRole {
         return member.toLiveKtvRoomRole()
     }
@@ -268,18 +276,26 @@ class RoomViewModel {
                 result.onSuccess {
                     let lrcMusic = result.data!
                     return Single.create { single in
-                        let task = DownloadManager.shared.getFile(url: lrcMusic.lrc) { downloadResult in
-                            switch downloadResult {
-                            case let .success(file: file):
-                                single(.success(Result(success: true, data: LocalMusic(id: lrcMusic.id!, name: lrcMusic.name!, path: "", lrcPath: file, singer: lrcMusic.singer!, poster: lrcMusic.poster!))))
-                            case let .failed(error: error):
-                                single(.success(Result(success: false, message: error)))
-                            }
-                        }
+                        debugPrint("lrc == \(lrcMusic.lrc)")
+                        single(.success(Result(success: true,
+                                               data: LocalMusic(id: lrcMusic.id!,
+                                                                name: lrcMusic.name!,
+                                                                path: "",
+                                                                lrcPath: lrcMusic.lrc,
+                                                                singer: lrcMusic.singer!,
+                                                                poster: lrcMusic.poster!))))
+//                        let task = DownloadManager.shared.getFile(url: lrcMusic.lrc) { downloadResult in
+//                            switch downloadResult {
+//                            case let .success(file: file):
+//                                single(.success(Result(success: true, data: LocalMusic(id: lrcMusic.id!, name: lrcMusic.name!, path: "", lrcPath: file, singer: lrcMusic.singer!, poster: lrcMusic.poster!))))
+//                            case let .failed(error: error):
+//                                single(.success(Result(success: false, message: error)))
+//                            }
+//                        }
                         return Disposables.create {
-                            if task?.state == .running {
-                                task?.cancel()
-                            }
+//                            if task?.state == .running {
+//                                task?.cancel()
+//                            }
                         }
                     }.asObservable()
                 }

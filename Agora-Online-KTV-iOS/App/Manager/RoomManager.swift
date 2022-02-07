@@ -32,6 +32,14 @@ class RoomManager: NSObject {
 }
 
 extension RoomManager: IRoomManager {
+    func getPostion() -> Int {
+        rtcServer.getAgoraMusicPlayer()?.getPosition() ?? 0
+    }
+
+    func getDuration() -> Int {
+        rtcServer.getAgoraMusicPlayer()?.getDuration() ?? 0
+    }
+
     var playingMusic: LocalMusic? {
         return rtcServer.playingMusic
     }

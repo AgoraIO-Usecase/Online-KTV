@@ -1,6 +1,6 @@
 # Uncomment the next line to define a global platform for your project
 platform :ios, '13.0'
-source 'https://github.com/CocoaPods/Specs.git'
+#source 'https://github.com/CocoaPods/Specs.git'
 
 def commonPods
   use_frameworks!
@@ -10,6 +10,7 @@ def commonPods
   pod 'IGListKit', '~> 4.0.0'
   pod 'SwiftFormat/CLI'
   pod 'SDWebImage', '5.11.1'
+  pod 'AgoraLrcScore', :path => "AgoraLrcScoreView"
 end
 
 target 'Core' do

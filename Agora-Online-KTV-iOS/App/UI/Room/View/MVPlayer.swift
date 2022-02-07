@@ -5,6 +5,7 @@
 //  Created by XC on 2021/6/7.
 //
 
+import AgoraLrcScore
 import Core
 import Foundation
 import LrcView
@@ -202,13 +203,16 @@ class MVPlayer: NSObject {
     weak var delegate: RoomController!
     weak var player: UIView! {
         didSet {
-            player.addSubview(musicLyricView)
+            player.addSubview(scoreLabel)
+            player.addSubview(lrcScoreView)
             RoomManager.shared().subscribeVoicePitch().subscribe { result in
                 guard let value = result.element else { return }
-                self.musicLyricView.setVoicePitch(value)
+                self.lrcScoreView.setVoicePitch(value)
+
             }.disposed(by: disposeBag)
-            musicLyricView.fill(view: player, leading: 0, top: 32, trailing: 0, bottom: 32)
-                .active()
+            scoreLabel.trailingAnchor.constraint(equalTo: player.trailingAnchor, constant: -10).isActive = true
+            scoreLabel.centerYAnchor.constraint(equalTo: name.centerYAnchor).isActive = true
+            lrcScoreView.fill(view: player, leading: 0, top: 32, trailing: 0, bottom: 0).active()
         }
     }
 
@@ -228,7 +232,26 @@ class MVPlayer: NSObject {
     weak var icon: UIImageView!
     weak var name: UILabel!
 
-    let musicLyricView = MusicLyricView()
+    private lazy var lrcScoreView: AgoraLrcScoreView = {
+        let lrcView = AgoraLrcScoreView(delegate: self)
+        lrcView.config.scoreConfig.scoreViewHeight = 80
+        lrcView.config.scoreConfig.lineHeight = 5
+        lrcView.config.lrcConfig.lrcNormalColor = .lightGray
+        lrcView.config.scoreConfig.cursorColor = .white
+        lrcView.config.scoreConfig.normalColor = .lightGray
+        lrcView.config.scoreConfig.separatorLineColor = .lightText
+        lrcView.scoreDelegate = self
+        return lrcView
+    }()
+
+    private lazy var scoreLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = .white
+        label.font = .systemFont(ofSize: 14)
+        label.text = "评分: 50"
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
 
     private var lastRole: Int?
     var member: LiveKtvMember? {
@@ -377,13 +400,14 @@ class MVPlayer: NSObject {
             }
             stopView.isHidden = false
             mv.isHidden = true
-            musicLyricView.isHidden = true
+            lrcScoreView.isHidden = true
+            lrcScoreView.reset()
             chorusMasterView.isHidden = true
             chorusFollowerView.isHidden = true
         case .play, .pause:
             stopView.isHidden = true
             mv.isHidden = false
-            musicLyricView.isHidden = false
+            lrcScoreView.isHidden = false
             updateMusicLyricViewLayout()
             if settingsView.superview?.isHidden == false {
                 playerControlView.setImage(UIImage(named: status == .play ? "iconPause" : "iconPlay", in: Utils.bundle, with: nil), for: .normal)
@@ -393,7 +417,8 @@ class MVPlayer: NSObject {
             settingsView.superview?.isHidden = true
             stopView.isHidden = true
             mv.isHidden = false
-            musicLyricView.isHidden = true
+            lrcScoreView.isHidden = true
+            lrcScoreView.reset()
             chorusMasterView.isHidden = false
             chorusFollowerView.isHidden = false
         case .processChorusApply:
@@ -500,18 +525,26 @@ class MVPlayer: NSObject {
         settingsView.superview?.isHidden = !_isMyOrdedMusic
         if let root = player.superview {
             if !_isMyOrdedMusic {
-                if musicLyricView.superview != root {
-                    musicLyricView.removeFromSuperview()
-                    root.addSubview(musicLyricView)
-                    let padding = (root.bounds.height - musicLyricView.bounds.height) / 2
-                    musicLyricView.fill(view: root, leading: 0, top: padding, trailing: 0, bottom: padding)
+                if lrcScoreView.superview != root {
+                    lrcScoreView.removeFromSuperview()
+                    scoreLabel.removeFromSuperview()
+                    root.addSubview(scoreLabel)
+                    root.addSubview(lrcScoreView)
+                    scoreLabel.trailingAnchor.constraint(equalTo: root.trailingAnchor, constant: -10).isActive = true
+                    scoreLabel.centerYAnchor.constraint(equalTo: name.centerYAnchor).isActive = true
+                    let padding = (root.bounds.height - lrcScoreView.bounds.height) / 2
+                    lrcScoreView.fill(view: root, leading: 0, top: padding, trailing: 0, bottom: 0)
                         .active()
                 }
             } else {
-                if musicLyricView.superview != player {
-                    musicLyricView.removeFromSuperview()
-                    player.addSubview(musicLyricView)
-                    musicLyricView.fill(view: player, leading: 0, top: 32, trailing: 0, bottom: 32)
+                if lrcScoreView.superview != player {
+                    lrcScoreView.removeFromSuperview()
+                    scoreLabel.removeFromSuperview()
+                    player.addSubview(scoreLabel)
+                    player.addSubview(lrcScoreView)
+                    scoreLabel.trailingAnchor.constraint(equalTo: player.trailingAnchor, constant: -10).isActive = true
+                    scoreLabel.centerYAnchor.constraint(equalTo: name.centerYAnchor).isActive = true
+                    lrcScoreView.fill(view: player, leading: 0, top: 32, trailing: 0, bottom: 0)
                         .active()
                 }
             }
@@ -574,16 +607,8 @@ class MVPlayer: NSObject {
                             }
                         }
                         countdown = MVPlayer.COUNTDOWN_SECOND
-                        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: { [weak self] _ in
-                            if let self = self {
-                                self.countdown -= 1
-                                if self.countdown <= 0 {
-                                    self.onTapChorusMasterButton()
-                                } else {
-                                    self.delegate.viewModel.countdown(time: self.countdown)
-                                }
-                            }
-                        })
+                        timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(timerHandler), userInfo: nil, repeats: true)
+                        RunLoop.current.add(timer!, forMode: .common)
                     } else {
                         chorusFollowerView.music = music
                         chorusFollowerView.isEnabled = true
@@ -618,9 +643,21 @@ class MVPlayer: NSObject {
             name.text = "\(musicName)-\(singer)"
             icon.isHidden = false
             name.isHidden = false
+            scoreLabel.isHidden = false
         } else {
             icon.isHidden = true
             name.isHidden = true
+            scoreLabel.isHidden = true
+        }
+    }
+
+    @objc
+    private func timerHandler() {
+        countdown -= 1
+        if countdown <= 0 {
+            onTapChorusMasterButton()
+        } else {
+            delegate.viewModel.countdown(time: countdown)
         }
     }
 
@@ -635,7 +672,6 @@ class MVPlayer: NSObject {
         playerControlView.addTarget(self, action: #selector(onTapPlayerControlView), for: .touchUpInside)
         switchMusicView.addTarget(self, action: #selector(onSwitchMusic), for: .touchUpInside)
         hookSwitchView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(onSwitchOrigin)))
-        musicLyricView.delegate = self
     }
 
     func onMusic(state: RtcMusicState) {
@@ -652,20 +688,19 @@ class MVPlayer: NSObject {
 
         switch state.type {
         case .position:
-            // Logger.log(self, message: "scrollLyric: \(TimeInterval(state.position)), \(TimeInterval(state.duration))", level: .info)
-            musicLyricView.scrollLyric(currentTime: TimeInterval(state.position), totalTime: TimeInterval(state.duration))
+//            Logger.log(self, message: "scrollLyric: \(TimeInterval(state.position)), \(TimeInterval(state.duration))", level: .info)
             if let playerState = state.state {
                 switch playerState {
                 case .playing:
                     if status != .play {
                         status = .play
                     }
-                    musicLyricView.paused = false
+                    lrcScoreView.start()
                 case .paused:
                     if status != .pause {
                         status = .pause
                     }
-                    musicLyricView.paused = true
+                    lrcScoreView.stop()
                 case .playBackCompleted, .playBackAllLoopsCompleted:
                     if status != .stop {
                         status = .stop
@@ -790,11 +825,11 @@ class MVPlayer: NSObject {
         updateMusicLyricViewLayout()
         delegate.viewModel.fetchMusicLrc(music: music) { [weak self] waiting in
             if waiting {
-                self?.musicLyricView.lyrics = nil
+                self?.lrcScoreView.stop()
             }
         } onSuccess: { [weak self] localMusic in
             if localMusic.id == self?.music?.musicId {
-                self?.musicLyricView.lyrics = LocalMusicManager.parseLyric(music: localMusic)
+                self?.lrcScoreView.setLrcUrl(url: localMusic.lrcPath)
             }
         } onError: { [weak self] message in
             self?.delegate.show(message: message, type: .error)
@@ -806,11 +841,25 @@ class MVPlayer: NSObject {
     }
 }
 
-extension MVPlayer: MusicLyricViewDelegate {
-    func userEndSeeking(time: TimeInterval) {
+extension MVPlayer: AgoraLrcViewDelegate, AgoraKaraokeScoreDelegate {
+    func getPlayerCurrentTime() -> TimeInterval {
+        guard delegate != nil else { return 0 }
+        return TimeInterval(delegate.viewModel.postion) / 1000
+    }
+
+    func getTotalTime() -> TimeInterval {
+        guard delegate != nil else { return 0 }
+        return TimeInterval(delegate.viewModel.duration) / 1000
+    }
+
+    func seekToTime(time: TimeInterval) {
         if _isMyOrdedMusic {
             Logger.log(self, message: "userEndSeeking \(time)", level: .info)
-            delegate.viewModel.seekMusic(position: time)
+            delegate.viewModel.seekMusic(position: time * 1000)
         }
+    }
+
+    func agoraKaraokeScore(score: Double, totalScore _: Double) {
+        scoreLabel.text = String(format: "评分: %.2f", score)
     }
 }
