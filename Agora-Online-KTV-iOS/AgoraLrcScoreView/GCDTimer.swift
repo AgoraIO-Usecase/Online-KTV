@@ -7,8 +7,8 @@
 import UIKit
 
 class GCDTimer {
-    typealias ActionBlock = (String, TimeInterval) -> ()
-    private var timerContainer = [String : DispatchSourceTimer]()
+    typealias ActionBlock = (String, TimeInterval) -> Void
+    private var timerContainer = [String: DispatchSourceTimer]()
     private var currentDuration: TimeInterval = 0
     /// 秒级定时器
     ///
@@ -19,9 +19,10 @@ class GCDTimer {
     ///  - repeats: 是否重复
     ///  - action: 执行的操作
     func scheduledSecondsTimer(withName name: String?,
-                                timeInterval: Int,
-                                queue: DispatchQueue,
-                                action: @escaping ActionBlock ) {
+                               timeInterval: Int,
+                               queue: DispatchQueue,
+                               action: @escaping ActionBlock)
+    {
         currentDuration = TimeInterval(timeInterval)
         let scheduledName = name ?? Date().timeString()
         var timer = timerContainer[scheduledName]
@@ -40,8 +41,7 @@ class GCDTimer {
             }
         })
     }
-    
-    
+
     /// 毫秒级定时器
     /// - Parameters:
     ///   - name: 名称
@@ -53,7 +53,8 @@ class GCDTimer {
                                     countDown: TimeInterval,
                                     milliseconds: TimeInterval,
                                     queue: DispatchQueue,
-                                    action: @escaping ActionBlock ) {
+                                    action: @escaping ActionBlock)
+    {
         currentDuration = countDown
         let scheduledName = name ?? Date().timeString()
         var timer = timerContainer[scheduledName]
@@ -72,26 +73,25 @@ class GCDTimer {
             }
         })
     }
-    
+
     /// 销毁名字为name的计时器
     ///
     /// - Parameter name: 计时器的名字
-    func destoryTimer(withName name:String?) {
+    func destoryTimer(withName name: String?) {
         guard let name = name else { return }
         let timer = timerContainer[name]
         if timer == nil { return }
         timerContainer.removeValue(forKey: name)
         timer?.cancel()
     }
-    
+
     /// 销毁所有计时器
     func destoryAllTimer() {
-        timerContainer.forEach({
+        timerContainer.forEach {
             destoryTimer(withName: $0.key)
-        })
+        }
     }
-    
-    
+
     /// 检测是否已经存在名字为name的计时器
     ///
     /// - Parameter name: 计时器的名字
@@ -100,7 +100,6 @@ class GCDTimer {
         guard let name = name else { return false }
         return timerContainer[name] != nil
     }
-    
 }
 
 extension Date {

@@ -86,6 +86,7 @@ class AgoraDownLoadManager {
             self.delegate?.parseLrcFinished?()
         }
     }
+
     private func parseLrc(path: String, completion: @escaping ([AgoraLrcModel]?) -> Void) {
         let lyric = AgoraLrcParse()
         let string = try? String(contentsOfFile: path)
@@ -108,7 +109,7 @@ extension AgoraDownLoadManager: AgoraLrcDownloadDelegate {
             DispatchQueue.main.async {
                 self.success[url]?(cacheFilePath)
             }
-        } else if url.fileName.hasPrefix(".xml") {
+        } else if url.fileName.hasSuffix(".xml") {
             guard let completion = completion[url] else { return }
             parseXml(path: cacheFilePath, completion: completion)
         } else {

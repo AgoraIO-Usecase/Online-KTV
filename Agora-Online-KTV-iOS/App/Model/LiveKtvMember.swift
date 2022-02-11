@@ -9,6 +9,24 @@ import Core
 import Foundation
 import RxSwift
 
+extension String {
+    // 十六进制  -> 十进制
+    /// - Returns: 十进制
+    func hexadecimalToDecimal() -> String {
+        let str = uppercased()
+        var sum = 0
+        for i in str.utf8 {
+            // 0-9 从48开始
+            sum = sum * 16 + Int(i) - 48
+            // A-Z 从65开始，但有初始值10，所以应该是减去55
+            if i >= 65 {
+                sum -= 7
+            }
+        }
+        return "\(sum)"
+    }
+}
+
 enum LiveKtvRoomRole: Int {
     case listener = 0
     case manager = 1
@@ -20,6 +38,7 @@ class LiveKtvMember: Codable, IAgoraModel {
     public var id: String
     public var isMuted: Bool
     public var isSelfMuted: Bool
+    public var isVideoMuted: Bool
     public var role: Int = LiveKtvRoomRole.listener.rawValue
     public var roomId: String
     public var streamId: UInt
@@ -28,10 +47,11 @@ class LiveKtvMember: Codable, IAgoraModel {
     public var isManager: Bool = false
     // public var isLocal: Bool = false
 
-    public init(id: String, isMuted: Bool, isSelfMuted: Bool, role: Int, roomId: String, streamId: UInt, userId: String) {
+    public init(id: String, isMuted: Bool, isSelfMuted: Bool, isVideoMuted: Bool, role: Int, roomId: String, streamId: UInt, userId: String) {
         self.id = id
         self.isMuted = isMuted
         self.isSelfMuted = isSelfMuted
+        self.isVideoMuted = isVideoMuted
         self.role = role
         self.roomId = roomId
         self.streamId = streamId
@@ -75,6 +95,7 @@ extension LiveKtvMember {
     static let TABLE: String = "MEMBER_KTV"
     static let MUTED: String = "isMuted"
     static let SELF_MUTED: String = "isSelfMuted"
+    static let VIDEO_MUTED: String = "isVideoMuted"
     static let ROLE: String = "role"
     static let ROOM: String = "roomId"
     static let STREAM_ID = "streamId"
@@ -96,7 +117,15 @@ extension LiveKtvMember {
 
         let isMuted: Bool = (try object.getValue(key: LiveKtvMember.MUTED, type: Int.self) as? Int ?? 0) == 1
         let isSelfMuted: Bool = (try object.getValue(key: LiveKtvMember.SELF_MUTED, type: Int.self) as? Int ?? 0) == 1
-        let member = LiveKtvMember(id: id, isMuted: isMuted, isSelfMuted: isSelfMuted, role: role, roomId: roomId, streamId: streamId, userId: userId)
+        let isVideoMuted: Bool = (try object.getValue(key: LiveKtvMember.VIDEO_MUTED, type: Int.self) as? Int ?? 0) == 1
+        let member = LiveKtvMember(id: id,
+                                   isMuted: isMuted,
+                                   isSelfMuted: isSelfMuted,
+                                   isVideoMuted: isVideoMuted,
+                                   role: role,
+                                   roomId: roomId,
+                                   streamId: streamId,
+                                   userId: userId)
         // member.isManager = member.userId == room.userId
         return member
     }
@@ -113,8 +142,16 @@ extension LiveKtvMember {
 
         let isMuted: Bool = (try object.getValue(key: LiveKtvMember.MUTED, type: Int.self) as? Int ?? 0) == 1
         let isSelfMuted: Bool = (try object.getValue(key: LiveKtvMember.SELF_MUTED, type: Int.self) as? Int ?? 0) == 1
+        let isVideoMuted: Bool = (try object.getValue(key: LiveKtvMember.VIDEO_MUTED, type: Int.self) as? Int ?? 0) == 1
 
-        let member = LiveKtvMember(id: id, isMuted: isMuted, isSelfMuted: isSelfMuted, role: role, roomId: room.id, streamId: streamId, userId: userId)
+        let member = LiveKtvMember(id: id,
+                                   isMuted: isMuted,
+                                   isSelfMuted: isSelfMuted,
+                                   isVideoMuted: isVideoMuted,
+                                   role: role,
+                                   roomId: room.id,
+                                   streamId: streamId,
+                                   userId: userId)
         member.isManager = member.userId == room.userId
         return member
     }
@@ -150,7 +187,7 @@ extension LiveKtvMember {
 
     func join(room: LiveKtvRoom) -> Observable<Result<Void>> {
         return Single.create { single in
-            self.streamId = 0
+//            self.streamId = 0
             self.roomId = room.id
             LiveKtvMember.manager
                 .getRoom(id: self.roomId)
@@ -164,6 +201,7 @@ extension LiveKtvMember {
                             member.userId == self.userId
                         }
                         if let member = member {
+                            self.streamId = member.streamId
                             self.id = member.id
                             self.isMuted = member.isMuted
                             self.isSelfMuted = member.isSelfMuted
@@ -246,6 +284,22 @@ extension LiveKtvMember {
                 .collection(className: LiveKtvMember.TABLE)
                 .document(id: self.id)
                 .update(data: [LiveKtvMember.SELF_MUTED: mute ? 1 : 0], delegate: AgoraObjectDelegate(success: { _ in
+                    // self.isSelfMuted = true
+                    single(.success(Result<Void>(success: true)))
+                }, failed: { _, message in
+                    single(.success(Result<Void>(success: false, message: message)))
+                }))
+            return Disposables.create()
+        }.asObservable()
+    }
+
+    func selfVideoMute(mute: Bool) -> Observable<Result<Void>> {
+        return Single.create { single in
+            LiveKtvMember.manager
+                .getRoom(id: self.roomId)
+                .collection(className: LiveKtvMember.TABLE)
+                .document(id: self.id)
+                .update(data: [LiveKtvMember.VIDEO_MUTED: mute ? 1 : 0], delegate: AgoraObjectDelegate(success: { _ in
                     // self.isSelfMuted = true
                     single(.success(Result<Void>(success: true)))
                 }, failed: { _, message in

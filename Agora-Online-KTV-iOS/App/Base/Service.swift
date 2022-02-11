@@ -65,6 +65,9 @@ protocol IRoomManager {
     func handsUp() -> Observable<Result<Void>>
     func kickSpeaker(member: LiveKtvMember) -> Observable<Result<Void>>
 
+    func setCanvasView(uid: UInt, isLocal: Bool, canvasView: UIView)
+    func openVideo(isOpen: Bool) -> Observable<Result<Void>>
+
     func destory()
 }
 

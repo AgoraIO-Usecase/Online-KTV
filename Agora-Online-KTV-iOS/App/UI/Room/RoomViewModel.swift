@@ -675,6 +675,21 @@ class RoomViewModel {
         manager.setVoiceEffect(effect: effect)
     }
 
+    func setCanvasView(uid: UInt, isLocal: Bool, canvasView: UIView) {
+        manager.setCanvasView(uid: uid, isLocal: isLocal, canvasView: canvasView)
+    }
+
+    func openVideoHandler(isOpen: Bool) {
+        manager.openVideo(isOpen: isOpen)
+            .subscribe(onNext: { [weak self] result in
+                guard let weakself = self else { return }
+                if !result.success {
+                    weakself.delegate?.onError(message: result.message)
+                }
+            })
+            .disposed(by: disposeBag)
+    }
+
 //    func _musicDataSource(music: String) -> Observable<Result<[LocalMusic]>> {
 //        return Observable.just(Result(success: true, data: music.isEmpty ? localMusicManager.localMusicList : [])).delay(DispatchTimeInterval.seconds(5), scheduler: scheduler)
 //    }

@@ -24,7 +24,7 @@ class AgoraLrcView: UIView {
             dataArray = miguSongModel?.sentences
         }
     }
-    
+
     var lrcDatas: [AgoraLrcModel]? {
         didSet {
             dataArray = lrcDatas
@@ -68,13 +68,13 @@ class AgoraLrcView: UIView {
         stackView.spacing = 0
         return stackView
     }()
-    
+
     private lazy var loadView: AgoraLoadingView = {
         let view = AgoraLoadingView()
         view.delegate = self
         return view
     }()
-    
+
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .plain)
         tableView.showsVerticalScrollIndicator = false
@@ -144,14 +144,14 @@ class AgoraLrcView: UIView {
         statckView.addArrangedSubview(tableView)
         tableView.addSubview(tipsLabel)
         addSubview(lineView)
-        
+
 //        loadView.heightAnchor.constraint(equalToConstant: 20).isActive = true
-        
+
         statckView.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
         statckView.topAnchor.constraint(equalTo: topAnchor).isActive = true
         statckView.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
         statckView.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
-        
+
         tipsLabel.centerXAnchor.constraint(equalTo: tableView.centerXAnchor).isActive = true
         tipsLabel.centerYAnchor.constraint(equalTo: tableView.centerYAnchor).isActive = true
 
@@ -182,7 +182,7 @@ class AgoraLrcView: UIView {
         miguSongModel = nil
         lrcDatas = nil
     }
-    
+
     private func updateUI() {
         tipsLabel.text = lrcConfig.tipsString
         tipsLabel.textColor = lrcConfig.tipsColor
@@ -211,10 +211,12 @@ class AgoraLrcView: UIView {
     }
 
     // MARK: - 获取播放歌曲的信息
+
     // 获取xml类型的歌词信息
     private func getXmlLrc() -> (index: Int?,
-                              lrcText: String?,
-                              progress: CGFloat?)? {
+                                 lrcText: String?,
+                                 progress: CGFloat?)?
+    {
         guard let lrcArray = miguSongModel?.sentences,
               !lrcArray.isEmpty else { return nil }
         var i = 0
@@ -243,23 +245,24 @@ class AgoraLrcView: UIView {
         }
         return nil
     }
+
     // 获取lrc格式的歌词信息
     func getLrc() -> (index: Int?, lrcText: String?, progress: CGFloat?)? {
         guard let lrcArray = lrcDatas,
               !lrcArray.isEmpty else { return nil }
-        var i: Int = 0
+        var i = 0
         var progress: CGFloat = 0.0
         for (index, lrc) in lrcArray.enumerated() {
             let currrentLrc = lrc
             var nextLrc: AgoraLrcModel?
-            //获取下一句歌词
-            if index == lrcArray.count-1 {
+            // 获取下一句歌词
+            if index == lrcArray.count - 1 {
                 nextLrc = lrcArray[index]
             } else {
-                nextLrc = lrcArray[index+1]
+                nextLrc = lrcArray[index + 1]
             }
-            
-            if currentTime >= currrentLrc.time && currentTime < (nextLrc?.time ?? 0) {
+
+            if currentTime >= currrentLrc.time, currentTime < (nextLrc?.time ?? 0) {
                 i = index
                 progress = CGFloat((currentTime - currrentLrc.time) / ((nextLrc?.time ?? 0) - currrentLrc.time))
                 return (i, currrentLrc.lrc, progress)
@@ -295,7 +298,7 @@ extension AgoraLrcView: UITableViewDataSource, UITableViewDelegate {
         } else {
             cell.setupMusicLrc(with: lrcModel as? AgoraLrcModel, progress: 0)
         }
-        if indexPath.row == 0 && preRow < 0 {
+        if indexPath.row == 0, preRow < 0 {
             cell.setupCurrentLrcScale()
         }
         return cell

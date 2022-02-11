@@ -107,7 +107,7 @@ extension RoomManager: IRoomManager {
     func join(room: LiveKtvRoom) -> Observable<Result<LiveKtvRoom>> {
         if let user = account {
             if member == nil {
-                member = LiveKtvMember(id: "", isMuted: false, isSelfMuted: false, role: LiveKtvRoomRole.listener.rawValue, roomId: room.id, streamId: 0, userId: user.id)
+                member = LiveKtvMember(id: "", isMuted: false, isSelfMuted: false, isVideoMuted: false, role: LiveKtvRoomRole.listener.rawValue, roomId: room.id, streamId: 0, userId: user.id)
             }
             guard let member = member else {
                 return Observable.just(Result(success: false, message: "member is nil!"))
@@ -132,6 +132,7 @@ extension RoomManager: IRoomManager {
                             member.isSelfMuted = false
                             // member.room = room
                             member.userId = user.id
+                            member.streamId = UInt((user.id as NSString).substring(from: user.id.count - 6).hexadecimalToDecimal()) ?? 0
                             return Observable.just(result)
                         }
                     }
@@ -438,11 +439,29 @@ extension RoomManager: IRoomManager {
         }
     }
 
+    func openVideo(isOpen: Bool) -> Observable<Result<Void>> {
+        if let member = member {
+            member.isVideoMuted = !isOpen
+            if rtcServer.isJoinChannel {
+                rtcServer.openVideoHandler(isOpen: isOpen)
+                return member.selfVideoMute(mute: !isOpen)
+            } else {
+                return Observable.just(Result(success: true))
+            }
+        } else {
+            return Observable.just(Result(success: true))
+        }
+    }
+
     func isMicrophoneClose() -> Bool {
         return rtcServer.muted
     }
 
     func subscribeVoicePitch() -> Observable<[Double]> {
         return rtcServer.voicePitchRelay.asObservable()
+    }
+
+    func setCanvasView(uid: UInt, isLocal: Bool, canvasView: UIView) {
+        rtcServer.createVideoCanvas(uid: uid, isLocal: isLocal, canvasView: canvasView)
     }
 }

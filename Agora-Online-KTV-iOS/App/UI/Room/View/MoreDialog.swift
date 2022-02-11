@@ -14,7 +14,7 @@ class MoreDialog: Dialog {
     weak var delegate: RoomController!
     private var getUserDisposable: Disposable?
 
-    var cameraMuted: Bool = true
+    var cameraMuted: Bool = false
     var openVoiceDialog: Bool = false
 
     var labelVoiceEffect: UILabel = {
@@ -43,7 +43,7 @@ class MoreDialog: Dialog {
 
     var btnCamera: UIButton = {
         let view = UIButton()
-        view.setImage(UIImage(named: "iconCameraOff", in: Utils.bundle, with: nil), for: .normal)
+        view.setImage(UIImage(named: "iconCameraOn", in: Utils.bundle, with: nil), for: .normal)
         return view
     }()
 
@@ -76,6 +76,7 @@ class MoreDialog: Dialog {
     @objc func onTapCamera(sender _: UIButton) {
         cameraMuted = !cameraMuted
         btnCamera.setImage(UIImage(named: cameraMuted ? "iconCameraOff" : "iconCameraOn", in: Utils.bundle, with: nil), for: .normal)
+        delegate.viewModel.openVideoHandler(isOpen: cameraMuted)
     }
 
     @objc func onTapVoiceEffect(sender _: UIButton) {

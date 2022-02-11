@@ -39,7 +39,7 @@ class AgoraEmitterView: UIView {
         // 6.将发射器的layer添加到父layer中
 //        layer.addSublayer(emitter)
     }
-    
+
     private func createEmitterCell(name: String) -> CAEmitterCell {
         // 4.创建粒子, 并且设置例子相关的属性
         let cell = CAEmitterCell()
@@ -68,10 +68,11 @@ class AgoraEmitterView: UIView {
         cell.birthRate = 5
         // 初始速度
         cell.velocity = 90
-        
+
         cell.name = name
         return cell
     }
+
     private var isStop: Bool = false
     private var isStart: Bool = false
 
@@ -83,16 +84,16 @@ class AgoraEmitterView: UIView {
         if isStart == true { return }
         layer.addSublayer(emitter)
         if config?.emitterImages == nil {
-            emitter.emitterCells?.forEach({
+            emitter.emitterCells?.forEach {
                 let image = UIImage(color: config?.emitterColors.randomElement() ?? .red,
                                     size: CGSize(width: 10, height: 10))?.toCircle()
                 $0.contents = image?.cgImage
-            })
+            }
         } else {
-            emitter.emitterCells?.forEach({
-                let images = config?.emitterImages?.map({ $0.cgImage })
+            emitter.emitterCells?.forEach {
+                let images = config?.emitterImages?.map { $0.cgImage }
                 $0.contents = images?.randomElement
-            })
+            }
         }
         emitter.lifetime = 1.0
         isStart = true

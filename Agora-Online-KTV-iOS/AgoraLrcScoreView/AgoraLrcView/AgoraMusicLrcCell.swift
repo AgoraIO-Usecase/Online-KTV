@@ -41,7 +41,7 @@ class AgoraMusicLrcCell: UITableViewCell {
     func setupMusicLrcProgress(with progress: CGFloat) {
         lrcLabel.progress = progress
     }
-    
+
     func setupCurrentLrcScale() {
         lrcLabel.textColor = lrcConfig?.lrcHighlightColor
         UIView.animate(withDuration: 0.25) {
@@ -51,7 +51,8 @@ class AgoraMusicLrcCell: UITableViewCell {
     }
 
     func setupMusicXmlLrc(with lrcModel: AgoraMiguLrcSentence?,
-                          progress: CGFloat) {
+                          progress: CGFloat)
+    {
         lrcLabel.text = lrcModel?.toSentence()
         lrcLabel.progress = progress
         lrcLabel.textColor = lrcConfig?.lrcNormalColor
@@ -62,7 +63,8 @@ class AgoraMusicLrcCell: UITableViewCell {
     }
 
     func setupMusicLrc(with lrcModel: AgoraLrcModel?,
-                       progress: CGFloat) {
+                       progress: CGFloat)
+    {
         lrcLabel.text = lrcModel?.lrc?.trimmingCharacters(in: .whitespacesAndNewlines)
         lrcLabel.progress = progress
         lrcLabel.textColor = lrcConfig?.lrcNormalColor
@@ -71,7 +73,7 @@ class AgoraMusicLrcCell: UITableViewCell {
             self.lrcLabel.transform = .identity
         }
     }
-    
+
     private func setupUI() {
         contentView.backgroundColor = .clear
         backgroundColor = .clear
@@ -81,6 +83,7 @@ class AgoraMusicLrcCell: UITableViewCell {
         lrcLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10).isActive = true
         lrcLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10).isActive = true
     }
+
     override func layoutSubviews() {
         super.layoutSubviews()
         let margin = lrcConfig?.lrcLeftAndRightMargin ?? 0

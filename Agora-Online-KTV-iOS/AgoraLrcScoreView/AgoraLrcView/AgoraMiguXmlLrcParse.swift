@@ -52,13 +52,9 @@ private class AgoraMiguSongLyricXmlParser: NSObject, XMLParserDelegate {
         }
     }
 
-    func parserDidStartDocument(_: XMLParser) {
-        
-    }
+    func parserDidStartDocument(_: XMLParser) {}
 
-    func parserDidEndDocument(_: XMLParser) {
-        
-    }
+    func parserDidEndDocument(_: XMLParser) {}
 
     func parser(_: XMLParser, parseErrorOccurred parseError: Error) {
         debugPrint("message == \(parseError.localizedDescription)")

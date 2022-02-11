@@ -18,6 +18,8 @@ class SeatView {
 
     weak var label: UILabel!
 
+    weak var canvas: UIView!
+
     private var getUserDisposable: Disposable?
 
     var music: LiveKtvMusic? {

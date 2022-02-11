@@ -98,6 +98,7 @@ public class AgoraLrcScoreView: UIView {
         stackView.spacing = 0
         return stackView
     }()
+
     private var _scoreView: AgoraKaraokeScoreView?
     private var scoreView: AgoraKaraokeScoreView? {
         get {
@@ -110,6 +111,7 @@ public class AgoraLrcScoreView: UIView {
             _scoreView = newValue
         }
     }
+
     private var _lrcView: AgoraLrcView?
     private var lrcView: AgoraLrcView? {
         get {
@@ -175,10 +177,10 @@ public class AgoraLrcScoreView: UIView {
         timer.scheduledMillisecondsTimer(withName: "lrc",
                                          countDown: .infinity,
                                          milliseconds: 17,
-                                         queue: .main, action: { [weak self] _, duration in
-            guard let self = self else { return }
-            self.timerHandler()
-        })
+                                         queue: .main, action: { [weak self] _, _ in
+                                             guard let self = self else { return }
+                                             self.timerHandler()
+                                         })
         guard statckView.arrangedSubviews.isEmpty else { return }
         updateUI()
         config.scoreConfig = config.scoreConfig
@@ -189,7 +191,7 @@ public class AgoraLrcScoreView: UIView {
     public func stop() {
         timer.destoryAllTimer()
     }
-    
+
     public func reset() {
         stop()
         scoreView?.reset()
@@ -222,14 +224,14 @@ public class AgoraLrcScoreView: UIView {
     private func setupUI() {
         statckView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(statckView)
-        
+
         statckView.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
         statckView.topAnchor.constraint(equalTo: topAnchor).isActive = true
         statckView.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
         statckView.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
         updateUI()
     }
-    
+
     private func updateUI() {
         scoreView?.translatesAutoresizingMaskIntoConstraints = false
         statckView.addArrangedSubview(scoreView!)
