@@ -70,8 +70,8 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
     }
 
     @Override
-    public void destory() {
-        super.destory();
+    public void destroy() {
+        super.destroy();
 
         leaveChannelEX();
         stopNetTestTask();

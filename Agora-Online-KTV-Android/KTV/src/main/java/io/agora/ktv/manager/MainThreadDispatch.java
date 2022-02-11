@@ -39,6 +39,7 @@ public class MainThreadDispatch implements RoomEventCallback {
     private static final int ON_MEMBER_JOIN_CHORUS = ON_MEMBER_APPLY_JOIN_CHORUS + 1;
     private static final int ON_MEMBER_CHORUS_READY = ON_MEMBER_JOIN_CHORUS + 1;
     private static final int ON_LOCAL_PITCH = ON_MEMBER_CHORUS_READY + 1;
+    private static final int ON_VIDEO_CHANGED = ON_LOCAL_PITCH + 1;
 
     private final List<RoomEventCallback> enevtCallbacks = new CopyOnWriteArrayList<>();
 
@@ -130,6 +131,10 @@ public class MainThreadDispatch implements RoomEventCallback {
                 for (RoomEventCallback callback : enevtCallbacks) {
                     callback.onLocalPitch(msg.getData().getDouble("pitch"));
                 }
+            }else if (msg.what == ON_VIDEO_CHANGED){
+                for (RoomEventCallback callback : enevtCallbacks) {
+                    callback.onVideoStatusChanged((AgoraMember) msg.obj);
+                }
             }
             return false;
         }
@@ -175,6 +180,12 @@ public class MainThreadDispatch implements RoomEventCallback {
     public void onAudioStatusChanged(@NonNull AgoraMember member) {
         mLogger.d("onAudioStatusChanged() called with: member = [%s]", member);
         mHandler.obtainMessage(ON_AUDIO_CHANGED, member).sendToTarget();
+    }
+
+    @Override
+    public void onVideoStatusChanged(@NonNull AgoraMember member) {
+        mLogger.d("onVideoStatusChanged() called with: member = [%s]", member);
+        mHandler.obtainMessage(ON_VIDEO_CHANGED, member).sendToTarget();
     }
 
     @Override
