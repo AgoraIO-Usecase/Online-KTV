@@ -84,7 +84,7 @@ public class RoomPeopleHolder extends BaseRecyclerViewAdapter.BaseViewHolder<Ktv
                             engine.startPreview();
                             engine.setupLocalVideo(new VideoCanvas(surfaceView, Constants.RENDER_MODE_HIDDEN, 0));
                         }else {
-                            int id = Integer.decode("0x" + member.getId().substring(18, 24));
+                            int id = member.getStreamId().intValue();
                             RoomManager.Instance(mContext).getRtcEngine().setupRemoteVideo(new VideoCanvas(surfaceView, Constants.RENDER_MODE_HIDDEN, id));
                         }
                     }

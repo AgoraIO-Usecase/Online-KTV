@@ -759,6 +759,7 @@ public final class RoomManager {
         mMine = new AgoraMember();
         mMine.setRoomId(mRoom);
         mMine.setUserId(mUser.getObjectId());
+        mMine.setStreamId(Long.valueOf(Integer.decode("0x" + mMine.getUserId().substring(18, 24))));
         mMine.setUser(mUser);
 
         if (ObjectsCompat.equals(mUser.getObjectId(), mRoom.getUserId())) {
@@ -769,10 +770,7 @@ public final class RoomManager {
 
         return preJoinAddMember(mRoom, mMine).doOnSuccess(member -> mMine = member).ignoreElement()
                 .andThen(preJoinSyncMembers().ignoreElement())
-                .andThen(joinRTC().doOnSuccess(uid -> {
-                    Long streamId = uid & 0xffffffffL;
-                    mMine.setStreamId(streamId);
-                }).ignoreElement())
+                .andThen(joinRTC().ignoreElement())
                 .andThen(updateMineStreamId())
                 .doOnComplete(this::onJoinRoom);
     }
@@ -827,7 +825,7 @@ public final class RoomManager {
             }
 
             mLoggerRTC.i("joinRTC() called with: results = [%s]", mRoom);
-            int ret = getRtcEngine().joinChannel("", mRoom.getId(), null, Integer.decode("0x"+mMine.getId().substring(18,24)));
+            int ret = getRtcEngine().joinChannel("", mRoom.getId(), null, mMine.getStreamId().intValue());
             if (ret != Constants.ERR_OK) {
                 mLoggerRTC.e("joinRTC() called error " + ret);
                 emitter.onError(new Exception("join rtc room error " + ret));
