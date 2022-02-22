@@ -127,7 +127,7 @@ class RtcServer: NSObject {
         }
         rtc.enableAudio()
         rtc.disableVideo()
-        rtc.enableAudioVolumeIndication(200, smooth: 3, reportvad: true)
+        rtc.enableAudioVolumeIndication(200, smooth: 3, reportVad: true)
         muteLocalMicrophone(mute: member.isSelfMuted)
         rtc.enable(inEarMonitoring: isEnableEarloop)
         setRecordingSignalVolume(value: recordingSignalVolume)

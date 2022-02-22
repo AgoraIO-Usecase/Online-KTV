@@ -186,17 +186,17 @@ class AbstractRtcMusicPlayer: NSObject, IRtcMusicPlayer /* , AgoraRtcMediaPlayer
         player?.adjustPlayoutVolume(value)
     }
 
-    func originMusic(enable _: Bool) {
+    func originMusic(enable: Bool) {
         // monoChannel = enable
         if let player = player {
-//            player.setAudioDualMonoMode(enable ? .L : .R)
+            player.setAudioDualMonoMode(enable ? .L : .R)
         }
     }
 
-    func setPitch(pitch _: Int) {
+    func setPitch(pitch: Int) {
         // monoChannel = enable
         if let player = player {
-//            player.setAudioMixingPitch(pitch)
+            player.setAudioPitch(pitch)
         }
     }
 
