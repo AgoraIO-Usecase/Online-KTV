@@ -1388,8 +1388,9 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1217;
+				CURRENT_PROJECT_VERSION = 1221;
 				DEVELOPMENT_TEAM = YS397FG5PA;
+				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/AgoraSDK/libs/AgoraRtcKit.xcframework/ios-arm64_armv7",
@@ -1420,8 +1421,9 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1217;
+				CURRENT_PROJECT_VERSION = 1221;
 				DEVELOPMENT_TEAM = YS397FG5PA;
+				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/AgoraSDK/libs/AgoraRtcKit.xcframework/ios-arm64_armv7",

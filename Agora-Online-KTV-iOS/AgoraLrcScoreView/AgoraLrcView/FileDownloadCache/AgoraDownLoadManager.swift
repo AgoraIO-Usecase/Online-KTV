@@ -29,6 +29,10 @@ class AgoraDownLoadManager {
         if xmlPath != nil {
             parseXml(path: xmlPath ?? "", completion: completion)
         } else if lrcPath == nil {
+            if !urlString.hasPrefix("http") {
+                parseLrc(path: urlString, completion: completion)
+                return
+            }
             guard let url = URL(string: urlString) else { return }
             delegate?.beginDownloadLrc?(url: urlString)
             request.delegate = self

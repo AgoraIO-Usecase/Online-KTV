@@ -33,6 +33,7 @@ class AgoraLrcView: UIView {
 
     private var dataArray: [Any]? {
         didSet {
+            tipsLabel.isHidden = dataArray != nil || !(dataArray?.isEmpty ?? true)
             tableView.reloadData()
         }
     }
@@ -50,7 +51,9 @@ class AgoraLrcView: UIView {
         didSet {
             if scrollRow == oldValue { return }
             if preRow > -1 {
-                tableView.reloadRows(at: [IndexPath(row: preRow, section: 0)], with: .none)
+                UIView.performWithoutAnimation {
+                    tableView.reloadRows(at: [IndexPath(row: preRow, section: 0)], with: .fade)
+                }
             }
             let indexPath = IndexPath(row: scrollRow, section: 0)
             tableView.scrollToRow(at: indexPath, at: .middle, animated: true)
@@ -86,6 +89,16 @@ class AgoraLrcView: UIView {
         tableView.setContentCompressionResistancePriority(.defaultHigh, for: .vertical)
         tableView.register(AgoraMusicLrcCell.self, forCellReuseIdentifier: "AgoaraLrcViewCell")
         return tableView
+    }()
+
+    private lazy var gradientLayer: CAGradientLayer = {
+        let gradientLayer = CAGradientLayer()
+        gradientLayer.colors = [UIColor(white: 0, alpha: 0.05).cgColor,
+                                UIColor(white: 0, alpha: 0.8).cgColor]
+        gradientLayer.locations = [0.7, 1.0]
+        gradientLayer.startPoint = CGPoint(x: 0, y: 0)
+        gradientLayer.endPoint = CGPoint(x: 0, y: 1)
+        return gradientLayer
     }()
 
     /** 提示 */
@@ -130,6 +143,12 @@ class AgoraLrcView: UIView {
                                               left: 0,
                                               bottom: margin,
                                               right: 0)
+
+        gradientLayer.frame = CGRect(x: 0,
+                                     y: 0,
+                                     width: bounds.width,
+                                     height: lrcConfig.bottomMaskHeight > 0 ? lrcConfig.bottomMaskHeight : bounds.height)
+        tableView.superview?.layer.addSublayer(gradientLayer)
     }
 
     private func setupUI() {
@@ -144,8 +163,6 @@ class AgoraLrcView: UIView {
         statckView.addArrangedSubview(tableView)
         tableView.addSubview(tipsLabel)
         addSubview(lineView)
-
-//        loadView.heightAnchor.constraint(equalToConstant: 20).isActive = true
 
         statckView.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
         statckView.topAnchor.constraint(equalTo: topAnchor).isActive = true
@@ -163,17 +180,27 @@ class AgoraLrcView: UIView {
         updateUI()
     }
 
+    private var preTime: TimeInterval = 0
     func start(currentTime: TimeInterval) {
         if tableView.backgroundColor != .clear {
             tableView.backgroundColor = .clear
             tableView.separatorStyle = .none
         }
         guard !(dataArray?.isEmpty ?? false) else { return }
-        let time: TimeInterval = lrcDatas == nil ? 1000 : 1
+        let time: TimeInterval = lrcDatas == nil ? 1000AgoraLrcScoreView/AgoraLrcView/FileDownloadCache/AgoraDownLoadManager.swift
+        : 1
         if self.currentTime == 0 {
             loadView.beginAnimation()
         }
+        var beginTime = (dataArray?.first as? AgoraMiguLrcSentence)?.startTime() ?? 0
+        if beginTime <= 0 {
+            beginTime = (dataArray?.first as? AgoraLrcModel)?.time ?? 0
+        }
+        if currentTime > beginTime {
+            loadView.hiddenLoadView()
+        }
         self.currentTime = currentTime * time
+        preTime = currentTime
         updatePerSecond()
     }
 
@@ -189,7 +216,11 @@ class AgoraLrcView: UIView {
         tipsLabel.font = lrcConfig.tipsFont
         lineView.backgroundColor = lrcConfig.separatorLineColor
         loadView.lrcConfig = lrcConfig
+        loadView.isHidden = lrcConfig.isHiddenWatitingView
         tableView.isScrollEnabled = lrcConfig.isDrag
+        gradientLayer.locations = lrcConfig.bottomMaskLocations
+        gradientLayer.colors = lrcConfig.bottomMaskColors
+        gradientLayer.isHidden = lrcConfig.isHiddenBottomMask
     }
 
     // MARK: - 更新歌词的时间

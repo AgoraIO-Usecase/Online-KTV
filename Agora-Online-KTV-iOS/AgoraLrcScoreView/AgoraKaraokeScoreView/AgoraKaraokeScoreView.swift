@@ -8,6 +8,16 @@
 
 import UIKit
 
+@objc
+public
+protocol AgoraKaraokeScoreDelegate {
+    /// 分数实时回调
+    /// score: 每次增加的分数
+    /// cumulativeScore: 累加分数
+    /// totalScore: 总分
+    @objc optional func agoraKaraokeScore(score: Double, cumulativeScore: Double, totalScore: Double)
+}
+
 @objcMembers
 class AgoraKaraokeScoreView: UIView {
     // MARK: 公开属性
@@ -120,7 +130,7 @@ class AgoraKaraokeScoreView: UIView {
 
     func start(currentTime: TimeInterval, totalTime: TimeInterval) {
         self.currentTime = currentTime
-        guard currentTime > 0 else { return }
+        guard currentTime > 0, totalTime > 0 else { return }
         if isInsertEnd == false {
             guard let model = insertEndLrcData(lrcData: lrcSentence, totalTime: totalTime) else { return }
             dataArray?.append(model)
@@ -156,7 +166,7 @@ class AgoraKaraokeScoreView: UIView {
         let lineCenterY = (model.topKM + scoreConfig.lineHeight) - scoreConfig.lineHeight * 0.5
         var score = 100 - abs(y - lineCenterY)
         score = score > 100 ? 100 : score < 0 ? 0 : score
-
+        var addScore: Double = 0
         if preModel?.startTime == model.startTime,
            preModel?.endTime == model.endTime,
            score >= 85
@@ -169,20 +179,22 @@ class AgoraKaraokeScoreView: UIView {
         if score >= 95, pitch > 0 {
             cursorAnimation(y: y, isDraw: true)
             triangleView.updateAlpha(at: pitch <= 0 ? 0 : score / 100)
-            currentScore += 2
+            addScore += 2
             preModel = model
 
         } else if score >= 85, pitch > 0 {
             cursorAnimation(y: y, isDraw: true)
             triangleView.updateAlpha(at: pitch <= 0 ? 0 : score / 100)
-            currentScore += 1
+            addScore += 1
             preModel = model
 
         } else {
             cursorAnimation(y: y, isDraw: false)
             triangleView.updateAlpha(at: 0)
         }
-        delegate?.agoraKaraokeScore?(score: currentScore > totalScore ? totalScore : currentScore,
+        currentScore += addScore
+        delegate?.agoraKaraokeScore?(score: addScore,
+                                     cumulativeScore: currentScore > totalScore ? totalScore : currentScore,
                                      totalScore: totalScore)
     }
 
@@ -216,7 +228,7 @@ class AgoraKaraokeScoreView: UIView {
 
     private func calcuToWidth(time: TimeInterval) -> CGFloat {
         let w = scoreConfig.lineWidht * time
-        return w.isNaN ? 0 : w
+        return w.isNaN ? 0 : abs(w)
     }
 
     private func createScoreData(data: [AgoraMiguLrcSentence]?) {

@@ -674,7 +674,9 @@ class MVPlayer: NSObject {
         hookSwitchView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(onSwitchOrigin)))
     }
 
+    private var state: RtcMusicState?
     func onMusic(state: RtcMusicState) {
+        self.state = state
         switch status {
         case .waitChorusApply:
             if state.type != .countdown {
@@ -695,7 +697,9 @@ class MVPlayer: NSObject {
                     if status != .play {
                         status = .play
                     }
-                    lrcScoreView.start()
+                    if lrcScoreView.isStart == false {
+                        lrcScoreView.start()
+                    }
                 case .paused:
                     if status != .pause {
                         status = .pause
@@ -704,6 +708,7 @@ class MVPlayer: NSObject {
                 case .playBackCompleted, .playBackAllLoopsCompleted:
                     if status != .stop {
                         status = .stop
+                        lrcScoreView.stop()
                         originSettingView.setOn(true, animated: true)
                     }
                     if let music = music {
@@ -844,12 +849,14 @@ class MVPlayer: NSObject {
 extension MVPlayer: AgoraLrcViewDelegate, AgoraKaraokeScoreDelegate {
     func getPlayerCurrentTime() -> TimeInterval {
         guard delegate != nil else { return 0 }
-        return TimeInterval(delegate.viewModel.postion) / 1000
+        let postion = delegate.viewModel.postion < 0 ? (state?.position ?? 0) : delegate.viewModel.postion
+        return TimeInterval(postion) / 1000
     }
 
     func getTotalTime() -> TimeInterval {
         guard delegate != nil else { return 0 }
-        return TimeInterval(delegate.viewModel.duration) / 1000
+        let duration = delegate.viewModel.duration < 0 ? (state?.duration ?? 0) : delegate.viewModel.duration
+        return TimeInterval(duration) / 1000
     }
 
     func seekToTime(time: TimeInterval) {
