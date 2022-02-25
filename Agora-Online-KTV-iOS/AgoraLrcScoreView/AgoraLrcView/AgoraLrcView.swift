@@ -187,8 +187,7 @@ class AgoraLrcView: UIView {
             tableView.separatorStyle = .none
         }
         guard !(dataArray?.isEmpty ?? false) else { return }
-        let time: TimeInterval = lrcDatas == nil ? 1000AgoraLrcScoreView/AgoraLrcView/FileDownloadCache/AgoraDownLoadManager.swift
-        : 1
+        let time: TimeInterval = lrcDatas == nil ? 1000 : 1
         if self.currentTime == 0 {
             loadView.beginAnimation()
         }
