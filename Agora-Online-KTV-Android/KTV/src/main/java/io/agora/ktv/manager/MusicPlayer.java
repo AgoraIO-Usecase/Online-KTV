@@ -346,8 +346,8 @@ public class MusicPlayer extends IRtcEngineEventHandler {
             public void run() {
                 mLogger.i("startSyncLrc: " + lrcId);
                 DataStreamConfig cfg = new DataStreamConfig();
-                cfg.syncWithAudio = false;
-                cfg.ordered = false;
+                cfg.syncWithAudio = true;
+                cfg.ordered = true;
                 mStreamId = mRtcEngine.createDataStream(cfg);
 
                 mStopSyncLrc = false;
