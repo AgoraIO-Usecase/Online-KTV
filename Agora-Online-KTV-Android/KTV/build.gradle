@@ -75,6 +75,8 @@ dependencies {
     implementation 'com.github.open-android:Glide-transformations:0.1.0'
     implementation 'com.google.code.gson:gson:2.8.7'
     implementation 'androidx.palette:palette:1.0.0'
+    implementation 'io.github.agoraio-community:LrcView-Android:1.0.2'
+
     api project(':data')
-    api project(':lrcview')
+//    api project(':lrcview')
 }
