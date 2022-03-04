@@ -22,7 +22,7 @@ class MoreDialog: Dialog {
         view.font = UIFont.systemFont(ofSize: 14)
         view.numberOfLines = 1
         view.textColor = UIColor(hex: Colors.Text).withAlphaComponent(0.8)
-        view.text = "音效"
+        view.text = "Sound effect".localized
         return view
     }()
 
@@ -31,7 +31,7 @@ class MoreDialog: Dialog {
         view.font = UIFont.systemFont(ofSize: 14)
         view.numberOfLines = 1
         view.textColor = UIColor(hex: Colors.Text).withAlphaComponent(0.8)
-        view.text = "摄像头"
+        view.text = "camera".localized
         return view
     }()
 

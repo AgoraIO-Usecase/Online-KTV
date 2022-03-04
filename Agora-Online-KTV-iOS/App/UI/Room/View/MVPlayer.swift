@@ -33,7 +33,7 @@ private class ChorusMasterView: UIView {
     // sec
     var time: TimeInterval? {
         didSet {
-            tipsView.text = "等待加入合唱 \(Utils.format(time: time ?? 0))"
+            tipsView.text = "Waiting for others to join the duet".localized + " \(Utils.format(time: time ?? 0))"
         }
     }
 
@@ -58,7 +58,7 @@ private class ChorusMasterView: UIView {
         view.backgroundColor = UIColor.clear
         view.borderColor = Colors.Text
         view.borderWidth = 1
-        view.setTitle("不等了，独唱", for: .normal)
+        view.setTitle("Sing alone instead".localized, for: .normal)
         view.setTitleColor(UIColor.white, for: .normal)
         view.titleLabel?.font = UIFont.systemFont(ofSize: 15)
         return view
@@ -119,7 +119,7 @@ private class ChorusFollowerView: UIView {
     var time: TimeInterval? {
         didSet {
 //            let time = time ?? 0
-            tipsView.text = "抢麦倒计时 \(Utils.format(time: time ?? 0))"
+            tipsView.text = "Countdown to wheat grabbing".localized + " \(Utils.format(time: time ?? 0))"
         }
     }
 
@@ -142,7 +142,7 @@ private class ChorusFollowerView: UIView {
     private let button: RoundButton = {
         let view = RoundButton()
         view.backgroundColor = UIColor(hex: Colors.Blue)
-        view.setTitle("加入合唱", for: .normal)
+        view.setTitle("Join the duet".localized, for: .normal)
         view.setTitleColor(UIColor.white, for: .normal)
         view.borderWidth = 0
         view.titleLabel?.font = UIFont.systemFont(ofSize: 15)
@@ -248,7 +248,7 @@ class MVPlayer: NSObject {
         let label = UILabel()
         label.textColor = .white
         label.font = .systemFont(ofSize: 14)
-        label.text = "评分: 50"
+        label.text = "score: 50"
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -282,13 +282,13 @@ class MVPlayer: NSObject {
         tips1.textColor = UIColor(hex: Colors.Text)
         tips1.numberOfLines = 0
         tips1.textAlignment = .center
-        tips1.text = "当前无人演唱"
+        tips1.text = "no one is singing".localized
         let tips2 = UILabel()
         tips2.font = UIFont.systemFont(ofSize: 14, weight: .medium)
         tips2.textColor = UIColor(hex: Colors.Text)
         tips2.numberOfLines = 0
         tips2.textAlignment = .center
-        tips2.text = "点击“点歌”一展歌喉"
+        tips2.text = "order songs to show your voice".localized
 
         view.addSubview(icon)
         view.addSubview(tips1)
@@ -750,7 +750,7 @@ class MVPlayer: NSObject {
     }
 
     @objc func onSwitchMusic() {
-        let alert = AlertDialog(title: "切歌".localized, message: "终止当前歌曲的演唱？".localized)
+        let alert = AlertDialog(title: "Cut song".localized, message: "Stop the singing of the current song?".localized)
         alert.cancelAction = { [weak self] in
             guard let weakself = self else { return }
             weakself.delegate.dismiss(dialog: alert, completion: nil)
@@ -781,7 +781,7 @@ class MVPlayer: NSObject {
                 originSettingView.setOn(false, animated: true)
                 delegate.viewModel.originMusic(enable: true)
             } else {
-                delegate.show(message: "该歌曲无法进行人声切换", type: .error)
+                delegate.show(message: "The song cannot be switched by voice.".localized, type: .error)
             }
         } else {
             if delegate.viewModel.isSupportSwitchOriginMusic {
@@ -867,6 +867,6 @@ extension MVPlayer: AgoraLrcViewDelegate, AgoraKaraokeScoreDelegate {
     }
 
     func agoraKaraokeScore(score: Double, totalScore _: Double) {
-        scoreLabel.text = String(format: "评分: %.2f", score)
+        scoreLabel.text = String(format: "score: %.2f", score)
     }
 }
