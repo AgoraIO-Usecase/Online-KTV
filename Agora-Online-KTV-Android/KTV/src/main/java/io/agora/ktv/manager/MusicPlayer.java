@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.util.Log;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
@@ -416,8 +417,7 @@ public class MusicPlayer extends IRtcEngineEventHandler {
             String strMsg = new String(data);
             jsonMsg = new JSONObject(strMsg);
 
-            if (mStatus.isAtLeast(Status.Started))
-                return;
+            if (mStatus.value < Status.Started.value) return;
 
             if (jsonMsg.getString("cmd").equals("setLrcTime")) {
                 long position = jsonMsg.getLong("time");
