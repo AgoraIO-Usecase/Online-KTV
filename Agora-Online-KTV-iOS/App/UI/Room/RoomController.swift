@@ -99,6 +99,11 @@ class RoomController: BaseViewContoller, DialogDelegate {
     @IBOutlet var switchMusicView: UIButton! {
         didSet {
             mvPlayer.switchMusicView = switchMusicView
+            switchMusicView.layer.cornerRadius = 17
+            switchMusicView.layer.masksToBounds = true
+            switchMusicView.layer.borderColor = UIColor.white.cgColor
+            switchMusicView.layer.borderWidth = 1
+            switchMusicView.setTitle("Cut song".localized, for: .normal)
         }
     }
 
@@ -347,12 +352,20 @@ class RoomController: BaseViewContoller, DialogDelegate {
     @IBOutlet var orderMusicView: UIButton! {
         didSet {
             speakerToolbar.orderMusicView = orderMusicView
+            orderMusicView.layer.cornerRadius = 20
+            orderMusicView.layer.masksToBounds = true
+            orderMusicView.backgroundColor = UIColor(hex: "#1b6def", alpha: 1.0)
+            orderMusicView.setTitle("Order a song".localized, for: .normal)
         }
     }
 
     @IBOutlet var orderChorusMusicView: UIButton! {
         didSet {
             speakerToolbar.orderChorusMusicView = orderChorusMusicView
+            orderChorusMusicView.layer.cornerRadius = 20
+            orderChorusMusicView.layer.masksToBounds = true
+            orderChorusMusicView.backgroundColor = UIColor(hex: "#1b6def", alpha: 1.0)
+            orderChorusMusicView.setTitle("Chorus".localized, for: .normal)
         }
     }
 

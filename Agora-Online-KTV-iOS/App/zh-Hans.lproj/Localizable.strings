@@ -2,9 +2,18 @@
   Localizable.strings
   Scene-Examples
 
-  Created by XC on 2021/6/4.
+  Created by XC on 2021/4/21.
   
 */
+"All" = "全部";
+"Settings" = "设置";
+"Podcast" = "互动播客";
+"Interactive Podcast" = "互动播客";
+"Dating" = "在线相亲";
+"Interactive Live Dating" = "在线相亲";
+
+"Cancel" = "取消";
+"Ok" = "确定";
 "Room List" = "歌房";
 "Needs Network permission" = "请在设置中打开 App 的网络权限";
 "Close room" = "关闭歌房";
@@ -15,3 +24,4 @@
 "Become audience" = "下麦";
 "Singing" = "正在演唱";
 "Preparing Music" = "歌曲准备中";
+"Chorus" = "合唱";

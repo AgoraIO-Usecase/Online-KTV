@@ -63,7 +63,7 @@ extension Utils {
 }
 
 public extension String {
-    var localized: String { NSLocalizedString(self, bundle: Utils.bundle, comment: "") }
+    var localized: String { NSLocalizedString(self, comment: "") }
 }
 
 extension LiveKtvRoom {

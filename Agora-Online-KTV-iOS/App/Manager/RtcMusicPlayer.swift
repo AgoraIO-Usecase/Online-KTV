@@ -196,7 +196,7 @@ class AbstractRtcMusicPlayer: NSObject, IRtcMusicPlayer /* , AgoraRtcMediaPlayer
     func setPitch(pitch: Int) {
         // monoChannel = enable
         if let player = player {
-            player.setAudioPitch(pitch)
+            player.setAudioMixingPitch(pitch)
         }
     }
 

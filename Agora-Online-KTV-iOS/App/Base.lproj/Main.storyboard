@@ -408,7 +408,11 @@
                                             </switch>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Bmy-jg-4j8">
                                                 <rect key="frame" x="277" y="15.5" width="62" height="34"/>
-                                                <state key="normal" image="iconSwitch"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="width" constant="62" id="Dhb-t7-ukD"/>
+                                                    <constraint firstAttribute="height" constant="34" id="Z30-sL-Li4"/>
+                                                </constraints>
+                                                <state key="normal" title="切歌"/>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="t4B-87-eqj">
                                                 <rect key="frame" x="229" y="16.5" width="32" height="32"/>
@@ -816,15 +820,17 @@
                                         <rect key="frame" x="238" y="0.0" width="110" height="40"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="110" id="Hal-UH-C9a"/>
+                                            <constraint firstAttribute="height" constant="40" id="boH-Sk-8me"/>
                                         </constraints>
-                                        <state key="normal" image="order"/>
+                                        <state key="normal" title="点歌"/>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vAL-P1-gn3">
                                         <rect key="frame" x="137" y="0.0" width="92" height="40"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="92" id="5oC-cx-vj6"/>
+                                            <constraint firstAttribute="height" constant="40" id="ZXy-0n-yZK"/>
                                         </constraints>
-                                        <state key="normal" image="chorus"/>
+                                        <state key="normal" title="合唱"/>
                                     </button>
                                 </subviews>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -938,7 +944,6 @@
     </scenes>
     <resources>
         <image name="back" width="44" height="44"/>
-        <image name="chorus" width="95" height="40"/>
         <image name="close" width="28" height="28"/>
         <image name="create" width="86" height="92"/>
         <image name="empty" width="158" height="156"/>
@@ -949,10 +954,8 @@
         <image name="iconPause" width="32" height="32"/>
         <image name="iconRandom" width="38" height="38"/>
         <image name="iconSetting" width="32" height="32"/>
-        <image name="iconSwitch" width="62" height="34"/>
         <image name="iconVoice" width="38" height="38"/>
         <image name="iconWarning" width="16" height="16"/>
-        <image name="order" width="118" height="40"/>
         <image name="seat" width="61" height="61"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>

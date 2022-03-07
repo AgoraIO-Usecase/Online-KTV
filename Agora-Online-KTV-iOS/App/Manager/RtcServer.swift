@@ -127,7 +127,7 @@ class RtcServer: NSObject {
         }
         rtc.enableAudio()
         rtc.disableVideo()
-        rtc.enableAudioVolumeIndication(200, smooth: 3, reportVad: true)
+        rtc.enableAudioVolumeIndication(200, smooth: 3, reportvad: true)
         muteLocalMicrophone(mute: member.isSelfMuted)
         rtc.enable(inEarMonitoring: isEnableEarloop)
         setRecordingSignalVolume(value: recordingSignalVolume)
@@ -560,17 +560,17 @@ extension RtcServer: ErrorDescription {
 public extension AgoraAudioEffectPreset {
     func description() -> String {
         switch self {
-        case .off: return "原声"
+        case .off: return "Original".localized
         case .roomAcousticsKTV: return "KTV"
-        case .roomAcousVocalConcer: return "演唱会"
-        case .roomAcousStudio: return "录音棚"
-        case .roomAcousPhonograph: return "留声机"
-        case .roomAcousSpatial: return "空旷"
-        case .roomAcousEthereal: return "空灵"
-        case .styleTransformationPopular: return "流行"
+        case .roomAcousVocalConcer: return "Concert".localized
+        case .roomAcousStudio: return "Studio".localized
+        case .roomAcousPhonograph: return "Phonograph".localized
+        case .roomAcousSpatial: return "Spacial".localized
+        case .roomAcousEthereal: return "Ethereal".localized
+        case .styleTransformationPopular: return "Popular".localized
         case .styleTransformationRnb: return "R&B"
         default:
-            return "原声"
+            return "Original".localized
         }
     }
 

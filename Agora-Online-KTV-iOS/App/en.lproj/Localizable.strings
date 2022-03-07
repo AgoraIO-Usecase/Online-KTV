@@ -1,4 +1,4 @@
-/* 
+/*
   Localizable.strings
   Scene-Examples
 
@@ -10,6 +10,8 @@
 "Ok" = "Ok";
 "no one is singing" = "At present, no one is singing.";
 "order songs to show your voice" = "Click on order songs to show your voice.";
+"Chorus"="Chorus";
+"Order a song" = "Order a song";
 "In chorus" = "In chorus";
 "host" = "Host";
 "Singing" = "Singing";
@@ -23,7 +25,7 @@
 "Sing alone instead" = "Sing alone instead";
 "Join the duet" = "Join the duet";
 "Countdown to wheat grabbing" = "Countdown to wheat grabbing";
-"Cut song" = "Cut song";
+"Cut song" = "Next";
 "Stop the singing of the current song?" = "Stop the singing of the current song?";
 "The song cannot be switched by voice." = "The song cannot be switched by voice.";
 "Sound effect" = "Sound effect";
@@ -35,3 +37,10 @@
 "Rising and falling tone" = "Rising and falling tone";
 "Voice volume" = "Voice volume";
 "Accompaniment volume" = "Accompaniment volume";
+"Original" = "Original";
+"Concert" = "Concert";
+"Studio" = "Studio";
+"Phonograph" = "Phonograph";
+"Spacial" = "Spacial";
+"Ethereal" = "Ethereal";
+"Popular" = "Popular";
