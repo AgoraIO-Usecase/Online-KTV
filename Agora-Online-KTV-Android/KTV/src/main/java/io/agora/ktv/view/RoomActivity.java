@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -120,8 +121,6 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
 
         @Override
         public void onMusicCompleted() {
-            mDataBinding.lrcControlView.getLrcView().reset();
-
             changeMusic();
         }
 
@@ -664,6 +663,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
     }
 
     private void changeMusic() {
+        mDataBinding.lrcControlView.getLrcView().reset();
         AgoraRoom mRoom = RoomManager.Instance(this).getRoom();
         if (mRoom == null) {
             return;
@@ -674,11 +674,9 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
             return;
         }
 
-        if (mMusicPlayer == null) {
-            return;
+        if (mMusicPlayer != null) {
+            mMusicPlayer.stop();
         }
-
-        mMusicPlayer.stop();
 
         mDataBinding.lrcControlView.setEnabled(false);
         SyncManager.Instance()

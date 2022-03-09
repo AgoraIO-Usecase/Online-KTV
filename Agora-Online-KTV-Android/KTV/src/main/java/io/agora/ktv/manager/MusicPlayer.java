@@ -33,6 +33,8 @@ import static io.agora.mediaplayer.Constants.AudioDualMonoMode.AUDIO_DUAL_MONO_R
 import static io.agora.mediaplayer.Constants.MediaPlayerState.PLAYER_STATE_FAILED;
 import static io.agora.mediaplayer.Constants.MediaPlayerState.PLAYER_STATE_OPEN_COMPLETED;
 import static io.agora.mediaplayer.Constants.MediaPlayerState.PLAYER_STATE_PAUSED;
+import static io.agora.mediaplayer.Constants.MediaPlayerState.PLAYER_STATE_PLAYBACK_ALL_LOOPS_COMPLETED;
+import static io.agora.mediaplayer.Constants.MediaPlayerState.PLAYER_STATE_PLAYBACK_COMPLETED;
 import static io.agora.mediaplayer.Constants.MediaPlayerState.PLAYER_STATE_PLAYING;
 import static io.agora.mediaplayer.Constants.MediaPlayerState.PLAYER_STATE_STOPPED;
 
@@ -345,7 +347,6 @@ public class MusicPlayer extends IRtcEngineEventHandler {
 
             @Override
             public void run() {
-                mLogger.i("startSyncLrc: " + lrcId);
                 DataStreamConfig cfg = new DataStreamConfig();
                 cfg.syncWithAudio = true;
                 cfg.ordered = true;
@@ -598,12 +599,15 @@ public class MusicPlayer extends IRtcEngineEventHandler {
                     onMusicOpenCompleted();
                 }
                 onMusicPlaing();
-            } else if(state == PLAYER_STATE_OPEN_COMPLETED){
+            } else if (state == PLAYER_STATE_OPEN_COMPLETED) {
                 player.play();
             } else if (state == PLAYER_STATE_PAUSED) {
                 onMusicPause();
             } else if (state == PLAYER_STATE_STOPPED) {
                 onMusicStop();
+            } else if (state == PLAYER_STATE_PLAYBACK_COMPLETED) {
+                onMusicCompleted();
+            } else if (state == PLAYER_STATE_PLAYBACK_ALL_LOOPS_COMPLETED) {
                 onMusicCompleted();
             } else if (state == PLAYER_STATE_FAILED) {
                 onMusicOpenError(error.ordinal());
