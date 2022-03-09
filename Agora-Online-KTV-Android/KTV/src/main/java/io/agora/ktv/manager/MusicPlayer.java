@@ -515,6 +515,11 @@ public class MusicPlayer extends IRtcEngineEventHandler {
         mLogger.i("destory() called");
         mRtcEngine.removeHandler(this);
         mCallback = null;
+        if (player != null) {
+            player.stop();
+            player.destroy();
+        }
+        player = null;
     }
 
     protected void onPrepareResource() {
