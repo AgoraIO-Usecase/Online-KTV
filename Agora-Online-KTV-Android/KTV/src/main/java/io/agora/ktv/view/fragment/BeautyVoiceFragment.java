@@ -55,7 +55,7 @@ public class BeautyVoiceFragment extends BaseFragment<KtvFragmentBeautyVoiceBind
             int childCount = group.getChildCount();
             int checkedIndex = -1;
             for (int i = 0; i < childCount; i++) {
-                if (((Chip) group.getChildAt(i)).isSelected()) {
+                if (((Chip) group.getChildAt(i)).isChecked()) {
                     checkedIndex = i;
                     break;
                 }

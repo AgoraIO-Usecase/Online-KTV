@@ -93,7 +93,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     // Agora SDK
-    implementation 'com.github.agorabuilder:agora-special-full:3.6.208.full'
+//    implementation 'com.github.agorabuilder:agora-special-full:3.6.208.full'
     implementation 'androidx.palette:palette:1.0.0'
     api project(':baselibrary')
     api project(':data')

@@ -42,6 +42,11 @@ public class SimpleRoomEventCallback implements RoomEventCallback {
     }
 
     @Override
+    public void onVideoStatusChanged(@NonNull AgoraMember member) {
+
+    }
+
+    @Override
     public void onRoomError(int error, String msg) {
 
     }

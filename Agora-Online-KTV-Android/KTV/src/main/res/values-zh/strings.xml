@@ -53,6 +53,7 @@
 
     <string name="ktv_music_menu_dialog_title">参数设置</string>
     <string name="ktv_music_menu_dialog_ear">耳返</string>
+    <string name="ktv_music_menu_dialog_tone">升降调</string>
     <string name="ktv_music_menu_dialog_vol1">人声音量</string>
     <string name="ktv_music_menu_dialog_vol2">伴奏音量</string>
     <string name="ktv_music_menu_dialog_effect">效果</string>
@@ -65,6 +66,7 @@
 
     <string name="ktv_beauty_voice">美声</string>
     <string name="ktv_beauty_effect">音效</string>
+    <string name="ktv_camera">摄像头</string>
     <!--    Content Description-->
     <string name="ktv_create_room">创建房间</string>
     <string name="ktv_toggle_mic">麦克风启用或静音</string>
@@ -72,4 +74,6 @@
     <string name="ktv_chorus">合唱</string>
     <string name="ktv_order_song">点歌</string>
     <string name="ktv_random_room_name">随机生成一个房间名称</string>
+    <string name="ktv_tone_down">点击调低音调</string>
+    <string name="ktv_tone_up">点击调高音调</string>
 </resources>
