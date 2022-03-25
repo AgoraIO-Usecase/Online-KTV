@@ -331,6 +331,21 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
         RoomManager.Instance(mContext).getRtcEngine().adjustRecordingSignalVolume(v);
     }
 
+    /**
+     Sets the pitch of the current media file.
+     PITCH Sets the pitch of the local music file by chromatic scale. The default value is 0,
+     which means keeping the original pitch. The value ranges from -12 to 12, and the pitch value
+     between consecutive values is a chromatic value. The greater the absolute value of this
+     parameter, the higher or lower the pitch of the local music file.
+     *
+     @return
+     - 0: Success.
+     - < 0: Failure.
+     */
+    public void setAudioMixingPitch(int newToneValue) {
+        mPlayer.setAudioMixingPitch(newToneValue);
+    }
+
     public void seek(long d) {
         mPlayer.seek(d);
     }
@@ -652,7 +667,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
         mHandler.obtainMessage(ACTION_ON_MUSIC_COMPLETED).sendToTarget();
     }
 
-    public void destory() {
+    public void destroy() {
         mLogger.i("destory() called");
         mPlayer.unRegisterPlayerObserver(this);
         RoomManager.Instance(mContext).getRtcEngine().removeHandler(this);

@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/ktv_shape_bottom_dialog_background"
     android:orientation="vertical"
-    android:padding="20dp">
+    android:padding="@dimen/ktv_space_medium">
 
     <TextView
         android:layout_width="wrap_content"
@@ -31,8 +32,8 @@
             android:id="@+id/switchEar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:trackTint="@color/ktv_alphaColorAccent"
-            android:layout_marginStart="10dp" />
+            android:layout_marginStart="10dp"
+            app:trackTint="@color/ktv_alphaColorAccent" />
     </LinearLayout>
 
     <LinearLayout
@@ -54,21 +55,64 @@
             android:id="@+id/sbVol1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:haloColor="@android:color/transparent"
-            app:thumbRadius="15dp"
-            app:thumbColor="@android:color/black"
-            app:thumbStrokeColor="@color/ktv_colorAccent"
-            app:thumbStrokeWidth="8dp"
             android:layout_marginStart="10dp"
             android:contentDescription="@string/ktv_music_menu_dialog_vol1"
             android:valueFrom="0"
-            android:valueTo="100" />
+            android:valueTo="100"
+            app:haloColor="@android:color/transparent"
+            app:thumbColor="@android:color/black"
+            app:thumbRadius="12dp"
+            app:thumbStrokeColor="@color/ktv_colorAccent"
+            app:thumbStrokeWidth="7dp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="false"
+            android:focusable="false"
+            android:text="@string/ktv_music_menu_dialog_tone"
+            android:textColor="#9BA2AB" />
+
+        <ImageButton
+            android:id="@+id/btn_tone_down_dialog_setting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@null"
+            android:padding="6dp"
+            android:contentDescription="@string/ktv_tone_down"
+            android:src="@drawable/ic_tone_down" />
+
+        <TextView
+            android:id="@+id/text_tone_dialog_setting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="false"
+            android:focusable="false"
+            android:textColor="@android:color/white"
+            tools:text="0" />
+
+        <ImageButton
+            android:id="@+id/btn_tone_up_dialog_setting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@null"
+            android:padding="6dp"
+            android:contentDescription="@string/ktv_tone_up"
+            android:src="@drawable/ic_tone_up" />
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginVertical="20dp"
         android:gravity="center"
         android:orientation="horizontal">
 
@@ -84,14 +128,14 @@
             android:id="@+id/sbVol2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:thumbRadius="15dp"
-            app:thumbColor="@android:color/black"
-            app:thumbStrokeColor="@color/ktv_colorAccent"
-            app:thumbStrokeWidth="8dp"
             android:layout_marginStart="10dp"
             android:contentDescription="@string/ktv_music_menu_dialog_vol2"
             android:valueFrom="0"
-            android:valueTo="100" />
+            android:valueTo="100"
+            app:thumbColor="@android:color/black"
+            app:thumbRadius="12dp"
+            app:thumbStrokeColor="@color/ktv_colorAccent"
+            app:thumbStrokeWidth="7dp" />
     </LinearLayout>
 
 </LinearLayout>

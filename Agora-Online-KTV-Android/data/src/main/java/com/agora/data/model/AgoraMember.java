@@ -17,6 +17,7 @@ public class AgoraMember implements Parcelable {
     public static final String COLUMN_ROLE = "role";
     public static final String COLUMN_ISAUDIOMUTED = "isMuted";
     public static final String COLUMN_ISSELFAUDIOMUTED = "isSelfMuted";
+    public static final String COLUMN_ISVIDEOMUTED = "isVideoMuted";
 
     public enum Role {
         Listener(0), Owner(1), Speaker(2);
@@ -49,6 +50,7 @@ public class AgoraMember implements Parcelable {
     private Role role = Role.Listener;
     private int isMuted = 0;
     private int isSelfMuted = 0;
+    private int isVideoMuted = 1;
 
     private User user;
 
@@ -67,6 +69,7 @@ public class AgoraMember implements Parcelable {
         }
         isMuted = in.readInt();
         isSelfMuted = in.readInt();
+        isVideoMuted = in.readInt();
     }
 
     @Override
@@ -82,6 +85,7 @@ public class AgoraMember implements Parcelable {
         }
         dest.writeInt(isMuted);
         dest.writeInt(isSelfMuted);
+        dest.writeInt(isVideoMuted);
     }
 
     @Override
@@ -113,6 +117,7 @@ public class AgoraMember implements Parcelable {
         datas.put(COLUMN_ROLE, role.value);
         datas.put(COLUMN_ISAUDIOMUTED, isMuted);
         datas.put(COLUMN_ISSELFAUDIOMUTED, isSelfMuted);
+        datas.put(COLUMN_ISVIDEOMUTED, isVideoMuted);
         return datas;
     }
 
@@ -164,6 +169,14 @@ public class AgoraMember implements Parcelable {
         this.isSelfMuted = isSelfMuted;
     }
 
+    public int getIsVideoMuted() {
+        return isVideoMuted;
+    }
+
+    public void setIsVideoMuted(int isVideoMuted) {
+        this.isVideoMuted = isVideoMuted;
+    }
+
     public String getUserId() {
         return userId;
     }
@@ -205,6 +218,7 @@ public class AgoraMember implements Parcelable {
                 ", role=" + role +
                 ", isAudioMuted=" + isMuted +
                 ", isSelfAudioMuted=" + isSelfMuted +
+                ", isVideoMuted=" + isVideoMuted +
                 '}';
     }
 }

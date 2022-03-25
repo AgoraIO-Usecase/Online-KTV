@@ -1,29 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/root_dialog_more"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/ktv_shape_bottom_dialog_background"
     android:gravity="center"
-    android:orientation="horizontal"
-    android:padding="@dimen/ktv_space_normal">
+    android:orientation="horizontal">
 
-    <com.google.android.material.chip.Chip
-        android:id="@+id/chip_voice_dialog_more"
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_voice_dialog_more"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/ktv_space_normal"
+        android:layout_marginVertical="@dimen/ktv_space_big"
+        android:letterSpacing="0"
         android:text="@string/ktv_beauty_voice"
-        app:chipEndPadding="@dimen/ktv_space_normal"
-        app:chipStartPadding="@dimen/ktv_space_normal" />
+        android:textAllCaps="false"
+        android:textColor="#9BA2AB"
+        app:icon="@drawable/ic_beauty_voice"
+        app:iconGravity="top"
+        app:iconTint="@android:color/transparent"
+        app:iconTintMode="src_atop"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/btn_effect_dialog_more"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:targetApi="lollipop" />
 
-    <com.google.android.material.chip.Chip
-        android:id="@+id/chip_effect_dialog_more"
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_effect_dialog_more"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:letterSpacing="0"
         android:text="@string/ktv_beauty_effect"
+        android:textAllCaps="false"
+        android:textColor="#9BA2AB"
         android:visibility="gone"
-        app:chipEndPadding="@dimen/ktv_space_normal"
-        app:chipStartPadding="@dimen/ktv_space_normal" />
-</LinearLayout>
+        app:icon="@drawable/ic_beauty_voice"
+        app:iconGravity="top"
+        app:iconTint="@android:color/transparent"
+        app:iconTintMode="src_atop"
+        app:layout_constraintEnd_toStartOf="@id/btn_camera_dialog_more"
+        app:layout_constraintStart_toEndOf="@id/btn_voice_dialog_more"
+        app:layout_constraintTop_toTopOf="@id/btn_voice_dialog_more"
+        tools:targetApi="lollipop" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_camera_dialog_more"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:letterSpacing="0"
+        android:text="@string/ktv_camera"
+        android:textAllCaps="false"
+        android:textColor="#9BA2AB"
+        tools:icon="@drawable/ic_camera_off"
+        app:iconGravity="top"
+        app:iconTint="@android:color/transparent"
+        app:iconTintMode="src_atop"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/btn_effect_dialog_more"
+        app:layout_constraintTop_toTopOf="@id/btn_voice_dialog_more"
+        tools:targetApi="lollipop" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

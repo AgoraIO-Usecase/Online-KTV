@@ -44,6 +44,11 @@ public interface RoomEventCallback {
      */
     void onAudioStatusChanged(@NonNull AgoraMember member);
 
+    /**
+     * Video变化回调，这里变化是指：开摄像头和关摄像头
+     */
+    void onVideoStatusChanged(@NonNull AgoraMember member);
+
     void onRoomError(int error, String msg);
 
     void onMusicAdd(@NonNull MemberMusicModel music);
