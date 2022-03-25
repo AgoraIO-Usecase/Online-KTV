@@ -88,6 +88,9 @@ class RtcServer: NSObject {
         } else {
             rtcEngine?.disableVideo()
             rtcEngine?.stopPreview()
+            let canvas = AgoraRtcVideoCanvas()
+            canvas.view = UIView()
+            rtcEngine?.setupLocalVideo(canvas)
         }
         setClientRole(isOpen ? .broadcaster : .audience, true)
         rtcEngine?.updateChannel(with: option)
