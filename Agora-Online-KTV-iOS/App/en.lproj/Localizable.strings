@@ -6,6 +6,23 @@
   
 */
 
+"All" = "All";
+"Settings" = "setting";
+"Podcast" = "Podcast";
+"Interactive Podcast" = "Podcast";
+"Dating" = "Dating";
+"Interactive Live Dating" = "Dating";
+
+"Room List" = "Room List";
+"Needs Network permission" = "Please turn on the network permissions of the App in the settings.";
+"Close room" = "close";
+"Leaving the room ends the session and removes everyone" = "All members will be removed from the room after the karaoke room is closed.";
+"Leave room" = "leval";
+"Become audience" = "Become audience";
+"Singing" = "Singing";
+"Preparing Music" = "Preparing Music";
+"Chorus" = "Chorus";
+
 "Cancel" = "Cancel";
 "Ok" = "Ok";
 "no one is singing" = "At present, no one is singing.";

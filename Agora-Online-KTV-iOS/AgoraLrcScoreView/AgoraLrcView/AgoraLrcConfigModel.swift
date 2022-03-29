@@ -7,7 +7,8 @@
 
 import UIKit
 
-public struct AgoraLrcConfigModel {
+@objcMembers
+public class AgoraLrcConfigModel: NSObject {
     /// 无歌词提示文案
     public var tipsString: String = "纯音乐，无歌词"
     /// 提示文字颜色
@@ -39,8 +40,8 @@ public struct AgoraLrcConfigModel {
     /// 是否可以拖动歌词 默认: true
     public var isDrag: Bool = true
     /// 底部蒙层颜色
-    public var bottomMaskColors: [CGColor] = [UIColor(white: 0, alpha: 0.05).cgColor,
-                                              UIColor(white: 0, alpha: 0.8).cgColor]
+    public var bottomMaskColors: [UIColor] = [UIColor(white: 0, alpha: 0.05),
+                                              UIColor(white: 0, alpha: 0.8)]
     /// 蒙层位置
     public var bottomMaskLocations: [NSNumber] = [0.7, 1.0]
     /// 蒙层高度, 默认: 视图的高

@@ -26,6 +26,10 @@ class AgoraDownLoadManager {
         let fileName = urlString.fileName.components(separatedBy: ".").first ?? ""
         let xmlPath = AgoraCacheFileHandle.cacheFileExists(with: fileName + ".xml")
         let lrcPath = AgoraCacheFileHandle.cacheFileExists(with: urlString)
+        if urlString.hasSuffix(".xml"), !urlString.hasPrefix("https:"), xmlPath == nil {
+            parseXml(path: urlString, completion: completion)
+            return
+        }
         if xmlPath != nil {
             parseXml(path: xmlPath ?? "", completion: completion)
         } else if lrcPath == nil {
@@ -62,42 +66,52 @@ class AgoraDownLoadManager {
 
     private func unzip(path: String, completion: @escaping Completion) {
         delegate?.beginParseLrc?()
-        let zipFile = URL(fileURLWithPath: path)
-        let unZipPath = String.cacheFolderPath()
-        do {
-            try Zip.unzipFile(zipFile, destination: URL(fileURLWithPath: unZipPath), overwrite: true, password: nil, fileOutputHandler: { url in
-                self.parseXml(path: url.path, completion: completion)
+        DispatchQueue.global().async {
+            let zipFile = URL(fileURLWithPath: path)
+            let unZipPath = String.cacheFolderPath()
+            do {
+                try Zip.unzipFile(zipFile, destination: URL(fileURLWithPath: unZipPath), overwrite: true, password: nil, fileOutputHandler: { url in
+                    self.parseXml(path: url.path, completion: completion)
+                    try? FileManager.default.removeItem(atPath: path)
+                })
+            } catch {
+                debugPrint("unzip error == \(error.localizedDescription)")
+                guard self.retryCount < 3 else {
+                    self.retryCount = 0
+                    DispatchQueue.main.async {
+                        self.delegate?.downloadLrcError?(url: self.urlString,
+                                                         error: error)
+                    }
+                    return
+                }
                 try? FileManager.default.removeItem(atPath: path)
-            })
-        } catch {
-            debugPrint("unzip error == \(error.localizedDescription)")
-            guard retryCount < 3 else {
-                retryCount = 0
-                delegate?.downloadLrcError?(url: urlString,
-                                            error: error)
-                return
+                DispatchQueue.main.async {
+                    self.downloadLrcFile(urlString: self.urlString, completion: completion)
+                }
+                self.retryCount += 1
             }
-            try? FileManager.default.removeItem(atPath: path)
-            downloadLrcFile(urlString: urlString, completion: completion)
-            retryCount += 1
         }
     }
 
     private func parseXml(path: String, completion: @escaping (AgoraMiguSongLyric?) -> Void) {
-        let lyric = AgoraMiguSongLyric(lrcFile: path)
-        DispatchQueue.main.async {
-            completion(lyric)
-            self.delegate?.parseLrcFinished?()
+        DispatchQueue.global().async {
+            let lyric = AgoraMiguSongLyric(lrcFile: path)
+            DispatchQueue.main.async {
+                completion(lyric)
+                self.delegate?.parseLrcFinished?()
+            }
         }
     }
 
     private func parseLrc(path: String, completion: @escaping ([AgoraLrcModel]?) -> Void) {
-        let lyric = AgoraLrcParse()
-        let string = try? String(contentsOfFile: path)
-        lyric.analyzerLrc(lrcConnect: string ?? "")
-        DispatchQueue.main.async {
-            completion(lyric.lrcArray)
-            self.delegate?.parseLrcFinished?()
+        DispatchQueue.global().async {
+            let lyric = AgoraLrcParse()
+            let string = try? String(contentsOfFile: path)
+            lyric.analyzerLrc(lrcConnect: string ?? "")
+            DispatchQueue.main.async {
+                completion(lyric.lrcArray)
+                self.delegate?.parseLrcFinished?()
+            }
         }
     }
 }

@@ -234,12 +234,20 @@ class MVPlayer: NSObject {
 
     private lazy var lrcScoreView: AgoraLrcScoreView = {
         let lrcView = AgoraLrcScoreView(delegate: self)
-        lrcView.config.scoreConfig.scoreViewHeight = 80
-        lrcView.config.scoreConfig.lineHeight = 5
-        lrcView.config.lrcConfig.lrcNormalColor = .lightGray
-        lrcView.config.scoreConfig.cursorColor = .white
-        lrcView.config.scoreConfig.normalColor = .lightGray
-        lrcView.config.scoreConfig.separatorLineColor = .lightText
+        let config = AgoraLrcScoreConfigModel()
+
+        let scoreConfig = AgoraScoreItemConfigModel()
+        scoreConfig.scoreViewHeight = 80
+        scoreConfig.lineHeight = 5
+        scoreConfig.cursorColor = .white
+        scoreConfig.normalColor = .lightGray
+        scoreConfig.separatorLineColor = .lightText
+        config.scoreConfig = scoreConfig
+
+        let lrcConfig = AgoraLrcConfigModel()
+        lrcConfig.lrcNormalColor = .lightGray
+        config.lrcConfig = lrcConfig
+
         lrcView.scoreDelegate = self
         return lrcView
     }()

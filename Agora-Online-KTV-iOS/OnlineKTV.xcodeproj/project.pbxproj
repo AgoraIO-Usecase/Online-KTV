@@ -313,6 +313,7 @@
 		E77294DE27D21A4D00A5379F /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Main.strings; sourceTree = "<group>"; };
 		E772961427D5FD9B00A5379F /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		E772961727D5FDA800A5379F /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		E7BCBED527F15CA800C3F30D /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Main.strings"; sourceTree = "<group>"; };
 		E7D0150C54A65FD361C78EEC /* Pods-Scene-Examples.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Scene-Examples.release.xcconfig"; path = "Target Support Files/Pods-Scene-Examples/Pods-Scene-Examples.release.xcconfig"; sourceTree = "<group>"; };
 		E7F9493227798DDD005C57F1 /* AgoraRtcKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AgoraRtcKit.framework; path = "AgoraSDK/libs/AgoraRtcKit.xcframework/ios-arm64_armv7/AgoraRtcKit.framework"; sourceTree = SOURCE_ROOT; };
 		E7F9493427798DF1005C57F1 /* Agoraffmpeg.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Agoraffmpeg.framework; path = "AgoraSDK/libs/Agoraffmpeg.xcframework/ios-arm64_armv7/Agoraffmpeg.framework"; sourceTree = SOURCE_ROOT; };
@@ -1231,6 +1232,7 @@
 			children = (
 				E77294DB27D21A1E00A5379F /* Base */,
 				E77294DE27D21A4D00A5379F /* en */,
+				E7BCBED527F15CA800C3F30D /* zh-Hans */,
 			);
 			name = Main.storyboard;
 			sourceTree = "<group>";

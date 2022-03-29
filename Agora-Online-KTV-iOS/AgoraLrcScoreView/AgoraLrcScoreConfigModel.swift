@@ -7,11 +7,12 @@
 
 import UIKit
 
-public struct AgoraLrcScoreConfigModel {
+@objcMembers
+public class AgoraLrcScoreConfigModel: NSObject {
     /// 评分组件配置
-    public var scoreConfig: AgoraScoreItemConfigModel = .init()
+    public var scoreConfig: AgoraScoreItemConfigModel?
     /// 歌词组件配置
-    public var lrcConfig: AgoraLrcConfigModel = .init()
+    public var lrcConfig: AgoraLrcConfigModel?
     /// 是否隐藏评分组件
     public var isHiddenScoreView: Bool = false
     /// 背景图

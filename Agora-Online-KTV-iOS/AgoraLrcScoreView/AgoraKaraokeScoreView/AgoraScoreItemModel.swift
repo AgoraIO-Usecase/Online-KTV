@@ -20,7 +20,7 @@ enum AgoraKaraokeScoreStatus: Int {
     case end = 3
 }
 
-struct AgoraScoreItemModel {
+class AgoraScoreItemModel: NSObject {
     /// position
     var topKM: CGFloat = 0
     /// startTime
@@ -40,7 +40,8 @@ struct AgoraScoreItemModel {
     var pitchMax: CGFloat = 0
 }
 
-public struct AgoraScoreItemConfigModel {
+@objcMembers
+public class AgoraScoreItemConfigModel: NSObject {
     /// 评分视图高度 默认:100
     public var scoreViewHeight: CGFloat = 100
     /// 圆的起始位置: 默认: 100

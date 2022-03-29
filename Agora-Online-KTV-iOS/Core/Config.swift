@@ -11,7 +11,7 @@ public enum BuildConfig {
     public static let Token: String? = nil
     public static let RtmToken: String? = nil
 
-    public static let LeanCloudAppId = <#LeanCloudAppId#>
-    public static let LeanCloudAppKey = <#LeanCloudAppKey#>
-    public static let LeanCloudServerUrl = <#LeanCloudServerUrl#>
+    public static let LeanCloudAppId = ""
+    public static let LeanCloudAppKey = ""
+    public static let LeanCloudServerUrl = ""
 }

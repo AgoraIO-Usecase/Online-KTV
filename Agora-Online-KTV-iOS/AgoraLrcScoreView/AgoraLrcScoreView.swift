@@ -7,7 +7,7 @@
 
 import UIKit
 
-@objc
+@objc(AgoraLrcViewDelegate)
 public
 protocol AgoraLrcViewDelegate {
     /// 当前播放器的时间 单位: 秒
@@ -23,7 +23,7 @@ protocol AgoraLrcViewDelegate {
     optional func currentPlayerLrc(lrc: String, progress: CGFloat)
 }
 
-@objc
+@objc(AgoraLrcDownloadDelegate)
 public
 protocol AgoraLrcDownloadDelegate {
     /// 开始下载
@@ -49,17 +49,39 @@ protocol AgoraLrcDownloadDelegate {
     optional func parseLrcFinished()
 }
 
+@objcMembers
 public class AgoraLrcScoreView: UIView {
     /// 配置
-    public var config: AgoraLrcScoreConfigModel = .init() {
+    private var _config: AgoraLrcScoreConfigModel = .init() {
         didSet {
-            scoreView!.scoreConfig = config.scoreConfig
-            lrcView!.lrcConfig = config.lrcConfig
-            scoreViewHCons?.constant = scoreView?.scoreConfig.scoreViewHeight ?? 0
+            scoreView!.scoreConfig = _config.scoreConfig
+            lrcView!.lrcConfig = _config.lrcConfig
+            scoreViewHCons?.constant = scoreView?.scoreConfig?.scoreViewHeight ?? 100
             scoreViewHCons?.isActive = true
-            scoreView?.isHidden = config.isHiddenScoreView
-            statckView.spacing = config.spacing
+            scoreView?.isHidden = _config.isHiddenScoreView
+            statckView.spacing = _config.spacing
             setupBackgroundImage()
+        }
+    }
+
+    public var config: AgoraLrcScoreConfigModel? {
+        set {
+            _config = newValue ?? AgoraLrcScoreConfigModel()
+        }
+        get {
+            return _config
+        }
+    }
+
+    public var updateScoreConfig: AgoraScoreItemConfigModel? {
+        didSet {
+            scoreView?.scoreConfig = updateScoreConfig
+        }
+    }
+
+    public var updateLrcConfig: AgoraLrcConfigModel? {
+        didSet {
+            lrcView?.lrcConfig = updateLrcConfig
         }
     }
 
@@ -158,8 +180,8 @@ public class AgoraLrcScoreView: UIView {
             } else {
                 self.lrcView?.lrcDatas = lryic as? [AgoraLrcModel]
             }
-            self.scoreView?.isHidden = self.config.isHiddenScoreView || lryic is [AgoraLrcModel]
-            if let senences = lryic as? AgoraMiguSongLyric {
+            self.scoreView?.isHidden = self._config.isHiddenScoreView || lryic is [AgoraLrcModel]
+            if let senences = lryic as? AgoraMiguSongLyric, self.scoreView?.isHidden == false {
                 self.scoreView?.lrcSentence = senences.sentences
             }
             self.downloadDelegate?.downloadLrcFinished?(url: url)
@@ -169,6 +191,18 @@ public class AgoraLrcScoreView: UIView {
     /// 实时声音数据
     public func setVoicePitch(_ voicePitch: [Double]) {
         scoreView?.setVoicePitch(voicePitch)
+    }
+
+    /// 滚到顶部
+    public func scrollToTop(animation: Bool = false) {
+        lrcView?.scrollToTop(animation: animation)
+        scoreView?.scrollToTop(animation: animation)
+    }
+
+    /// 根据时间滚到指定位置
+    public func scrollToTime(timestamp: TimeInterval) {
+        lrcView?.scrollToTime(timestamp: timestamp * 1000)
+        scoreView?.start(currentTime: timestamp * 1000, totalTime: totalTime)
     }
 
     private var preTime: TimeInterval = 0
@@ -197,6 +231,7 @@ public class AgoraLrcScoreView: UIView {
     }
 
     public func reset() {
+        resetTime()
         stop()
         scoreView?.reset()
         lrcView?.reset()
@@ -206,13 +241,18 @@ public class AgoraLrcScoreView: UIView {
         scoreView = nil
     }
 
+    public func resetTime() {
+        preTime = 0
+        currentTime = 0
+    }
+
     private func startMillisecondsHandler() {
         currentTime += 0.010
         timerHandler(time: currentTime)
         guard statckView.arrangedSubviews.isEmpty else { return }
         updateUI()
-        config.scoreConfig = config.scoreConfig
-        config.lrcConfig = config.lrcConfig
+        _config.scoreConfig = _config.scoreConfig
+        _config.lrcConfig = _config.lrcConfig
     }
 
     private func timerHandler(time: TimeInterval) {
@@ -227,7 +267,7 @@ public class AgoraLrcScoreView: UIView {
     }
 
     private func setupBackgroundImage() {
-        guard let bgImageView = config.backgroundImageView else { return }
+        guard let bgImageView = _config.backgroundImageView else { return }
         insertSubview(bgImageView, at: 0)
         bgImageView.translatesAutoresizingMaskIntoConstraints = false
         bgImageView.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
@@ -251,7 +291,7 @@ public class AgoraLrcScoreView: UIView {
         scoreView?.translatesAutoresizingMaskIntoConstraints = false
         statckView.addArrangedSubview(scoreView!)
         statckView.addArrangedSubview(lrcView!)
-        scoreViewHCons = scoreView?.heightAnchor.constraint(equalToConstant: config.scoreConfig.scoreViewHeight)
+        scoreViewHCons = scoreView?.heightAnchor.constraint(equalToConstant: _config.scoreConfig?.scoreViewHeight ?? 100)
         scoreViewHCons?.isActive = true
     }
 }

@@ -52,7 +52,7 @@ class PlayerSettingDialog: Dialog {
         view.font = UIFont.systemFont(ofSize: 14)
         view.numberOfLines = 1
         view.textColor = UIColor(hex: Colors.Text).withAlphaComponent(0.5)
-        view.text = "Ear return"
+        view.text = "Ear return".localized
         return view
     }()
 
