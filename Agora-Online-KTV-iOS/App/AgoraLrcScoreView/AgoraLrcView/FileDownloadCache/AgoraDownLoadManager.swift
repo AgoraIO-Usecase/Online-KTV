@@ -12,15 +12,20 @@ class AgoraDownLoadManager {
     static let manager = AgoraDownLoadManager()
     typealias Completion = (Any?) -> Void
     typealias Sunccess = (String?) -> Void
+    typealias UnZipErrorClosure = () -> Void
     private lazy var request = AgoraRequestTask()
     private var urlString: String = ""
     private var retryCount: Int = 0
     private var completion: [String: Completion] = [:]
     private var success: [String: Sunccess] = [:]
+    private var failure: [String: UnZipErrorClosure] = [:]
 
     public weak var delegate: AgoraLrcDownloadDelegate?
 
-    func downloadLrcFile(urlString: String, completion: @escaping Completion) {
+    func downloadLrcFile(urlString: String,
+                         completion: @escaping Completion,
+                         failure: @escaping UnZipErrorClosure)
+    {
         delegate?.beginDownloadLrc?(url: urlString)
         self.urlString = urlString
         let fileName = urlString.fileName.components(separatedBy: ".").first ?? ""
@@ -42,9 +47,10 @@ class AgoraDownLoadManager {
             request.delegate = self
             request.download(requestURL: url)
             self.completion[urlString] = completion
+            self.failure[urlString] = failure
         } else {
             if urlString.hasSuffix("zip") {
-                unzip(path: lrcPath ?? "", completion: completion)
+                unzip(path: lrcPath ?? "", completion: completion, failure: failure)
             } else {
                 parseLrc(path: lrcPath ?? "", completion: completion)
             }
@@ -64,7 +70,7 @@ class AgoraDownLoadManager {
         }
     }
 
-    private func unzip(path: String, completion: @escaping Completion) {
+    private func unzip(path: String, completion: @escaping Completion, failure: @escaping UnZipErrorClosure) {
         delegate?.beginParseLrc?()
         DispatchQueue.global().async {
             let zipFile = URL(fileURLWithPath: path)
@@ -81,12 +87,15 @@ class AgoraDownLoadManager {
                     DispatchQueue.main.async {
                         self.delegate?.downloadLrcError?(url: self.urlString,
                                                          error: error)
+                        failure()
                     }
                     return
                 }
                 try? FileManager.default.removeItem(atPath: path)
                 DispatchQueue.main.async {
-                    self.downloadLrcFile(urlString: self.urlString, completion: completion)
+                    self.downloadLrcFile(urlString: self.urlString,
+                                         completion: completion,
+                                         failure: failure)
                 }
                 self.retryCount += 1
             }
@@ -131,9 +140,9 @@ extension AgoraDownLoadManager: AgoraLrcDownloadDelegate {
             guard let completion = completion[url] else { return }
             parseXml(path: cacheFilePath, completion: completion)
         } else {
-            guard let completion = completion[url] else { return }
+            guard let completion = completion[url], let failure = failure[url] else { return }
             if url.hasSuffix(".zip") {
-                unzip(path: cacheFilePath, completion: completion)
+                unzip(path: cacheFilePath, completion: completion, failure: failure)
             } else {
                 parseLrc(path: cacheFilePath, completion: completion)
             }

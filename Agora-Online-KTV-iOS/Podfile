@@ -2,6 +2,7 @@
 platform :ios, '13.0'
 #source 'https://github.com/CocoaPods/Specs.git'
 
+source 'https://mirrors.tuna.tsinghua.edu.cn/git/CocoaPods/Specs.git'
 def commonPods
   use_frameworks!
   pod 'RxSwift', '6.1.0'
@@ -10,7 +11,7 @@ def commonPods
   pod 'IGListKit', '~> 4.0.0'
   pod 'SwiftFormat/CLI'
   pod 'SDWebImage', '5.11.1'
-  pod 'AgoraLrcScore', :path => "AgoraLrcScoreView"
+#  pod 'AgoraLrcScore', :path => "AgoraLrcScoreView"
 end
 
 target 'Core' do
@@ -21,7 +22,8 @@ end
 target 'app' do
   commonPods
   use_frameworks!
-  pod 'AgoraRtcEngine_Special_iOS', '3.6.214'
+#  pod 'AgoraRtcEngine_Special_iOS', '3.6.214'
+  pod 'AgoraRtcEngine_iOS_Preview', '4.0.0.preview.6'
   pod 'Zip', '~> 2.1'
 end
 

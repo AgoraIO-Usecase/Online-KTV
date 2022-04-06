@@ -7,7 +7,7 @@
 import Foundation
 
 public enum BuildConfig {
-    public static let AppId = <#APPID#>
+    public static let AppId = ""
     public static let Token: String? = nil
     public static let RtmToken: String? = nil
 

@@ -130,7 +130,8 @@ class RtcServer: NSObject {
         }
         rtc.enableAudio()
         rtc.disableVideo()
-        rtc.enableAudioVolumeIndication(200, smooth: 3, reportvad: true)
+        // 人声检测回调参数
+        rtc.enableAudioVolumeIndication(200, smooth: 3, reportVad: true)
         muteLocalMicrophone(mute: member.isSelfMuted)
         rtc.enable(inEarMonitoring: isEnableEarloop)
         setRecordingSignalVolume(value: recordingSignalVolume)
@@ -518,7 +519,9 @@ extension RtcServer: AgoraRtcEngineDelegate {
         }
     }
 
+    /// 人声实时回调
     func rtcEngine(_: AgoraRtcEngineKit, reportAudioVolumeIndicationOfSpeakers speakers: [AgoraRtcAudioVolumeInfo], totalVolume _: Int) {
+        print("speakers === \(speakers.map { $0.voicePitch })")
         voicePitchRelay.accept(speakers.map { $0.voicePitch })
     }
 }

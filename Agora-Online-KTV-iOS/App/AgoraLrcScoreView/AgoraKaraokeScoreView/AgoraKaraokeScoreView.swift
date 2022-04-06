@@ -139,6 +139,8 @@ class AgoraKaraokeScoreView: UIView {
         currentScore = _scoreConfig.defaultScore
         currentTime = 0
         isInsertEnd = false
+        dataArray = []
+        collectionView.reloadData()
     }
 
     func start(currentTime: TimeInterval, totalTime: TimeInterval) {
@@ -396,7 +398,8 @@ extension AgoraKaraokeScoreView: UICollectionViewDataSource, UICollectionViewDel
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "AgoraKaraokeScoreCell", for: indexPath) as! AgoraKaraokeScoreCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "AgoraKaraokeScoreCell",
+                                                      for: indexPath) as! AgoraKaraokeScoreCell
         let model = dataArray?[indexPath.item]
         cell.setScore(with: model, config: _scoreConfig)
         return cell

@@ -21,6 +21,9 @@ protocol AgoraLrcViewDelegate {
     /// 当前正在播放的歌词和进度
     @objc
     optional func currentPlayerLrc(lrc: String, progress: CGFloat)
+    /// 歌词pitch回调
+    @objc
+    optional func agoraWordPitch(pitch: Int, totalCount: Int)
 }
 
 @objc(AgoraLrcDownloadDelegate)
@@ -54,13 +57,13 @@ public class AgoraLrcScoreView: UIView {
     /// 配置
     private var _config: AgoraLrcScoreConfigModel = .init() {
         didSet {
-            scoreView!.scoreConfig = _config.scoreConfig
-            lrcView!.lrcConfig = _config.lrcConfig
-            scoreViewHCons?.constant = scoreView?.scoreConfig?.scoreViewHeight ?? 100
-            scoreViewHCons?.isActive = true
             scoreView?.isHidden = _config.isHiddenScoreView
+            scoreView?.scoreConfig = _config.scoreConfig
+            lrcView?.lrcConfig = _config.lrcConfig
             statckView.spacing = _config.spacing
+            isHiddenWatitingView = _config.lrcConfig?.isHiddenWatitingView ?? false
             setupBackgroundImage()
+            updateUI()
         }
     }
 
@@ -107,7 +110,7 @@ public class AgoraLrcScoreView: UIView {
     }
 
     /// 是否开始
-    public var isStart: Bool = false
+    public private(set) var isStart: Bool = false
 
     private lazy var statckView: UIStackView = {
         let stackView = UIStackView()
@@ -123,7 +126,6 @@ public class AgoraLrcScoreView: UIView {
         get {
             guard _scoreView == nil else { return _scoreView }
             _scoreView = AgoraKaraokeScoreView()
-            _scoreView?.delegate = scoreDelegate
             return _scoreView
         }
         set {
@@ -143,6 +145,10 @@ public class AgoraLrcScoreView: UIView {
                 self?.delegate?.currentPlayerLrc?(lrc: lrc,
                                                   progress: progress)
             }
+            _lrcView?.currentWordPitchClosure = { [weak self] pitch, totalCount in
+                guard pitch > 0 else { return }
+                self?.delegate?.agoraWordPitch?(pitch: pitch, totalCount: totalCount)
+            }
             return _lrcView
         }
         set {
@@ -150,6 +156,8 @@ public class AgoraLrcScoreView: UIView {
         }
     }
 
+    // 记录是否隐藏等待小圆点
+    private var isHiddenWatitingView: Bool = false
     private lazy var timer = GCDTimer()
     private var scoreViewHCons: NSLayoutConstraint?
     private var currentTime: TimeInterval = 0
@@ -174,18 +182,23 @@ public class AgoraLrcScoreView: UIView {
 
     /// 歌词的URL
     public func setLrcUrl(url: String) {
-        AgoraDownLoadManager.manager.downloadLrcFile(urlString: url) { lryic in
+        AgoraDownLoadManager.manager.downloadLrcFile(urlString: url, completion: { lryic in
+            self.scoreView?.isHidden = self._config.isHiddenScoreView || lryic is [AgoraLrcModel]
+            self.config?.lrcConfig?.isHiddenWatitingView = self.isHiddenWatitingView
+            self.lrcView?.lrcConfig = self.config?.lrcConfig
             if lryic is AgoraMiguSongLyric {
                 self.lrcView?.miguSongModel = lryic as? AgoraMiguSongLyric
             } else {
                 self.lrcView?.lrcDatas = lryic as? [AgoraLrcModel]
             }
-            self.scoreView?.isHidden = self._config.isHiddenScoreView || lryic is [AgoraLrcModel]
             if let senences = lryic as? AgoraMiguSongLyric, self.scoreView?.isHidden == false {
                 self.scoreView?.lrcSentence = senences.sentences
             }
             self.downloadDelegate?.downloadLrcFinished?(url: url)
-        }
+        }, failure: {
+            self.lrcView?.lrcDatas = []
+            self.config?.lrcConfig?.isHiddenWatitingView = true
+        })
     }
 
     /// 实时声音数据
@@ -235,10 +248,6 @@ public class AgoraLrcScoreView: UIView {
         stop()
         scoreView?.reset()
         lrcView?.reset()
-        lrcView?.removeFromSuperview()
-        lrcView = nil
-        scoreView?.removeFromSuperview()
-        scoreView = nil
     }
 
     public func resetTime() {
@@ -249,10 +258,6 @@ public class AgoraLrcScoreView: UIView {
     private func startMillisecondsHandler() {
         currentTime += 0.010
         timerHandler(time: currentTime)
-        guard statckView.arrangedSubviews.isEmpty else { return }
-        updateUI()
-        _config.scoreConfig = _config.scoreConfig
-        _config.lrcConfig = _config.lrcConfig
     }
 
     private func timerHandler(time: TimeInterval) {
@@ -284,14 +289,22 @@ public class AgoraLrcScoreView: UIView {
         statckView.topAnchor.constraint(equalTo: topAnchor).isActive = true
         statckView.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
         statckView.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
-        updateUI()
     }
 
     private func updateUI() {
-        scoreView?.translatesAutoresizingMaskIntoConstraints = false
-        statckView.addArrangedSubview(scoreView!)
-        statckView.addArrangedSubview(lrcView!)
-        scoreViewHCons = scoreView?.heightAnchor.constraint(equalToConstant: _config.scoreConfig?.scoreViewHeight ?? 100)
-        scoreViewHCons?.isActive = true
+        guard statckView.arrangedSubviews.isEmpty,
+              let scoreView = scoreView,
+              let lrcView = lrcView,
+              let lrcConfig = _config.lrcConfig else { return }
+        scoreView.scoreConfig = _config.scoreConfig
+        lrcConfig.isHiddenWatitingView = isHiddenWatitingView
+        lrcView.lrcConfig = lrcConfig
+        _scoreView?.delegate = scoreDelegate
+        scoreView.translatesAutoresizingMaskIntoConstraints = false
+        let height = _config.scoreConfig?.scoreViewHeight ?? 100
+        scoreView.isHidden = config?.isHiddenScoreView ?? false
+        scoreView.heightAnchor.constraint(equalToConstant: height).isActive = true
+        statckView.addArrangedSubview(scoreView)
+        statckView.addArrangedSubview(lrcView)
     }
 }

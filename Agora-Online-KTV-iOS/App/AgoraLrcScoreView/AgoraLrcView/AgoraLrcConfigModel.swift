@@ -27,16 +27,20 @@ public class AgoraLrcConfigModel: NSObject {
     public var lrcDrawingColor: UIColor = .orange
     /// 歌词文字大小 默认: 15
     public var lrcFontSize: UIFont = .systemFont(ofSize: 15)
-    /// 歌词高亮文字缩放大小 默认: 1.1
-    public var lrcHighlightScaleSize: Double = 1.1
+    /// 歌词高亮文字大小 默认: 18
+    public var lrcHighlightFontSize: UIFont = .systemFont(ofSize: 18)
     /// 歌词左右两边间距
     public var lrcLeftAndRightMargin: CGFloat = 15
+    /// 歌词上下间距
+    public var lrcTopAndBottomMargin: CGFloat = 10
     /// 是否隐藏等待开始圆点
     public var isHiddenWatitingView: Bool = false
     /// 等待开始圆点背景色 默认: 灰色
     public var waitingViewBgColor: UIColor? = .gray
     /// 等待开始圆点大小 默认: 10
     public var waitingViewSize: CGFloat = 10
+    /// 等待开始圆点底部间距
+    public var waitingViewBottomMargin: CGFloat = 0
     /// 是否可以拖动歌词 默认: true
     public var isDrag: Bool = true
     /// 底部蒙层颜色

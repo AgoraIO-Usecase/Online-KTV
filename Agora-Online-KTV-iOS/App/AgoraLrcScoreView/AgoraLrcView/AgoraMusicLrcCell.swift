@@ -19,11 +19,18 @@ class AgoraMusicLrcCell: UITableViewCell {
         return label
     }()
 
+    private var topCons: NSLayoutConstraint?
+    private var bottomCons: NSLayoutConstraint?
+
     var lrcConfig: AgoraLrcConfigModel? {
         didSet {
             lrcLabel.textColor = lrcConfig?.lrcNormalColor
             lrcLabel.lrcDrawingColor = lrcConfig?.lrcDrawingColor
             lrcLabel.font = lrcConfig?.lrcFontSize
+            topCons?.constant = lrcConfig?.lrcTopAndBottomMargin ?? 10
+            bottomCons?.constant = -(lrcConfig?.lrcTopAndBottomMargin ?? 10)
+            topCons?.isActive = true
+            bottomCons?.isActive = true
         }
     }
 
@@ -42,11 +49,11 @@ class AgoraMusicLrcCell: UITableViewCell {
         lrcLabel.progress = progress
     }
 
-    func setupCurrentLrcScale() {
+    func setupCurrentLrcScale(text: String? = nil) {
         lrcLabel.textColor = lrcConfig?.lrcHighlightColor
+        lrcLabel.text = text
         UIView.animate(withDuration: 0.25) {
-            let scale = self.lrcConfig?.lrcHighlightScaleSize ?? 0
-            self.lrcLabel.transform = CGAffineTransform(scaleX: scale, y: scale)
+            self.lrcLabel.font = self.lrcConfig?.lrcHighlightFontSize
         }
     }
 
@@ -56,9 +63,8 @@ class AgoraMusicLrcCell: UITableViewCell {
         lrcLabel.text = lrcModel?.toSentence()
         lrcLabel.progress = progress
         lrcLabel.textColor = lrcConfig?.lrcNormalColor
-        lrcLabel.font = lrcConfig?.lrcFontSize
         UIView.animate(withDuration: 0.25) {
-            self.lrcLabel.transform = .identity
+            self.lrcLabel.font = self.lrcConfig?.lrcFontSize
         }
     }
 
@@ -68,9 +74,8 @@ class AgoraMusicLrcCell: UITableViewCell {
         lrcLabel.text = lrcModel?.lrc?.trimmingCharacters(in: .whitespacesAndNewlines)
         lrcLabel.progress = progress
         lrcLabel.textColor = lrcConfig?.lrcNormalColor
-        lrcLabel.font = lrcConfig?.lrcFontSize
         UIView.animate(withDuration: 0.25) {
-            self.lrcLabel.transform = .identity
+            self.lrcLabel.font = self.lrcConfig?.lrcFontSize
         }
     }
 
@@ -80,8 +85,10 @@ class AgoraMusicLrcCell: UITableViewCell {
         lrcLabel.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(lrcLabel)
         lrcLabel.centerXAnchor.constraint(equalTo: contentView.centerXAnchor).isActive = true
-        lrcLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10).isActive = true
-        lrcLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10).isActive = true
+        topCons = lrcLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10)
+        bottomCons = lrcLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10)
+        topCons?.isActive = true
+        bottomCons?.isActive = true
     }
 
     override func layoutSubviews() {
@@ -138,6 +145,8 @@ class AgoraLrcLabel: UILabel {
             }
         }
         if let context = UIGraphicsGetCurrentContext(), !path.isEmpty {
+            context.setLineWidth(1.0)
+            context.setLineCap(.butt)
             context.addPath(path)
             context.clip()
             let _textColor = textColor

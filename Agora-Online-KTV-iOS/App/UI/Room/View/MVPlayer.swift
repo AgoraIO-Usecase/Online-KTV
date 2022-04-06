@@ -5,7 +5,6 @@
 //  Created by XC on 2021/6/7.
 //
 
-import AgoraLrcScore
 import Core
 import Foundation
 import LrcView
@@ -235,7 +234,6 @@ class MVPlayer: NSObject {
     private lazy var lrcScoreView: AgoraLrcScoreView = {
         let lrcView = AgoraLrcScoreView(delegate: self)
         let config = AgoraLrcScoreConfigModel()
-
         let scoreConfig = AgoraScoreItemConfigModel()
         scoreConfig.scoreViewHeight = 80
         scoreConfig.lineHeight = 5
@@ -249,6 +247,7 @@ class MVPlayer: NSObject {
         config.lrcConfig = lrcConfig
 
         lrcView.scoreDelegate = self
+        lrcView.config = config
         return lrcView
     }()
 

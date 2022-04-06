@@ -57,6 +57,8 @@ class AgoraLoadingView: UIView {
     }
 
     func beginAnimation() {
+        guard !timer.isExistTimer(withName: "loadView") else { return }
+        statckView.arrangedSubviews.forEach { $0.alpha = 1 }
         timer.scheduledSecondsTimer(withName: "loadView", timeInterval: 120, queue: .main) { [weak self] _, time in
             guard let self = self else { return }
             let duration = self.delegate?.getCurrentTime() ?? 0

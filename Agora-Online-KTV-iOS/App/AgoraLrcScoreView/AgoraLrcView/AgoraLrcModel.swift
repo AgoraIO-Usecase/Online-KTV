@@ -87,15 +87,15 @@ class AgoraMiguLrcSentence {
     }
 
     private var totalProgress: CGFloat = 1.0
-    func getProgress(with time: TimeInterval) -> CGFloat {
+    func getProgress(with time: TimeInterval) -> (CGFloat, Int) {
         for (index, tone) in tones.enumerated() {
             if time >= tone.begin, time <= tone.end {
                 let progress = (time - tone.begin) / (tone.end - tone.begin)
                 let total = (CGFloat(index) + progress) / CGFloat(tones.count)
                 totalProgress = total
-                return total
+                return (total, tone.pitch)
             }
         }
-        return totalProgress
+        return (totalProgress, 0)
     }
 }
