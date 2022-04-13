@@ -5,6 +5,7 @@
 //  Created by XC on 2021/6/7.
 //
 
+import AgoraLyricsScore
 import Core
 import Foundation
 import LrcView
@@ -236,7 +237,7 @@ class MVPlayer: NSObject {
         let config = AgoraLrcScoreConfigModel()
         let scoreConfig = AgoraScoreItemConfigModel()
         scoreConfig.scoreViewHeight = 80
-        scoreConfig.lineHeight = 5
+        scoreConfig.lineHeight = 6
         scoreConfig.cursorColor = .white
         scoreConfig.normalColor = .lightGray
         scoreConfig.separatorLineColor = .lightText
@@ -244,6 +245,7 @@ class MVPlayer: NSObject {
 
         let lrcConfig = AgoraLrcConfigModel()
         lrcConfig.lrcNormalColor = .lightGray
+        lrcConfig.lrcTopAndBottomMargin = 10
         config.lrcConfig = lrcConfig
 
         lrcView.scoreDelegate = self
@@ -411,6 +413,7 @@ class MVPlayer: NSObject {
             lrcScoreView.reset()
             chorusMasterView.isHidden = true
             chorusFollowerView.isHidden = true
+            scoreLabel.text = "score: 50"
         case .play, .pause:
             stopView.isHidden = true
             mv.isHidden = false
@@ -426,6 +429,7 @@ class MVPlayer: NSObject {
             mv.isHidden = false
             lrcScoreView.isHidden = true
             lrcScoreView.reset()
+            scoreLabel.text = "score: 50"
             chorusMasterView.isHidden = false
             chorusFollowerView.isHidden = false
         case .processChorusApply:
@@ -873,7 +877,7 @@ extension MVPlayer: AgoraLrcViewDelegate, AgoraKaraokeScoreDelegate {
         }
     }
 
-    func agoraKaraokeScore(score: Double, totalScore _: Double) {
-        scoreLabel.text = String(format: "score: %.2f", score)
+    func agoraKaraokeScore(score _: Double, cumulativeScore: Double, totalScore _: Double) {
+        scoreLabel.text = String(format: "score: %.2f", cumulativeScore)
     }
 }

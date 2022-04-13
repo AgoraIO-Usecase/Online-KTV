@@ -24,7 +24,8 @@ target 'app' do
   use_frameworks!
 #  pod 'AgoraRtcEngine_Special_iOS', '3.6.214'
   pod 'AgoraRtcEngine_iOS_Preview', '4.0.0.preview.6'
-  pod 'Zip', '~> 2.1'
+  pod 'AgoraLyricsScore', '~> 1.0.1'
+
 end
 
 target 'LrcView' do

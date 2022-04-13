@@ -521,7 +521,6 @@ extension RtcServer: AgoraRtcEngineDelegate {
 
     /// 人声实时回调
     func rtcEngine(_: AgoraRtcEngineKit, reportAudioVolumeIndicationOfSpeakers speakers: [AgoraRtcAudioVolumeInfo], totalVolume _: Int) {
-        print("speakers === \(speakers.map { $0.voicePitch })")
         voicePitchRelay.accept(speakers.map { $0.voicePitch })
     }
 }
