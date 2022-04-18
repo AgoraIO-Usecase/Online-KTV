@@ -23,8 +23,8 @@ target 'app' do
   commonPods
   use_frameworks!
 #  pod 'AgoraRtcEngine_Special_iOS', '3.6.214'
-  pod 'AgoraRtcEngine_iOS_Preview', '4.0.0.preview.6'
-  pod 'AgoraLyricsScore', '~> 1.0.1'
+  pod 'AgoraRtcEngine_iOS_Beta', '4.0.0-beta.1'
+  pod 'AgoraLyricsScore', '~> 1.0.3'
 
 end
 
