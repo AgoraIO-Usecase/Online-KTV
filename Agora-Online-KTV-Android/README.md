@@ -22,3 +22,9 @@
 3. 在 Android Studio 左下角侧边栏中，点击 Build Variants 选择对应的平台。
 4. 点击 Run app 按钮。运行一段时间后，应用就安装到 Android 设备上了。
 5. 打开应用，即可使用。
+
+# 开源相关
+
+| 名称 | 作用 |
+| ---- | ---- |
+| com.github.AgoraIO-Community:LrcView-Android | 歌词下载、解析、拖动改变进度，音调曲线展示、滚动 |

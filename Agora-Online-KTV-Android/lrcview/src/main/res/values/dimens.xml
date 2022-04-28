@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <dimen name="lrc_text_size">16sp</dimen>
-    <dimen name="lrc_divider_height">16dp</dimen>
-</resources>
