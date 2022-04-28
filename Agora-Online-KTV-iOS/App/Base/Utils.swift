@@ -23,6 +23,14 @@ extension Utils {
             "早安序曲",
             "风情万种的歌房",
         ],
+        "en": [
+            "Watch the moon with you.",
+            "cure",
+            "Colossal Smash",
+            "have any wine?",
+            "Good morning prelude",
+            "singing room ",
+        ],
         "default": [
             "和你一起看月亮",
             "治愈",
@@ -55,7 +63,7 @@ extension Utils {
 }
 
 public extension String {
-    var localized: String { NSLocalizedString(self, bundle: Utils.bundle, comment: "") }
+    var localized: String { NSLocalizedString(self, comment: "") }
 }
 
 extension LiveKtvRoom {

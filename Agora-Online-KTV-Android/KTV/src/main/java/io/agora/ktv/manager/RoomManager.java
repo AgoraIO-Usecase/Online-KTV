@@ -1,10 +1,7 @@
 package io.agora.ktv.manager;
 
 import android.content.Context;
-import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
@@ -160,7 +157,7 @@ public final class RoomManager {
 
         @Override
         public void onAudioVolumeIndication(AudioVolumeInfo[] speakers, int totalVolume) {
-            mLoggerRTC.i("onAudioVolumeIndication: " + speakers.length);
+//            mLoggerRTC.i("onAudioVolumeIndication: " + speakers.length);
             for(AudioVolumeInfo info : speakers){
                 if(info.uid == 0 && info.voicePitch > 0){
                     mLoggerRTC.i("on local pitch: " + info.voicePitch);
@@ -301,6 +298,11 @@ public final class RoomManager {
         mMainThreadDispatch.onAudioStatusChanged(member);
     }
 
+    private void onVideoStatusChanged(@NonNull AgoraMember member) {
+        mLogger.i("onVideoStatusChanged() called with: member = [%s]", member);
+        mMainThreadDispatch.onVideoStatusChanged(member);
+    }
+
     public void onMusicAdd(MemberMusicModel model) {
         mLogger.i("onMusicAdd() called with: model = [%s]", model);
         if (musics.contains(model)) {
@@ -421,7 +423,7 @@ public final class RoomManager {
         }
     };
 
-    public void subcribeRoomEvent() {
+    public void subscribeRoomEvent() {
         SyncManager.Instance()
                 .getRoom(mRoom.getId())
                 .query(new Query().whereEqualTo(AgoraRoom.COLUMN_ID, mRoom.getId()))
@@ -453,6 +455,11 @@ public final class RoomManager {
             if (memberLocal != null && memberLocal.getIsSelfMuted() != memberRemote.getIsSelfMuted()) {
                 memberLocal.setIsSelfMuted(memberRemote.getIsSelfMuted());
                 onAudioStatusChanged(memberLocal);
+            }
+
+            if (memberLocal != null && memberLocal.getIsVideoMuted() != memberRemote.getIsVideoMuted()) {
+                memberLocal.setIsVideoMuted(memberRemote.getIsVideoMuted());
+                onVideoStatusChanged(memberLocal);
             }
         }
 
@@ -742,7 +749,7 @@ public final class RoomManager {
     }
 
     public Completable joinRoom(AgoraRoom room) {
-        this.mRoom = room;
+        mRoom = room;
 
         User mUser = UserManager.getInstance().mUser;
         if (mUser == null) {
@@ -752,6 +759,7 @@ public final class RoomManager {
         mMine = new AgoraMember();
         mMine.setRoomId(mRoom);
         mMine.setUserId(mUser.getObjectId());
+        mMine.setStreamId(Long.valueOf(Integer.decode("0x" + mMine.getUserId().substring(18, 24))));
         mMine.setUser(mUser);
 
         if (ObjectsCompat.equals(mUser.getObjectId(), mRoom.getUserId())) {
@@ -762,19 +770,16 @@ public final class RoomManager {
 
         return preJoinAddMember(mRoom, mMine).doOnSuccess(member -> mMine = member).ignoreElement()
                 .andThen(preJoinSyncMembers().ignoreElement())
-                .andThen(joinRTC().doOnSuccess(uid -> {
-                    Long streamId = uid & 0xffffffffL;
-                    mMine.setStreamId(streamId);
-                }).ignoreElement())
+                .andThen(joinRTC().ignoreElement())
                 .andThen(updateMineStreamId())
-                .doOnComplete(() -> onJoinRoom());
+                .doOnComplete(this::onJoinRoom);
     }
 
     private void onJoinRoom() {
         mMusicModel = null;
 
         //LeanCloud连续订阅会有问题，需要做延迟
-        subcribeRoomEvent();
+        subscribeRoomEvent();
 
         Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
@@ -806,6 +811,8 @@ public final class RoomManager {
             getRtcEngine().setChannelProfile(Constants.CHANNEL_PROFILE_LIVE_BROADCASTING);
             getRtcEngine().enableAudio();
             getRtcEngine().enableAudioVolumeIndication(30, 10, true);
+            getRtcEngine().enableVideo();
+            getRtcEngine().enableLocalVideo(false);
             getRtcEngine().setParameters("{\"rtc.audio.opensl.mode\":0}");
             getRtcEngine().setParameters("{\"rtc.audio_fec\":[3,2]}");
             getRtcEngine().setParameters("{\"rtc.audio_resend\":false}");
@@ -818,7 +825,7 @@ public final class RoomManager {
             }
 
             mLoggerRTC.i("joinRTC() called with: results = [%s]", mRoom);
-            int ret = getRtcEngine().joinChannel("", mRoom.getId(), null, 0);
+            int ret = getRtcEngine().joinChannel("", mRoom.getId(), null, mMine.getStreamId().intValue());
             if (ret != Constants.ERR_OK) {
                 mLoggerRTC.e("joinRTC() called error " + ret);
                 emitter.onError(new Exception("join rtc room error " + ret));
@@ -1048,6 +1055,34 @@ public final class RoomManager {
                         .collection(AgoraMember.TABLE_NAME)
                         .document(mMine.getId())
                         .update(AgoraMember.COLUMN_ISSELFAUDIOMUTED, isMute ? 1 : 0, new SyncManager.DataItemCallback() {
+                            @Override
+                            public void onSuccess(AgoraObject result) {
+                                emitter.onComplete();
+                            }
+
+                            @Override
+                            public void onFail(AgoraException exception) {
+                                emitter.onError(exception);
+                            }
+                        }));
+    }
+
+    public Completable toggleSelfVideo(boolean muteThisTime) {
+        if (mRoom == null) {
+            return Completable.complete();
+        }
+
+        AgoraMember mMine = getMine();
+        if (mMine == null) {
+            return Completable.error(new NullPointerException());
+        }
+
+        return Completable.create(emitter ->
+                SyncManager.Instance()
+                        .getRoom(mRoom.getId())
+                        .collection(AgoraMember.TABLE_NAME)
+                        .document(mMine.getId())
+                        .update(AgoraMember.COLUMN_ISVIDEOMUTED, muteThisTime ? 1 : 0, new SyncManager.DataItemCallback() {
                             @Override
                             public void onSuccess(AgoraObject result) {
                                 emitter.onComplete();

@@ -18,6 +18,8 @@ class SeatView {
 
     weak var label: UILabel!
 
+    weak var canvas: UIView!
+
     private var getUserDisposable: Disposable?
 
     var music: LiveKtvMusic? {
@@ -68,30 +70,30 @@ class SeatView {
         if let music = music, let member = member, music.isOrderBy(member: member), member.isSpeaker() {
             if music.type == LiveKtvMusic.CHORUS {
                 if music.isChorusReady() {
-                    label.text = "合唱中"
+                    label.text = "In chorus".localized
                     root.shadowAnimation(color: Colors.Music)
                 } else {
-                    label.text = "准备中"
+                    label.text = "readying".localized
                     root.stopShadowAnimation()
                 }
             } else {
-                label.text = "演唱中"
+                label.text = "Singing".localized
                 root.shadowAnimation(color: Colors.Music)
             }
             return
         } else if let member = member {
             if let music = music, music.type == LiveKtvMusic.CHORUS, music.user1Id == member.userId, member.isSpeaker() {
                 if music.isChorusReady() {
-                    label.text = "合唱中"
+                    label.text = "In chorus".localized
                     root.shadowAnimation(color: Colors.Music)
                 } else {
-                    label.text = "准备中"
+                    label.text = "readying".localized
                     root.stopShadowAnimation()
                 }
                 return
             }
             if member.isManager {
-                label.text = "房主"
+                label.text = "host".localized
                 root.stopShadowAnimation()
                 return
             }

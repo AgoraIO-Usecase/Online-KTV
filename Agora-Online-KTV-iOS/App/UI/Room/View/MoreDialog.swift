@@ -14,7 +14,7 @@ class MoreDialog: Dialog {
     weak var delegate: RoomController!
     private var getUserDisposable: Disposable?
 
-    var cameraMuted: Bool = true
+    var cameraMuted: Bool = false
     var openVoiceDialog: Bool = false
 
     var labelVoiceEffect: UILabel = {
@@ -22,7 +22,7 @@ class MoreDialog: Dialog {
         view.font = UIFont.systemFont(ofSize: 14)
         view.numberOfLines = 1
         view.textColor = UIColor(hex: Colors.Text).withAlphaComponent(0.8)
-        view.text = "音效"
+        view.text = "Sound effect".localized
         return view
     }()
 
@@ -31,7 +31,7 @@ class MoreDialog: Dialog {
         view.font = UIFont.systemFont(ofSize: 14)
         view.numberOfLines = 1
         view.textColor = UIColor(hex: Colors.Text).withAlphaComponent(0.8)
-        view.text = "摄像头"
+        view.text = "camera".localized
         return view
     }()
 
@@ -43,7 +43,7 @@ class MoreDialog: Dialog {
 
     var btnCamera: UIButton = {
         let view = UIButton()
-        view.setImage(UIImage(named: "iconCameraOff", in: Utils.bundle, with: nil), for: .normal)
+        view.setImage(UIImage(named: "iconCameraOn", in: Utils.bundle, with: nil), for: .normal)
         return view
     }()
 
@@ -76,6 +76,7 @@ class MoreDialog: Dialog {
     @objc func onTapCamera(sender _: UIButton) {
         cameraMuted = !cameraMuted
         btnCamera.setImage(UIImage(named: cameraMuted ? "iconCameraOff" : "iconCameraOn", in: Utils.bundle, with: nil), for: .normal)
+        delegate.viewModel.openVideoHandler(isOpen: cameraMuted)
     }
 
     @objc func onTapVoiceEffect(sender _: UIButton) {

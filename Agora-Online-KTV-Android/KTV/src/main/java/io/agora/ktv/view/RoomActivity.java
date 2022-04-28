@@ -29,6 +29,7 @@ import com.bumptech.glide.request.transition.Transition;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import io.agora.baselibrary.base.BaseActivity;
 import io.agora.baselibrary.base.BaseRecyclerViewAdapter;
@@ -271,6 +272,20 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> implement
                     mBinding.btnMicAttRoom.setImageResource(R.drawable.ktv_ic_mic_disable);
                 } else {
                     mBinding.btnMicAttRoom.setImageResource(R.drawable.ktv_ic_mic_enable);
+                }
+            }
+        }
+
+        @Override
+        public void onVideoStatusChanged(@NonNull AgoraMember member) {
+            super.onVideoStatusChanged(member);
+            // TODO
+            for (int i = 0; i < mRoomSpeakerAdapter.dataList.size(); i++) {
+                AgoraMember currentMember = mRoomSpeakerAdapter.dataList.get(i);
+                if (currentMember != null && currentMember.getId().equals(member.getId())){
+                    mRoomSpeakerAdapter.dataList.set(i, member);
+                    mRoomSpeakerAdapter.notifyItemChanged(i);
+                    break;
                 }
             }
         }
@@ -909,8 +924,6 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> implement
     private void onMusicChanged(@NonNull MemberMusicModel music) {
         mBinding.lrcControlView.setMusic(music);
 
-        mRoomSpeakerAdapter.notifyDataSetChanged();
-
         User mUser = UserManager.getInstance().mUser;
         if (mUser == null) {
             return;
@@ -924,7 +937,7 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> implement
 
         if (mMusicPlayer != null) {
             mMusicPlayer.stop();
-            mMusicPlayer.destory();
+            mMusicPlayer.destroy();
         }
 
         int role = Constants.CLIENT_ROLE_BROADCASTER;
@@ -953,13 +966,12 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> implement
     }
 
     private void onMusicEmpty() {
-        mRoomSpeakerAdapter.notifyDataSetChanged();
         mBinding.lrcControlView.setRole(LrcControlView.Role.Listener);
         mBinding.lrcControlView.onIdleStatus();
 
         if (mMusicPlayer != null) {
             mMusicPlayer.stop();
-            mMusicPlayer.destory();
+            mMusicPlayer.destroy();
             mMusicPlayer = null;
         }
     }
@@ -1014,7 +1026,7 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> implement
         RoomManager.Instance(this).removeRoomEventCallback(mRoomEventCallback);
         if (mMusicPlayer != null) {
             mMusicPlayer.unregisterPlayerObserver();
-            mMusicPlayer.destory();
+            mMusicPlayer.destroy();
             mMusicPlayer = null;
         }
         super.onDestroy();

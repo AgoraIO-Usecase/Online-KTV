@@ -67,7 +67,7 @@ class CreateRoomController: BaseViewContoller {
             self.show(processing: waiting)
         } onSuccess: { [weak self] in
             guard let self = self else { return }
-            self.show(message: "创建歌房成功", type: .done)
+            self.show(message: "The singing room was successfully established.".localized, type: .done)
             self.navigationController?.replaceTopViewController(with: room, animated: true)
         } onError: { [weak self] message in
             Logger.log(message: message, level: .error)

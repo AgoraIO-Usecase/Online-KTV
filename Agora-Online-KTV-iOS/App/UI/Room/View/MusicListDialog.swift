@@ -53,8 +53,8 @@ private class OrderMusicCell: UITableViewCell {
         let view = RoundButton()
         view.backgroundColor = UIColor(hex: Colors.Blue)
         view.titleLabel?.font = UIFont.systemFont(ofSize: 14)
-        view.setTitle("点歌", for: .normal)
-        view.setTitle("已点", for: .disabled)
+        view.setTitle("Sing".localized, for: .normal)
+        view.setTitle("Requested".localized, for: .disabled)
         return view
     }()
 
@@ -312,7 +312,7 @@ private class SearchView: UIView, UITextFieldDelegate {
     private var editor: UITextField = {
         let view = UITextField()
         view.borderStyle = .none
-        view.attributedPlaceholder = NSAttributedString(string: "搜索歌曲", attributes: [NSAttributedString.Key.foregroundColor: UIColor(hex: "#7e7e7e")])
+        view.attributedPlaceholder = NSAttributedString(string: "Search".localized, attributes: [NSAttributedString.Key.foregroundColor: UIColor(hex: "#7e7e7e")])
         view.font = UIFont.systemFont(ofSize: 14)
         view.textColor = UIColor(hex: "#ccffffff")
         view.clearButtonMode = .whileEditing
@@ -405,7 +405,7 @@ private class HeaderView: UIView {
         let view = UIButton()
         view.titleLabel?.textColor = UIColor(hex: Colors.DialogTitle)
         view.titleLabel?.font = UIFont.systemFont(ofSize: 14)
-        view.setTitle("点歌", for: .normal)
+        view.setTitle("Sing".localized, for: .normal)
         return view
     }()
 
@@ -422,7 +422,7 @@ private class HeaderView: UIView {
         let view = UILabel()
         view.textColor = UIColor(hex: Colors.DialogTitle)
         view.font = UIFont.systemFont(ofSize: 14)
-        view.text = "已点"
+        view.text = "Requested".localized
         return view
     }()
 
@@ -530,7 +530,7 @@ class MusicListDialog: Dialog, UIScrollViewDelegate, HeaderViewDelegate, SearchV
 
     private var emptyView: UILabel = {
         let view = UILabel()
-        view.text = "未找到相关搜索结果"
+        view.text = "No relevant search results were found".localized
         view.textAlignment = .center
         view.textColor = UIColor(hex: "#7e7e7e")
         view.font = UIFont.systemFont(ofSize: 14)
@@ -546,7 +546,7 @@ class MusicListDialog: Dialog, UIScrollViewDelegate, HeaderViewDelegate, SearchV
         let view = UILabel()
         view.textColor = UIColor(hex: Colors.Text).withAlphaComponent(0.59)
         view.font = UIFont.systemFont(ofSize: 12)
-        view.text = "歌曲来自咪咕音乐"
+        view.text = "The song comes from Migu music.".localized
         return view
     }()
 
@@ -630,7 +630,7 @@ class MusicListDialog: Dialog, UIScrollViewDelegate, HeaderViewDelegate, SearchV
         Logger.log(self, message: "onSearch \(text)", level: .info)
         delegate.viewModel.search(music: text) { [weak self] waiting in
             guard let weakself = self else { return }
-            weakself.show(processing: waiting, message: "歌曲搜索中")
+            weakself.show(processing: waiting, message: "Song search".localized)
         } onSuccess: { [weak self] list in
             guard let weakself = self else { return }
             weakself.localMusicList.data = list

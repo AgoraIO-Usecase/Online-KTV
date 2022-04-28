@@ -99,6 +99,11 @@ class RoomController: BaseViewContoller, DialogDelegate {
     @IBOutlet var switchMusicView: UIButton! {
         didSet {
             mvPlayer.switchMusicView = switchMusicView
+            switchMusicView.layer.cornerRadius = 17
+            switchMusicView.layer.masksToBounds = true
+            switchMusicView.layer.borderColor = UIColor.white.cgColor
+            switchMusicView.layer.borderWidth = 1
+            switchMusicView.setTitle("Cut song".localized, for: .normal)
         }
     }
 
@@ -106,6 +111,14 @@ class RoomController: BaseViewContoller, DialogDelegate {
         didSet {
             seatViews[0].delegate = self
             seatViews[0].root = seat1Root
+        }
+    }
+
+    @IBOutlet var seat1CanvasView: UIView! {
+        didSet {
+            seat1CanvasView.layer.cornerRadius = 30.5
+            seat1CanvasView.layer.masksToBounds = true
+            seatViews[0].canvas = seat1CanvasView
         }
     }
 
@@ -128,6 +141,14 @@ class RoomController: BaseViewContoller, DialogDelegate {
         }
     }
 
+    @IBOutlet var seat2CanvasView: UIView! {
+        didSet {
+            seat2CanvasView.layer.cornerRadius = 30.5
+            seat2CanvasView.layer.masksToBounds = true
+            seatViews[1].canvas = seat2CanvasView
+        }
+    }
+
     @IBOutlet var seat2Icon: UIImageView! {
         didSet {
             seatViews[1].icon = seat2Icon
@@ -144,6 +165,14 @@ class RoomController: BaseViewContoller, DialogDelegate {
         didSet {
             seatViews[2].delegate = self
             seatViews[2].root = seat3Root
+        }
+    }
+
+    @IBOutlet var seat3CanvasView: UIView! {
+        didSet {
+            seat3CanvasView.layer.cornerRadius = 30.5
+            seat3CanvasView.layer.masksToBounds = true
+            seatViews[2].canvas = seat3CanvasView
         }
     }
 
@@ -166,6 +195,14 @@ class RoomController: BaseViewContoller, DialogDelegate {
         }
     }
 
+    @IBOutlet var seat4CanvasView: UIView! {
+        didSet {
+            seat4CanvasView.layer.cornerRadius = 30.5
+            seat4CanvasView.layer.masksToBounds = true
+            seatViews[3].canvas = seat4CanvasView
+        }
+    }
+
     @IBOutlet var seat4Icon: UIImageView! {
         didSet {
             seatViews[3].icon = seat4Icon
@@ -182,6 +219,14 @@ class RoomController: BaseViewContoller, DialogDelegate {
         didSet {
             seatViews[4].delegate = self
             seatViews[4].root = seat5Root
+        }
+    }
+
+    @IBOutlet var seat5CanvasView: UIView! {
+        didSet {
+            seat5CanvasView.layer.cornerRadius = 30.5
+            seat5CanvasView.layer.masksToBounds = true
+            seatViews[4].canvas = seat5CanvasView
         }
     }
 
@@ -205,6 +250,14 @@ class RoomController: BaseViewContoller, DialogDelegate {
         }
     }
 
+    @IBOutlet var seat6CanvasView: UIView! {
+        didSet {
+            seat6CanvasView.layer.cornerRadius = 30.5
+            seat6CanvasView.layer.masksToBounds = true
+            seatViews[5].canvas = seat6CanvasView
+        }
+    }
+
     @IBOutlet var seat6Icon: UIImageView! {
         didSet {
             seatViews[5].icon = seat6Icon
@@ -224,6 +277,14 @@ class RoomController: BaseViewContoller, DialogDelegate {
         }
     }
 
+    @IBOutlet var seat7CanvasView: UIView! {
+        didSet {
+            seat7CanvasView.layer.cornerRadius = 30.5
+            seat7CanvasView.layer.masksToBounds = true
+            seatViews[6].canvas = seat7CanvasView
+        }
+    }
+
     @IBOutlet var seat7Icon: UIImageView! {
         didSet {
             seatViews[6].icon = seat7Icon
@@ -240,6 +301,14 @@ class RoomController: BaseViewContoller, DialogDelegate {
         didSet {
             seatViews[7].delegate = self
             seatViews[7].root = seat8Root
+        }
+    }
+
+    @IBOutlet var seat8CanvasView: UIView! {
+        didSet {
+            seat8CanvasView.layer.cornerRadius = 30.5
+            seat8CanvasView.layer.masksToBounds = true
+            seatViews[7].canvas = seat8CanvasView
         }
     }
 
@@ -283,12 +352,20 @@ class RoomController: BaseViewContoller, DialogDelegate {
     @IBOutlet var orderMusicView: UIButton! {
         didSet {
             speakerToolbar.orderMusicView = orderMusicView
+            orderMusicView.layer.cornerRadius = 20
+            orderMusicView.layer.masksToBounds = true
+            orderMusicView.backgroundColor = UIColor(hex: "#1b6def", alpha: 1.0)
+            orderMusicView.setTitle("Order a song".localized, for: .normal)
         }
     }
 
     @IBOutlet var orderChorusMusicView: UIButton! {
         didSet {
             speakerToolbar.orderChorusMusicView = orderChorusMusicView
+            orderChorusMusicView.layer.cornerRadius = 20
+            orderChorusMusicView.layer.masksToBounds = true
+            orderChorusMusicView.backgroundColor = UIColor(hex: "#1b6def", alpha: 1.0)
+            orderChorusMusicView.setTitle("Chorus".localized, for: .normal)
         }
     }
 
@@ -435,8 +512,15 @@ extension RoomController: RoomControlDelegate {
             member.isSpeaker()
         }
         let count = min(list.count, 8)
-        for index in 0 ..< 8 {
-            seatViews[index].member = index < count ? list[index] : nil
+        for index in 0 ..< count {
+            let uid = seatViews[index].member?.streamId ?? 0
+            let member = list[index]
+            seatViews[index].member = member
+            if member.isVideoMuted {
+                seatViews[index].canvas.subviews.forEach { $0.removeFromSuperview() }
+            } else {
+                viewModel.setCanvasView(uid: uid, isLocal: viewModel.account.id == member.userId, canvasView: seatViews[index].canvas)
+            }
         }
         renderToolbar()
     }

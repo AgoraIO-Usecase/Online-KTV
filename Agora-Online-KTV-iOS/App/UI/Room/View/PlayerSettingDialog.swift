@@ -43,7 +43,7 @@ class PlayerSettingDialog: Dialog {
         view.font = UIFont.systemFont(ofSize: 14)
         view.numberOfLines = 1
         view.textColor = UIColor(hex: Colors.DialogTitle)
-        view.text = "参数设置"
+        view.text = "Parameter setting".localized
         return view
     }()
 
@@ -52,7 +52,7 @@ class PlayerSettingDialog: Dialog {
         view.font = UIFont.systemFont(ofSize: 14)
         view.numberOfLines = 1
         view.textColor = UIColor(hex: Colors.Text).withAlphaComponent(0.5)
-        view.text = "耳返"
+        view.text = "Ear return".localized
         return view
     }()
 
@@ -67,7 +67,7 @@ class PlayerSettingDialog: Dialog {
         view.font = UIFont.systemFont(ofSize: 14)
         view.numberOfLines = 1
         view.textColor = UIColor(hex: Colors.Text).withAlphaComponent(0.5)
-        view.text = "升降调"
+        view.text = "Rising and falling tone".localized
         return view
     }()
 
@@ -97,7 +97,7 @@ class PlayerSettingDialog: Dialog {
         view.font = UIFont.systemFont(ofSize: 14)
         view.numberOfLines = 1
         view.textColor = UIColor(hex: Colors.Text).withAlphaComponent(0.5)
-        view.text = "人声音量"
+        view.text = "Voice volume".localized
         return view
     }()
 
@@ -113,7 +113,7 @@ class PlayerSettingDialog: Dialog {
         view.font = UIFont.systemFont(ofSize: 14)
         view.numberOfLines = 1
         view.textColor = UIColor(hex: Colors.Text).withAlphaComponent(0.5)
-        view.text = "伴奏音量"
+        view.text = "Accompaniment volume".localized
         return view
     }()
 

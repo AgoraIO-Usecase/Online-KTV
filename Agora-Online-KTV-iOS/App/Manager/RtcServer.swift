@@ -24,6 +24,12 @@ class RtcServer: NSObject {
     private var rtcMusicPlayer: IRtcMusicPlayer?
     private let statePublisher: PublishRelay<Result<RtcServerStateType>> = PublishRelay()
     private let rtcMusicStatePublisher: PublishRelay<Result<RtcMusicState>> = PublishRelay()
+    private lazy var mediaOption: AgoraRtcChannelMediaOptions = {
+        let option = AgoraRtcChannelMediaOptions()
+        option.autoSubscribeAudio = AgoraRtcBoolOptional.of(true)
+        option.autoSubscribeVideo = AgoraRtcBoolOptional.of(true)
+        return option
+    }()
 
     private(set) var uid: UInt = 0
     private(set) var channel: String?
@@ -72,6 +78,36 @@ class RtcServer: NSObject {
         rtc.setClientRole(role)
     }
 
+    func openVideoHandler(isOpen: Bool) {
+        let option = mediaOption
+        option.publishCustomVideoTrack = .of(isOpen)
+        option.publishCameraTrack = .of(isOpen)
+        if isOpen {
+            rtcEngine?.enableVideo()
+            rtcEngine?.startPreview()
+        } else {
+            rtcEngine?.disableVideo()
+            rtcEngine?.stopPreview()
+            let canvas = AgoraRtcVideoCanvas()
+            canvas.view = UIView()
+            rtcEngine?.setupLocalVideo(canvas)
+        }
+        setClientRole(isOpen ? .broadcaster : .audience, true)
+        rtcEngine?.updateChannel(with: option)
+    }
+
+    func createVideoCanvas(uid: UInt, isLocal: Bool = false, canvasView: UIView) {
+        let canvas = AgoraRtcVideoCanvas()
+        canvas.uid = uid
+        canvas.renderMode = .hidden
+        canvas.view = canvasView
+        if isLocal {
+            rtcEngine?.setupLocalVideo(canvas)
+        } else {
+            rtcEngine?.setupRemoteVideo(canvas)
+        }
+    }
+
     func enable(earloop: Bool) {
         isEnableEarloop = earloop
         guard let rtc = rtcEngine else {
@@ -94,15 +130,13 @@ class RtcServer: NSObject {
         }
         rtc.enableAudio()
         rtc.disableVideo()
-        rtc.enableAudioVolumeIndication(200, smooth: 3, reportvad: true)
+        // 人声检测回调参数
+        rtc.enableAudioVolumeIndication(200, smooth: 3, reportVad: true)
         muteLocalMicrophone(mute: member.isSelfMuted)
         rtc.enable(inEarMonitoring: isEnableEarloop)
         setRecordingSignalVolume(value: recordingSignalVolume)
         return Single.create { single in
-            let option = AgoraRtcChannelMediaOptions()
-            option.autoSubscribeAudio = AgoraRtcBoolOptional.of(true)
-            option.autoSubscribeVideo = AgoraRtcBoolOptional.of(false)
-            let code = rtc.joinChannel(byToken: BuildConfig.Token, channelId: channel, uid: 0, mediaOptions: option)
+            let code = rtc.joinChannel(byToken: BuildConfig.Token, channelId: channel, uid: member.streamId, mediaOptions: self.mediaOption)
             // rtc.joinChannel(byToken: BuildConfig.Token, channelId: channel, info: nil, uid: 0)
             single(.success(code))
             return Disposables.create()
@@ -485,6 +519,7 @@ extension RtcServer: AgoraRtcEngineDelegate {
         }
     }
 
+    /// 人声实时回调
     func rtcEngine(_: AgoraRtcEngineKit, reportAudioVolumeIndicationOfSpeakers speakers: [AgoraRtcAudioVolumeInfo], totalVolume _: Int) {
         voicePitchRelay.accept(speakers.map { $0.voicePitch })
     }
@@ -530,17 +565,17 @@ extension RtcServer: ErrorDescription {
 public extension AgoraAudioEffectPreset {
     func description() -> String {
         switch self {
-        case .off: return "原声"
+        case .off: return "Original".localized
         case .roomAcousticsKTV: return "KTV"
-        case .roomAcousVocalConcer: return "演唱会"
-        case .roomAcousStudio: return "录音棚"
-        case .roomAcousPhonograph: return "留声机"
-        case .roomAcousSpatial: return "空旷"
-        case .roomAcousEthereal: return "空灵"
-        case .styleTransformationPopular: return "流行"
+        case .roomAcousVocalConcer: return "Concert".localized
+        case .roomAcousStudio: return "Studio".localized
+        case .roomAcousPhonograph: return "Phonograph".localized
+        case .roomAcousSpatial: return "Spacial".localized
+        case .roomAcousEthereal: return "Ethereal".localized
+        case .styleTransformationPopular: return "Popular".localized
         case .styleTransformationRnb: return "R&B"
         default:
-            return "原声"
+            return "Original".localized
         }
     }
 

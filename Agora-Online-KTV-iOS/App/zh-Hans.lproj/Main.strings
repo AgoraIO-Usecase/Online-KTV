@@ -1,0 +1,69 @@
+
+/* Class = "UILabel"; text = "上麦后可点歌和发言"; ObjectID = "0Xs-Pj-8GT"; */
+"0Xs-Pj-8GT.text" = "上麦后可点歌和发言";
+
+/* Class = "UIButton"; normalTitle = "重新加载"; ObjectID = "2A8-EV-l4k"; */
+"2A8-EV-l4k.normalTitle" = "重新加载";
+
+/* Class = "UILabel"; text = "3"; ObjectID = "2V2-gG-M6z"; */
+"2V2-gG-M6z.text" = "3";
+
+/* Class = "UIButton"; normalTitle = "创建"; ObjectID = "2mk-Sd-u9I"; */
+"2mk-Sd-u9I.normalTitle" = "创建";
+
+/* Class = "UILabel"; text = "1"; ObjectID = "A2h-Pu-z0E"; */
+"A2h-Pu-z0E.text" = "1";
+
+/* Class = "UILabel"; text = "歌房"; ObjectID = "AYC-B0-0TA"; */
+"AYC-B0-0TA.text" = "歌房";
+
+/* Class = "UIButton"; normalTitle = "切歌"; ObjectID = "Bmy-jg-4j8"; */
+"Bmy-jg-4j8.normalTitle" = "切歌";
+
+/* Class = "UILabel"; text = "歌房"; ObjectID = "C3j-Nr-zNb"; */
+"C3j-Nr-zNb.text" = "歌房";
+
+/* Class = "UILabel"; text = "Label"; ObjectID = "IX2-vs-PP4"; */
+"IX2-vs-PP4.text" = "Label";
+
+/* Class = "UIButton"; normalTitle = "点歌"; ObjectID = "SWH-7L-1Ck"; */
+"SWH-7L-1Ck.normalTitle" = "点歌";
+
+/* Class = "UILabel"; text = "夏日点歌机"; ObjectID = "V3M-ga-bv3"; */
+"V3M-ga-bv3.text" = "夏日点歌机";
+
+/* Class = "UILabel"; text = "原唱"; ObjectID = "XAS-9l-bqc"; */
+"XAS-9l-bqc.text" = "原唱";
+
+/* Class = "UILabel"; text = "4"; ObjectID = "Xna-o9-5Bv"; */
+"Xna-o9-5Bv.text" = "4";
+
+/* Class = "UILabel"; text = "歌房"; ObjectID = "Ydq-kd-oYn"; */
+"Ydq-kd-oYn.text" = "歌房";
+
+/* Class = "UILabel"; text = "7"; ObjectID = "ejg-9D-hzI"; */
+"ejg-9D-hzI.text" = "7";
+
+/* Class = "UILabel"; text = "请创建一个歌房"; ObjectID = "hLb-C3-6t5"; */
+"hLb-C3-6t5.text" = "请创建一个歌房";
+
+/* Class = "UILabel"; text = "歌房名称"; ObjectID = "ixk-k3-4Gc"; */
+"ixk-k3-4Gc.text" = "歌房名称";
+
+/* Class = "UILabel"; text = "本应用为测试产品，请勿商用。单次直播最长10分钟，每个频道最多10人。"; ObjectID = "p2k-6Q-PTj"; */
+"p2k-6Q-PTj.text" = "本应用为测试产品，请勿商用。单次直播最长10分钟，每个频道最多10人。";
+
+/* Class = "UILabel"; text = "6"; ObjectID = "sEW-9A-5rb"; */
+"sEW-9A-5rb.text" = "6";
+
+/* Class = "UIButton"; normalTitle = "合唱"; ObjectID = "vAL-P1-gn3"; */
+"vAL-P1-gn3.normalTitle" = "合唱";
+
+/* Class = "UILabel"; text = "2"; ObjectID = "vvH-Yw-1u3"; */
+"vvH-Yw-1u3.text" = "2";
+
+/* Class = "UILabel"; text = "8"; ObjectID = "z4D-XN-R4o"; */
+"z4D-XN-R4o.text" = "8";
+
+/* Class = "UILabel"; text = "5"; ObjectID = "zTe-Xc-iD2"; */
+"zTe-Xc-iD2.text" = "5";

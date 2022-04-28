@@ -667,7 +667,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
         mHandler.obtainMessage(ACTION_ON_MUSIC_COMPLETED).sendToTarget();
     }
 
-    public void destory() {
+    public void destroy() {
         mLogger.i("destory() called");
         mPlayer.unRegisterPlayerObserver(this);
         RoomManager.Instance(mContext).getRtcEngine().removeHandler(this);

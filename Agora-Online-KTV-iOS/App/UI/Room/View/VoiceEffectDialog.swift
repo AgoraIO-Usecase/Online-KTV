@@ -21,7 +21,7 @@ class VoiceEffectDialog: Dialog {
         view.font = UIFont.systemFont(ofSize: 14)
         view.numberOfLines = 1
         view.textColor = UIColor(hex: Colors.DialogTitle)
-        view.text = "音效"
+        view.text = "Sound effect".localized
         return view
     }()
 

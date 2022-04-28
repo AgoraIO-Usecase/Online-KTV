@@ -47,7 +47,7 @@ import io.reactivex.disposables.Disposable;
 public class RoomListActivity extends BaseActivity<KtvActivityRoomListBinding> {
 
     private static final String[] PERMISSIONS = new String[]{
-            Manifest.permission.RECORD_AUDIO};
+            Manifest.permission.RECORD_AUDIO, Manifest.permission.CAMERA};
 
     private BaseRecyclerViewAdapter<KtvItemRoomListBinding, AgoraRoom, RoomHolder> mAdapter;
 

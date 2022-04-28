@@ -5,7 +5,7 @@
 //  Created by XC on 2021/6/7.
 //
 
-import AgoraLrcScore
+import AgoraLyricsScore
 import Core
 import Foundation
 import LrcView
@@ -33,7 +33,7 @@ private class ChorusMasterView: UIView {
     // sec
     var time: TimeInterval? {
         didSet {
-            tipsView.text = "等待加入合唱 \(Utils.format(time: time ?? 0))"
+            tipsView.text = "Waiting for others to join the duet".localized + " \(Utils.format(time: time ?? 0))"
         }
     }
 
@@ -58,7 +58,7 @@ private class ChorusMasterView: UIView {
         view.backgroundColor = UIColor.clear
         view.borderColor = Colors.Text
         view.borderWidth = 1
-        view.setTitle("不等了，独唱", for: .normal)
+        view.setTitle("Sing alone instead".localized, for: .normal)
         view.setTitleColor(UIColor.white, for: .normal)
         view.titleLabel?.font = UIFont.systemFont(ofSize: 15)
         return view
@@ -119,7 +119,7 @@ private class ChorusFollowerView: UIView {
     var time: TimeInterval? {
         didSet {
 //            let time = time ?? 0
-            tipsView.text = "抢麦倒计时 \(Utils.format(time: time ?? 0))"
+            tipsView.text = "Countdown to wheat grabbing".localized + " \(Utils.format(time: time ?? 0))"
         }
     }
 
@@ -142,7 +142,7 @@ private class ChorusFollowerView: UIView {
     private let button: RoundButton = {
         let view = RoundButton()
         view.backgroundColor = UIColor(hex: Colors.Blue)
-        view.setTitle("加入合唱", for: .normal)
+        view.setTitle("Join the duet".localized, for: .normal)
         view.setTitleColor(UIColor.white, for: .normal)
         view.borderWidth = 0
         view.titleLabel?.font = UIFont.systemFont(ofSize: 15)
@@ -234,13 +234,22 @@ class MVPlayer: NSObject {
 
     private lazy var lrcScoreView: AgoraLrcScoreView = {
         let lrcView = AgoraLrcScoreView(delegate: self)
-        lrcView.config.scoreConfig.scoreViewHeight = 80
-        lrcView.config.scoreConfig.lineHeight = 5
-        lrcView.config.lrcConfig.lrcNormalColor = .lightGray
-        lrcView.config.scoreConfig.cursorColor = .white
-        lrcView.config.scoreConfig.normalColor = .lightGray
-        lrcView.config.scoreConfig.separatorLineColor = .lightText
+        let config = AgoraLrcScoreConfigModel()
+        let scoreConfig = AgoraScoreItemConfigModel()
+        scoreConfig.scoreViewHeight = 80
+        scoreConfig.lineHeight = 6
+        scoreConfig.cursorColor = .white
+        scoreConfig.normalColor = .lightGray
+        scoreConfig.separatorLineColor = .lightText
+        config.scoreConfig = scoreConfig
+
+        let lrcConfig = AgoraLrcConfigModel()
+        lrcConfig.lrcNormalColor = .lightGray
+        lrcConfig.lrcTopAndBottomMargin = 10
+        config.lrcConfig = lrcConfig
+
         lrcView.scoreDelegate = self
+        lrcView.config = config
         return lrcView
     }()
 
@@ -248,7 +257,7 @@ class MVPlayer: NSObject {
         let label = UILabel()
         label.textColor = .white
         label.font = .systemFont(ofSize: 14)
-        label.text = "评分: 50"
+        label.text = "score: 50"
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -282,13 +291,13 @@ class MVPlayer: NSObject {
         tips1.textColor = UIColor(hex: Colors.Text)
         tips1.numberOfLines = 0
         tips1.textAlignment = .center
-        tips1.text = "当前无人演唱"
+        tips1.text = "no one is singing".localized
         let tips2 = UILabel()
         tips2.font = UIFont.systemFont(ofSize: 14, weight: .medium)
         tips2.textColor = UIColor(hex: Colors.Text)
         tips2.numberOfLines = 0
         tips2.textAlignment = .center
-        tips2.text = "点击“点歌”一展歌喉"
+        tips2.text = "order songs to show your voice".localized
 
         view.addSubview(icon)
         view.addSubview(tips1)
@@ -404,6 +413,7 @@ class MVPlayer: NSObject {
             lrcScoreView.reset()
             chorusMasterView.isHidden = true
             chorusFollowerView.isHidden = true
+            scoreLabel.text = "score: 50"
         case .play, .pause:
             stopView.isHidden = true
             mv.isHidden = false
@@ -419,6 +429,7 @@ class MVPlayer: NSObject {
             mv.isHidden = false
             lrcScoreView.isHidden = true
             lrcScoreView.reset()
+            scoreLabel.text = "score: 50"
             chorusMasterView.isHidden = false
             chorusFollowerView.isHidden = false
         case .processChorusApply:
@@ -674,7 +685,9 @@ class MVPlayer: NSObject {
         hookSwitchView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(onSwitchOrigin)))
     }
 
+    private var state: RtcMusicState?
     func onMusic(state: RtcMusicState) {
+        self.state = state
         switch status {
         case .waitChorusApply:
             if state.type != .countdown {
@@ -695,7 +708,9 @@ class MVPlayer: NSObject {
                     if status != .play {
                         status = .play
                     }
-                    lrcScoreView.start()
+                    if lrcScoreView.isStart == false {
+                        lrcScoreView.start()
+                    }
                 case .paused:
                     if status != .pause {
                         status = .pause
@@ -704,6 +719,7 @@ class MVPlayer: NSObject {
                 case .playBackCompleted, .playBackAllLoopsCompleted:
                     if status != .stop {
                         status = .stop
+                        lrcScoreView.stop()
                         originSettingView.setOn(true, animated: true)
                     }
                     if let music = music {
@@ -745,7 +761,7 @@ class MVPlayer: NSObject {
     }
 
     @objc func onSwitchMusic() {
-        let alert = AlertDialog(title: "切歌".localized, message: "终止当前歌曲的演唱？".localized)
+        let alert = AlertDialog(title: "Cut song".localized, message: "Stop the singing of the current song?".localized)
         alert.cancelAction = { [weak self] in
             guard let weakself = self else { return }
             weakself.delegate.dismiss(dialog: alert, completion: nil)
@@ -776,7 +792,7 @@ class MVPlayer: NSObject {
                 originSettingView.setOn(false, animated: true)
                 delegate.viewModel.originMusic(enable: true)
             } else {
-                delegate.show(message: "该歌曲无法进行人声切换", type: .error)
+                delegate.show(message: "The song cannot be switched by voice.".localized, type: .error)
             }
         } else {
             if delegate.viewModel.isSupportSwitchOriginMusic {
@@ -844,12 +860,14 @@ class MVPlayer: NSObject {
 extension MVPlayer: AgoraLrcViewDelegate, AgoraKaraokeScoreDelegate {
     func getPlayerCurrentTime() -> TimeInterval {
         guard delegate != nil else { return 0 }
-        return TimeInterval(delegate.viewModel.postion) / 1000
+        let postion = delegate.viewModel.postion < 0 ? (state?.position ?? 0) : delegate.viewModel.postion
+        return TimeInterval(postion) / 1000
     }
 
     func getTotalTime() -> TimeInterval {
         guard delegate != nil else { return 0 }
-        return TimeInterval(delegate.viewModel.duration) / 1000
+        let duration = delegate.viewModel.duration < 0 ? (state?.duration ?? 0) : delegate.viewModel.duration
+        return TimeInterval(duration) / 1000
     }
 
     func seekToTime(time: TimeInterval) {
@@ -859,7 +877,7 @@ extension MVPlayer: AgoraLrcViewDelegate, AgoraKaraokeScoreDelegate {
         }
     }
 
-    func agoraKaraokeScore(score: Double, totalScore _: Double) {
-        scoreLabel.text = String(format: "评分: %.2f", score)
+    func agoraKaraokeScore(score _: Double, cumulativeScore: Double, totalScore _: Double) {
+        scoreLabel.text = String(format: "score: %.2f", cumulativeScore)
     }
 }

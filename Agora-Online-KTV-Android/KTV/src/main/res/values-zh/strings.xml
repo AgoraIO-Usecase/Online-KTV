@@ -66,6 +66,7 @@
 
     <string name="ktv_beauty_voice">美声</string>
     <string name="ktv_beauty_effect">音效</string>
+    <string name="ktv_camera">摄像头</string>
     <!--    Content Description-->
     <string name="ktv_create_room">创建房间</string>
     <string name="ktv_toggle_mic">麦克风启用或静音</string>
