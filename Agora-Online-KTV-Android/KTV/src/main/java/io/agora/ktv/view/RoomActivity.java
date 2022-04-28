@@ -775,13 +775,13 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> implement
             case 0:
                 return Constants.AUDIO_EFFECT_OFF;
             case 1:
-                return Constants.AUDIO_REVERB_FX_KTV;
+                return Constants.ROOM_ACOUSTICS_KTV;
             case 2:
-                return Constants.AUDIO_REVERB_FX_VOCAL_CONCERT;
+                return Constants.ROOM_ACOUSTICS_VOCAL_CONCERT;
             case 3:
-                return Constants.AUDIO_REVERB_FX_STUDIO;
+                return Constants.ROOM_ACOUSTICS_STUDIO;
             case 4:
-                return Constants.AUDIO_REVERB_FX_PHONOGRAPH;
+                return Constants.ROOM_ACOUSTICS_PHONOGRAPH;
             case 5:
                 return Constants.ROOM_ACOUSTICS_SPACIAL;
             case 6:

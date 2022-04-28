@@ -51,6 +51,8 @@ public class RoomListActivity extends BaseActivity<KtvActivityRoomListBinding> {
 
     private BaseRecyclerViewAdapter<KtvItemRoomListBinding, AgoraRoom, RoomHolder> mAdapter;
 
+    private boolean isCreateOp = true;
+
     ActivityResultLauncher<String[]> requestPermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), res -> {
 
         List<String> permissionsRefused = new ArrayList<>();
@@ -64,7 +66,7 @@ public class RoomListActivity extends BaseActivity<KtvActivityRoomListBinding> {
         if (!permissionsRefused.isEmpty()) {
             showPermissionAlertDialog(false);
         } else {
-            toRoomActivity();
+            doRealOp();
         }
     });
 
@@ -87,6 +89,7 @@ public class RoomListActivity extends BaseActivity<KtvActivityRoomListBinding> {
             @Override
             public void onItemClick(@NonNull AgoraRoom data, View view, int position, long viewType) {
                 mAdapter.selectedIndex = position;
+                isCreateOp = false;
                 ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
                 NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
 
@@ -105,7 +108,10 @@ public class RoomListActivity extends BaseActivity<KtvActivityRoomListBinding> {
         if(Build.VERSION.SDK_INT <= Build.VERSION_CODES.R)
             mBinding.list.setOverScrollMode(View.OVER_SCROLL_NEVER);
 
-        mBinding.btnCreateAttRoomList.setOnClickListener(this::gotoCreateRoom);
+        mBinding.btnCreateAttRoomList.setOnClickListener(v -> {
+            isCreateOp = true;
+            handlePermissionStuff();
+        });
     }
 
     private void refreshData() {
@@ -178,7 +184,7 @@ public class RoomListActivity extends BaseActivity<KtvActivityRoomListBinding> {
         mBinding.viewEmptyAttRoomList.setVisibility(View.GONE);
     }
 
-    private void gotoCreateRoom(View v) {
+    private void toCreateRoom() {
         Intent intent = CreateRoomActivity.newIntent(RoomListActivity.this);
         startActivity(intent);
     }
@@ -189,7 +195,7 @@ public class RoomListActivity extends BaseActivity<KtvActivityRoomListBinding> {
     private void handlePermissionStuff() {
         // 小于 M 无需控制
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            toRoomActivity();
+            doRealOp();
             return;
         }
 
@@ -202,7 +208,7 @@ public class RoomListActivity extends BaseActivity<KtvActivityRoomListBinding> {
             }
         }
         if (!needRequest) {
-            toRoomActivity();
+            doRealOp();
             return;
         }
 
@@ -218,6 +224,11 @@ public class RoomListActivity extends BaseActivity<KtvActivityRoomListBinding> {
         if (requestDirectly) requestPermissionLauncher.launch(PERMISSIONS);
             // 显示申请理由
         else showPermissionAlertDialog(true);
+    }
+
+    private void doRealOp(){
+        if (isCreateOp) toCreateRoom();
+        else toRoomActivity();
     }
 
     private void showPermissionAlertDialog(boolean canRequest) {

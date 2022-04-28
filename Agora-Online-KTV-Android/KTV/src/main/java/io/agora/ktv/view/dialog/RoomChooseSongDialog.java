@@ -5,6 +5,9 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
@@ -33,6 +36,14 @@ public class RoomChooseSongDialog extends BaseBottomSheetDialogFragment<KtvDialo
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        // Edge to edge
+        ViewCompat.setOnApplyWindowInsetsListener(requireDialog().getWindow().getDecorView(), (v, insets) -> {
+            Insets inset = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            mBinding.pager.setPadding(0,0,0, inset.bottom);
+            return WindowInsetsCompat.CONSUMED;
+        });
+
         mBinding.pager.getChildAt(0).setOverScrollMode(View.OVER_SCROLL_NEVER);
         mBinding.pager.setAdapter(new FragmentStateAdapter(getChildFragmentManager(), getViewLifecycleOwner().getLifecycle()){
 

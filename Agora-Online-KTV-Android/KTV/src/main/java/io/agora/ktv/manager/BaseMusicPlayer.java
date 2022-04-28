@@ -22,6 +22,8 @@ import java.util.Map;
 import io.agora.ktv.bean.MemberMusicModel;
 import io.agora.mediaplayer.IMediaPlayer;
 import io.agora.mediaplayer.IMediaPlayerObserver;
+import io.agora.mediaplayer.data.PlayerUpdatedInfo;
+import io.agora.mediaplayer.data.SrcInfo;
 import io.agora.rtc2.Constants;
 import io.agora.rtc2.IRtcEngineEventHandler;
 
@@ -343,7 +345,7 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
      - < 0: Failure.
      */
     public void setAudioMixingPitch(int newToneValue) {
-        mPlayer.setAudioMixingPitch(newToneValue);
+        mPlayer.setAudioPitch(newToneValue);
     }
 
     public void seek(long d) {
@@ -582,7 +584,34 @@ public abstract class BaseMusicPlayer extends IRtcEngineEventHandler implements 
     }
 
     @Override
-    public void onPlayerEvent(io.agora.mediaplayer.Constants.MediaPlayerEvent eventCode) {
+    public void onPlayerEvent(io.agora.mediaplayer.Constants.MediaPlayerEvent eventCode, long elapsedTime, String message) {
+
+    }
+
+    @Override
+    public void onPreloadEvent(String src, io.agora.mediaplayer.Constants.MediaPlayerPreloadEvent event) {
+
+    }
+
+
+
+    @Override
+    public void onPlayerSrcInfoChanged(SrcInfo from, SrcInfo to) {
+
+    }
+
+    @Override
+    public void onAgoraCDNTokenWillExpire() {
+
+    }
+
+    @Override
+    public void onPlayerInfoUpdated(PlayerUpdatedInfo info) {
+
+    }
+
+    @Override
+    public void onAudioVolumeIndication(int volume) {
 
     }
 

@@ -5,6 +5,9 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.FragmentManager;
 
 import com.agora.data.ExampleData;
@@ -17,6 +20,7 @@ import io.agora.baselibrary.base.BaseActivity;
 import io.agora.baselibrary.base.BaseBottomSheetDialogFragment;
 import io.agora.baselibrary.base.BaseRecyclerViewAdapter;
 import io.agora.baselibrary.base.OnItemClickListener;
+import io.agora.baselibrary.util.KTVUtil;
 import io.agora.baselibrary.util.ToastUtil;
 import io.agora.ktv.adapter.MVHolder;
 import io.agora.ktv.databinding.KtvDialogMvBinding;
@@ -43,6 +47,12 @@ public class RoomMVDialog extends BaseBottomSheetDialogFragment<KtvDialogMvBindi
         initView();
     }
     private void initView() {
+        // Edge to edge
+        ViewCompat.setOnApplyWindowInsetsListener(requireDialog().getWindow().getDecorView(), (v, insets) -> {
+            Insets inset = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            mBinding.getRoot().setPadding(inset.left, (int) KTVUtil.dp2px(12), 0, (int) (inset.bottom + KTVUtil.dp2px(12)));
+            return WindowInsetsCompat.CONSUMED;
+        });
         mAdapter =new BaseRecyclerViewAdapter<>(ExampleData.exampleBackgrounds, this, MVHolder.class);
         mAdapter.selectedIndex = index;
 

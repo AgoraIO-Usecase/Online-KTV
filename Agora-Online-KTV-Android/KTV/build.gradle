@@ -94,6 +94,7 @@ dependencies {
 
     // Agora SDK
 //    implementation 'com.github.agorabuilder:agora-special-full:3.6.208.full'
+    implementation 'io.agora.rtc:agora-full-beta:4.0.0-beta.1'
     implementation 'androidx.palette:palette:1.0.0'
     api project(':baselibrary')
     api project(':data')
