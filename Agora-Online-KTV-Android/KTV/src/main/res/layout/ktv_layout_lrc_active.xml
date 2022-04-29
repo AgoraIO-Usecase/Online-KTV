@@ -9,6 +9,7 @@
         android:layout_width="0dp"
         android:layout_height="60dp"
         android:layout_marginTop="26dp"
+        app:pitchInitialScore="30"
         android:background="#26FFFFFF"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

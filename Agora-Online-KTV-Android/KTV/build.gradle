@@ -98,5 +98,5 @@ dependencies {
     implementation 'androidx.palette:palette:1.0.0'
     api project(':baselibrary')
     api project(':data')
-    implementation 'com.github.AgoraIO-Community:LrcView-Android:1.0.2'
+    implementation 'com.github.AgoraIO-Community:LrcView-Android:1.0.5'
 }

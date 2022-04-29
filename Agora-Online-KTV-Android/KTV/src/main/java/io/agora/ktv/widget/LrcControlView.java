@@ -107,6 +107,10 @@ public class LrcControlView extends FrameLayout implements View.OnClickListener 
         mBinding.ilActive.lrcView.setActionListener(this.mOnLrcActionListener);
     }
 
+    public void setPitchViewOnActionListener(PitchView.OnActionListener onActionListener){
+        mBinding.ilActive.pitchView.onActionListener = onActionListener;
+    }
+
     private CountDownTimer mCountDownLatch;
 
     private void startTimer() {
@@ -243,7 +247,7 @@ public class LrcControlView extends FrameLayout implements View.OnClickListener 
 
     public void setMusic(@NonNull MemberMusicModel mMusic) {
         mBinding.ilActive.lrcView.reset();
-        mBinding.ilActive.pitchView.reset();
+        mBinding.ilActive.pitchView.setLrcData(null);
 
         mBinding.tvMusicName.setText(mMusic.getName());
         mBinding.ilChorus.tvMusicName2.setText(mMusic.getName());

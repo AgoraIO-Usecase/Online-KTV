@@ -34,6 +34,7 @@ import java.util.Objects;
 import io.agora.baselibrary.base.BaseActivity;
 import io.agora.baselibrary.base.BaseRecyclerViewAdapter;
 import io.agora.baselibrary.base.OnItemClickListener;
+import io.agora.baselibrary.util.KTVUtil;
 import io.agora.baselibrary.util.ToastUtil;
 import io.agora.ktv.R;
 import io.agora.ktv.adapter.RoomPeopleHolder;
@@ -56,6 +57,7 @@ import io.agora.ktv.view.dialog.UserSeatMenuDialog;
 import io.agora.ktv.widget.DividerDecoration;
 import io.agora.ktv.widget.LrcControlView;
 import io.agora.lrcview.LrcLoadUtils;
+import io.agora.lrcview.PitchView;
 import io.agora.lrcview.bean.LrcData;
 import io.agora.lrcview.bean.LrcEntryData;
 import io.agora.mediaplayer.IMediaPlayer;
@@ -159,7 +161,7 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> implement
     private double getMusicPitch(long position) {
         double pitch = 0;
         for(LrcEntryData entry : this.toneList){
-            if(position > entry.getStartTime() && position < entry.tones.get(entry.tones.size()-1).end){
+            if(!entry.tones.isEmpty() && position > entry.getStartTime() && position < entry.tones.get(entry.tones.size()-1).end){
                 for(LrcEntryData.Tone item: entry.tones){
                     if(position > item.begin && position < item.end){
                         pitch = item.pitch;
@@ -177,7 +179,7 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> implement
         public void onLocalPitch(double pitch) {
             super.onLocalPitch(pitch);
             mBinding.lrcControlView.setLocalPitch(pitch);
-            mBinding.lrcControlView.getPitchView().updateLocalPitch(pitch);
+            mBinding.lrcControlView.getPitchView().updateLocalPitch((float) pitch);
 //            mMusicPlayer.writePitchToLog(pitch);
         }
 
@@ -414,6 +416,18 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> implement
                 if (mMusicPlayer != null) {
                     mMusicPlayer.sendCountdown(time);
                 }
+            }
+        });
+
+        mBinding.lrcControlView.setPitchViewOnActionListener(new PitchView.OnActionListener() {
+            @Override
+            public void onOriginalPitch(float pitch, int totalCount) {
+                KTVUtil.logD("pitch:"+pitch+"totalCount:"+totalCount);
+            }
+
+            @Override
+            public void onScore(double score, double cumulativeScore, double totalScore) {
+                KTVUtil.logD("score:"+score+", cScore:"+cumulativeScore+", tScore:"+totalScore);
             }
         });
     }

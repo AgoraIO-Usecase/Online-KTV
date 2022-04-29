@@ -86,8 +86,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@null"
-            android:padding="6dp"
             android:contentDescription="@string/ktv_tone_down"
+            android:padding="6dp"
             android:src="@drawable/ic_tone_down" />
 
         <TextView
@@ -104,8 +104,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@null"
-            android:padding="6dp"
             android:contentDescription="@string/ktv_tone_up"
+            android:padding="6dp"
             android:src="@drawable/ic_tone_up" />
     </LinearLayout>
 
@@ -132,6 +132,7 @@
             android:contentDescription="@string/ktv_music_menu_dialog_vol2"
             android:valueFrom="0"
             android:valueTo="100"
+            app:haloColor="@android:color/transparent"
             app:thumbColor="@android:color/black"
             app:thumbRadius="12dp"
             app:thumbStrokeColor="@color/ktv_colorAccent"
