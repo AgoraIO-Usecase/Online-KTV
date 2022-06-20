@@ -404,7 +404,7 @@ public class MusicPlayer extends IRtcEngineEventHandler {
             String strMsg = new String(data);
             jsonMsg = new JSONObject(strMsg);
 
-            if (mStatus.isAtLeast(Status.Started))
+            if (!mStatus.isAtLeast(Status.Started))
                 return;
 
             if (jsonMsg.getString("cmd").equals("setLrcTime")) {
