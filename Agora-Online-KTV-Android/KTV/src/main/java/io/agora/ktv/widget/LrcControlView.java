@@ -58,9 +58,6 @@ public class LrcControlView extends FrameLayout implements View.OnClickListener 
     private OnLrcActionListener mOnLrcActionListener;
     private Handler mHandler = new Handler(Looper.myLooper());
 
-    private double localPitch = 0;
-    private double musicPitch = 0;
-
     public LrcControlView(@NonNull Context context) {
         this(context, null);
     }
@@ -203,6 +200,11 @@ public class LrcControlView extends FrameLayout implements View.OnClickListener 
 
         mBinding.ilIDLE.getRoot().setVisibility(View.GONE);
         mBinding.clActive.setVisibility(View.VISIBLE);
+        if (this.mRole == Role.Singer)
+            mBinding.scoreControlView.setVisibility(VISIBLE);
+        else
+            mBinding.scoreControlView.setVisibility(GONE);
+        updateScore(30);
         mBinding.ilChorus.getRoot().setVisibility(View.GONE);
         mPrepareBinding.statusPrepareViewLrc.setVisibility(View.GONE);
         mBinding.ilActive.getRoot().setVisibility(View.VISIBLE);
@@ -263,40 +265,6 @@ public class LrcControlView extends FrameLayout implements View.OnClickListener 
         }
     }
 
-    public void setLocalPitch(double pitch) {
-        localPitch = pitch;
-        updateName();
-        mHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if(localPitch == pitch){
-                    localPitch = 0;
-                }
-            }
-        }, 1000l);
-    }
-
-    public void setMusicPitch(double pitch) {
-        musicPitch = pitch;
-        updateName();
-    }
-
-    private void updateName() {
-        if(mMusic == null)
-            return;
-        StringBuffer buf = new StringBuffer();
-        buf.append(mMusic.getName());
-        if (localPitch > 0) buf.append(" local: " + new DecimalFormat("#.0").format(localPitch));
-        if (musicPitch > 0) buf.append(" music: " + musicPitch);
-        mBinding.tvMusicName.setText(buf.toString());
-        if(Math.abs(localPitch - musicPitch) < 20){
-            mBinding.ivGood.setVisibility(VISIBLE);
-        }
-        else {
-            mBinding.ivGood.setVisibility(INVISIBLE);
-        }
-    }
-
     public void setLrcViewBackground(@DrawableRes int resId) {
         Bitmap mBitmap = BitmapFactory.decodeResource(getResources(), resId);
         Palette.from(mBitmap).generate(palette -> {
@@ -311,6 +279,10 @@ public class LrcControlView extends FrameLayout implements View.OnClickListener 
             mBinding.ilActive.lrcView.setNormalColor(palette.getLightMutedColor(defaultColor));
         });
         mBinding.clActive.setBackgroundResource(resId);
+    }
+
+    public void updateScore(double score){
+        mBinding.scoreControlView.setText(getContext().getString(R.string.score_formatter, score));
     }
 
     @Override

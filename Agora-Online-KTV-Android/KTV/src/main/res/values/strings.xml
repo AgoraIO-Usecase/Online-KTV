@@ -67,6 +67,8 @@
     <string name="ktv_beauty_voice">Beauty Voice</string>
     <string name="ktv_beauty_effect">Beauty Effect</string>
     <string name="ktv_camera">Camera</string>
+    
+    
 <!--    Content Description-->
     <string name="ktv_create_room">create room</string>
     <string name="ktv_toggle_mic">mute mic or not</string>
@@ -79,4 +81,5 @@
 
 <!--    String formatter-->
     <string name="song_and_singer" translatable="false">%s - %s</string>
+    <string name="score_formatter" translatable="false">Score: %.2f</string>
 </resources>

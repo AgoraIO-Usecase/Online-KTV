@@ -146,10 +146,6 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> implement
         public void onMusicPositionChanged(long position) {
             mBinding.lrcControlView.getLrcView().updateTime(position);
             mBinding.lrcControlView.getPitchView().updateTime(position);
-            double pitch = getMusicPitch(position);
-            if(pitch > 0){
-                mBinding.lrcControlView.setMusicPitch(pitch);
-            }
         }
 
         @Override
@@ -178,9 +174,7 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> implement
         @Override
         public void onLocalPitch(double pitch) {
             super.onLocalPitch(pitch);
-            mBinding.lrcControlView.setLocalPitch(pitch);
             mBinding.lrcControlView.getPitchView().updateLocalPitch((float) pitch);
-//            mMusicPlayer.writePitchToLog(pitch);
         }
 
         @Override
@@ -422,12 +416,13 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> implement
         mBinding.lrcControlView.setPitchViewOnActionListener(new PitchView.OnActionListener() {
             @Override
             public void onOriginalPitch(float pitch, int totalCount) {
-                KTVUtil.logD("pitch:"+pitch+"totalCount:"+totalCount);
+//                KTVUtil.logD("pitch:"+pitch+"totalCount:"+totalCount);
             }
 
             @Override
             public void onScore(double score, double cumulativeScore, double totalScore) {
-                KTVUtil.logD("score:"+score+", cScore:"+cumulativeScore+", tScore:"+totalScore);
+                mBinding.lrcControlView.updateScore(cumulativeScore);
+//                KTVUtil.logD("score:"+score+", cScore:"+cumulativeScore+", tScore:"+totalScore);
             }
         });
     }

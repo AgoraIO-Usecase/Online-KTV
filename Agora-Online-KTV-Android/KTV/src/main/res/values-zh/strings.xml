@@ -63,6 +63,7 @@
 
     <string name="ktv_network_unavailable">未检测到可用网络，确认继续？</string>
 
+    <string name="score_formatter" translatable="false">得分: %.2f</string>
 
     <string name="ktv_beauty_voice">美声</string>
     <string name="ktv_beauty_effect">音效</string>

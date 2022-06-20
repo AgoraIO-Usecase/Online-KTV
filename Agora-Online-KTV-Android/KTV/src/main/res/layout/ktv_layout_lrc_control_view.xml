@@ -24,32 +24,42 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="gone"
-            tools:background="@mipmap/ktv_music_background1">
+            tools:background="@mipmap/ktv_music_background1"
+            tools:visibility="visible">
 
             <TextView
                 android:id="@+id/tvMusicName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
                 android:layout_marginTop="2dp"
                 android:drawablePadding="6dp"
-                android:gravity="center"
                 android:textColor="@android:color/white"
                 app:drawableStartCompat="@drawable/ktv_ic_music"
-                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/score_control_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:visibility="gone"
+                tools:text="@string/ktv_app_name"
+                android:textColor="@android:color/white"
+                app:layout_constraintEnd_toStartOf="@id/ivGood"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <ImageView
                 android:id="@+id/ivGood"
-                android:layout_marginTop="2dp"
-                android:src="@mipmap/good"
-                android:layout_marginEnd="5dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:layout_marginEnd="5dp"
+                android:src="@mipmap/good"
                 android:visibility="invisible"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                />
+                app:layout_constraintTop_toTopOf="parent" />
 
             <include
                 android:id="@+id/ilChorus"
