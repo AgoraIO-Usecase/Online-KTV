@@ -1,0 +1,71 @@
+apply plugin: 'com.android.library'
+apply plugin: 'maven-publish'
+
+android {
+    compileSdkVersion 31
+    buildToolsVersion "30.0.3"
+
+    defaultConfig {
+        minSdkVersion 16
+        targetSdkVersion 31
+        versionCode 6
+        versionName "1.0.5"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+        }
+    }
+
+    libraryVariants.all { variant ->
+        variant.outputs.all {
+            outputFileName = "lrc_view_v" +
+                    defaultConfig.versionName + ".aar"
+        }
+    }
+}
+
+dependencies {
+    implementation 'androidx.annotation:annotation:1.5.0'
+    implementation 'com.squareup.okhttp3:okhttp:4.9.2'
+    implementation project(path: ':LeonidsLib')
+}
+
+afterEvaluate {
+    publishing {
+        repositories {
+            it.mavenLocal()
+        }
+        publications {
+            // Creates a Maven publication called "release".
+            release(MavenPublication) {
+                artifact sourceJar
+                from components.release
+                groupId = 'com.github.AgoraIO-Community'
+                artifactId = 'LrcView-Android'
+                version = '1.0.5'
+            }
+        }
+    }
+}
+
+task sourceJar(type :Jar){
+    from android.sourceSets.main.java.srcDirs
+    archiveClassifier.set("sources")
+}
