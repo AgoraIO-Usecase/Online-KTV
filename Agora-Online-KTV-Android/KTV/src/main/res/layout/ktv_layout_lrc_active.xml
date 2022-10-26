@@ -7,15 +7,15 @@
     <io.agora.lrcview.PitchView
         android:id="@+id/pitchView"
         android:layout_width="0dp"
-        android:layout_height="60dp"
+        android:layout_height="80dp"
         android:layout_marginTop="26dp"
-        app:pitchInitialScore="30"
         android:background="#26FFFFFF"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:pitchDoneTextColor="@color/ktv_lrc_highligh"
-        app:pitchNormalTextColor="@color/ktv_pitch_nomal" />
+        app:pitchDoneTextColor="@color/ktv_lrc_highlight"
+        app:pitchIndicatorColor="@color/pitch_indicator_color"
+        app:pitchInitialScore="30" />
 
     <io.agora.lrcview.LrcView
         android:id="@+id/lrcView"
@@ -27,14 +27,13 @@
         android:paddingBottom="20dp"
         app:layout_constraintBottom_toTopOf="@+id/bgd_control_layout_lrc"
         app:layout_constraintTop_toBottomOf="@+id/pitchView"
-        app:lrcCurrentTextColor="@color/ktv_lrc_highligh"
+        app:lrcCurrentTextColor="@color/ktv_lrc_highlight"
         app:lrcDividerHeight="20dp"
         app:lrcLabel=" "
-        app:lrcNormalTextColor="@color/ktv_lrc_nomal"
+        app:lrcNormalTextColor="@color/ktv_lrc_normal"
         app:lrcNormalTextSize="16sp"
         app:lrcTextGravity="center"
         app:lrcTextSize="26sp" />
-
 
     <View
         android:id="@+id/bgd_control_layout_lrc"

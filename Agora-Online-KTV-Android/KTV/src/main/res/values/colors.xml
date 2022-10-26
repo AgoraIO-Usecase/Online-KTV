@@ -8,9 +8,11 @@
     <color name="ktv_list_empty">#4D5D73</color>
     <color name="ktv_dialog_music_list_empty">#7E7E7E</color>
 
-    <color name="ktv_lrc_highligh">#FFFFFFFF</color>
-    <color name="ktv_lrc_nomal">#99FFFFFF</color>
-    <color name="ktv_pitch_nomal">#BFCEE4</color>
+    <color name="ktv_lrc_highlight">#FFF44336</color>
+    <color name="ktv_lrc_normal">#99FFFFFF</color>
+    <color name="ktv_pitch_normal">#BFCEE4</color>
+
+    <color name="pitch_indicator_color">#FFFFFFFF</color>
 
     <color name="ktv_alphaColorAccent">#660088EB</color>
 </resources>

@@ -30,7 +30,7 @@ import io.agora.lrcview.LrcView;
 import io.agora.lrcview.PitchView;
 
 /**
- * 歌词控制View
+ * 歌词控制 View
  *
  * @author chenhengfei(Aslanchen)
  * @date 2021/7/16
@@ -72,7 +72,7 @@ public class LrcControlView extends FrameLayout implements View.OnClickListener 
     }
 
     private void init(Context context) {
-        mBinding = KtvLayoutLrcControlViewBinding.inflate(LayoutInflater.from(context),this, true);
+        mBinding = KtvLayoutLrcControlViewBinding.inflate(LayoutInflater.from(context), this, true);
 //        mDataBinding = DataBindingUtil.inflate(LayoutInflater.from(context), R.layout.ktv_layout_lrc_control_view, this, true);
 
         mPrepareBinding = KtvLayoutLrcPrepareBinding.bind(mBinding.getRoot());
@@ -104,14 +104,14 @@ public class LrcControlView extends FrameLayout implements View.OnClickListener 
         mBinding.ilActive.lrcView.setActionListener(this.mOnLrcActionListener);
     }
 
-    public void setPitchViewOnActionListener(PitchView.OnActionListener onActionListener){
+    public void setPitchViewOnActionListener(PitchView.OnActionListener onActionListener) {
         mBinding.ilActive.pitchView.onActionListener = onActionListener;
     }
 
     private CountDownTimer mCountDownLatch;
 
     private void startTimer() {
-        if(mCountDownLatch != null) mCountDownLatch.cancel();
+        if (mCountDownLatch != null) mCountDownLatch.cancel();
 
         mCountDownLatch = new CountDownTimer(20 * 1000, 999) {
             @Override
@@ -272,16 +272,16 @@ public class LrcControlView extends FrameLayout implements View.OnClickListener 
                 return;
             }
 
-            int defaultColor = ContextCompat.getColor(getContext(), R.color.ktv_lrc_highligh);
+            int defaultColor = ContextCompat.getColor(getContext(), R.color.ktv_lrc_highlight);
             mBinding.ilActive.lrcView.setCurrentColor(palette.getLightVibrantColor(defaultColor));
 
-            defaultColor = ContextCompat.getColor(getContext(), R.color.ktv_lrc_nomal);
+            defaultColor = ContextCompat.getColor(getContext(), R.color.ktv_lrc_normal);
             mBinding.ilActive.lrcView.setNormalColor(palette.getLightMutedColor(defaultColor));
         });
         mBinding.clActive.setBackgroundResource(resId);
     }
 
-    public void updateScore(double score){
+    public void updateScore(double score) {
         mBinding.scoreControlView.setText(getContext().getString(R.string.score_formatter, score));
     }
 
@@ -309,20 +309,28 @@ public class LrcControlView extends FrameLayout implements View.OnClickListener 
     }
 
     public interface OnLrcActionListener extends LrcView.OnActionListener {
-        default void onSwitchOriginalClick(){ }
+        default void onSwitchOriginalClick() {
+        }
 
-        default void onMenuClick() { }
+        default void onMenuClick() {
+        }
 
-        default void onPlayClick() { }
+        default void onPlayClick() {
+        }
 
-        default void onChangeMusicClick() { }
+        default void onChangeMusicClick() {
+        }
 
-        default void onStartSing() { }
+        default void onStartSing() {
+        }
 
-        default void onJoinChorus() { }
+        default void onJoinChorus() {
+        }
 
-        default void onWaitTimeOut() { }
+        default void onWaitTimeOut() {
+        }
 
-        default void onCountTime(int time) { }
+        default void onCountTime(int time) {
+        }
     }
 }

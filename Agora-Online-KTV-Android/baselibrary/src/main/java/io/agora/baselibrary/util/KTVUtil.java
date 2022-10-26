@@ -18,15 +18,17 @@ import io.agora.baselibrary.BuildConfig;
 @Keep
 public class KTVUtil {
     public static void logD(String msg) {
-        if(BuildConfig.DEBUG)
+        if (BuildConfig.DEBUG)
             Log.d("AGORA-KTV", msg);
     }
+
     public static void logE(String msg) {
-        if(BuildConfig.DEBUG)
+        if (BuildConfig.DEBUG)
             Log.e("AGORA-KTV", msg);
     }
+
     public static void logE(Throwable e) {
-        if(BuildConfig.DEBUG)
+        if (BuildConfig.DEBUG)
             Log.e("AGORA-KTV", e.getMessage());
     }
 

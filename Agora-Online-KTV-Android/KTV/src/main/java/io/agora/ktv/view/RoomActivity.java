@@ -150,16 +150,17 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> implement
 
         @Override
         public void onReceivedCountdown(int time) {
+            KTVUtil.logD("onReceivedCountdown: " + time);
             mBinding.lrcControlView.setCountDown(time);
         }
     };
 
     private double getMusicPitch(long position) {
         double pitch = 0;
-        for(LrcEntryData entry : this.toneList){
-            if(!entry.tones.isEmpty() && position > entry.getStartTime() && position < entry.tones.get(entry.tones.size()-1).end){
-                for(LrcEntryData.Tone item: entry.tones){
-                    if(position > item.begin && position < item.end){
+        for (LrcEntryData entry : this.toneList) {
+            if (!entry.tones.isEmpty() && position > entry.getStartTime() && position < entry.tones.get(entry.tones.size() - 1).end) {
+                for (LrcEntryData.Tone item : entry.tones) {
+                    if (position > item.begin && position < item.end) {
                         pitch = item.pitch;
                         break;
                     }
@@ -174,7 +175,8 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> implement
         @Override
         public void onLocalPitch(double pitch) {
             super.onLocalPitch(pitch);
-            mBinding.lrcControlView.getPitchView().updateLocalPitch((float) pitch);
+            KTVUtil.logD("onLocalPitch: " + pitch);
+//            mBinding.lrcControlView.getPitchView().updateLocalPitch((float) pitch);
         }
 
         @Override
@@ -278,7 +280,7 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> implement
             // TODO
             for (int i = 0; i < mRoomSpeakerAdapter.dataList.size(); i++) {
                 AgoraMember currentMember = mRoomSpeakerAdapter.dataList.get(i);
-                if (currentMember != null && currentMember.getId().equals(member.getId())){
+                if (currentMember != null && currentMember.getId().equals(member.getId())) {
                     mRoomSpeakerAdapter.dataList.set(i, member);
                     mRoomSpeakerAdapter.notifyItemChanged(i);
                     break;
@@ -333,7 +335,7 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> implement
 
     private void initView() {
         mRoomSpeakerAdapter = new BaseRecyclerViewAdapter<>(Arrays.asList(new AgoraMember[8]), this, RoomPeopleHolder.class);
-        mBinding.recyclerViewAttRoom.addItemDecoration(new DividerDecoration(4,24,8));
+        mBinding.recyclerViewAttRoom.addItemDecoration(new DividerDecoration(4, 24, 8));
         mBinding.recyclerViewAttRoom.setAdapter(mRoomSpeakerAdapter);
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.R)
             mBinding.recyclerViewAttRoom.setOverScrollMode(View.OVER_SCROLL_NEVER);
@@ -416,13 +418,14 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> implement
         mBinding.lrcControlView.setPitchViewOnActionListener(new PitchView.OnActionListener() {
             @Override
             public void onOriginalPitch(float pitch, int totalCount) {
-//                KTVUtil.logD("pitch:"+pitch+"totalCount:"+totalCount);
+                KTVUtil.logD("pitch: " + pitch + ", totalCount: " + totalCount);
+                mBinding.lrcControlView.getPitchView().updateLocalPitch((float) pitch);
             }
 
             @Override
             public void onScore(double score, double cumulativeScore, double totalScore) {
                 mBinding.lrcControlView.updateScore(cumulativeScore);
-//                KTVUtil.logD("score:"+score+", cScore:"+cumulativeScore+", tScore:"+totalScore);
+                KTVUtil.logD("score: " + score + ", cScore: " + cumulativeScore + ", tScore: " + totalScore);
             }
         });
     }
@@ -680,7 +683,8 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> implement
             isChorus = true;
         new RoomChooseSongDialog(isChorus).show(getSupportFragmentManager(), RoomChooseSongDialog.TAG);
     }
-    private void showLeaveConfirmDialog(View v){
+
+    private void showLeaveConfirmDialog(View v) {
         new AlertDialog.Builder(this)
                 .setTitle(R.string.ktv_leave_title)
                 .setMessage(R.string.ktv_leave_msg)
@@ -697,6 +701,7 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> implement
 
         new RoomMVDialog().show(getSupportFragmentManager(), Integer.parseInt(room.getMv()) - 1);
     }
+
     private void showMoreDialog(View v) {
         new MoreDialog(mSetting).show(getSupportFragmentManager(), MoreDialog.TAG);
     }

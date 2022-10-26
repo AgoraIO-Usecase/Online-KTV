@@ -27,7 +27,7 @@
     <string name="ktv_room_accompany">Accompaniment</string>
     <string name="ktv_room_change_song">Cut song</string>
     <string name="ktv_room_seat_off">Seat off</string>
-    <string name="ktv_room_cut_off_song">Cut Off</string>
+    <string name="ktv_room_cut_off_song">Next</string>
     <string name="ktv_room_choose_song">Sing</string>
     <string name="ktv_room_choosed_song">Requested</string>
     <string name="ktv_room_sing2">Singing</string>
