@@ -22,15 +22,15 @@ import io.agora.lrcview.bean.LrcEntryData;
 class LrcEntry {
     private static final String TAG = "LrcEntryData";
 
-    private StaticLayout mLayoutBG;//背景文字
-    private StaticLayout mLayoutFG;//前排高亮文字
+    private StaticLayout mLayoutBG; // 背景文字
+    private StaticLayout mLayoutFG; // 前排高亮文字
 
-    private Rect[] drawRects;//控制进度
+    private Rect[] drawRects; // 控制进度
 
-    private Rect[] textRectTotalWords;//每一段歌词
-    private Rect[] textRectDisplayLines;//每一行显示的歌词
+    private Rect[] textRectTotalWords; // 每一段歌词
+    private Rect[] textRectDisplayLines; // 每一行显示的歌词
 
-    private LrcEntryData mEntry;//数据源
+    private LrcEntryData mEntry; // 数据源
 
     public enum Gravity {
         CENTER(0), LEFT(1), RIGHT(2);
@@ -70,7 +70,6 @@ class LrcEntry {
             case LEFT:
                 align = Layout.Alignment.ALIGN_NORMAL;
                 break;
-
             default:
             case CENTER:
                 align = Layout.Alignment.ALIGN_CENTER;

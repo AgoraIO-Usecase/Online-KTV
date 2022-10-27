@@ -48,7 +48,6 @@ public class LrcControlView extends FrameLayout implements View.OnClickListener 
         return mBinding.ilActive.pitchView;
     }
 
-
     public enum Role {
         Singer, Listener
     }
@@ -96,7 +95,6 @@ public class LrcControlView extends FrameLayout implements View.OnClickListener 
         mBinding.ilActive.ivMusicMenu.setOnClickListener(this);
         mBinding.ilActive.ivMusicStart.setOnClickListener(this);
         mBinding.ilActive.ivChangeSong.setOnClickListener(this);
-
     }
 
     public void setOnLrcClickListener(OnLrcActionListener mOnLrcActionListener) {

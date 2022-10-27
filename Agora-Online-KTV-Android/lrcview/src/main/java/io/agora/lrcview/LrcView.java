@@ -12,6 +12,7 @@ import android.text.StaticLayout;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -71,7 +72,7 @@ public class LrcView extends View {
 
     private OnActionListener mOnActionListener;
     private boolean enableDrag = true;
-    private boolean isInDrag = false;
+    private volatile boolean isInDrag = false;
     private GestureDetector mGestureDetector;
     private float mOffset;
     private final GestureDetector.SimpleOnGestureListener mSimpleOnGestureListener = new GestureDetector.SimpleOnGestureListener() {
@@ -144,7 +145,7 @@ public class LrcView extends View {
     }
 
     /**
-     * 绑定事件回调，用于接收运行中的事件。具体事件参考{@link OnActionListener}
+     * 绑定事件回调，用于接收运行中的事件。具体事件参考 {@link OnActionListener}
      *
      * @param mOnActionListener
      */
@@ -194,18 +195,26 @@ public class LrcView extends View {
     /**
      * 设置音乐总长度，单位毫秒
      *
-     * @param d 时间，单位毫秒
+     * @param duration 时间，单位毫秒
      */
-    public synchronized void setTotalDuration(long d) {
-        mTotalDuration = d;
+    public synchronized void setTotalDuration(long duration) {
+        mTotalDuration = duration;
 
         if (lrcData != null && lrcData.entrys != null && !lrcData.entrys.isEmpty()) {
             List<LrcEntryData.Tone> tone = lrcData.entrys.get(lrcData.entrys.size() - 1).tones;
             if (tone != null && !tone.isEmpty()) {
-                tone.get(tone.size() - 1).end = mTotalDuration;
+                tone.get(tone.size() - 1).end = mTotalDuration; // update the last note timestamp
+            }
+
+            tone = lrcData.entrys.get(0).tones;
+            if (tone != null && !tone.isEmpty()) {
+                mTimestampForFirstNote = tone.get(0).begin; // find the first note timestamp
+                mTimestampForFirstNote = (Math.round((mTimestampForFirstNote / 1000.f)) * 1000); // to make first note indicator animation more smooth
             }
         }
     }
+
+    private long mTimestampForFirstNote = -1;
 
     /**
      * 设置非当前行歌词字体颜色
@@ -256,7 +265,7 @@ public class LrcView extends View {
     /**
      * 歌词是否有效
      *
-     * @return true，如果歌词有效，否则false
+     * @return true，如果歌词有效，否则 false
      */
     private boolean hasLrc() {
         return lrcData != null && lrcData.entrys != null && !lrcData.entrys.isEmpty();
@@ -289,7 +298,7 @@ public class LrcView extends View {
         if (changed) {
             int w = right - left - getPaddingStart() - getPaddingEnd();
             int h = bottom - top - getPaddingTop() - getPaddingBottom();
-            if(h > 0){
+            if (h > 0){
                 if (mBitmapFG == null) {
                     createBitmapFG(w, h);
                 } else if (mBitmapFG.getWidth() != w || mBitmapFG.getHeight() != h) {
@@ -345,7 +354,7 @@ public class LrcView extends View {
         if (!hasLrc()) {
             int width = getLrcWidth();
             int height = getLrcHeight();
-            if(width == 0 || height ==0){
+            if (width == 0 || height ==0){
                 return;
             }
             @SuppressLint("DrawAllocation")
@@ -451,7 +460,7 @@ public class LrcView extends View {
                 curLrcEntry = new LrcEntry(cur, mPaintFG, mPaintBG, getLrcWidth(), mTextGravity);
 
                 // clear bitmap
-                if(mBitmapBG != null){
+                if (mBitmapBG != null){
                     mBitmapBG.eraseColor(0);
                 }
 
@@ -471,6 +480,27 @@ public class LrcView extends View {
 
             drawHighLight();
             canvas.drawBitmap(mBitmapFG, mRectSrc, mRectDst, null);
+        }
+
+        drawFirstNoteIndicator(canvas);
+    }
+
+    private void drawFirstNoteIndicator(Canvas canvas) {
+        int countDown = (int) ((mTimestampForFirstNote - mCurrentTime) / 1000);
+        if (countDown <= 0) {
+            return;
+        }
+
+        canvas.drawCircle(getWidth() / 2 - 42 - 14, 100, 14, mPaintBG); // Point 1
+
+        if ((countDown >= 2 & countDown < 3)) {
+            canvas.drawCircle(getWidth() / 2 - 14, 100, 14, mPaintBG); // Point 2
+        } else if ((countDown >= 3)) {
+            canvas.drawCircle(getWidth() / 2 - 14, 100, 14, mPaintBG); // Point 2
+
+            if (((mCurrentTime / 1000) % 2 == 1) || mCurrentTime < 2000L) { // After shown for a little time, then begin to blink
+                canvas.drawCircle(getWidth() / 2 + 42 - 14, 100, 14, mPaintBG); // Point 3
+            }
         }
     }
 
