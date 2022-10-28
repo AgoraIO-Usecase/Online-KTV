@@ -314,12 +314,17 @@ public class PitchView extends View {
         currentEntryEndTime = -1;
         everyPitchList.clear();
 
-
         cumulatedScore = mInitialScore;
         totalScore = 0;
 
-        if (lrcData != null && lrcData.entrys != null && !lrcData.entrys.isEmpty()) {
+        mTimestampForFirstNote = -1;
+        mInHighlightStatus = false;
+        mLocalPitch = 0;
+        if (ps != null) {
+            ps.stopEmitting();
+        }
 
+        if (lrcData != null && lrcData.entrys != null && !lrcData.entrys.isEmpty()) {
             lrcEndTime = lrcData.entrys.get(lrcData.entrys.size() - 1).getEndTime();
             totalScore = scorePerSentence * lrcData.entrys.size() + mInitialScore;
 
@@ -330,11 +335,18 @@ public class PitchView extends View {
                     totalPitch++;
                 }
             }
-        }
 
+            List<LrcEntryData.Tone> tone = lrcData.entrys.get(0).tones;
+            if (tone != null && !tone.isEmpty()) {
+                mTimestampForFirstNote = tone.get(0).begin; // find the first note timestamp
+                mTimestampForFirstNote = (Math.round((mTimestampForFirstNote / 1000.f)) * 1000); // to make first note indicator animation more smooth
+            }
+        }
 
         invalidate();
     }
+
+    private long mTimestampForFirstNote = -1;
 
     private long mCurrentTime = 0;
     private float mLocalPitch = 0;
@@ -440,6 +452,10 @@ public class PitchView extends View {
      * @param time 当前歌曲播放时间 毫秒
      */
     private void updateScore(long time) {
+        if (time < mTimestampForFirstNote) { // Not started
+            return;
+        }
+
         //  没有开始 || 在空档期
         boolean pushAll = currentEntryEndTime == -1;
         // 当前时间 >= 打分句结束时间
