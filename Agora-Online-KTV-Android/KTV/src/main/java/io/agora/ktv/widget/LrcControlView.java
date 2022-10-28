@@ -265,13 +265,13 @@ public class LrcControlView extends FrameLayout implements View.OnClickListener 
 
     public void setLrcViewBackground(@DrawableRes int resId) {
         Bitmap mBitmap = BitmapFactory.decodeResource(getResources(), resId);
-        Palette.from(mBitmap).generate(palette -> {
+        Palette.from(mBitmap).maximumColorCount(4).generate(palette -> {
             if (palette == null) {
                 return;
             }
 
             int defaultColor = ContextCompat.getColor(getContext(), R.color.ktv_lrc_highlight);
-            mBinding.ilActive.lrcView.setCurrentColor(palette.getLightVibrantColor(defaultColor));
+            mBinding.ilActive.lrcView.setCurrentColor(palette.getLightVibrantColor(defaultColor)); // TODO palette.getLightVibrantColor() may working not accurately here
 
             defaultColor = ContextCompat.getColor(getContext(), R.color.ktv_lrc_normal);
             mBinding.ilActive.lrcView.setNormalColor(palette.getLightMutedColor(defaultColor));

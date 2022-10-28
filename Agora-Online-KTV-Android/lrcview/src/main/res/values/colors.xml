@@ -2,9 +2,9 @@
 <resources>
     <color name="lrc_normal_text_color">#9E9E9E</color>
     <color name="lrc_past_text_color">#9E9E9E</color>
-    <color name="lrc_current_text_color">#FF4081</color>
+    <color name="lrc_current_text_color">#FFF44336</color>
     <color name="local_pitch_indicator_color">#F0F0F0F0</color>
-    <color name="local_pitch_indicator_emitter_color">#FFFF0040</color>
+    <color name="local_pitch_indicator_emitter_color">#F44336</color>
     <color name="pitch_start">#1F24C6FF</color>
     <color name="pitch_end">#00FFFFFF</color>
 </resources>

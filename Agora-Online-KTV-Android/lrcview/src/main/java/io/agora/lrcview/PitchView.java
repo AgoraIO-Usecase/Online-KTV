@@ -7,6 +7,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.LinearGradient;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.RectF;
 import android.graphics.Shader;
 import android.os.Build;
@@ -88,6 +89,9 @@ public class PitchView extends View {
     private LinearGradient linearGradient;
     private int mOriginPitchStickColor;
 
+    private final Paint mTailAnimationLinearGradientPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private LinearGradient mTailAnimationLinearGradient;
+
     private float dotPointX = 0F; // 亮点坐标
 
     private ParticleSystem ps;
@@ -132,6 +136,8 @@ public class PitchView extends View {
         int endColor = getResources().getColor(R.color.pitch_end);
         linearGradient = new LinearGradient(dotPointX, 0, 0, 0, startColor, endColor, Shader.TileMode.CLAMP);
 
+        mTailAnimationLinearGradient = new LinearGradient(dotPointX, 0, dotPointX - 12, 0, startColor, Color.YELLOW, Shader.TileMode.CLAMP);
+
         pitchStickHeight = dip2px(getContext(), 6);
     }
 
@@ -151,6 +157,8 @@ public class PitchView extends View {
             int startColor = getResources().getColor(R.color.pitch_start);
             int endColor = getResources().getColor(R.color.pitch_end);
             linearGradient = new LinearGradient(dotPointX, 0, 0, 0, startColor, endColor, Shader.TileMode.CLAMP);
+
+            mTailAnimationLinearGradient = new LinearGradient(dotPointX, 0, dotPointX - 12, 0, startColor, Color.YELLOW, Shader.TileMode.CLAMP);
 
             invalidate();
 
@@ -187,6 +195,21 @@ public class PitchView extends View {
 
         float value = getPitchHeight();
         if (value >= 0) {
+            if (mInHighlightStatus) {
+                // Perform the tail animation if in highlight status
+                mTailAnimationLinearGradientPaint.setShader(null);
+                mTailAnimationLinearGradientPaint.setShader(mTailAnimationLinearGradient);
+                mTailAnimationLinearGradientPaint.setStyle(Paint.Style.FILL_AND_STROKE);
+                mTailAnimationLinearGradientPaint.setAntiAlias(true);
+
+                Path path = new Path();
+                path.moveTo(dotPointX, value - 6);
+                path.lineTo(dotPointX, value + 6);
+                path.lineTo(dotPointX - 100, value);
+                path.close();
+                canvas.drawPath(path, mTailAnimationLinearGradientPaint);
+            }
+
             canvas.drawCircle(dotPointX, value, mLocalPitchIndicatorRadius, mLocalPitchIndicatorPaint);
         }
     }
@@ -204,6 +227,7 @@ public class PitchView extends View {
     }
 
     private void drawStartLine(Canvas canvas) {
+        mLinearGradientPaint.setShader(null);
         mLinearGradientPaint.setShader(linearGradient);
         canvas.drawRect(0, 0, dotPointX, getHeight(), mLinearGradientPaint);
     }
@@ -457,6 +481,8 @@ public class PitchView extends View {
         }
     }
 
+    private boolean mInHighlightStatus;
+
     /**
      * 根据当前歌曲时间决定是否回调 {@link OnActionListener#onScore(double, double, double)}
      *
@@ -482,10 +508,12 @@ public class PitchView extends View {
                 }
                 ps.resumeEmitting();
             }
+            mInHighlightStatus = true;
         } else {
             if (ps != null) {
                 ps.stopEmitting();
             }
+            mInHighlightStatus = false;
         }
     }
 

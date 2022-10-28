@@ -486,20 +486,20 @@ public class LrcView extends View {
     }
 
     private void drawFirstNoteIndicator(Canvas canvas) {
-        int countDown = (int) ((mTimestampForFirstNote - mCurrentTime) / 1000);
+        int countDown = Math.round((mTimestampForFirstNote - mCurrentTime) / 1000);
         if (countDown <= 0) {
             return;
         }
 
-        canvas.drawCircle(getWidth() / 2 - 42 - 14, 100, 14, mPaintBG); // Point 1
+        canvas.drawCircle(getWidth() / 2 - 42 - 14, 48, 14, mPaintBG); // Point 1
 
         if ((countDown >= 2 & countDown < 3)) {
-            canvas.drawCircle(getWidth() / 2 - 14, 100, 14, mPaintBG); // Point 2
+            canvas.drawCircle(getWidth() / 2 - 14, 48, 14, mPaintBG); // Point 2
         } else if ((countDown >= 3)) {
-            canvas.drawCircle(getWidth() / 2 - 14, 100, 14, mPaintBG); // Point 2
+            canvas.drawCircle(getWidth() / 2 - 14, 48, 14, mPaintBG); // Point 2
 
             if (((mCurrentTime / 1000) % 2 == 1) || mCurrentTime < 2000L) { // After shown for a little time, then begin to blink
-                canvas.drawCircle(getWidth() / 2 + 42 - 14, 100, 14, mPaintBG); // Point 3
+                canvas.drawCircle(getWidth() / 2 + 42 - 14, 48, 14, mPaintBG); // Point 3
             }
         }
     }
