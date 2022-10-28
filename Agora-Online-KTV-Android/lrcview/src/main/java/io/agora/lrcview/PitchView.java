@@ -87,7 +87,11 @@ public class PitchView extends View {
 
     private final Paint mLinearGradientPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private LinearGradient linearGradient;
+
+    private final Paint mPitchStickLinearGradientPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private int mOriginPitchStickColor;
+    private final Paint mHighlightPitchStickLinearGradientPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private int mHighlightPitchStickColor;
 
     private final Paint mTailAnimationLinearGradientPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private LinearGradient mTailAnimationLinearGradient;
@@ -131,6 +135,7 @@ public class PitchView extends View {
         ta.recycle();
 
         mOriginPitchStickColor = getResources().getColor(R.color.lrc_normal_text_color);
+        mHighlightPitchStickColor = getResources().getColor(R.color.pitch_stick_highlight_color);
 
         int startColor = getResources().getColor(R.color.pitch_start);
         int endColor = getResources().getColor(R.color.pitch_end);
@@ -181,13 +186,13 @@ public class PitchView extends View {
         super.onDraw(canvas);
 
         drawStartLine(canvas);
-        drawItems(canvas);
-        drawLocalPitch(canvas);
+        drawPitchSticks(canvas);
+        drawLocalPitchStick(canvas);
     }
     //</editor-fold>
 
     //<editor-fold desc="Draw Related">
-    private void drawLocalPitch(Canvas canvas) {
+    private void drawLocalPitchStick(Canvas canvas) {
         mLocalPitchIndicatorPaint.setShader(null);
         mLocalPitchIndicatorPaint.setColor(mLocalPitchIndicatorColor);
 
@@ -232,9 +237,12 @@ public class PitchView extends View {
         canvas.drawRect(0, 0, dotPointX, getHeight(), mLinearGradientPaint);
     }
 
-    private void drawItems(Canvas canvas) {
-        mLinearGradientPaint.setShader(null);
-        mLinearGradientPaint.setColor(mOriginPitchStickColor);
+    private void drawPitchSticks(Canvas canvas) {
+        mPitchStickLinearGradientPaint.setShader(null);
+        mPitchStickLinearGradientPaint.setColor(mOriginPitchStickColor);
+
+        mHighlightPitchStickLinearGradientPaint.setShader(null);
+        mHighlightPitchStickLinearGradientPaint.setColor(mHighlightPitchStickColor);
 
         if (lrcData == null || lrcData.entrys == null || lrcData.entrys.isEmpty()) {
             return;
@@ -280,8 +288,25 @@ public class PitchView extends View {
                 }
 
                 y = (realPitchMax - tone.pitch) * mItemHeight;
-                RectF r = new RectF(x, y, endX, y + pitchStickHeight);
-                canvas.drawRoundRect(r, 8, 8, mLinearGradientPaint);
+
+                tone.highlight = tone.highlight && mInHighlightStatus; // Mark this as highlight forever
+                if (tone.highlight) {
+                    if (x >= dotPointX) {
+                        RectF rNormal = new RectF(x, y, endX, y + pitchStickHeight);
+                        canvas.drawRoundRect(rNormal, 8, 8, mPitchStickLinearGradientPaint);
+                    } else if (x < dotPointX && endX > dotPointX) {
+                        RectF rNormalHalf = new RectF(dotPointX, y, endX, y + pitchStickHeight);
+                        canvas.drawRoundRect(rNormalHalf, 8, 8, mPitchStickLinearGradientPaint);
+                        RectF rHighlightHalf = new RectF(x, y, dotPointX, y + pitchStickHeight);
+                        canvas.drawRoundRect(rHighlightHalf, 8, 8, mHighlightPitchStickLinearGradientPaint);
+                    } else if (endX < dotPointX) {
+                        RectF rHighlight = new RectF(x, y, endX, y + pitchStickHeight);
+                        canvas.drawRoundRect(rHighlight, 8, 8, mHighlightPitchStickLinearGradientPaint);
+                    }
+                } else {
+                    RectF rNormal = new RectF(x, y, endX, y + pitchStickHeight);
+                    canvas.drawRoundRect(rNormal, 8, 8, mPitchStickLinearGradientPaint);
+                }
 
                 x = endX;
             }
@@ -333,6 +358,11 @@ public class PitchView extends View {
                     pitchMin = Math.min(pitchMin, tone.pitch);
                     pitchMax = Math.max(pitchMax, tone.pitch);
                     totalPitch++;
+
+                    if (!tone.highlight) {
+                        double randomHighlight = Math.random() * 10;
+                        tone.highlight = (randomHighlight < 2 || randomHighlight == 4 || randomHighlight > 7); // Fake for animation
+                    }
                 }
             }
 

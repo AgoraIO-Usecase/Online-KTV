@@ -21,6 +21,7 @@ public class LrcEntryData {
         public String word;
         public Lang lang = Lang.Chinese;
         public int pitch = 0;
+        public boolean highlight;
 
         public long getDuration() {
             return end - begin;

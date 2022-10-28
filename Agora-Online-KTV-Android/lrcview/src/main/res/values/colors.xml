@@ -5,6 +5,7 @@
     <color name="lrc_current_text_color">#FFF44336</color>
     <color name="local_pitch_indicator_color">#F0F0F0F0</color>
     <color name="local_pitch_indicator_emitter_color">#F44336</color>
+    <color name="pitch_stick_highlight_color">#88F44336</color>
     <color name="pitch_start">#1F24C6FF</color>
     <color name="pitch_end">#00FFFFFF</color>
 </resources>
