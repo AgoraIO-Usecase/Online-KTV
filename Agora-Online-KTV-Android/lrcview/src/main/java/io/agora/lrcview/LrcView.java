@@ -70,7 +70,7 @@ public class LrcView extends View {
     private Bitmap mBitmapFG;
     private Canvas mCanvasFG;
 
-    private OnActionListener mOnActionListener;
+    private OnLyricSeekListener mOnSeekActionListener;
     private boolean enableDrag = true;
     private volatile boolean isInDrag = false;
     private GestureDetector mGestureDetector;
@@ -81,8 +81,8 @@ public class LrcView extends View {
         public boolean onDown(MotionEvent e) {
             isInDrag = true;
 
-            if (mOnActionListener != null) {
-                mOnActionListener.onStartTrackingTouch();
+            if (mOnSeekActionListener != null) {
+                mOnSeekActionListener.onStartTrackingTouch();
             }
             return true;
         }
@@ -126,7 +126,7 @@ public class LrcView extends View {
         mDefaultLabel = TextUtils.isEmpty(mDefaultLabel) ? getContext().getString(R.string.lrc_label) : mDefaultLabel;
         int lrcTextGravity = ta.getInteger(R.styleable.LrcView_lrcTextGravity, 0);
         mTextGravity = io.agora.lrcview.LrcEntry.Gravity.parse(lrcTextGravity);
-        enableDrag = ta.getBoolean(R.styleable.LrcView_lrcEnableDrag,true);
+        enableDrag = ta.getBoolean(R.styleable.LrcView_lrcEnableDrag, true);
 
         ta.recycle();
 
@@ -145,12 +145,12 @@ public class LrcView extends View {
     }
 
     /**
-     * 绑定事件回调，用于接收运行中的事件。具体事件参考 {@link OnActionListener}
+     * 绑定事件回调，用于接收运行中的事件。具体事件参考 {@link OnLyricSeekListener}
      *
-     * @param mOnActionListener
+     * @param onSeekActionListener
      */
-    public void setActionListener(OnActionListener mOnActionListener) {
-        this.mOnActionListener = mOnActionListener;
+    public void setSeekListener(OnLyricSeekListener onSeekActionListener) {
+        this.mOnSeekActionListener = onSeekActionListener;
     }
 
     @Override
@@ -175,9 +175,9 @@ public class LrcView extends View {
             LrcEntryData mIEntry = lrcData.entrys.get(targetIndex);
             updateTime(mIEntry.getStartTime());
 
-            if (mOnActionListener != null) {
-                mOnActionListener.onProgressChanged(mIEntry.getStartTime());
-                mOnActionListener.onStopTrackingTouch();
+            if (mOnSeekActionListener != null) {
+                mOnSeekActionListener.onProgressChanged(mIEntry.getStartTime());
+                mOnSeekActionListener.onStopTrackingTouch();
             }
         }
         return mGestureDetector.onTouchEvent(event);
@@ -298,7 +298,7 @@ public class LrcView extends View {
         if (changed) {
             int w = right - left - getPaddingStart() - getPaddingEnd();
             int h = bottom - top - getPaddingTop() - getPaddingBottom();
-            if (h > 0){
+            if (h > 0) {
                 if (mBitmapFG == null) {
                     createBitmapFG(w, h);
                 } else if (mBitmapFG.getWidth() != w || mBitmapFG.getHeight() != h) {
@@ -354,7 +354,7 @@ public class LrcView extends View {
         if (!hasLrc()) {
             int width = getLrcWidth();
             int height = getLrcHeight();
-            if (width == 0 || height ==0){
+            if (width == 0 || height == 0) {
                 return;
             }
             @SuppressLint("DrawAllocation")
@@ -388,7 +388,7 @@ public class LrcView extends View {
             for (int i = 0; i < lrcData.entrys.size(); i++) {
                 if (i == mCurrentLine) {
                     mPaintBG.setTextSize(mCurrentTextSize);
-                } else if(i < mCurrentLine) {
+                } else if (i < mCurrentLine) {
                     mPaintBG.setColor(mPastTextColor);
                     mPaintBG.setTextSize(mNormalTextSize);
                 } else {
@@ -460,7 +460,7 @@ public class LrcView extends View {
                 curLrcEntry = new LrcEntry(cur, mPaintFG, mPaintBG, getLrcWidth(), mTextGravity);
 
                 // clear bitmap
-                if (mBitmapBG != null){
+                if (mBitmapBG != null) {
                     mBitmapBG.eraseColor(0);
                 }
 
@@ -670,7 +670,7 @@ public class LrcView extends View {
     }
 
     @MainThread
-    public interface OnActionListener {
+    public interface OnLyricSeekListener {
         /**
          * 进度条改变回调
          *

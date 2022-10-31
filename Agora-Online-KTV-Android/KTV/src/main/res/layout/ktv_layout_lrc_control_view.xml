@@ -44,11 +44,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
-                android:visibility="gone"
-                tools:text="@string/ktv_app_name"
                 android:textColor="@android:color/white"
+                android:visibility="gone"
                 app:layout_constraintEnd_toStartOf="@id/ivGood"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="@string/ktv_app_name" />
 
             <ImageView
                 android:id="@+id/ivGood"

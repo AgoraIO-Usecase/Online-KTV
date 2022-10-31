@@ -163,7 +163,7 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
 
         ChannelMediaOptions options = new ChannelMediaOptions();
         options.clientRoleType = mRole;
-        options.publishAudioTrack = false;
+        options.publishMicrophoneTrack = false;
         options.publishMediaPlayerId = mPlayer.getMediaPlayerId();
         if (ObjectsCompat.equals(musicModelReady.getUserId(), mUser.getObjectId())) {
             options.publishMediaPlayerAudioTrack = true;
@@ -601,9 +601,9 @@ public class MultipleMusicPlayer extends BaseMusicPlayer {
         options.clientRoleType = role;
         options.publishMediaPlayerAudioTrack = false;
         if (role == Constants.CLIENT_ROLE_BROADCASTER) {
-            options.publishAudioTrack = true;
+            options.publishMicrophoneTrack = true;
         } else {
-            options.publishAudioTrack = false;
+            options.publishMicrophoneTrack = false;
         }
 
         RoomManager.Instance(mContext).getRtcEngine().updateChannelMediaOptions(options);

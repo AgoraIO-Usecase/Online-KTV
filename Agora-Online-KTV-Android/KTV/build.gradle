@@ -96,7 +96,7 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    implementation 'io.agora.rtc:agora-full-beta:4.0.0-beta.1'
+    implementation 'io.agora.rtc:agora-special-full:4.0.0.9'
     implementation 'androidx.palette:palette:1.0.0'
     api project(':baselibrary')
     api project(':data')

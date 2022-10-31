@@ -108,6 +108,7 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> implement
 
         @Override
         public void onMusicOpening() {
+            KTVUtil.logD("onMusicOpening");
         }
 
         @Override
@@ -144,6 +145,7 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> implement
 
         @Override
         public void onMusicPositionChanged(long position) {
+            KTVUtil.logD("onMusicPositionChanged: " + position);
             mBinding.lrcControlView.getLrcView().updateTime(position);
             mBinding.lrcControlView.getPitchView().updateTime(position);
         }
@@ -175,7 +177,7 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> implement
         @Override
         public void onLocalPitch(double pitch) {
             super.onLocalPitch(pitch);
-            KTVUtil.logD("onLocalPitch: " + pitch);
+            KTVUtil.logD("onLocalPitch: " + System.currentTimeMillis() + " " + pitch);
 //            mBinding.lrcControlView.getPitchView().updateLocalPitch((float) pitch);
         }
 
@@ -394,6 +396,7 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> implement
 
             @Override
             public void onStartSing() {
+//              KTVUtil.logD("onStartSing");
                 changeSingType();
             }
 
@@ -409,6 +412,7 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> implement
 
             @Override
             public void onCountTime(int time) {
+                KTVUtil.logD("onCountTime: " + time);
                 if (mMusicPlayer != null) {
                     mMusicPlayer.sendCountdown(time);
                 }
@@ -749,7 +753,7 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> implement
                         mBinding.btnMicAttRoom.setEnabled(true);
 
                         ChannelMediaOptions options = new ChannelMediaOptions();
-                        options.publishAudioTrack = !newValue;
+                        options.publishMicrophoneTrack = !newValue;
                         RoomManager.Instance(RoomActivity.this).getRtcEngine().updateChannelMediaOptions(options);
 
                         mBinding.btnMicAttRoom.setImageResource(newValue ? R.drawable.ktv_ic_mic_disable : R.drawable.ktv_ic_mic_enable);

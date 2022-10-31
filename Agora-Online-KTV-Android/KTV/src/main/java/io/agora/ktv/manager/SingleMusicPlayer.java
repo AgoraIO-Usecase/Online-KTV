@@ -34,10 +34,10 @@ public class SingleMusicPlayer extends BaseMusicPlayer {
         options.publishMediaPlayerId = mPlayer.getMediaPlayerId();
         options.clientRoleType = role;
         if (role == Constants.CLIENT_ROLE_BROADCASTER) {
-            options.publishAudioTrack = true;
+            options.publishMicrophoneTrack = true;
             options.publishMediaPlayerAudioTrack = true;
         } else {
-            options.publishAudioTrack = false;
+            options.publishMicrophoneTrack = false;
             options.publishMediaPlayerAudioTrack = false;
         }
         RoomManager.Instance(mContext).getRtcEngine().updateChannelMediaOptions(options);

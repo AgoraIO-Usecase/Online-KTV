@@ -118,13 +118,13 @@ public final class RoomManager {
         }
 
         @Override
-        public void onRemoteAudioStateChanged(int uid, REMOTE_AUDIO_STATE state, REMOTE_AUDIO_STATE_REASON reason, int elapsed) {
+        public void onRemoteAudioStateChanged(int uid, int state, int reason, int elapsed) {
             super.onRemoteAudioStateChanged(uid, state, reason, elapsed);
             mLoggerRTC.i("onRemoteAudioStateChanged() called with: uid = [%s], state = [%s], reason = [%s], elapsed = [%s]", uid, state, reason, elapsed);
         }
 
         @Override
-        public void onLocalAudioStateChanged(LOCAL_AUDIO_STREAM_STATE state, LOCAL_AUDIO_STREAM_ERROR error) {
+        public void onLocalAudioStateChanged(int state, int error) {
             super.onLocalAudioStateChanged(state, error);
             mLoggerRTC.i("onLocalAudioStateChanged() called with: state = [%s], error = [%s]", state, error);
         }
@@ -157,9 +157,8 @@ public final class RoomManager {
 
         @Override
         public void onAudioVolumeIndication(AudioVolumeInfo[] speakers, int totalVolume) {
-//            mLoggerRTC.i("onAudioVolumeIndication: " + speakers.length);
-            for(AudioVolumeInfo info : speakers){
-                if(info.uid == 0 && info.voicePitch > 0){
+            for (AudioVolumeInfo info : speakers) {
+                if (info.uid == 0 && info.voicePitch > 0) {
                     mLoggerRTC.i("on local pitch: " + info.voicePitch);
                     mMainThreadDispatch.onLocalPitch(info.voicePitch);
                 }

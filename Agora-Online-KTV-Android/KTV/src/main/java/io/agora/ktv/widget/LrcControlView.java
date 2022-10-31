@@ -99,7 +99,7 @@ public class LrcControlView extends FrameLayout implements View.OnClickListener 
 
     public void setOnLrcClickListener(OnLrcActionListener mOnLrcActionListener) {
         this.mOnLrcActionListener = mOnLrcActionListener;
-        mBinding.ilActive.lrcView.setActionListener(this.mOnLrcActionListener);
+        mBinding.ilActive.lrcView.setSeekListener(this.mOnLrcActionListener);
     }
 
     public void setPitchViewOnActionListener(PitchView.OnActionListener onActionListener) {
@@ -109,7 +109,9 @@ public class LrcControlView extends FrameLayout implements View.OnClickListener 
     private CountDownTimer mCountDownLatch;
 
     private void startTimer() {
-        if (mCountDownLatch != null) mCountDownLatch.cancel();
+        if (mCountDownLatch != null) {
+            mCountDownLatch.cancel();
+        }
 
         mCountDownLatch = new CountDownTimer(20 * 1000, 999) {
             @Override
@@ -306,7 +308,7 @@ public class LrcControlView extends FrameLayout implements View.OnClickListener 
         mBinding.ilActive.switchOriginal.setChecked(checked);
     }
 
-    public interface OnLrcActionListener extends LrcView.OnActionListener {
+    public interface OnLrcActionListener extends LrcView.OnLyricSeekListener {
         default void onSwitchOriginalClick() {
         }
 

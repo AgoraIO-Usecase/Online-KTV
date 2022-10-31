@@ -16,7 +16,6 @@ import android.os.Looper;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
@@ -596,7 +595,7 @@ public class PitchView extends View {
         return (Math.max(0, Math.log(pitch / 55 + eps) / Math.log(2))) * 12;
     }
 
-    public static interface OnActionListener {
+    public interface OnActionListener {
         /**
          * 咪咕歌词原始参考 pitch 值回调, 用于开发者自行实现打分逻辑. 歌词每个 tone 回调一次
          *
@@ -606,12 +605,12 @@ public class PitchView extends View {
         void onOriginalPitch(float pitch, int totalCount);
 
         /**
-         * paas 组件内置的打分回调, 每句歌词结束的时候提供回调(句指 xml 中的 sentence 节点),
+         * 歌词组件内置的打分回调, 每句歌词结束的时候提供回调(句指 xml 中的 sentence 节点),
          * 并提供 totalScore 参考值用于按照百分比方式显示分数
          *
          * @param score           这次回调的分数 0-10 之间
          * @param cumulativeScore 累计的分数 初始分累计到当前的分数
-         * @param totalScore      总分 = 初始分(默认值 0 分) + xml 中sentence 的个数 * 10
+         * @param totalScore      总分 初始分(默认值 0 分) + xml 中 sentence 的个数 * 10
          */
         void onScore(double score, double cumulativeScore, double totalScore);
     }
