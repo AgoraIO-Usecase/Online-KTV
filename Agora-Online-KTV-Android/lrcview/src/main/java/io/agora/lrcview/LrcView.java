@@ -70,7 +70,7 @@ public class LrcView extends View {
     private Bitmap mBitmapFG;
     private Canvas mCanvasFG;
 
-    private OnLyricSeekListener mOnSeekActionListener;
+    private OnLyricsSeekListener mOnSeekActionListener;
     private boolean enableDrag = true;
     private volatile boolean isInDrag = false;
     private GestureDetector mGestureDetector;
@@ -145,11 +145,11 @@ public class LrcView extends View {
     }
 
     /**
-     * 绑定事件回调，用于接收运行中的事件。具体事件参考 {@link OnLyricSeekListener}
+     * 绑定事件回调，用于接收运行中的事件。具体事件参考 {@link OnLyricsSeekListener}
      *
      * @param onSeekActionListener
      */
-    public void setSeekListener(OnLyricSeekListener onSeekActionListener) {
+    public void setSeekListener(OnLyricsSeekListener onSeekActionListener) {
         this.mOnSeekActionListener = onSeekActionListener;
     }
 
@@ -670,7 +670,7 @@ public class LrcView extends View {
     }
 
     @MainThread
-    public interface OnLyricSeekListener {
+    public interface OnLyricsSeekListener {
         /**
          * 进度条改变回调
          *

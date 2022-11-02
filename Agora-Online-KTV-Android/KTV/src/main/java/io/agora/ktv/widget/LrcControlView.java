@@ -102,7 +102,7 @@ public class LrcControlView extends FrameLayout implements View.OnClickListener 
         mBinding.ilActive.lrcView.setSeekListener(this.mOnLrcActionListener);
     }
 
-    public void setPitchViewOnActionListener(PitchView.OnActionListener onActionListener) {
+    public void setPitchViewOnActionListener(PitchView.OnSingScoreListener onActionListener) {
         mBinding.ilActive.pitchView.onActionListener = onActionListener;
     }
 
@@ -308,7 +308,7 @@ public class LrcControlView extends FrameLayout implements View.OnClickListener 
         mBinding.ilActive.switchOriginal.setChecked(checked);
     }
 
-    public interface OnLrcActionListener extends LrcView.OnLyricSeekListener {
+    public interface OnLrcActionListener extends LrcView.OnLyricsSeekListener {
         default void onSwitchOriginalClick() {
         }
 

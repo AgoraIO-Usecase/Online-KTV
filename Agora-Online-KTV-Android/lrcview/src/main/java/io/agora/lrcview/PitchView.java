@@ -63,8 +63,8 @@ public class PitchView extends View {
     private long currentEntryEndTime = -1;
     // 当前在打分的所在句的结束时间
     private long lrcEndTime = 0;
-    // 当前 时间的 Pitch
-    private float currentPitch = 0f;
+    // 当前 时间的 Pitch，不断变化
+    private float mCurrentPitch = 0f;
 
     // 音调指示器的半径
     private int mLocalPitchIndicatorRadius;
@@ -97,10 +97,10 @@ public class PitchView extends View {
 
     private float dotPointX = 0F; // 亮点坐标
 
-    private ParticleSystem ps;
+    private ParticleSystem mParticleSystem;
 
     // 音调及分数回调
-    public OnActionListener onActionListener;
+    public OnSingScoreListener onActionListener;
 
     //<editor-fold desc="Init Related">
     public PitchView(Context context) {
@@ -168,12 +168,12 @@ public class PitchView extends View {
 
             mHandler.postDelayed(() -> {
                 // Create a particle system and start emiting
-                ps = new ParticleSystem((ViewGroup) this.getParent(), 8, getResources().getDrawable(R.drawable.pitch_indicator), 800);
+                mParticleSystem = new ParticleSystem((ViewGroup) this.getParent(), 8, getResources().getDrawable(R.drawable.pitch_indicator), 400);
 
                 // It works with an emision range
                 int[] location = new int[2];
                 this.getLocationInWindow(location);
-                ps.setRotationSpeedRange(90, 180).setScaleRange(0.7f, 1.3f)
+                mParticleSystem.setRotationSpeedRange(90, 180).setScaleRange(0.7f, 1.3f)
                         .setSpeedModuleAndAngleRange(0.03f, 0.12f, 120, 240)
                         .setFadeOut(200, new AccelerateInterpolator());
             }, 1000);
@@ -288,7 +288,7 @@ public class PitchView extends View {
 
                 y = (realPitchMax - tone.pitch) * mItemHeight;
 
-                tone.highlight = tone.highlight && mInHighlightStatus; // Mark this as highlight forever
+                tone.highlight = mInHighlightStatus; // Mark this as highlight forever
                 if (tone.highlight) {
                     if (x >= dotPointX) {
                         RectF rNormal = new RectF(x, y, endX, y + pitchStickHeight);
@@ -344,8 +344,8 @@ public class PitchView extends View {
         mTimestampForFirstNote = -1;
         mInHighlightStatus = false;
         mLocalPitch = 0;
-        if (ps != null) {
-            ps.stopEmitting();
+        if (mParticleSystem != null) {
+            mParticleSystem.stopEmitting();
         }
 
         if (lrcData != null && lrcData.entrys != null && !lrcData.entrys.isEmpty()) {
@@ -357,11 +357,6 @@ public class PitchView extends View {
                     pitchMin = Math.min(pitchMin, tone.pitch);
                     pitchMax = Math.max(pitchMax, tone.pitch);
                     totalPitch++;
-
-                    if (!tone.highlight) {
-                        double randomHighlight = Math.random() * 10;
-                        tone.highlight = (randomHighlight < 2 || randomHighlight == 4 || randomHighlight > 7); // Fake for animation
-                    }
                 }
             }
 
@@ -396,38 +391,42 @@ public class PitchView extends View {
     private float findPitchByTime(long time) {
         if (lrcData == null) return 0;
 
-        float resPitch = 0;
+        float targetPitch = 0;
         int entryCount = lrcData.entrys.size();
         for (int i = 0; i < entryCount; i++) {
-            LrcEntryData tempEntry = lrcData.entrys.get(i);
-            if (time >= tempEntry.getStartTime() && time <= tempEntry.getEndTime()) { // 索引
-                int toneCount = tempEntry.tones.size();
+            LrcEntryData entry = lrcData.entrys.get(i);
+            if (time >= entry.getStartTime() && time <= entry.getEndTime()) { // 索引
+                int toneCount = entry.tones.size();
                 for (int j = 0; j < toneCount; j++) {
-                    LrcEntryData.Tone tempTone = tempEntry.tones.get(j);
-                    if (time >= tempTone.begin && time <= tempTone.end) {
-                        resPitch = tempTone.pitch;
-                        currentPitchStartTime = tempTone.begin;
-                        currentPitchEndTime = tempTone.end;
+                    LrcEntryData.Tone tone = entry.tones.get(j);
+                    if (time >= tone.begin && time <= tone.end) {
+                        targetPitch = tone.pitch;
+                        currentPitchStartTime = tone.begin;
+                        currentPitchEndTime = tone.end;
 
-                        currentEntryEndTime = tempEntry.getEndTime();
+                        currentEntryEndTime = entry.getEndTime();
                         break;
                     }
                 }
                 break;
             }
         }
-        if (resPitch == 0) {
+        if (targetPitch == 0) {
             currentPitchStartTime = -1;
             currentPitchEndTime = -1;
-            if (time > currentEntryEndTime)
+            if (time > currentEntryEndTime) {
                 currentEntryEndTime = -1;
+            }
         } else {
             // 进入此行代码条件 ： 所唱歌词句开始时间 <= 当前时间 >= 所唱歌词句结束时间
             // 强行加上一个　0 分 ，标识此为可打分句
-            everyPitchList.put(time, 0d);
+            if (everyPitchList.isEmpty()) {
+                everyPitchList.put(time, 0d);
+            }
+
         }
-        currentPitch = resPitch;
-        return resPitch;
+        mCurrentPitch = targetPitch;
+        return targetPitch;
     }
 
     /**
@@ -439,7 +438,7 @@ public class PitchView extends View {
         if (lrcData == null) {
             return;
         }
-        float currentOriginalPitch = currentPitch;
+        float currentOriginalPitch = mCurrentPitch;
 
         if (currentOriginalPitch == 0) {
             return;
@@ -449,7 +448,7 @@ public class PitchView extends View {
             return;
         }
 
-        calculateScore(mCurrentTime, pitchToTone(pitch), pitchToTone(currentOriginalPitch));
+        double scoreAfterNormalization = calculateScore(mCurrentTime, pitchToTone(pitch), pitchToTone(currentOriginalPitch));
 
         mHandler.removeCallbacksAndMessages(null);
         mHandler.postDelayed(() -> {
@@ -458,21 +457,47 @@ public class PitchView extends View {
             }
         }, 2000L);
 
-        if (System.currentTimeMillis() - lastCurrentTs > 500) {
+        if (System.currentTimeMillis() - lastCurrentTs > 200) {
             ObjectAnimator.ofFloat(this, "mLocalPitch", this.mLocalPitch, pitch).setDuration(20).start();
             lastCurrentTs = System.currentTimeMillis();
+
+            // Animation for particle
+            if (scoreAfterNormalization >= 0.9) {
+                if (mParticleSystem != null) {
+                    float value = getPitchHeight();
+                    // It works with an emision range
+                    int[] location = new int[2];
+                    this.getLocationInWindow(location);
+                    if (!emittingEnabled) {
+                        emittingEnabled = true;
+                        mParticleSystem.emit((int) (location[0] + dotPointX), location[1] + (int) (value), 12);
+                    } else {
+                        mParticleSystem.updateEmitPoint((int) (location[0] + dotPointX), location[1] + (int) (value));
+                    }
+                    mParticleSystem.resumeEmitting();
+                }
+                mInHighlightStatus = true;
+            } else {
+                if (mParticleSystem != null) {
+                    mParticleSystem.stopEmitting();
+                }
+                mInHighlightStatus = false;
+            }
         }
     }
 
     private long lastCurrentTs = 0;
 
-    private void calculateScore(long currentTime, double singerTone, double desiredTone) {
+    private double calculateScore(long currentTime, double singerTone, double desiredTone) {
+        double scoreAfterNormalization; // [0, 1]
         double score = 1 - Math.abs(desiredTone - singerTone) / desiredTone;
         // 得分线以下的分数归零
         score = score >= scoreCountLine ? score : 0f;
+        scoreAfterNormalization = score;
         // 百分制分数 * 每句固定分数
         score *= scorePerSentence;
         everyPitchList.put(currentTime, score);
+        return scoreAfterNormalization;
     }
 
     /**
@@ -529,7 +554,7 @@ public class PitchView extends View {
     private boolean mInHighlightStatus;
 
     /**
-     * 根据当前歌曲时间决定是否回调 {@link OnActionListener#onScore(double, double, double)}
+     * 根据当前歌曲时间决定是否回调 {@link OnSingScoreListener#onScore(double, double, double)}
      *
      * @param score 本次算法返回的分数
      */
@@ -537,40 +562,19 @@ public class PitchView extends View {
         if (onActionListener != null) {
             onActionListener.onScore(score, cumulatedScore, totalScore);
         }
-
-        float value = getPitchHeight();
-
-        if (score >= 90) {
-            if (ps != null) {
-                // It works with an emision range
-                int[] location = new int[2];
-                this.getLocationInWindow(location);
-                if (!emittingEnabled) {
-                    emittingEnabled = true;
-                    ps.emit((int) (location[0] + dotPointX), location[1] + (int) (value), 12);
-                } else {
-                    ps.updateEmitPoint((int) (location[0] + dotPointX), location[1] + (int) (value));
-                }
-                ps.resumeEmitting();
-            }
-            mInHighlightStatus = true;
-        } else {
-            if (ps != null) {
-                ps.stopEmitting();
-            }
-            mInHighlightStatus = false;
-        }
     }
 
     /**
      * 更新进度，单位毫秒
-     * 根据当前时间，决定是否回调 {@link OnActionListener#onOriginalPitch(float, int)}
+     * 根据当前时间，决定是否回调 {@link OnSingScoreListener#onOriginalPitch(float, int)}
      * 与打分逻辑无关
      *
      * @param time 当前播放时间，毫秒
      */
     public void updateTime(long time) {
-        if (lrcData == null) return;
+        if (lrcData == null) {
+            return;
+        }
 
         this.mCurrentTime = time;
         if (time < currentPitchStartTime || time > currentPitchEndTime) {
@@ -595,7 +599,7 @@ public class PitchView extends View {
         return (Math.max(0, Math.log(pitch / 55 + eps) / Math.log(2))) * 12;
     }
 
-    public interface OnActionListener {
+    public interface OnSingScoreListener {
         /**
          * 咪咕歌词原始参考 pitch 值回调, 用于开发者自行实现打分逻辑. 歌词每个 tone 回调一次
          *
