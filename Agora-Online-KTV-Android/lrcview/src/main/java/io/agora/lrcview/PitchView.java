@@ -40,12 +40,14 @@ import io.agora.lrcview.bean.LrcEntryData;
  */
 public class PitchView extends View {
 
+    private static final boolean DEBUG = false;
+
     private static final int START_PERCENT = 40;
 
     private static volatile LrcData lrcData;
     private Handler mHandler;
 
-    private float widthPerSecond = 0.2F; // 1ms 对应像素 px
+    private float movedPixelsPerMs = 0.2F; // 1ms 对应像素 px
 
     private int pitchStickHeight; // 每一项高度 px
     private int pitchStickSpace = 4; // 间距 px
@@ -251,12 +253,12 @@ public class PitchView extends View {
         float realPitchMin = pitchMin - 5;
 
         List<LrcEntryData> entrys = lrcData.entrys;
-        float currentPX = this.mCurrentTime * widthPerSecond;
-        float x = dotPointX * 1.3f - currentPX;
-        float y = 0;
-        float widthTone = 0;
+        float pitchStickStartPoint = getWidth();
+
+        float y;
+        float widthOfPitchStick;
         float mItemHeight = getHeight() / (realPitchMax - realPitchMin); // 高度
-        long preEndTIme = 0;
+        long preEntryEndTime = 0;
         for (int i = 0; i < entrys.size(); i++) {
             LrcEntryData entry = lrcData.entrys.get(i);
             List<LrcEntryData.Tone> tones = entry.tones;
@@ -265,24 +267,49 @@ public class PitchView extends View {
             }
 
             long startTime = entry.getStartTime();
-            float emptyPX = widthPerSecond * (startTime - preEndTIme);
-            x = x + emptyPX;
+            long durationOfCurrentEntry = entry.getEndTime() - startTime;
 
-            if (x >= getWidth()) {
+            if (this.mCurrentTime - startTime <= -(2 * durationOfCurrentEntry)) { // If still to early for current entry, we do not draw the sticks
+                // If we show the sticks too late, they will appear suddenly in the central of screen, not start from the right side
+                if (DEBUG) {
+                    Log.d("hai_guo", "break " + this.mCurrentTime + " < " + startTime + ", duration = " + durationOfCurrentEntry + ", end " + entry.getEndTime() + ", start " + entry.getStartTime());
+                }
                 break;
             }
 
-            preEndTIme = tones.get(tones.size() - 1).end;
+            float movedPX = (this.mCurrentTime - startTime) * movedPixelsPerMs; // For every time, we need to locate the new coordinate
+            float x = pitchStickStartPoint - movedPX - (pitchStickStartPoint - dotPointX);
+
+            if (preEntryEndTime != 0) {
+                float emptyDividerWidth = movedPixelsPerMs * (startTime - preEntryEndTime);
+                x = x + emptyDividerWidth;
+            }
+
+            preEntryEndTime = entry.getEndTime();
+
+            if (x >= getWidth() || x + durationOfCurrentEntry * movedPixelsPerMs < 0) {
+                if (DEBUG) {
+                    Log.d("hai_guo", "x " + x + " pitchStickStartPoint = " + pitchStickStartPoint + " startTime = " + startTime + " this.mCurrentTime = " + this.mCurrentTime + ", movedPX = " + movedPX + ", dotPointX = " + dotPointX);
+                    Log.d("hai_guo", "break x " + x + " >= " + getWidth() + " startTime = " + startTime + " this.mCurrentTime = " + this.mCurrentTime + ", movedPX = " + movedPX);
+                }
+                continue;
+            }
+
             for (LrcEntryData.Tone tone : tones) {
-                widthTone = widthPerSecond * tone.getDuration();
-                float endX = x + widthTone;
+                widthOfPitchStick = movedPixelsPerMs * tone.getDuration();
+                float endX = x + widthOfPitchStick;
                 if (endX <= 0) {
+                    if (DEBUG) {
+                        Log.d("hai_guo", "break tone endX " + endX + " x " + x + ", widthOfPitchStick = " + widthOfPitchStick);
+                    }
                     x = endX;
                     continue;
                 }
 
                 if (x >= getWidth()) {
-                    x = endX;
+                    if (DEBUG) {
+                        Log.d("hai_guo", "break tone x" + x + " >= " + getWidth());
+                    }
                     break;
                 }
 
@@ -305,6 +332,11 @@ public class PitchView extends View {
                 } else {
                     RectF rNormal = new RectF(x, y, endX, y + pitchStickHeight);
                     canvas.drawRoundRect(rNormal, 8, 8, mPitchStickLinearGradientPaint);
+                    if (DEBUG) {
+                        Log.d("hai_guo pitch rNormal", rNormal.toString() + ", widthTone: " + getWidth() / 2 + ", (end-x)=" + (rNormal.right - rNormal.left) + " " + tone.word + " " + tone.pitch + " " + tone.begin + " " + tone.end);
+                        mHighlightPitchStickLinearGradientPaint.setTextSize(36);
+                        canvas.drawText(tone.word, x, 30, mHighlightPitchStickLinearGradientPaint);
+                    }
                 }
 
                 x = endX;

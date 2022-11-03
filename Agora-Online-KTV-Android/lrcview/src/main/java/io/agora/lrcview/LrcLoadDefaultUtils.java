@@ -97,7 +97,7 @@ class LrcLoadDefaultUtils {
             long sec = Long.parseLong(timeMatcher.group(2));
             String milString = timeMatcher.group(3);
             long mil = Long.parseLong(milString);
-            // 如果毫秒是两位数，需要乘以10
+            // 如果毫秒是两位数，需要乘以 10
             if (milString.length() == 2) {
                 mil = mil * 10;
             }

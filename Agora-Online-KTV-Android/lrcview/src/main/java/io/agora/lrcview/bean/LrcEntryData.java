@@ -28,9 +28,18 @@ public class LrcEntryData {
         }
     }
 
+    public static class Monolog extends Tone {
+        // Better not use extend
+    }
+
     public List<Tone> tones;
 
     public LrcEntryData(Tone tone) {
+        this.tones = new ArrayList<>();
+        this.tones.add(tone);
+    }
+
+    public LrcEntryData(Monolog tone) {
         this.tones = new ArrayList<>();
         this.tones.add(tone);
     }

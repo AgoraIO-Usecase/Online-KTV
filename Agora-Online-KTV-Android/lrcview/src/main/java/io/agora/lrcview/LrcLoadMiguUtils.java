@@ -150,7 +150,7 @@ class LrcLoadMiguUtils {
             if (name.equals("sentence")) {
                 List<LrcEntryData> sentence = new ArrayList<>();
                 readSentence(parser, sentence);
-                for(LrcEntryData item : sentence){
+                for (LrcEntryData item : sentence) {
                     paragraph.sentences.add(item);
                 }
             } else {
@@ -166,9 +166,9 @@ class LrcLoadMiguUtils {
         String m = parser.getAttributeValue(null, "mode");
         if (m != null) {
             if (m.equals("man")) {
-                //Man;
+                // Man;
             } else {
-                //Woman;
+                // Woman;
             }
         }
 
@@ -184,7 +184,7 @@ class LrcLoadMiguUtils {
             String name = parser.getName();
             if (name.equals("tone")) {
                 tone_index++;
-                if((isEnglish || isEnglishSong(parser)) && tone_index > 5){
+                if ((isEnglish || isEnglishSong(parser)) && tone_index > 5) {
                     sentence = new LrcEntryData(new ArrayList<>());
                     list.add(sentence);
                     tone_index = 0;
@@ -192,6 +192,16 @@ class LrcLoadMiguUtils {
                 LrcEntryData.Tone tone = new LrcEntryData.Tone();
                 sentence.tones.add(tone);
                 isEnglish = readTone(parser, tone);
+            } else if (name.equals("monolog")) {
+                tone_index++;
+                if ((isEnglish || isEnglishSong(parser)) && tone_index > 5) {
+                    sentence = new LrcEntryData(new ArrayList<>());
+                    list.add(sentence);
+                    tone_index = 0;
+                }
+                LrcEntryData.Monolog monolog = new LrcEntryData.Monolog();
+                sentence.tones.add(monolog);
+                isEnglish = readMonolog(parser, monolog);
             } else {
                 skip(parser);
             }
@@ -236,9 +246,9 @@ class LrcLoadMiguUtils {
             if (name.equals("word")) {
                 tone.word = readText(parser);
                 // protect in case migu missed lang field
-                if(lang == null){
+                if (lang == null) {
                     isEnglish = checkLang(tone.word);
-                    if(isEnglish){
+                    if (isEnglish) {
                         tone.lang = LrcEntryData.Lang.English;
                     }
                 }
@@ -249,11 +259,40 @@ class LrcLoadMiguUtils {
         return isEnglish;
     }
 
+    private static boolean readMonolog(XmlPullParser parser, LrcEntryData.Monolog monolog) throws XmlPullParserException, IOException {
+        parser.require(XmlPullParser.START_TAG, null, "monolog");
+
+        boolean isEnglish = false;
+
+        // read tone attributes
+        monolog.begin = (long) (Float.parseFloat(parser.getAttributeValue(null, "begin")) * 1000L);
+        monolog.end = (long) (Float.parseFloat(parser.getAttributeValue(null, "end")) * 1000L);
+        String t = parser.getAttributeValue(null, "pitch");
+        int pitch = 0;
+        if (t != null) {
+            pitch = Integer.parseInt(t);
+        }
+        monolog.pitch = pitch;
+
+        String pronounce = parser.getAttributeValue(null, "pronounce");
+        String lang = parser.getAttributeValue(null, "lang");
+
+        if (lang == null || "1".equals(lang)) {
+            monolog.lang = LrcEntryData.Lang.Chinese;
+        } else {
+            monolog.lang = LrcEntryData.Lang.English;
+            isEnglish = true;
+        }
+
+        monolog.word = readText(parser);
+        return isEnglish;
+    }
+
     private static boolean checkLang(String word) {
         int n;
-        for(int i = 0; i < word.length(); i++) {
+        for (int i = 0; i < word.length(); i++) {
             n = word.charAt(i);
-            if(!(19968 <= n && n <40869)) {
+            if (!(19968 <= n && n < 40869)) {
                 return true;
             }
         }
