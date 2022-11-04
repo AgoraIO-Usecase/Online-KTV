@@ -28,12 +28,12 @@
         app:layout_constraintBottom_toTopOf="@+id/bgd_control_layout_lrc"
         app:layout_constraintTop_toBottomOf="@+id/pitchView"
         app:lrcCurrentTextColor="@color/ktv_lrc_highlight"
-        app:lrcDividerHeight="20dp"
+        app:lrcDividerHeight="18dp"
         app:lrcLabel=" "
         app:lrcNormalTextColor="@color/ktv_lrc_normal"
-        app:lrcNormalTextSize="16sp"
+        app:lrcNormalTextSize="14sp"
         app:lrcTextGravity="center"
-        app:lrcTextSize="26sp" />
+        app:lrcTextSize="20sp" />
 
     <View
         android:id="@+id/bgd_control_layout_lrc"

@@ -177,7 +177,7 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> implement
         @Override
         public void onLocalPitch(double pitch) {
             super.onLocalPitch(pitch);
-//            KTVUtil.logD("onLocalPitch: " + System.currentTimeMillis() + " " + pitch);
+            KTVUtil.logD("onLocalPitch: " + System.currentTimeMillis() + " " + pitch);
             mBinding.lrcControlView.getPitchView().updateLocalPitch((float) pitch);
         }
 
@@ -422,14 +422,14 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> implement
         mBinding.lrcControlView.setPitchViewOnActionListener(new PitchView.OnSingScoreListener() {
             @Override
             public void onOriginalPitch(float pitch, int totalCount) {
-//                KTVUtil.logD("pitch: " + pitch + ", totalCount: " + totalCount);
+                KTVUtil.logD("onOriginalPitch: " + pitch + ", totalCount: " + totalCount);
 //                mBinding.lrcControlView.getPitchView().updateLocalPitch((float) pitch);
             }
 
             @Override
             public void onScore(double score, double cumulativeScore, double totalScore) {
                 mBinding.lrcControlView.updateScore(cumulativeScore);
-//                KTVUtil.logD("score: " + score + ", cScore: " + cumulativeScore + ", tScore: " + totalScore);
+                KTVUtil.logD("score: " + score + ", cScore: " + cumulativeScore + ", tScore: " + totalScore);
             }
         });
     }
