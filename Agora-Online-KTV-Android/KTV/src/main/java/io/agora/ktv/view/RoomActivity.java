@@ -145,7 +145,7 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> implement
 
         @Override
         public void onMusicPositionChanged(long position) {
-            KTVUtil.logD("onMusicPositionChanged: " + position);
+//            KTVUtil.logD("onMusicPositionChanged: " + position);
             mBinding.lrcControlView.getLrcView().updateTime(position);
             mBinding.lrcControlView.getPitchView().updateTime(position);
         }

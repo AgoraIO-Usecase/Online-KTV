@@ -42,7 +42,7 @@ public class PitchView extends View {
 
     private static final boolean DEBUG = false;
 
-    private static final int START_PERCENT = 40;
+    private static final float START_PERCENT = 0.4F;
 
     private static volatile LrcData lrcData;
     private Handler mHandler;
@@ -158,7 +158,7 @@ public class PitchView extends View {
         if (changed) {
             int w = right - left;
             int h = bottom - top;
-            dotPointX = w * START_PERCENT / 100F;
+            dotPointX = w * START_PERCENT;
 
             int startColor = getResources().getColor(R.color.pitch_start);
             int endColor = getResources().getColor(R.color.pitch_end);
@@ -253,12 +253,13 @@ public class PitchView extends View {
         float realPitchMin = pitchMin - 5;
 
         List<LrcEntryData> entrys = lrcData.entrys;
-        float pitchStickStartPoint = getWidth();
 
         float y;
         float widthOfPitchStick;
-        float mItemHeight = getHeight() / (realPitchMax - realPitchMin); // 高度
-        long preEntryEndTime = 0;
+        float mItemHeightPerPitchLevel = getHeight() / (realPitchMax - realPitchMin); // 高度
+
+        long preEntryEndTime = 0; // Not used so far
+
         for (int i = 0; i < entrys.size(); i++) {
             LrcEntryData entry = lrcData.entrys.get(i);
             List<LrcEntryData.Tone> tones = entry.tones;
@@ -271,52 +272,42 @@ public class PitchView extends View {
 
             if (this.mCurrentTime - startTime <= -(2 * durationOfCurrentEntry)) { // If still to early for current entry, we do not draw the sticks
                 // If we show the sticks too late, they will appear suddenly in the central of screen, not start from the right side
-                if (DEBUG) {
-                    Log.d("hai_guo", "break " + this.mCurrentTime + " < " + startTime + ", duration = " + durationOfCurrentEntry + ", end " + entry.getEndTime() + ", start " + entry.getStartTime());
-                }
                 break;
             }
 
-            float movedPX = (this.mCurrentTime - startTime) * movedPixelsPerMs; // For every time, we need to locate the new coordinate
-            float x = pitchStickStartPoint - movedPX - (pitchStickStartPoint - dotPointX);
+            float pixelsAwayFromPilot = (startTime - this.mCurrentTime) * movedPixelsPerMs; // For every time, we need to locate the new coordinate
+            float x = dotPointX + pixelsAwayFromPilot;
 
-            if (preEntryEndTime != 0) {
-                float emptyDividerWidth = movedPixelsPerMs * (startTime - preEntryEndTime);
+            if (preEntryEndTime != 0) { // If has empty divider before
+                // Not used so far
+                int emptyDividerWidth = (int) (movedPixelsPerMs * (startTime - preEntryEndTime));
                 x = x + emptyDividerWidth;
             }
 
             preEntryEndTime = entry.getEndTime();
 
-            if (x >= getWidth() || x + durationOfCurrentEntry * movedPixelsPerMs < 0) {
-                if (DEBUG) {
-                    Log.d("hai_guo", "x " + x + " pitchStickStartPoint = " + pitchStickStartPoint + " startTime = " + startTime + " this.mCurrentTime = " + this.mCurrentTime + ", movedPX = " + movedPX + ", dotPointX = " + dotPointX);
-                    Log.d("hai_guo", "break x " + x + " >= " + getWidth() + " startTime = " + startTime + " this.mCurrentTime = " + this.mCurrentTime + ", movedPX = " + movedPX);
-                }
+            if (x + 2 * durationOfCurrentEntry * movedPixelsPerMs < 0) { // Already past for long time enough
                 continue;
             }
 
             for (LrcEntryData.Tone tone : tones) {
+                pixelsAwayFromPilot = (tone.begin - this.mCurrentTime) * movedPixelsPerMs; // For every time, we need to locate the new coordinate
+                x = dotPointX + pixelsAwayFromPilot;
                 widthOfPitchStick = movedPixelsPerMs * tone.getDuration();
                 float endX = x + widthOfPitchStick;
+
                 if (endX <= 0) {
-                    if (DEBUG) {
-                        Log.d("hai_guo", "break tone endX " + endX + " x " + x + ", widthOfPitchStick = " + widthOfPitchStick);
-                    }
-                    x = endX;
                     continue;
                 }
 
                 if (x >= getWidth()) {
-                    if (DEBUG) {
-                        Log.d("hai_guo", "break tone x" + x + " >= " + getWidth());
-                    }
                     break;
                 }
 
-                y = (realPitchMax - tone.pitch) * mItemHeight;
+                y = (realPitchMax - tone.pitch) * mItemHeightPerPitchLevel;
 
                 tone.highlight = mInHighlightStatus; // Mark this as highlight forever
-                if (tone.highlight) {
+                if (!DEBUG && tone.highlight) { // If DEBUG enabled, will not show highlight animation
                     if (x >= dotPointX) {
                         RectF rNormal = new RectF(x, y, endX, y + pitchStickHeight);
                         canvas.drawRoundRect(rNormal, 8, 8, mPitchStickLinearGradientPaint);
@@ -333,13 +324,12 @@ public class PitchView extends View {
                     RectF rNormal = new RectF(x, y, endX, y + pitchStickHeight);
                     canvas.drawRoundRect(rNormal, 8, 8, mPitchStickLinearGradientPaint);
                     if (DEBUG) {
-                        Log.d("hai_guo pitch rNormal", rNormal.toString() + ", widthTone: " + getWidth() / 2 + ", (end-x)=" + (rNormal.right - rNormal.left) + " " + tone.word + " " + tone.pitch + " " + tone.begin + " " + tone.end);
-                        mHighlightPitchStickLinearGradientPaint.setTextSize(36);
+                        mHighlightPitchStickLinearGradientPaint.setTextSize(28);
                         canvas.drawText(tone.word, x, 30, mHighlightPitchStickLinearGradientPaint);
+                        canvas.drawText((int) (x) + "", x, 60, mHighlightPitchStickLinearGradientPaint);
+                        canvas.drawText((int) (endX) + "", x, 90, mHighlightPitchStickLinearGradientPaint);
                     }
                 }
-
-                x = endX;
             }
         }
     }
