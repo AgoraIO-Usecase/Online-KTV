@@ -590,6 +590,7 @@ public class PitchView extends View {
                                 tempScore = null; // Ignore it when not enough continuous zeros
                             } else {
                                 continuousZeroCount = 0; // re-count it when reach 8 continuous zeros
+                                assureAnimationForPitchPivot(0); // Force stop the animation when reach 8 continuous zeros
                                 ObjectAnimator.ofFloat(PitchView.this, "mLocalPitch", PitchView.this.mLocalPitch, PitchView.this.mLocalPitch * 1 / 3, 0.0f).setDuration(200).start(); // Decrease the local pitch pivot
                             }
                         } else {
@@ -612,6 +613,11 @@ public class PitchView extends View {
                 cumulatedScore += scoreThisTime;
                 // 回调到上层
                 dispatchScore(scoreThisTime);
+
+                if (scoreThisTime == 0 && this.mLocalPitch != 0) {
+                    assureAnimationForPitchPivot(0); // Force stop the animation when there is no new score for a long time(a full sentence)
+                    ObjectAnimator.ofFloat(PitchView.this, "mLocalPitch", 0.0f).setDuration(10).start(); // Decrease the local pitch pivot
+                }
             }
         }
     }
