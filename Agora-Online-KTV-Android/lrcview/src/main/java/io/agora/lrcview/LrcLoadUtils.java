@@ -39,7 +39,7 @@ public class LrcLoadUtils {
                 inputreader = new InputStreamReader(instream);
                 buffreader = new BufferedReader(inputreader);
                 String line = buffreader.readLine();
-                if (line.contains("xml")) {
+                if (line.contains("xml") || line.contains("<song>")) {
                     type = LrcData.Type.Migu;
                 } else {
                     type = LrcData.Type.Default;
