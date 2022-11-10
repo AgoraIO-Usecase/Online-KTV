@@ -1,6 +1,4 @@
 rootProject.name = "AgoraKTV"
-include ':lrcview'
-include ':LeonidsLib'
 include ':data'
 include ':baselibrary'
 include ':KTV'

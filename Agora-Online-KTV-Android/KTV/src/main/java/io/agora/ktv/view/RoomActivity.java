@@ -56,10 +56,10 @@ import io.agora.ktv.view.dialog.RoomMVDialog;
 import io.agora.ktv.view.dialog.UserSeatMenuDialog;
 import io.agora.ktv.widget.DividerDecoration;
 import io.agora.ktv.widget.LrcControlView;
-import io.agora.lrcview.LrcLoadUtils;
-import io.agora.lrcview.PitchView;
-import io.agora.lrcview.bean.LrcData;
-import io.agora.lrcview.bean.LrcEntryData;
+import io.agora.lyrics_view.LrcLoadUtils;
+import io.agora.lyrics_view.PitchView;
+import io.agora.lyrics_view.bean.LrcData;
+import io.agora.lyrics_view.bean.LrcEntryData;
 import io.agora.mediaplayer.IMediaPlayer;
 import io.agora.rtc2.ChannelMediaOptions;
 import io.agora.rtc2.Constants;
@@ -178,7 +178,7 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> implement
         public void onLocalPitch(double pitch) {
             super.onLocalPitch(pitch);
             KTVUtil.logD("onLocalPitch: " + System.currentTimeMillis() + " " + pitch);
-            mBinding.lrcControlView.getPitchView().updateLocalPitch((float) pitch);
+//            mBinding.lrcControlView.getPitchView().updateLocalPitch((float) pitch);
         }
 
         @Override
@@ -423,7 +423,7 @@ public class RoomActivity extends BaseActivity<KtvActivityRoomBinding> implement
             @Override
             public void onOriginalPitch(float pitch, int totalCount) {
                 KTVUtil.logD("onOriginalPitch: " + pitch + ", totalCount: " + totalCount);
-//                mBinding.lrcControlView.getPitchView().updateLocalPitch((float) pitch);
+                mBinding.lrcControlView.getPitchView().updateLocalPitch((float) pitch);
             }
 
             @Override

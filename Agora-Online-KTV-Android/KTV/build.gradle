@@ -26,7 +26,7 @@ android {
         multiDexEnabled true
 
 
-        ndk{
+        ndk {
             abiFilters "arm64-v8a"
         }
     }
@@ -49,37 +49,37 @@ android {
         viewBinding true
     }
 
-    flavorDimensions "test","abi"
+    flavorDimensions "test", "abi"
     productFlavors {
-        create("armeabi-v7a"){
+        create("armeabi-v7a") {
             dimension = "abi"
             ndk {
                 abiFilter "armeabi-v7a"
             }
         }
-        create("arm64-v8a"){
+        create("arm64-v8a") {
             dimension = "abi"
             ndk {
                 abiFilter "arm64-v8a"
             }
         }
-        create("x86"){
+        create("x86") {
             dimension = "abi"
             ndk {
                 abiFilter "x86"
             }
         }
-        create("x86_64"){
+        create("x86_64") {
             dimension = "abi"
             ndk {
                 abiFilter "x86_64"
             }
         }
-        create("ALL"){
+        create("ALL") {
             dimension = "abi"
         }
 
-        create("leancloud"){
+        create("leancloud") {
             dimension = "test"
         }
     }
@@ -96,11 +96,11 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    implementation 'io.agora.rtc:agora-special-full:4.0.0.9'
-    implementation 'androidx.palette:palette:1.0.0'
+    implementation 'io.agora.rtc:agora-special-full:4.0.1.2.1'
+    implementation 'com.github.AgoraIO-Community:LyricsView:1.0.10'
+
     api project(':baselibrary')
     api project(':data')
-    api project(':lrcview')
-    api project(':LeonidsLib')
-//    implementation 'com.github.AgoraIO-Community:LrcView-Android:1.0.5'
+
+    implementation 'androidx.palette:palette:1.0.0'
 }

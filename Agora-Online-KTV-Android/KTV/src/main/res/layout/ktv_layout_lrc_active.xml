@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <io.agora.lrcview.PitchView
+    <io.agora.lyrics_view.PitchView
         android:id="@+id/pitchView"
         android:layout_width="0dp"
         android:layout_height="80dp"
@@ -15,9 +15,10 @@
         app:layout_constraintTop_toTopOf="parent"
         app:pitchDoneTextColor="@color/ktv_lrc_highlight"
         app:pitchIndicatorColor="@color/pitch_indicator_color"
-        app:pitchInitialScore="30" />
+        app:pitchInitialScore="30"
+        app:pitchStickHeight="8dp" />
 
-    <io.agora.lrcview.LrcView
+    <io.agora.lyrics_view.LrcView
         android:id="@+id/lrcView"
         android:layout_width="match_parent"
         android:layout_height="0dp"

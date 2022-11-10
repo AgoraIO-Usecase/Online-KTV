@@ -26,8 +26,8 @@ import io.agora.ktv.databinding.KtvLayoutLrcPrepareBinding;
 import io.agora.ktv.databinding.KtvLayoutLrcControlViewBinding;
 import io.agora.ktv.R;
 import io.agora.ktv.bean.MemberMusicModel;
-import io.agora.lrcview.LrcView;
-import io.agora.lrcview.PitchView;
+import io.agora.lyrics_view.LrcView;
+import io.agora.lyrics_view.PitchView;
 
 /**
  * 歌词控制 View
@@ -102,8 +102,8 @@ public class LrcControlView extends FrameLayout implements View.OnClickListener 
         mBinding.ilActive.lrcView.setSeekListener(this.mOnLrcActionListener);
     }
 
-    public void setPitchViewOnActionListener(PitchView.OnSingScoreListener onActionListener) {
-        mBinding.ilActive.pitchView.onActionListener = onActionListener;
+    public void setPitchViewOnActionListener(PitchView.OnSingScoreListener onSingScoreListener) {
+        mBinding.ilActive.pitchView.setSingScoreListener(onSingScoreListener);
     }
 
     private CountDownTimer mCountDownLatch;
