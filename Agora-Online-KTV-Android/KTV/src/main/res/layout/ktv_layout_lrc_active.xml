@@ -16,6 +16,7 @@
         app:pitchDoneTextColor="@color/ktv_lrc_highlight"
         app:pitchIndicatorColor="@color/pitch_indicator_color"
         app:pitchInitialScore="30"
+        app:minimumScore="20"
         app:pitchStickHeight="8dp" />
 
     <io.agora.lyrics_view.LrcView

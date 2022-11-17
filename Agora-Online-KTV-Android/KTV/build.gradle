@@ -97,7 +97,12 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     implementation 'io.agora.rtc:agora-special-full:4.0.1.2'
-    implementation 'com.github.AgoraIO-Community:LyricsView:1.0.11'
+
+    if (!LOCAL_LYRICS_VIEW.isEmpty()) {
+        implementation project(':lyrics-view')
+    } else {
+        implementation 'com.github.AgoraIO-Community:LyricsView:1.0.12'
+    }
 
     api project(':baselibrary')
     api project(':data')

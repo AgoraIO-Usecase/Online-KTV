@@ -2,3 +2,8 @@ rootProject.name = "AgoraKTV"
 include ':data'
 include ':baselibrary'
 include ':KTV'
+
+if (!LOCAL_LYRICS_VIEW.isEmpty()) {
+    include 'lyrics-view'
+    project(':lyrics-view').projectDir = file(LOCAL_LYRICS_VIEW)
+}
