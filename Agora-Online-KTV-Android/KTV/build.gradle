@@ -101,7 +101,7 @@ dependencies {
     if (!LOCAL_LYRICS_VIEW.isEmpty()) {
         implementation project(':lyrics-view')
     } else {
-        implementation 'com.github.AgoraIO-Community:LyricsView:1.0.12'
+        implementation 'com.github.AgoraIO-Community:LyricsView:1.0.13'
     }
 
     api project(':baselibrary')
