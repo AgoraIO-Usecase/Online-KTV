@@ -70,9 +70,9 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
     //Arogra SDK
-    implementation 'io.agora.rtc:full-sdk:3.5.1'
+    implementation 'com.github.agorabuilder:full-sdk:3.5.0.204.2'
 
-    implementation 'jp.wasabeef:glide-transformations:4.0.0'
+    implementation 'com.github.open-android:Glide-transformations:0.1.0'
     implementation 'com.google.code.gson:gson:2.8.7'
     implementation 'androidx.palette:palette:1.0.0'
     api project(':data')

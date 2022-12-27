@@ -317,7 +317,7 @@ public class RoomActivity extends DataBindBaseActivity<KtvActivityRoomBinding> i
         Glide.with(this)
                 .asDrawable()
                 .load(mRoom.getCoverRes())
-                .apply(RequestOptions.bitmapTransform(new BlurTransformation(25, 3)))
+                .apply(RequestOptions.bitmapTransform(new BlurTransformation(this, 25, 3)))
                 .into(new CustomTarget<Drawable>() {
                     @Override
                     public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {

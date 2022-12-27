@@ -35,6 +35,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import io.agora.ktv.bean.MemberMusicModel;
+import io.agora.mediaplayer.IMediaPlayer;
+import io.agora.mediaplayer.IMediaPlayerObserver;
 import io.agora.rtc.Constants;
 import io.agora.rtc.IRtcEngineEventHandler;
 import io.agora.rtc.RtcEngine;
@@ -154,12 +156,6 @@ public final class RoomManager {
         config.mContext = mContext;
         config.mAppId = appid;
         config.mEventHandler = mIRtcEngineEventHandler;
-//        config.mChannelProfile = Constants.CHANNEL_PROFILE_LIVE_BROADCASTING;
-//        if (Config.isLeanCloud()) {
-//            config.mAreaCode = RtcEngineConfig.AreaCode.AREA_CODE_CN;
-//        } else {
-//            config.mAreaCode = RtcEngineConfig.AreaCode.AREA_CODE_GLOB;
-//        }
 
         try {
             mRtcEngine = RtcEngine.create(config);

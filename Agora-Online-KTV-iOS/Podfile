@@ -1,6 +1,6 @@
 # Uncomment the next line to define a global platform for your project
 platform :ios, '13.0'
-source 'https://github.com/CocoaPods/Specs.git'
+# source 'https://github.com/CocoaPods/Specs.git'
 
 def commonPods
   use_frameworks!
@@ -20,7 +20,7 @@ end
 target 'app' do
   commonPods
   use_frameworks!
-  pod 'AgoraRtcEngine_iOS', '3.5.1'
+  pod 'AgoraRtcEngine_Special_iOS', '3.5.0.204'
   pod 'Zip', '~> 2.1'
 end
 

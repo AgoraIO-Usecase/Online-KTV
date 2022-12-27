@@ -51,7 +51,7 @@ import Zip
 //    static func parseLyric(music: LocalMusic) -> [LyricModel] {
 //        return LyricParser.parseLyric(filePath: music.lrcPath)
 //    }
-   // public init() {}
+    // public init() {}
 
     @objc public static func parseLyric(music: LocalMusic) -> [LrcSentence] {
         Logger.log(self, message: "parseLyric \(music.lrcPath)", level: .info)
